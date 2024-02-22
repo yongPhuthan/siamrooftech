@@ -28,13 +28,15 @@ function HeroSection({ keyword }: Props) {
 
           <div className="order-1  lg:order-2 lg:mt-0 lg:col-span-6 ml-5 sm:ml-4 lg:flex">
             <div className="relative w-full h-40 pb-[56.25%] lg:pb-[20] lg:h-full">
-              <Image
-                src="https://pub-99f8d7bf688c4c79afcc2d91f37141f2.r2.dev/siamrooftech/original/54217"
-                alt=""
-                layout="fill"
-                objectFit="cover" // Adjust `objectFit` as necessary to match your design needs
-                className="z-10"
-              />
+            <Image
+  src="https://pub-99f8d7bf688c4c79afcc2d91f37141f2.r2.dev/siamrooftech/original/54217"
+  alt=""
+  layout="fill"
+  objectFit="cover"
+  className="z-10"
+  priority 
+/>
+
             </div>
           </div>
         </div>

@@ -53,6 +53,8 @@ const ImageGalleryModal = (props: ImageGalleryModalProps) => {
             <form method="dialog">
               <button
                 className="btn btn-md btn-outline"
+                aria-label="Close"
+
                 onClick={handleModalClose}
               >
                 <svg

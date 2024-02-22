@@ -11,8 +11,6 @@ import HowItWorks from './section/HowItWorks';
 import EndSection from './section/EndSection';
 import Footer from './ui/Footer';
 
-
-
 export default  function Main() {
 
 

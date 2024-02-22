@@ -1,6 +1,7 @@
 import localFont from 'next/font/local';
 import Script from 'next/script';
 import './globals.css';
+import { Suspense } from 'react'
 
 const myFont = localFont({
   src: [
@@ -57,7 +58,6 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  console.log('GA4_TRACKING_ID', process.env.GA4_TRACKING_ID);
   return (
     <html lang="th" className={myFont.className}>
       <head>
@@ -128,7 +128,8 @@ gtag('config', 'G-FQJ3EZXFW9');
             style={{ display: 'none', visibility: 'hidden' }}
           ></iframe>
         </noscript>
-        {children}
+       <Suspense>
+       {children}</Suspense> 
       </body>
     </html>
   );

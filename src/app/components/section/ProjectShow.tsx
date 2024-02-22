@@ -221,7 +221,9 @@ const ProjectShow = (props:any) => {
                   className="relative max-h-[90vh] w-auto"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <img
+                  <Image
+                  width={500}
+                  height={500}
                     alt="caption"
                     className="max-h-[90vh] w-auto"
                     src={selectedImage || ''}

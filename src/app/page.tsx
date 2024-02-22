@@ -27,11 +27,9 @@ export default async function Home() {
 
 
   return (
-    <Suspense>
-      <div className="bg-white ">
+    <div className="bg-white ">
         <Main />
        {/* <Main projects={projectsByTag} /> */}
       </div>
-    </Suspense>
   );
 }
