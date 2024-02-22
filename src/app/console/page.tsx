@@ -22,17 +22,7 @@ export default function ProjectCreatePage() {
     };
 
     try {
-      const project = await db.project.create({
-        data: {
-          tags: tagsArray,
-          images: {
-            create: imagesData,
-          },
-          description: {
-            create: descriptionData,
-          },
-        },
-      });
+
 
       redirect('/projects');
     } catch (error) {
