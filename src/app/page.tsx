@@ -1,9 +1,3 @@
-import Image from 'next/image';
-import { db } from '@/db';
-import { useSearchParams } from 'next/navigation';
-import HeroSection from './components/section/HeroSection';
-import TrustedBy from './components/section/TrustedBy';
-import ProductType from './components/section/ProductType';
 import Main from './components/Main';
 
 export default async function Home() {
