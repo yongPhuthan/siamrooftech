@@ -26,6 +26,7 @@ const myFont = localFont({
 
 export const metadata = {
   title: 'กันสาดพับเก็บได้ กันสาดอัตโนมัติ กันสาดผ้าใบ | by Siamrooftech',
+  
   description:
     'บริการติดตั้งกันสาดพับเก็บได้ ระบบมือหมุนและระบบมอเตอร์ไฟฟ้าคุณภาพสูงจาก Siamrooftech. ด้วยประสบการณ์และเทคนิคการติดตั้งระบบมือหมุนและมอเตอร์ไฟฟ้ากับโครงสร้างหน้างานต่างๆ ทำให้แน่ใจว่าคุณได้รับการปกป้องที่ดีที่สุดสำหรับบ้านของคุณ.',
   openGraph: {
@@ -49,9 +50,12 @@ export const metadata = {
     ],
     locale: 'th_TH',
     type: 'website',
+    icons: {
+      icon: '/favicon.ico',
+
+    },
   },
 };
-<link rel="icon" href="/favicon.ico" sizes="any" />;
 
 export default function RootLayout({
   children,
@@ -129,7 +133,8 @@ gtag('config', 'G-FQJ3EZXFW9');
           ></iframe>
         </noscript>
        <Suspense>
-       {children}</Suspense> 
+       {children}
+       </Suspense> 
       </body>
     </html>
   );

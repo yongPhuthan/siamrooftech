@@ -120,7 +120,9 @@ const ProjectShow = (props:any) => {
                 >
                   {projects.map((project:any, index:number) => (
                     <SwiperSlide key={index}>
-                      <img
+                      <Image
+                      width={900}
+                      height={900}
                         alt={project.title}
                         className="max-h-[97vh] mx-auto z-50  "
                         src={project.originalSize}
