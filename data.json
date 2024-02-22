@@ -1,0 +1,19 @@
+[{
+  "id": "65d5d6e94716c3349f935679",
+  "address": "แขวงคลองถนน เขตสายไหม กรุงเทพมหานคร",
+  "type": "กันสาด 2 ระบบ มอเตอร์รีโมทและมือหมุนในชุดเดียวกัน",
+  "size": "กว้าง 530 cm * ยื่นออก 250 cm",
+  "material": "ผ้าใบอะคริลิคสเปนสีขาว",
+  "tagNumber": [101],
+  "images": [{
+    "id": "65d70869de80c4ed46daaa0c",
+    "projectId": "65d5d6e94716c3349f935679",
+    "smallSize": "https://pub-99f8d7bf688c4c79afcc2d91f37141f2.r2.dev/siamrooftech/small/46570",
+    "originalSize": "https://pub-99f8d7bf688c4c79afcc2d91f37141f2.r2.dev/siamrooftech/original/46570"
+  }, {
+    "id": "65d70869de80c4ed46daaa0d",
+    "projectId": "65d5d6e94716c3349f935679",
+    "smallSize": "https://pub-99f8d7bf688c4c79afcc2d91f37141f2.r2.dev/siamrooftech/small/17042",
+    "originalSize": "https://pub-99f8d7bf688c4c79afcc2d91f37141f2.r2.dev/siamrooftech/original/17042"
+  }]
+}]
