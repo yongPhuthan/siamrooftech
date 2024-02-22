@@ -1,4 +1,5 @@
 import Main from './components/Main';
+import { Suspense } from 'react'
 
 export default async function Home() {
   // const tags = await db.tags.findMany({
@@ -26,11 +27,11 @@ export default async function Home() {
 
 
   return (
-    <>
+    <Suspense>
       <div className="bg-white ">
         <Main />
        {/* <Main projects={projectsByTag} /> */}
       </div>
-    </>
+    </Suspense>
   );
 }
