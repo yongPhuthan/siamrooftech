@@ -10,6 +10,7 @@ import ImageGalleryModal from './section/ImageGalleryModal';
 import HowItWorks from './section/HowItWorks';
 import EndSection from './section/EndSection';
 import Footer from './ui/Footer';
+import Image from 'next/image';
 
 export default  function Main() {
 
@@ -332,6 +333,32 @@ export default  function Main() {
       <ProductType  keyword={keyword}/>
       <WhyUs keyword={keyword} />
       </div>
+      <div className="flex items-center justify-center">
+  <a href="https://lin.ee/pPz1ZqN" target="_blank" className="inline-block">
+    <button
+      className="btn btn-link w-1000 mx-auto" // Use DaisyUI button class
+      onClick={() => {
+        window.dataLayer = window.dataLayer || [] as any;
+        window.dataLayer.push({
+          event: 'button_click',
+          event_category: 'Button',
+          event_action: 'Click',
+          event_label: 'สอบถามราคา',
+        });
+      }}
+    >
+      <Image 
+        alt='Add Line ขอใบเสนอราคา'
+        src='/images/Add Line.png'
+        width={1200}
+        height={200}
+        className="rounded-2xl" // Rounded corners for the image
+      />
+    </button>
+  </a>
+</div>
+
+
       <div className="bg-[#fafafaff] pt-5 ">
           {projects.map((project) => (
             <ProjectShow
@@ -349,9 +376,37 @@ export default  function Main() {
         handleClose={handleClose}
         cataloqImages={cataloqImages}
       />
+            <div className="flex items-center justify-center">
+  <a href="https://lin.ee/pPz1ZqN" target="_blank" className="inline-block">
+    <button
+      className="btn btn-link w-1000 mx-auto" // Use DaisyUI button class
+      onClick={() => {
+        window.dataLayer = window.dataLayer || [] as any;
+        window.dataLayer.push({
+          event: 'button_click',
+          event_category: 'Button',
+          event_action: 'Click',
+          event_label: 'สอบถามราคา',
+        });
+      }}
+    >
+      <Image 
+        alt='Add Line ขอใบเสนอราคา'
+        src='/images/Add Line.png'
+        width={1200}
+        height={200}
+        className="rounded-2xl" // Rounded corners for the image
+      />
+    </button>
+  </a>
+</div>
       <HowItWorks keyword={keyword} />
+
       <div className="bg-gradient-to-br pt-20 mx-auto  from-gray-100 to-gray-200">
-          <div className="flex items-center justify-center">
+      <h1 className="text-xl text-gray-500 mt-4 text-center font_page sm:text-2xl md:text-2xl font-bold leading-snug">
+             สยามรูฟเทค {keyword} ที่ลูกค้าไว้วางใจ
+            </h1>
+          {/* <div className="flex items-center justify-center">
             <a
               href="https://lin.ee/pPz1ZqN"
               target="_blank"
@@ -384,7 +439,7 @@ export default  function Main() {
                 รับใบเสนอราคาฟรี
               </button>
             </a>
-          </div>
+          </div> */}
 <EndSection />
 <Footer />
         </div>

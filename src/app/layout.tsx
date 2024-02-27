@@ -114,23 +114,10 @@ export default function RootLayout({
 
         {/* End Google Tag Manager */}
 
-        <Script id="gtag-init" strategy="afterInteractive">
-          {`
-window.dataLayer = window.dataLayer || [];
-function gtag(){window.dataLayer.push(arguments);}
-gtag('js', new Date());
-gtag('config', 'G-FQJ3EZXFW9');
-`}
-        </Script>
       </head>
       <body className={`bg-white`}>
         <noscript>
-          <iframe
-            src="https://www.googletagmanager.com/ns.html?id=GTM-M2SNHNR5"
-            height="0"
-            width="0"
-            style={{ display: 'none', visibility: 'hidden' }}
-          ></iframe>
+         
         </noscript>
        <Suspense>
        {children}
