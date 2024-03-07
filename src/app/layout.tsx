@@ -51,7 +51,7 @@ export const metadata = {
     locale: 'th_TH',
     type: 'website',
     icons: {
-      icon: '/favicon.ico',
+      icon: '/icon.ico',
     },
   },
 };
