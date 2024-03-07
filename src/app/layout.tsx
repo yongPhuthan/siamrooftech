@@ -2,6 +2,7 @@ import localFont from 'next/font/local';
 import Script from 'next/script';
 import './globals.css';
 import { Providers } from './providers';
+import { Suspense } from 'react';
 const myFont = localFont({
   src: [
     {
@@ -114,7 +115,11 @@ export default function RootLayout({
       </head>
       <body className={`bg-white`}>
         <noscript></noscript>
-        <Providers>{children}</Providers>
+        <Providers>
+          <Suspense>
+          {children}
+          </Suspense>
+          </Providers>
       </body>
     </html>
   );
