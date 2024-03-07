@@ -27,11 +27,19 @@
 }
 @font-face {
   font-family: 'Sukhumvit Set';
-  src: url('/fonts/SukhumvitSet-Medium.ttf') format('truetype');
+  src: url('/fonts/SukhumvitSet-Bold') format('truetype');
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
+@font-face {
+  font-family: 'Sukhumvit Bold';
+  src: url('/fonts/SukhumvitSet-Medium.ttf') format('truetype');
+  font-weight: bold;
+  font-style: bold;
+  font-display: swap;
+}
+
 
 @font-face {
   font-family: 'Sarabun-Medium';

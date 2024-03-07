@@ -11,6 +11,8 @@ import HowItWorks from './section/HowItWorks';
 import EndSection from './section/EndSection';
 import Footer from './ui/Footer';
 import Image from 'next/image';
+import Whyus2 from './section/WhyUs2';
+import { Stack } from '@mui/material';
 
 export default  function Main() {
 
@@ -376,7 +378,45 @@ export default  function Main() {
         handleClose={handleClose}
         cataloqImages={cataloqImages}
       />
-            <div className="flex items-center justify-center">
+      <Whyus2 
+      keyword={keyword}
+      />
+      <Stack 
+      direction={'column'}
+      justifyContent={'center'}
+      alignItems={'center'} // This will center the children horizontally
+      gap={2}
+      sx={{ width: '100%' }} // Make sure the Stack takes full width
+      >
+        <Image 
+       src={'/images/IMG_5328.jpg'}
+       onClick={(e) => {
+        e.preventDefault(); // Prevent the default anchor action
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push({
+          event: 'button_click',
+          event_category: 'Button',
+          event_action: 'Click',
+          event_label: 'ประเมินราคาฟรี',
+        });
+
+        // Open the URL in a new tab
+        window.open(
+          'https://lin.ee/pPz1ZqN',
+          '_blank',
+          'noopener,noreferrer'
+        );
+      }}
+        width={500}
+        height={500}
+        style={{alignContent:'center'}}
+        alt="กันสาดพับเก็บได้"
+      />
+    
+
+      <HowItWorks keyword={keyword} />
+
+      <div className="flex items-center justify-center">
   <a href="https://lin.ee/pPz1ZqN" target="_blank" className="inline-block">
     <button
       className="btn btn-link w-1000 mx-auto" // Use DaisyUI button class
@@ -400,10 +440,9 @@ export default  function Main() {
     </button>
   </a>
 </div>
-      <HowItWorks keyword={keyword} />
-
+</Stack>
       <div className="bg-gradient-to-br pt-20 mx-auto  from-gray-100 to-gray-200">
-      <h1 className="text-xl text-gray-500 mt-4 text-center font_page sm:text-2xl md:text-2xl font-bold leading-snug">
+      <h1 className="text-md text-gray-500 mt-4 text-center font_page sm:text-2xl md:text-2xl font-bold leading-snug">
              สยามรูฟเทค {keyword} ที่ลูกค้าไว้วางใจ
             </h1>
           {/* <div className="flex items-center justify-center">

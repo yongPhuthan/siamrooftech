@@ -1,8 +1,7 @@
 import localFont from 'next/font/local';
 import Script from 'next/script';
 import './globals.css';
-import { Suspense } from 'react'
-
+import { Providers } from './providers';
 const myFont = localFont({
   src: [
     {
@@ -26,7 +25,7 @@ const myFont = localFont({
 
 export const metadata = {
   title: 'กันสาดพับเก็บได้ กันสาดอัตโนมัติ กันสาดผ้าใบ | by Siamrooftech',
-  
+
   description:
     'บริการติดตั้งกันสาดพับเก็บได้ ระบบมือหมุนและระบบมอเตอร์ไฟฟ้าคุณภาพสูงจาก Siamrooftech. ด้วยประสบการณ์และเทคนิคการติดตั้งระบบมือหมุนและมอเตอร์ไฟฟ้ากับโครงสร้างหน้างานต่างๆ ทำให้แน่ใจว่าคุณได้รับการปกป้องที่ดีที่สุดสำหรับบ้านของคุณ.',
   openGraph: {
@@ -52,7 +51,6 @@ export const metadata = {
     type: 'website',
     icons: {
       icon: '/favicon.ico',
-
     },
   },
 };
@@ -113,15 +111,10 @@ export default function RootLayout({
         </Script>
 
         {/* End Google Tag Manager */}
-
       </head>
       <body className={`bg-white`}>
-        <noscript>
-         
-        </noscript>
-       <Suspense>
-       {children}
-       </Suspense> 
+        <noscript></noscript>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );
