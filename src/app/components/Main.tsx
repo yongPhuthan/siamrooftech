@@ -389,7 +389,7 @@ export default  function Main() {
       sx={{ width: '100%' }} // Make sure the Stack takes full width
       >
         <Image 
-       src={'/images/IMG_5328.jpg'}
+       src={'https://pub-99f8d7bf688c4c79afcc2d91f37141f2.r2.dev/IMG_5328.JPG'}
        onClick={(e) => {
         e.preventDefault(); // Prevent the default anchor action
         window.dataLayer = window.dataLayer || [];
