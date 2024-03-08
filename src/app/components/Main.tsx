@@ -388,10 +388,14 @@ export default  function Main() {
       gap={2}
       sx={{ width: '100%' }} // Make sure the Stack takes full width
       >
+               <a
+                  href="https://lin.ee/pPz1ZqN"
+                  target="_blank"
+                  className="inline-block"
+                ></a>
         <Image 
        src={'https://pub-99f8d7bf688c4c79afcc2d91f37141f2.r2.dev/IMG_5328.JPG'}
        onClick={(e) => {
-        e.preventDefault(); // Prevent the default anchor action
         window.dataLayer = window.dataLayer || [];
         window.dataLayer.push({
           event: 'button_click',

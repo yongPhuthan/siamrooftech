@@ -82,7 +82,7 @@ const WhyUs2 = (props: Props) => {
                   sx={{ width: '300px' }}
                   size="large"
                   onClick={(e) => {
-                    e.preventDefault(); // Prevent the default anchor action
+                     // Prevent the default anchor action
                     window.dataLayer = window.dataLayer || [];
                     window.dataLayer.push({
                       event: 'button_click',
@@ -158,7 +158,7 @@ const WhyUs2 = (props: Props) => {
                   size="large"
                   sx={{ width: '300px' }}
                   onClick={(e) => {
-                    e.preventDefault(); // Prevent the default anchor action
+                     // Prevent the default anchor action
                     window.dataLayer = window.dataLayer || [];
                     window.dataLayer.push({
                       event: 'button_click',
@@ -227,7 +227,7 @@ const WhyUs2 = (props: Props) => {
                   sx={{ width: '300px' }}
                   size="large"
                   onClick={(e) => {
-                    e.preventDefault(); // Prevent the default anchor action
+                     // Prevent the default anchor action
                     window.dataLayer = window.dataLayer || [];
                     window.dataLayer.push({
                       event: 'button_click',
@@ -311,7 +311,7 @@ const WhyUs2 = (props: Props) => {
                   variant="outlined"
                   size="large"
                   onClick={(e) => {
-                    e.preventDefault(); // Prevent the default anchor action
+                     // Prevent the default anchor action
                     window.dataLayer = window.dataLayer || [];
                     window.dataLayer.push({
                       event: 'button_click',
@@ -370,7 +370,6 @@ const WhyUs2 = (props: Props) => {
                   variant="outlined"
                   size="large"
                   onClick={(e) => {
-                    e.preventDefault(); // Prevent the default anchor action
                     window.dataLayer = window.dataLayer || [];
                     window.dataLayer.push({
                       event: 'button_click',
@@ -426,11 +425,12 @@ const WhyUs2 = (props: Props) => {
                 </p>
               </CardContent>
               <CardActions>
+                
                 <Button
                   variant="outlined"
                   size="large"
                   onClick={(e) => {
-                    e.preventDefault(); // Prevent the default anchor action
+                     // Prevent the default anchor action
                     window.dataLayer = window.dataLayer || [];
                     window.dataLayer.push({
                       event: 'button_click',
@@ -438,8 +438,6 @@ const WhyUs2 = (props: Props) => {
                       event_action: 'Click',
                       event_label: 'ประเมินราคาฟรี',
                     });
-
-                    // Open the URL in a new tab
                     window.open(
                       'https://lin.ee/pPz1ZqN',
                       '_blank',

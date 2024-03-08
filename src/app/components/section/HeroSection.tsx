@@ -8,13 +8,17 @@ type Props = {
 function HeroSection({ keyword }: Props) {
   return (
     <>
-      <div
-        className="absolute w-full h-full bg-cover bg-center opacity-[0.1]"
-        style={{
-          backgroundImage:
-            'url(https://pub-99f8d7bf688c4c79afcc2d91f37141f2.r2.dev/siamrooftech/medium/27336)',
-        }}
-      ></div>
+ <div className="relative w-full h-full">
+      <Image
+        src="https://pub-99f8d7bf688c4c79afcc2d91f37141f2.r2.dev/siamrooftech/medium/27336"
+        layout="fill"
+        objectFit="cover"
+        objectPosition="center"
+        className="opacity-10"
+        alt="Background"
+      />
+      {/* เนื้อหาอื่นๆ ที่คุณต้องการให้อยู่เหนือภาพ background  */}
+    </div>
       <section className="bg-white ">
         <div className="grid md:pb-8 mx-auto lg:grid-cols-12">
           <div className="z-10 place-self-center order-2 lg:order-1 lg:col-span-6 text-center py-5 sm:py-12  md:py-6">
