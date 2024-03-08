@@ -388,34 +388,29 @@ export default  function Main() {
       gap={2}
       sx={{ width: '100%' }} // Make sure the Stack takes full width
       >
-               <a
-                  href="https://lin.ee/pPz1ZqN"
-                  target="_blank"
-                  className="inline-block"
-                ></a>
-        <Image 
-       src={'https://pub-99f8d7bf688c4c79afcc2d91f37141f2.r2.dev/IMG_5328.JPG'}
-       onClick={(e) => {
-        window.dataLayer = window.dataLayer || [];
+          <a href="https://lin.ee/pPz1ZqN" target="_blank" className="inline-block">
+    <button
+      className="btn btn-link w-1000 mx-auto" // Use DaisyUI button class
+      onClick={() => {
+        window.dataLayer = window.dataLayer || [] as any;
         window.dataLayer.push({
           event: 'button_click',
           event_category: 'Button',
           event_action: 'Click',
-          event_label: 'ประเมินราคาฟรี',
+          event_label: 'สอบถามราคา',
         });
-
-        // Open the URL in a new tab
-        window.open(
-          'https://lin.ee/pPz1ZqN',
-          '_blank',
-          'noopener,noreferrer'
-        );
       }}
-        width={500}
-        height={500}
-        style={{alignContent:'center'}}
-        alt="กันสาดพับเก็บได้"
+    >
+      <Image 
+        alt='Add Line ขอใบเสนอราคา'
+        src={'https://pub-99f8d7bf688c4c79afcc2d91f37141f2.r2.dev/IMG_5328.JPG'}
+        width={600}
+        height={600}
+        className="rounded-md" // Rounded corners for the image
       />
+    </button>
+  </a>
+
     
 
       <HowItWorks keyword={keyword} />

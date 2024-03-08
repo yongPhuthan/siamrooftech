@@ -1,23 +1,19 @@
-import React from 'react';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import FoundationIcon from '@mui/icons-material/Foundation';
+import LayersIcon from '@mui/icons-material/Layers';
 import {
   Avatar,
-  Box,
   Button,
+  Card,
+  CardActions,
+  CardContent,
+  CardHeader,
+  CardMedia,
   Grid,
   Stack,
-  Card,
-  CardContent,
-  CardActions,
-  CardMedia,
   Typography,
   useMediaQuery,
-  CardHeader,
-  CardActionArea,
 } from '@mui/material';
-import FoundationIcon from '@mui/icons-material/Foundation';
-import FavoriteIcon from '@mui/icons-material/Favorite';
-import LayersIcon from '@mui/icons-material/Layers';
-import WorkspacePremiumIcon from '@mui/icons-material/WorkspacePremium';
 import Image from 'next/image';
 type Props = {
   keyword: string;
@@ -77,30 +73,26 @@ const WhyUs2 = (props: Props) => {
                   ทุกงานของเราคำนึงถึงความปลอดภัยในเคสการใช้งานกับพื้นผิวและวัสดุของพื้นที่หน้างานต่างๆ
                   ที่จำเป็นต้องออกแบบการติดตั้งให้เหมาะสมกับพื้นที่และการใช้งานของลูกค้าที่แตกต่างกัน
                 </Typography>
-                <Button
-                  variant="outlined"
-                  sx={{ width: '300px' }}
-                  size="large"
-                  onClick={(e) => {
-                     // Prevent the default anchor action
-                    window.dataLayer = window.dataLayer || [];
-                    window.dataLayer.push({
-                      event: 'button_click',
-                      event_category: 'Button',
-                      event_action: 'Click',
-                      event_label: 'ประเมินราคาฟรี',
-                    });
-
-                    // Open the URL in a new tab
-                    window.open(
-                      'https://lin.ee/pPz1ZqN',
-                      '_blank',
-                      'noopener,noreferrer'
-                    );
-                  }}
-                >
-                  ประเมินราคาฟรี
-                </Button>
+                <a
+                    href="https://lin.ee/pPz1ZqN"
+                    target="_blank"
+                    className="inline-block"
+                  >
+                    <button
+                      className="btn btn-outline btn-large w-[300px] btn-primary mx-auto" // Use DaisyUI button class
+                      onClick={() => {
+                        window.dataLayer = window.dataLayer || ([] as any);
+                        window.dataLayer.push({
+                          event: 'button_click',
+                          event_category: 'Button',
+                          event_action: 'Click',
+                          event_label: 'สอบถามราคา',
+                        });
+                      }}
+                    >
+                      ประเมินราคาฟรี
+                    </button>
+                  </a>
               </Stack>
             </Grid>
             <Grid item xs={3}>
@@ -153,30 +145,26 @@ const WhyUs2 = (props: Props) => {
                   {keyword}
                   จะต้องเข้ากันได้ดีกับโทนบานของลูกค้าเช่นกัน
                 </Typography>
-                <Button
-                  variant="outlined"
-                  size="large"
-                  sx={{ width: '300px' }}
-                  onClick={(e) => {
-                     // Prevent the default anchor action
-                    window.dataLayer = window.dataLayer || [];
-                    window.dataLayer.push({
-                      event: 'button_click',
-                      event_category: 'Button',
-                      event_action: 'Click',
-                      event_label: 'ประเมินราคาฟรี',
-                    });
-
-                    // Open the URL in a new tab
-                    window.open(
-                      'https://lin.ee/pPz1ZqN',
-                      '_blank',
-                      'noopener,noreferrer'
-                    );
-                  }}
-                >
-                  ประเมินราคาฟรี
-                </Button>
+                <a
+                    href="https://lin.ee/pPz1ZqN"
+                    target="_blank"
+                    className="inline-block"
+                  >
+                    <button
+                      className="btn btn-outline btn-large w-[300px] btn-primary mx-auto" // Use DaisyUI button class
+                      onClick={() => {
+                        window.dataLayer = window.dataLayer || ([] as any);
+                        window.dataLayer.push({
+                          event: 'button_click',
+                          event_category: 'Button',
+                          event_action: 'Click',
+                          event_label: 'สอบถามราคา',
+                        });
+                      }}
+                    >
+                      ประเมินราคาฟรี
+                    </button>
+                  </a>
               </Stack>
             </Grid>
             <Grid item xs={6}>
@@ -222,30 +210,26 @@ const WhyUs2 = (props: Props) => {
                   ดังนั้นถึงแม้หมดระยะประกันไปแล้วเราก็ยังเข้าไปดูแล
                   ปรับ-เปลี่ยนวัสดุอุปกรณ์โดยคิดค่าแรงค่าเดินทางและค่าวัสดุเพียงเล็กน้อยเท่านั้น
                 </Typography>
-                <Button
-                  variant="outlined"
-                  sx={{ width: '300px' }}
-                  size="large"
-                  onClick={(e) => {
-                     // Prevent the default anchor action
-                    window.dataLayer = window.dataLayer || [];
-                    window.dataLayer.push({
-                      event: 'button_click',
-                      event_category: 'Button',
-                      event_action: 'Click',
-                      event_label: 'ประเมินราคาฟรี',
-                    });
-
-                    // Open the URL in a new tab
-                    window.open(
-                      'https://lin.ee/pPz1ZqN',
-                      '_blank',
-                      'noopener,noreferrer'
-                    );
-                  }}
-                >
-                  ประเมินราคาฟรี
-                </Button>
+                <a
+                    href="https://lin.ee/pPz1ZqN"
+                    target="_blank"
+                    className="inline-block"
+                  >
+                    <button
+                      className="btn btn-outline btn-large w-[300px] btn-primary mx-auto" // Use DaisyUI button class
+                      onClick={() => {
+                        window.dataLayer = window.dataLayer || ([] as any);
+                        window.dataLayer.push({
+                          event: 'button_click',
+                          event_category: 'Button',
+                          event_action: 'Click',
+                          event_label: 'สอบถามราคา',
+                        });
+                      }}
+                    >
+                      ประเมินราคาฟรี
+                    </button>
+                  </a>
               </Stack>
             </Grid>
             <Grid item xs={6}>
@@ -263,14 +247,14 @@ const WhyUs2 = (props: Props) => {
       ) : (
         <>
           <Stack direction={'column'} gap={0}>
-          <div className="md:flex md:justify-center md:items-center mb-5 md:space-x-4 mt-5">
-          <h1 className="text-2xl text-[#427ed2ff] md:text-4xl font_page font-bold text-center">
-              ทำไม{keyword}
-            </h1>
-            <h1 className="text-2xl md:text-4xl font_page font-bold text-center ">
-            ต้องเลือกสยามรูฟเทค
-            </h1>
-          </div>
+            <div className="md:flex md:justify-center md:items-center mb-5 md:space-x-4 mt-5">
+              <h1 className="text-2xl text-[#427ed2ff] md:text-4xl font_page font-bold text-center">
+                ทำไม{keyword}
+              </h1>
+              <h1 className="text-2xl md:text-4xl font_page font-bold text-center ">
+                ต้องเลือกสยามรูฟเทค
+              </h1>
+            </div>
             <Card sx={{ m: 1 }} variant="outlined">
               <CardHeader
                 avatar={
@@ -280,8 +264,7 @@ const WhyUs2 = (props: Props) => {
                 }
                 title={
                   <Typography
-                  variant='h6'
-
+                    variant="h6"
                     fontStyle={'bold'}
                     fontWeight={800}
                     align="left"
@@ -298,7 +281,7 @@ const WhyUs2 = (props: Props) => {
                 sx={{ maxHeight: '260px' }}
               />
               <CardContent>
-              <p className="font-sans text-gray-500">
+                <p className="font-sans text-gray-500">
                   ทีมงานของเรามีประสบการณ์ติดตั้ง{keyword}มานาน
                   ทำให้เราเข้าใจถึงปัญหาและความเสี่ยงที่ลูกค้าอาจจะได้เจอจากการติดตั้ง
                   {keyword}ที่ไม่มีคุณภาพ ดังนั้นงานติดตั้ง{keyword}
@@ -307,29 +290,26 @@ const WhyUs2 = (props: Props) => {
                 </p>
               </CardContent>
               <CardActions>
-                <Button
-                  variant="outlined"
-                  size="large"
-                  onClick={(e) => {
-                     // Prevent the default anchor action
-                    window.dataLayer = window.dataLayer || [];
-                    window.dataLayer.push({
-                      event: 'button_click',
-                      event_category: 'Button',
-                      event_action: 'Click',
-                      event_label: 'ประเมินราคาฟรี',
-                    });
-
-                    // Open the URL in a new tab
-                    window.open(
-                      'https://lin.ee/pPz1ZqN',
-                      '_blank',
-                      'noopener,noreferrer'
-                    );
-                  }}
-                >
-                  ประเมินราคาฟรี
-                </Button>
+              <a
+                    href="https://lin.ee/pPz1ZqN"
+                    target="_blank"
+                    className="inline-block"
+                  >
+                    <button
+                      className="btn btn-outline btn-large  btn-primary mx-auto" // Use DaisyUI button class
+                      onClick={() => {
+                        window.dataLayer = window.dataLayer || ([] as any);
+                        window.dataLayer.push({
+                          event: 'button_click',
+                          event_category: 'Button',
+                          event_action: 'Click',
+                          event_label: 'สอบถามราคา',
+                        });
+                      }}
+                    >
+                      ประเมินราคาฟรี
+                    </button>
+                  </a>
               </CardActions>
             </Card>
             <Card sx={{ m: 1 }} variant="outlined">
@@ -340,12 +320,7 @@ const WhyUs2 = (props: Props) => {
                   </Avatar>
                 }
                 title={
-                  <Typography
-                
-                    variant='h6'
-                    fontStyle={'bold'}
-                    align="left"
-                  >
+                  <Typography variant="h6" fontStyle={'bold'} align="left">
                     การออกแบบที่เข้ากับหน้างาน
                   </Typography>
                 }
@@ -366,28 +341,28 @@ const WhyUs2 = (props: Props) => {
                 </p>
               </CardContent>
               <CardActions>
-                <Button
-                  variant="outlined"
-                  size="large"
-                  onClick={(e) => {
-                    window.dataLayer = window.dataLayer || [];
-                    window.dataLayer.push({
-                      event: 'button_click',
-                      event_category: 'Button',
-                      event_action: 'Click',
-                      event_label: 'ประเมินราคาฟรี',
-                    });
-
-                    // Open the URL in a new tab
-                    window.open(
-                      'https://lin.ee/pPz1ZqN',
-                      '_blank',
-                      'noopener,noreferrer'
-                    );
-                  }}
-                >
-                  ประเมินราคาฟรี
-                </Button>
+                <CardActions>
+                <a
+                    href="https://lin.ee/pPz1ZqN"
+                    target="_blank"
+                    className="inline-block"
+                  >
+                    <button
+                      className="btn btn-outline btn-large btn-primary mx-auto" // Use DaisyUI button class
+                      onClick={() => {
+                        window.dataLayer = window.dataLayer || ([] as any);
+                        window.dataLayer.push({
+                          event: 'button_click',
+                          event_category: 'Button',
+                          event_action: 'Click',
+                          event_label: 'สอบถามราคา',
+                        });
+                      }}
+                    >
+                      ประเมินราคาฟรี
+                    </button>
+                  </a>
+                </CardActions>
               </CardActions>
             </Card>
             <Card sx={{ m: 1 }} variant="outlined">
@@ -398,12 +373,7 @@ const WhyUs2 = (props: Props) => {
                   </Avatar>
                 }
                 title={
-                  <Typography
-                
-                    variant='h6'
-                    fontStyle={'bold'}
-                    align="left"
-                  >
+                  <Typography variant="h6" fontStyle={'bold'} align="left">
                     บริการหลังการขายทุกงานติดตั้ง
                   </Typography>
                 }
@@ -417,7 +387,7 @@ const WhyUs2 = (props: Props) => {
               />
               <CardContent>
                 <p className="font-sans text-gray-500">
-                ในกรณีที่เกิดปัญหาจากการใช้งานเรามีบริการหลังการขายที่พร้อมเข้าไปหน้างานโดยใช้เวลาประมาณ
+                  ในกรณีที่เกิดปัญหาจากการใช้งานเรามีบริการหลังการขายที่พร้อมเข้าไปหน้างานโดยใช้เวลาประมาณ
                   2-7 วันหลังรับเรื่องจากลูกค้า และเราเข้าใจว่า{keyword}
                   เป็นงานที่มีความเชี่ยวชาญและวัสดุอุปกรณ์เฉพาะทางที่ต้องมีประสบการณ์ในการติดตั้งดังนั้นในกรณีที่มีปัญหาเล็กๆน้อยๆหลังการใช้งานเป็นเรื่องยุ่งยากที่ลูกค้าจะต้องหาซื้อวัสดุอุปกรณ์มาแก้ไขเอง
                   ดังนั้นถึงแม้หมดระยะประกันไปแล้วเราก็ยังเข้าไปดูแล
@@ -425,28 +395,26 @@ const WhyUs2 = (props: Props) => {
                 </p>
               </CardContent>
               <CardActions>
-                
-                <Button
-                  variant="outlined"
-                  size="large"
-                  onClick={(e) => {
-                     // Prevent the default anchor action
-                    window.dataLayer = window.dataLayer || [];
-                    window.dataLayer.push({
-                      event: 'button_click',
-                      event_category: 'Button',
-                      event_action: 'Click',
-                      event_label: 'ประเมินราคาฟรี',
-                    });
-                    window.open(
-                      'https://lin.ee/pPz1ZqN',
-                      '_blank',
-                      'noopener,noreferrer'
-                    );
-                  }}
-                >
-                  ประเมินราคาฟรี
-                </Button>
+              <a
+                    href="https://lin.ee/pPz1ZqN"
+                    target="_blank"
+                    className="inline-block"
+                  >
+                    <button
+                      className="btn btn-outline btn-large btn-primary mx-auto" // Use DaisyUI button class
+                      onClick={() => {
+                        window.dataLayer = window.dataLayer || ([] as any);
+                        window.dataLayer.push({
+                          event: 'button_click',
+                          event_category: 'Button',
+                          event_action: 'Click',
+                          event_label: 'สอบถามราคา',
+                        });
+                      }}
+                    >
+                      ประเมินราคาฟรี
+                    </button>
+                  </a>
               </CardActions>
             </Card>
           </Stack>
