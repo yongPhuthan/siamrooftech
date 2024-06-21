@@ -28,7 +28,7 @@ const { keyword } = props;
     () => [
       {
         id: 1,
-        title: [`${keyword}`, 'อาคาร-สำนักงาน'],
+        title: [`${keyword} `, 'อาคาร-สำนักงาน'],
         description: [
           'สถานที่ : แขวงคลองถนน เขตสายไหม กรุงเทพมหานคร',
           'ประเภท : กันสาด 2 ระบบ มอเตอร์รีโมทและมือหมุนในชุดเดียวกัน',
@@ -38,7 +38,7 @@ const { keyword } = props;
         items: [
           {
             id: 1,
-            title: [`${keyword}`, 'อาคาร-สำนักงาน'],
+            title: [`${keyword} `, 'อาคาร-สำนักงาน'],
 
             description: 'This is the first project',
             smallSize:
@@ -86,7 +86,7 @@ const { keyword } = props;
       },
       {
         id: 2,
-        title: [`${keyword}`, 'ร้านคาเฟ่ & เบเกอรี่'],
+        title: [`${keyword} `, 'ร้านคาเฟ่ & เบเกอรี่'],
         description: [
           'สถานที่ :  อำเภอเมืองสมุทรปราการ จังหวัดสมุทรปราการ ',
           'ประเภท : กันสาดชนิดมือหมุน',
@@ -134,7 +134,7 @@ const { keyword } = props;
       },
       {
         id: 3,
-        title: [`${keyword}`, 'โรงแรม-รีสอร์ท'],
+        title: [`${keyword} `, 'โรงแรม-รีสอร์ท'],
 
         description: [
           'สถานที่ : Suvarnabhumi Airport Hotel เขตลาดกระบัง กรุงเทพมหานคร ',
@@ -174,7 +174,7 @@ const { keyword } = props;
       },
       {
         id: 4,
-        title: [`${keyword}`, 'ร้านเสริมสวย-สปา'],
+        title: [`${keyword} `, 'ร้านเสริมสวย-สปา'],
 
         description: [
           'สถานที่ :   ร้าน แจ็คคิ้วสวยบอกต่อ อำเภอเมืองนครปฐม จังหวัดนครปฐม  ',
@@ -223,7 +223,7 @@ const { keyword } = props;
       },
       {
         id: 5,
-        title: [`${keyword}`, 'บ้านเดี่ยว-ทาวน์โฮม'],
+        title: [`${keyword} `, 'บ้านเดี่ยว-ทาวน์โฮม'],
 
         description: [
           'สถานที่ :  เขต.ประเวศ กรุงเทพมหานคร  ',
@@ -263,7 +263,7 @@ const { keyword } = props;
       },
       {
         id: 6,
-        title: [`${keyword}`, 'คีออส-แฟรนไชส์'],
+        title: [`${keyword} `, 'คีออส-แฟรนไชส์'],
 
         description: [
           'สถานที่ : ร้าน Black Duck กรุงเทพมหานคร',

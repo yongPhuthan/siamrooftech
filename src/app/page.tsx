@@ -41,7 +41,7 @@ const keyword = props.searchParams.kw;
 
   return (
     <div className="bg-white ">
-        <Main  keyword={keyword}/>
+        <Main  keyword={keyword ?  keyword :'กันสาดพับได้'}/>
        {/* <Main projects={projectsByTag} /> */}
       </div>
   );
