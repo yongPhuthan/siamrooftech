@@ -1,5 +1,4 @@
 'use client';
-import { useSearchParams } from 'next/navigation';
 import { useMemo,useCallback,useState } from 'react';
 import HeroSection from './section/HeroSection';
 import ProductType from './section/ProductType';
@@ -13,12 +12,15 @@ import Footer from './ui/Footer';
 import Image from 'next/image';
 import Whyus2 from './section/WhyUs2';
 import { Stack } from '@mui/material';
+type Props = {
+  keyword: string;
 
-export default  function Main() {
+}
+const Main = (props:Props) =>{
 
-
-  const searchParams = useSearchParams();
-  const keyword = searchParams.get('kw') || 'กันสาดพับเก็บได้';
+const { keyword } = props;
+  // const searchParams = useSearchParams();
+  // const keyword = searchParams.get('kw') || 'กันสาดพับเก็บได้';
   const [cataloqImages, setCataloqImages] = useState([]);
   const [open, setOpen] = useState(false);
 
@@ -440,6 +442,47 @@ export default  function Main() {
   </a>
 </div>
 </Stack>
+<div className="flex md:hidden fixed bottom-0 bg-white w-full z-50 pb-3 justify-between px-1 py-2">
+        <div className="grid gap-4 grid-cols-2 w-full ">
+          <a href="tel:+66984542455" className="track-web-phone-call">
+            <button className="btn flex items-center w-full py-auto h-[50px]">
+              <Image
+                alt="call now icon"
+                src="/images/call.png"
+                width={20}
+                height={20}
+              />
+              <p className="font_page text-[16px] ml-2 font-semibold">โทรเลย</p>
+            </button>
+          </a>
+
+          <a
+            href="https://lin.ee/pPz1ZqN"
+            target="_blank"
+            onClick={() => {
+              window.dataLayer = window.dataLayer || [];
+              window.dataLayer.push({
+                event: 'button_click',
+                event_category: 'Button',
+                event_action: 'Click',
+                event_label: 'สอบถามราคา',
+              });
+            }}
+          >
+            <button className="btn flex items-center w-full py-auto h-[50px] bg-[#01b202]">
+              <Image
+                alt="line icon"
+                src="/images/lineedit.png"
+                width={25}
+                height={25}
+              />
+              <p className="font_page text-[16px] ml-2 text-white font-semibold">
+                สอบถามราคา
+              </p>
+            </button>
+          </a>
+        </div>
+      </div>
       <div className="bg-gradient-to-br pt-20 mx-auto  from-gray-100 to-gray-200">
       <h1 className="text-md text-gray-500 mt-4 text-center font_page sm:text-2xl md:text-2xl font-bold leading-snug">
              สยามรูฟเทค {keyword} ที่ลูกค้าไว้วางใจ
@@ -484,3 +527,5 @@ export default  function Main() {
     </>
   );
 }
+
+export default Main;

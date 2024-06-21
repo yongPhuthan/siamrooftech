@@ -50,9 +50,10 @@ export const metadata = {
     ],
     locale: 'th_TH',
     type: 'website',
-    icons: {
-      icon: '/icon.ico',
-    },
+    
+    // icons: {
+    //   icon: '/icon.ico',
+    // },
   },
 };
 

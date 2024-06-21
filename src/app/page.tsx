@@ -1,7 +1,20 @@
+'use server'
 import Main from './components/Main';
-import { Suspense } from 'react'
 
-export default async function Home() {
+import { Suspense } from 'react'
+interface Props {
+  params: {
+    id: string;
+  };
+  searchParams: { 
+    kw: string;
+  };
+}
+
+
+
+export default async function Home(props: Props) {
+const keyword = props.searchParams.kw;
   // const tags = await db.tags.findMany({
   //   orderBy: {
   //     number: 'asc', // or 'desc' for descending
@@ -28,7 +41,7 @@ export default async function Home() {
 
   return (
     <div className="bg-white ">
-        <Main />
+        <Main  keyword={keyword}/>
        {/* <Main projects={projectsByTag} /> */}
       </div>
   );
