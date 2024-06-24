@@ -3,6 +3,8 @@ import Script from 'next/script';
 import './globals.css';
 import { Providers } from './providers';
 import { Suspense } from 'react';
+import type { Metadata } from 'next'
+
 const myFont = localFont({
   src: [
     {
@@ -23,39 +25,35 @@ const myFont = localFont({
   ],
   display: 'swap',
 });
-
-export const metadata = {
+export const metadata: Metadata = {
+  metadataBase: new URL('https://www.siamroofproject.com/'),
   title: 'กันสาดพับเก็บได้ กันสาดอัตโนมัติ กันสาดผ้าใบ | by Siamrooftech',
-
+  description:
+  'บริการติดตั้งกันสาดพับเก็บได้ ระบบมือหมุนและระบบมอเตอร์ไฟฟ้าคุณภาพสูงจาก Siamrooftech. ด้วยประสบการณ์และเทคนิคการติดตั้งระบบมือหมุนและมอเตอร์ไฟฟ้ากับโครงสร้างหน้างานต่างๆ ทำให้แน่ใจว่าคุณได้รับการปกป้องที่ดีที่สุดสำหรับบ้านของคุณ.',
+openGraph: {
+  title: 'กันสาดพับเก็บได้ กันสาดอัตโนมัติ กันสาดผ้าใบ | by Siamrooftech',
   description:
     'บริการติดตั้งกันสาดพับเก็บได้ ระบบมือหมุนและระบบมอเตอร์ไฟฟ้าคุณภาพสูงจาก Siamrooftech. ด้วยประสบการณ์และเทคนิคการติดตั้งระบบมือหมุนและมอเตอร์ไฟฟ้ากับโครงสร้างหน้างานต่างๆ ทำให้แน่ใจว่าคุณได้รับการปกป้องที่ดีที่สุดสำหรับบ้านของคุณ.',
-  openGraph: {
-    title: 'กันสาดพับเก็บได้ กันสาดอัตโนมัติ กันสาดผ้าใบ | by Siamrooftech',
-    description:
-      'บริการติดตั้งกันสาดพับเก็บได้ ระบบมือหมุนและระบบมอเตอร์ไฟฟ้าคุณภาพสูงจาก Siamrooftech. ด้วยประสบการณ์และเทคนิคการติดตั้งระบบมือหมุนและมอเตอร์ไฟฟ้ากับโครงสร้างหน้างานต่างๆ ทำให้แน่ใจว่าคุณได้รับการปกป้องที่ดีที่สุดสำหรับบ้านของคุณ.',
-    url: 'https://www.siamroofproject.com/',
-    siteName: 'Siamrooftech',
-    images: [
-      {
-        url: 'https://pub-99f8d7bf688c4c79afcc2d91f37141f2.r2.dev/siamrooftech/medium/46570',
-        width: 800,
-        height: 600,
-      },
-      {
-        url: 'https://pub-99f8d7bf688c4c79afcc2d91f37141f2.r2.dev/siamrooftech/original/46570',
-        width: 1800,
-        height: 1600,
-        alt: 'กันสาดพับเก็บได้ Siamrooftech',
-      },
-    ],
-    locale: 'th_TH',
-    type: 'website',
-    
-    // icons: {
-    //   icon: '/icon.ico',
-    // },
-  },
-};
+  url: 'https://www.siamroofproject.com/',
+  siteName: 'Siamrooftech',
+  images: [
+    {
+      url: 'https://pub-99f8d7bf688c4c79afcc2d91f37141f2.r2.dev/siamrooftech/medium/46570',
+      width: 800,
+      height: 600,
+    },
+    {
+      url: 'https://pub-99f8d7bf688c4c79afcc2d91f37141f2.r2.dev/siamrooftech/original/46570',
+      width: 1800,
+      height: 1600,
+      alt: 'กันสาดพับเก็บได้ Siamrooftech',
+    },
+  ],
+  locale: 'th_TH',
+  type: 'website',
+},
+}
+
 
 export default function RootLayout({
   children,

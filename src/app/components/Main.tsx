@@ -451,19 +451,7 @@ const Main = (props: Props) => {
         </div>
       </Stack>
       <div className="flex md:hidden fixed bottom-0 bg-white w-full z-50 pb-3 justify-between px-1 py-2">
-        <div className="grid gap-4 grid-cols-2 w-full ">
-          <a href="tel:+66984542455" className="track-web-phone-call">
-            <button className="btn flex items-center w-full py-auto h-[50px]">
-              <Image
-                alt="call now icon"
-                src="/images/call.png"
-                width={20}
-                height={20}
-              />
-              <p className="font_page text-[16px] ml-2 font-semibold">โทรเลย</p>
-            </button>
-          </a>
-
+        <div className=" w-full ">
           <a
             href="https://lin.ee/pPz1ZqN"
             target="_blank"
@@ -485,7 +473,7 @@ const Main = (props: Props) => {
                 height={25}
               />
               <p className="font_page text-[16px] ml-2 text-white font-semibold">
-                สอบถามราคา
+                คลิกไลน์ ประเมินราคาฟรี
               </p>
             </button>
           </a>
@@ -514,7 +502,7 @@ const Main = (props: Props) => {
             height={50}
           />
           <span className="text-white font_page text-[18px] font-bold">
-            สอบถาม-ประเมินราคา
+          คลิกไลน์ ประเมินราคาฟรี
           </span>
         </button>
       </a>
