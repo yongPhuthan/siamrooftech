@@ -131,6 +131,54 @@ const Main = (props: Props) => {
         ],
       },
       {
+        id: 2,
+        title: [`${keyword} `, "ร้านคาเฟ่ & เบเกอรี่"],
+        description: [
+          "สถานที่ :  หมู่บ้านการเคหะธนฯ  ถ.พระราม2 ",
+          "ประเภท : กันสาดชนิดมอเตอร์รีโมทและมือหมุนในชุดเดียวกัน",
+          "ขนาด :  กว้าง 560 cm * ยื่นออก 200 cm (4 แขนพับ)",
+          "วัสดุ : ผ้าใบอะคริลิค ชายผ้าตัดเรียบตรง",
+        ],
+        items: [
+          {
+            id: 1,
+            title: `${keyword} ร้านคาเฟ่ & เบเกอรี่`,
+            description: "ร้านคาเฟ่ & เบเกอรี่",
+            smallSize:
+              "https://firebasestorage.googleapis.com/v0/b/worktrust-b9c02.appspot.com/o/siamrooftech%2FIMG_6441.webp?alt=media&token=24927104-2075-4cb8-b767-e195ba99c8b2",
+            originalSize:
+              "https://firebasestorage.googleapis.com/v0/b/worktrust-b9c02.appspot.com/o/siamrooftech%2FIMG_6441.webp?alt=media&token=24927104-2075-4cb8-b767-e195ba99c8b2",
+          },
+          {
+            id: 2,
+            title: `${keyword} ร้านคาเฟ่ & เบเกอรี่`,
+            description: "This is the second project",
+            smallSize:
+              "https://firebasestorage.googleapis.com/v0/b/worktrust-b9c02.appspot.com/o/siamrooftech%2FIMG_6443.webp?alt=media&token=22512427-30d6-4b2d-b000-769309b49ea7",
+            originalSize:
+              "https://firebasestorage.googleapis.com/v0/b/worktrust-b9c02.appspot.com/o/siamrooftech%2FIMG_6443.webp?alt=media&token=22512427-30d6-4b2d-b000-769309b49ea7",
+          },
+          {
+            id: 3,
+            title: "กันสาดสำเร็จรูปพับเก็บได้ ร้านคาเฟ่ & เบเกอรี่",
+            description: "ร้านคาเฟ่ & เบเกอรี่",
+            smallSize:
+              "https://firebasestorage.googleapis.com/v0/b/worktrust-b9c02.appspot.com/o/siamrooftech%2FIMG_6444.webp?alt=media&token=1470da41-d851-4e2e-a93f-db34194b3f93",
+            originalSize:
+              "https://firebasestorage.googleapis.com/v0/b/worktrust-b9c02.appspot.com/o/siamrooftech%2FIMG_6444.webp?alt=media&token=1470da41-d851-4e2e-a93f-db34194b3f93",
+          },
+          {
+            id: 4,
+            title: "กันสาดสำเร็จรูปพับเก็บได้",
+            description: "ร้านคาเฟ่ & เบเกอรี่",
+            smallSize:
+              "https://firebasestorage.googleapis.com/v0/b/worktrust-b9c02.appspot.com/o/siamrooftech%2FIMG_6445.webp?alt=media&token=7812d426-8c8f-4bc8-b569-9876a2ba0c34",
+            originalSize:
+              "https://firebasestorage.googleapis.com/v0/b/worktrust-b9c02.appspot.com/o/siamrooftech%2FIMG_6445.webp?alt=media&token=7812d426-8c8f-4bc8-b569-9876a2ba0c34",
+          },
+        ],
+      },
+      {
         id: 3,
         title: [`${keyword} `, "โรงแรม-รีสอร์ท"],
 
@@ -260,6 +308,55 @@ const Main = (props: Props) => {
         ],
       },
       {
+        id: 5,
+        title: [`${keyword} `, "บ้านเดี่ยว-ทาวน์โฮม"],
+
+        description: [
+          "สถานที่ :  หมู่บ้านสราญสิริ ศรีวารี",
+          "ประเภท : กันสาดชนิดมอเตอร์รีโมท โครงแขนพับอลูมิเนียมแข็งชุบสีขาว",
+          "ขนาด : กว้าง 260 cm * ยื่นออก 200 cm ",
+          "วัสดุ : ผ้าอะคริลิคสเปนสีเบอร์ C11 ชายผ้าตัดเรียบตรง",
+        ],
+        items: [
+          {
+            id: 1,
+            title: "กันสาดสำเร็จรูปพับเก็บได้บ้านเดี่ยว-ทาวน์โฮม",
+            description: "กันสาดสำเร็จรูปพับเก็บได้บ้านเดี่ยว-ทาวน์โฮม",
+            smallSize:
+              "https://firebasestorage.googleapis.com/v0/b/worktrust-b9c02.appspot.com/o/siamrooftech%2FIMG_6307%202.webp?alt=media&token=8c386664-b8bf-4c7d-8913-2fe420b54f28",
+            originalSize:
+              "https://firebasestorage.googleapis.com/v0/b/worktrust-b9c02.appspot.com/o/siamrooftech%2FIMG_6307%202.webp?alt=media&token=8c386664-b8bf-4c7d-8913-2fe420b54f28",
+          },
+          {
+            id: 2,
+            title: "กันสาดสำเร็จรูปพับเก็บได้",
+            description: "กันสาดสำเร็จรูปพับเก็บได้บ้านเดี่ยว-ทาวน์โฮม",
+            smallSize:
+              "https://firebasestorage.googleapis.com/v0/b/worktrust-b9c02.appspot.com/o/siamrooftech%2FIMG_6306%202.webp?alt=media&token=bd1f2f7d-7f46-4b34-992f-55d1b26a88d6",
+            originalSize:
+              "https://firebasestorage.googleapis.com/v0/b/worktrust-b9c02.appspot.com/o/siamrooftech%2FIMG_6306%202.webp?alt=media&token=bd1f2f7d-7f46-4b34-992f-55d1b26a88d6",
+          },
+          {
+            id: 3,
+            title: "กันสาดสำเร็จรูปพับเก็บได้",
+            description: "กันสาดสำเร็จรูปพับเก็บได้บ้านเดี่ยว-ทาวน์โฮม",
+            smallSize:
+              "https://firebasestorage.googleapis.com/v0/b/worktrust-b9c02.appspot.com/o/siamrooftech%2FIMG_6438.webp?alt=media&token=99953c85-e33a-49ff-8b47-0436460c660a",
+            originalSize:
+              "https://firebasestorage.googleapis.com/v0/b/worktrust-b9c02.appspot.com/o/siamrooftech%2FIMG_6438.webp?alt=media&token=99953c85-e33a-49ff-8b47-0436460c660a",
+          },
+          {
+            id: 4,
+            title: "กันสาดสำเร็จรูปพับเก็บได้",
+            description: "กันสาดสำเร็จรูปพับเก็บได้บ้านเดี่ยว-ทาวน์โฮม",
+            smallSize:
+              "https://firebasestorage.googleapis.com/v0/b/worktrust-b9c02.appspot.com/o/siamrooftech%2FIMG_6436.webp?alt=media&token=9ea16e06-7422-4bc0-aac6-4b9e736925cb",
+            originalSize:
+              "https://firebasestorage.googleapis.com/v0/b/worktrust-b9c02.appspot.com/o/siamrooftech%2FIMG_6436.webp?alt=media&token=9ea16e06-7422-4bc0-aac6-4b9e736925cb",
+          },
+        ],
+      },
+      {
         id: 6,
         title: [`${keyword} `, "คีออส-แฟรนไชส์"],
 
@@ -305,6 +402,55 @@ const Main = (props: Props) => {
               "https://pub-99f8d7bf688c4c79afcc2d91f37141f2.r2.dev/siamrooftech/small/92517",
             originalSize:
               "https://pub-99f8d7bf688c4c79afcc2d91f37141f2.r2.dev/siamrooftech/original/92517",
+          },
+        ],
+      },
+      {
+        id: 6,
+        title: [`${keyword} `, "วิหาร-สำนักสงฆ์"],
+
+        description: [
+          "สถานที่ : วัดท่าพระ",
+          "ประเภท : กันสาดชนิดมอเตอร์รีโมท โครงแขนพับอลูมิเนียมแข็งชุบสีขาว",
+          "ขนาด :  กว้าง 470 cm * ยื่นออก 250 cm (3 แขนพับ)",
+          "วัสดุ : ผ้าอะคริลิคสเปนสีเบอร์ C04 ชายผ้าตัดเรียบตรง",
+        ],
+        items: [
+          {
+            id: 1,
+            title: "กันสาดสำเร็จรูปพับเก็บได้วัด-สำนักสงฆ์",
+            description: "กันสาดสำเร็จรูปพับเก็บได้ วัด-สำนักสงฆ์",
+            smallSize:
+              "https://firebasestorage.googleapis.com/v0/b/worktrust-b9c02.appspot.com/o/siamrooftech%2FIMG_6310%202.webp?alt=media&token=8a4b8311-1f3d-431b-b340-acccb7b79d73",
+            originalSize:
+              "https://firebasestorage.googleapis.com/v0/b/worktrust-b9c02.appspot.com/o/siamrooftech%2FIMG_6310%202.webp?alt=media&token=8a4b8311-1f3d-431b-b340-acccb7b79d73",
+          },
+          {
+            id: 2,
+            title: "กันสาดสำเร็จรูปพับเก็บได้ วัด-สำนักสงฆ์",
+            description: "กันสาดสำเร็จรูปพับเก็บได้ วัด-สำนักสงฆ์",
+            smallSize:
+              "https://firebasestorage.googleapis.com/v0/b/worktrust-b9c02.appspot.com/o/siamrooftech%2FIMG_6430.webp?alt=media&token=6b7ff03c-1e11-4d84-a08b-eb14bc287288",
+            originalSize:
+              "https://firebasestorage.googleapis.com/v0/b/worktrust-b9c02.appspot.com/o/siamrooftech%2FIMG_6430.webp?alt=media&token=6b7ff03c-1e11-4d84-a08b-eb14bc287288",
+          },
+          {
+            id: 3,
+            title: "กันสาดสำเร็จรูปพับเก็บได้ วัด-สำนักสงฆ์",
+            description: "กันสาดสำเร็จรูปพับเก็บได้ วัด-สำนักสงฆ์",
+            smallSize:
+              "https://firebasestorage.googleapis.com/v0/b/worktrust-b9c02.appspot.com/o/siamrooftech%2FIMG_6433.webp?alt=media&token=b00ec346-ac4d-4ec3-982a-0cccf320ca32",
+            originalSize:
+              "https://firebasestorage.googleapis.com/v0/b/worktrust-b9c02.appspot.com/o/siamrooftech%2FIMG_6433.webp?alt=media&token=b00ec346-ac4d-4ec3-982a-0cccf320ca32",
+          },
+          {
+            id: 4,
+            title: "กันสาดสำเร็จรูปพับเก็บได้ วัด-สำนักสงฆ์",
+            description: "กันสาดสำเร็จรูปพับเก็บได้ วัด-สำนักสงฆ์",
+            smallSize:
+              "https://firebasestorage.googleapis.com/v0/b/worktrust-b9c02.appspot.com/o/siamrooftech%2FIMG_6434.webp?alt=media&token=c9743ee0-d8a0-484f-bd1b-ed1e56b85b3b",
+            originalSize:
+              "https://firebasestorage.googleapis.com/v0/b/worktrust-b9c02.appspot.com/o/siamrooftech%2FIMG_6434.webp?alt=media&token=c9743ee0-d8a0-484f-bd1b-ed1e56b85b3b",
           },
         ],
       },

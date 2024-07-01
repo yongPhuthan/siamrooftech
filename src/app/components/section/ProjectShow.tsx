@@ -54,7 +54,7 @@ const ProjectShow = (props:any) => {
               <Image
                 width={635}
                 height={700}
-                className="h-auto max-w-full rounded rounded-md cursor-pointer"
+                className="h-auto max-h-[500px]  rounded rounded-md cursor-pointer"
                 src={projects[0].originalSize}
                 alt={projects[0].title}
                 onClick={() => handleImageClick(projects[0].originalSize)}
