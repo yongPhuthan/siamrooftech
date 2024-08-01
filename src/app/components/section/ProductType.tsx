@@ -1,33 +1,35 @@
 import React from 'react';
-import Card from '../../components/ui/Card';
+import Card from '../ui/Card';
 type ProductTypeProps = {
     keyword: string;
     };
 
 
 function ProductType(props: ProductTypeProps) {
-    const { keyword  } = props;
+    // const { keyword  } = props;
   const projects = [
     {
       id: 1,
-      title: `${keyword} ร้านอาหาร-คาเฟ่`,
+      title: `กันสาดพับได้ ร้านอาหาร-คาเฟ่`,
       description: 'This is the first project',
       image:
-        'https://pub-99f8d7bf688c4c79afcc2d91f37141f2.r2.dev/siamrooftech/original/34660',
+      "/images/กันสาดพับเก็บได้ร้านอาหาร-คาเฟ่.webp"
+        // 'https://pub-99f8d7bf688c4c79afcc2d91f37141f2.r2.dev/siamrooftech/original/34660',
     },
     {
       id: 2,
-      title: `${keyword} ระเบียงบ้าน`,
+      title: `กันสาดพับได้ ระเบียงบ้าน`,
       description: 'This is the second project',
-      image:
-        'https://pub-99f8d7bf688c4c79afcc2d91f37141f2.r2.dev/siamrooftech/original/17201',
+      image: '/images/กันสาดพับเก็บได้สำหรับอาคาร-โรงแรม.webp',
+        // 'https://pub-99f8d7bf688c4c79afcc2d91f37141f2.r2.dev/siamrooftech/original/17201',
     },
     {
       id: 3,
-      title: ` ${keyword} อาคาร-โรงแรม`,
+      title: ` กันสาดพับได้ อาคาร-โรงแรม`,
       description: 'This is the third project',
       image:
-        'https://pub-99f8d7bf688c4c79afcc2d91f37141f2.r2.dev/siamrooftech/original/28177',
+      '/images/กันสาดพับเก็บได้อาคาร-โรงแรม.webp',
+        // 'https://pub-99f8d7bf688c4c79afcc2d91f37141f2.r2.dev/siamrooftech/original/28177',
     },
   ];
   return (
@@ -37,7 +39,7 @@ function ProductType(props: ProductTypeProps) {
 กันสาดที่เหมาะกับหน้างานของคุณ
         </h2> */}
             <p className="text-left mt-10 font_page font-bold md:text-3xl text-xl border-l-4 border-blue-500 pl-4">
-            IDEAติดตั้ง {keyword}สวยๆ
+            IDEAการติดตั้งกันสาดพับเก็บได้กับหน้างานต่างๆ
 
             </p>
         <div className="grid grid-cols-1 container mt-5  mx-auto gap-4 md:gap-5 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">

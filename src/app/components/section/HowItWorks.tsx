@@ -19,7 +19,6 @@ function HowItWorks({keyword}: {keyword: string}) {
       alt="Step 1" 
       width={128} // Default to 128px, but adjust based on your actual needs
       height={128} // Default to 128px for square aspect ratio, adjust as necessary
-      layout="responsive"
       className="object-contain"
     />
   </div>
@@ -37,7 +36,7 @@ function HowItWorks({keyword}: {keyword: string}) {
   
         {/* Step 2 */}
         <div className="w-full md:w-1/3 px-2 md:px-8 mb-12 flex flex-col items-center">
-          <Image src="https://pub-99f8d7bf688c4c79afcc2d91f37141f2.r2.dev/siamrooftech/original/53310" alt="Step 2" width={100} height={100} loading="lazy" className="w-32 md:w-40 h-32 md:h-40 mb-4" />
+          <Image src="https://pub-99f8d7bf688c4c79afcc2d91f37141f2.r2.dev/siamrooftech/original/53310" alt="Step 2" width={100} height={100}  className="w-32 md:w-40 h-32 md:h-40 mb-4" />
           <div>
             <div className="flex items-center">
               <h3 className="md:text-3xl text-2xl my-auto font_page font-bold mb-2">
