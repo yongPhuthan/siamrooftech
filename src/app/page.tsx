@@ -16,6 +16,7 @@ export default async function Home(props: Props) {
 // const keyword = props.searchParams.kw;
 const keyword  = 'กันสาดพับได้'
   return (
+    
     <div className="bg-white ">
         <Main  keyword={keyword ?  keyword :'กันสาดพับได้'}/>
        {/* <Main projects={projectsByTag} /> */}

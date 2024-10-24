@@ -4,6 +4,7 @@ import "./globals.css";
 import { Providers } from "./providers";
 import { Suspense } from "react";
 import type { Metadata } from "next";
+import { GoogleTagManager } from '@next/third-parties/google'
 
 const myFont = localFont({
   src: [
@@ -61,35 +62,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="th" className={myFont.className}>
-      <head>
-
-{/* โหลด Google Tag Manager */}
-<Script
-        strategy="afterInteractive"
-        src="https://www.googletagmanager.com/gtag/js?id=AW-11408819333"
-      />
-
-      {/* กำหนดค่า gtag */}
-      <Script id="gtag-init" strategy="afterInteractive">
-        {`
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
-          gtag('js', new Date());
-          gtag('config', 'AW-11408819333');
-        `}
-      </Script>
-      </head>
+            <GoogleTagManager gtmId="AW-11408819333" />
       <body className={`bg-white`}>
 
-        <noscript>
-          <iframe
-            src="https://www.googletagmanager.com/ns.html?id=GTM-W6SMLDZG"
-            height="0"
-            width="0"
-            style={{ display: "none", visibility: "hidden" }}
-          ></iframe>
-        </noscript>
-        {/* End Google Tag Manager (noscript) */}
         <Providers>
           
           <Suspense>{children}</Suspense>
