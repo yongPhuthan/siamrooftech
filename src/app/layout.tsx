@@ -62,27 +62,13 @@ export default function RootLayout({
 }) {
   return (
     <html lang="th" className={myFont.className}>
-      {/* โหลด Google Tag Manager */}
-      <Script
-        strategy="afterInteractive"
-        src="https://www.googletagmanager.com/gtag/js?id=AW-11408819333"
-      />
-
-      {/* กำหนดค่า gtag */}
-      <Script id="gtag-init" strategy="afterInteractive">
-        {`
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
-          gtag('js', new Date());
-          gtag('config', 'AW-11408819333');
-        `}
-      </Script>
-
+      {process.env.NODE_ENV === "production" ? (
+        <GoogleTagManager gtmId="AW-11408819333" />
+      ) : null}
       <body className={`bg-white`}>
-      {children}
-        {/* <Providers>
+        <Providers>
           <Suspense>{children}</Suspense>
-        </Providers> */}
+        </Providers>
       </body>
     </html>
   );

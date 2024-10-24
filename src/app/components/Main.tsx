@@ -12,6 +12,8 @@ import Footer from "./ui/Footer";
 import Image from "next/image";
 import Whyus2 from "./section/WhyUs2";
 import { Stack } from "@mui/material";
+import { sendGTMEvent } from '@next/third-parties/google'
+
 type Props = {
   keyword: string;
 };
@@ -490,15 +492,8 @@ const Main = (props: Props) => {
         >
           <button
             className="btn btn-link w-1000 mx-auto" // Use DaisyUI button class
-            onClick={() => {
-              window.dataLayer = window.dataLayer || ([] as any);
-              window.dataLayer.push({
-                event: "button_click",
-                event_category: "Button",
-                event_action: "Click",
-                event_label: "สอบถามราคา",
-              });
-            }}
+            onClick={() =>               sendGTMEvent({ event: 'buttonClicked', value: 1000 })
+          }
           >
             <Image
               alt="Add Line ขอใบเสนอราคา"
@@ -544,13 +539,14 @@ const Main = (props: Props) => {
           <button
             className="btn btn-link w-1000 mx-auto" // Use DaisyUI button class
             onClick={() => {
-              window.dataLayer = window.dataLayer || ([] as any);
-              window.dataLayer.push({
-                event: "button_click",
-                event_category: "Button",
-                event_action: "Click",
-                event_label: "สอบถามราคา",
-              });
+              // window.dataLayer = window.dataLayer || ([] as any);
+              // window.dataLayer.push({
+              //   event: "button_click",
+              //   event_category: "Button",
+              //   event_action: "Click",
+              //   event_label: "สอบถามราคา",
+              // });
+              sendGTMEvent({ event: 'buttonClicked', value: 1000 })
             }}
           >
             <Image
@@ -575,15 +571,10 @@ const Main = (props: Props) => {
           >
             <button
               className="btn btn-link w-1000 mx-auto" // Use DaisyUI button class
-              onClick={() => {
-                window.dataLayer = window.dataLayer || ([] as any);
-                window.dataLayer.push({
-                  event: "button_click",
-                  event_category: "Button",
-                  event_action: "Click",
-                  event_label: "สอบถามราคา",
-                });
-              }}
+              onClick={() => 
+                sendGTMEvent({ event: 'buttonClicked', value: 1000 })
+
+              }
             >
               <Image
                 alt="Add Line ขอใบเสนอราคา"
@@ -601,15 +592,8 @@ const Main = (props: Props) => {
           <a
             href="https://lin.ee/pPz1ZqN"
             target="_blank"
-            onClick={() => {
-              window.dataLayer = window.dataLayer || [];
-              window.dataLayer.push({
-                event: "button_click",
-                event_category: "Button",
-                event_action: "Click",
-                event_label: "สอบถามราคา",
-              });
-            }}
+            onClick={() =>               sendGTMEvent({ event: 'buttonClicked', value: 1000 })
+          }
           >
             <button className="btn flex items-center w-full py-auto h-[50px] bg-[#01b202]">
               <Image
@@ -630,15 +614,8 @@ const Main = (props: Props) => {
       <a
         href="https://lin.ee/pPz1ZqN"
         target="_blank"
-        onClick={() => {
-          window.dataLayer = window.dataLayer || [];
-          window.dataLayer.push({
-            event: "button_click",
-            event_category: "Button",
-            event_action: "Click",
-            event_label: "สอบถามราคา",
-          });
-        }}
+        onClick={() =>               sendGTMEvent({ event: 'buttonClicked', value: 1000 })
+      }
       >
         <button className="hidden lg:flex  fixed bottom-5 right-5 items-center space-x-2 px-4 py-2 bg-[#01b202] rounded hover:bg-[#01bd00ff] active:shadow-lg mouse shadow transition ease-in duration-200 focus:outline-none right-10 z-40">
           <Image
@@ -656,40 +633,7 @@ const Main = (props: Props) => {
         <h1 className="text-md text-gray-500 mt-4 text-center font_page sm:text-2xl md:text-2xl font-bold leading-snug">
           สยามรูฟเทค {keyword} ที่ลูกค้าไว้วางใจ
         </h1>
-        {/* <div className="flex items-center justify-center">
-            <a
-              href="https://lin.ee/pPz1ZqN"
-              target="_blank"
-              onClick={() => {
-                window.dataLayer = window.dataLayer || [] as any
-                window.dataLayer.push({
-                  event: 'button_click',
-                  event_category: 'Button',
-                  event_action: 'Click',
-                  event_label: 'สอบถามราคา',
-                });
-              }}
-            >
-              <button
-                className="transition-all mx-auto duration-200 font_page rounded-full py-5 px-20 font-bold text-center bg-gradient-to-br from-blue-500 to-blue-600 text-white"
-                style={{
-                  '--sky': '#4e73d1' ,
-                  '--roofr-blue': '#269bd6',
-                  '--white': 'white',
-                  backgroundImage:
-                    'linear-gradient(225deg, var(--sky), var(--roofr-blue))',
-                  fontSize: '1.125rem',
-                  fontWeight: '700',
-                  lineHeight: '1.5',
-                  maxWidth: '100%',
-                  textDecoration: 'none',
-                  borderRadius: '6rem',
-                } as any} 
-              >
-                รับใบเสนอราคาฟรี
-              </button>
-            </a>
-          </div> */}
+       
         <EndSection />
         <Footer />
       </div>
