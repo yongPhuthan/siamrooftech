@@ -62,13 +62,14 @@ export default function RootLayout({
 }) {
   return (
     <html lang="th" className={myFont.className}>
-      <body className={`bg-white`}>
-      {children}
-        {/* <Providers>
-          <Suspense>{children}</Suspense>
-        </Providers> */}
-      </body>
+      <head>
       <GoogleTagManager gtmId="AW-11408819333" />
+      </head>
+      <body className={`bg-white`}>
+        <Providers>
+          <Suspense>{children}</Suspense>
+        </Providers>
+      </body>
     </html>
   );
 }
