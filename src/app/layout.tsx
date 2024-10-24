@@ -63,14 +63,14 @@ export default function RootLayout({
     <html lang="th" className={myFont.className}>
       <head>
 
-        {/* Google Tag Manager */}
-        
-        <Script
-        src="https://www.googletagmanager.com/gtag/js?id=AW-11408819333"
+{/* โหลด Google Tag Manager */}
+<Script
         strategy="afterInteractive"
-        async
+        src="https://www.googletagmanager.com/gtag/js?id=AW-11408819333"
       />
-      <Script id="google-analytics" strategy="afterInteractive">
+
+      {/* กำหนดค่า gtag */}
+      <Script id="gtag-init" strategy="afterInteractive">
         {`
           window.dataLayer = window.dataLayer || [];
           function gtag(){dataLayer.push(arguments);}
@@ -78,19 +78,9 @@ export default function RootLayout({
           gtag('config', 'AW-11408819333');
         `}
       </Script>
-        
-        {/* End Google Tag Manager */}
       </head>
       <body className={`bg-white`}>
-        {/* Google Tag Manager (noscript) */}
-                {/* <noscript>
-          <iframe
-            src="https://www.googletagmanager.com/ns.html?id=GTM-TQCXNS3H"
-            height="0"
-            width="0"
-            style={{ display: "none", visibility: "hidden" }}
-          ></iframe>
-        </noscript> */}
+
         <noscript>
           <iframe
             src="https://www.googletagmanager.com/ns.html?id=GTM-W6SMLDZG"
