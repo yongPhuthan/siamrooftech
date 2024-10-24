@@ -4,7 +4,7 @@ import "./globals.css";
 import { Providers } from "./providers";
 import { Suspense } from "react";
 import type { Metadata } from "next";
-import { GoogleTagManager } from '@next/third-parties/google'
+import { GoogleTagManager } from "@next/third-parties/google";
 
 const myFont = localFont({
   src: [
@@ -62,14 +62,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="th" className={myFont.className}>
-            <GoogleTagManager gtmId="AW-11408819333" />
       <body className={`bg-white`}>
-
         <Providers>
-          
           <Suspense>{children}</Suspense>
         </Providers>
       </body>
+      <GoogleTagManager gtmId="AW-11408819333" />
     </html>
   );
 }
