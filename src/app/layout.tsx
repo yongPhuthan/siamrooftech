@@ -63,9 +63,10 @@ export default function RootLayout({
   return (
     <html lang="th" className={myFont.className}>
       <body className={`bg-white`}>
-        <Providers>
+      {children}
+        {/* <Providers>
           <Suspense>{children}</Suspense>
-        </Providers>
+        </Providers> */}
       </body>
       <GoogleTagManager gtmId="AW-11408819333" />
     </html>
