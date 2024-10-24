@@ -62,13 +62,14 @@ export default function RootLayout({
 }) {
   return (
     <html lang="th" className={myFont.className}>
-      <head>
-      <GoogleTagManager gtmId="AW-11408819333" />
-      </head>
+      {process.env.NODE_ENV === "production" ? (
+        <GoogleTagManager gtmId="AW-11408819333" />
+      ) : null}
       <body className={`bg-white`}>
-        <Providers>
+      {children}
+        {/* <Providers>
           <Suspense>{children}</Suspense>
-        </Providers>
+        </Providers> */}
       </body>
     </html>
   );
