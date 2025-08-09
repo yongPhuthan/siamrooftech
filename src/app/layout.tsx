@@ -1,4 +1,4 @@
-import { GoogleTagManager } from "@next/third-parties/google";
+import { GoogleTagManager, GoogleAnalytics } from "@next/third-parties/google";
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { Suspense } from "react";
@@ -88,7 +88,10 @@ export default function RootLayout({
   return (
     <html lang="th" className={myFont.className}>
       {process.env.NODE_ENV === "production" ? (
-        <GoogleTagManager gtmId={process.env.G_TAGMANAGER_ID || "GTM-MT74ZP2P"} />
+        <>
+          <GoogleTagManager gtmId={process.env.G_TAGMANAGER_ID || "GTM-MT74ZP2P"} />
+          <GoogleAnalytics gaId="AW-17456457441" />
+        </>
       ) : null}
       <body className={`bg-white`}>
         <Providers>
