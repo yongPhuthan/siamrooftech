@@ -88,6 +88,12 @@ export default function Navigation() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-2 rounded-full text-sm font-semibold hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105"
+                onClick={() => {
+                  if (typeof gtag_report_conversion === 'function') {
+                    return gtag_report_conversion('https://lin.ee/pPz1ZqN');
+                  }
+                  return true;
+                }}
               >
                 ขอใบเสนอราคาฟรี
               </a>
@@ -101,6 +107,12 @@ export default function Navigation() {
               target="_blank"
               rel="noopener noreferrer"
               className="bg-blue-600 text-white px-3 py-1.5 rounded-full text-xs font-semibold hover:bg-blue-700 transition-colors"
+              onClick={() => {
+                if (typeof gtag_report_conversion === 'function') {
+                  return gtag_report_conversion('https://lin.ee/pPz1ZqN');
+                }
+                return true;
+              }}
             >
               ใบเสนอราคา
             </a>
@@ -157,6 +169,12 @@ export default function Navigation() {
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center space-x-2 text-sm text-gray-600 hover:text-green-600"
+                    onClick={() => {
+                      if (typeof gtag_report_conversion === 'function') {
+                        return gtag_report_conversion('https://lin.ee/pPz1ZqN');
+                      }
+                      return true;
+                    }}
                   >
                     <div className="w-4 h-4 relative">
                       <Image

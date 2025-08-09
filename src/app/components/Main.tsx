@@ -490,11 +490,15 @@ const Main = (props: Props) => {
           href="https://lin.ee/pPz1ZqN"
           target="_blank"
           className="inline-block"
+          onClick={() => {
+            if (typeof gtag_report_conversion === 'function') {
+              return gtag_report_conversion('https://lin.ee/pPz1ZqN');
+            }
+            return true;
+          }}
         >
           <button
             className="btn btn-link w-1000 mx-auto" // Use DaisyUI button class
-            onClick={() =>               sendGTMEvent({ event: 'buttonClicked', value: 1000 })
-          }
           >
             <Image
               alt="Add Line ขอใบเสนอราคา"
@@ -536,19 +540,15 @@ const Main = (props: Props) => {
           href="https://lin.ee/pPz1ZqN"
           target="_blank"
           className="inline-block"
+          onClick={() => {
+            if (typeof gtag_report_conversion === 'function') {
+              return gtag_report_conversion('https://lin.ee/pPz1ZqN');
+            }
+            return true;
+          }}
         >
           <button
             className="btn btn-link w-1000 mx-auto" // Use DaisyUI button class
-            onClick={() => {
-              // window.dataLayer = window.dataLayer || ([] as any);
-              // window.dataLayer.push({
-              //   event: "button_click",
-              //   event_category: "Button",
-              //   event_action: "Click",
-              //   event_label: "สอบถามราคา",
-              // });
-              sendGTMEvent({ event: 'buttonClicked', value: 1000 })
-            }}
           >
             <Image
               alt="Add Line ขอใบเสนอราคา"
@@ -569,13 +569,15 @@ const Main = (props: Props) => {
             href="https://lin.ee/pPz1ZqN"
             target="_blank"
             className="inline-block"
+            onClick={() => {
+              if (typeof gtag_report_conversion === 'function') {
+                return gtag_report_conversion('https://lin.ee/pPz1ZqN');
+              }
+              return true;
+            }}
           >
             <button
               className="btn btn-link w-1000 mx-auto" // Use DaisyUI button class
-              onClick={() => 
-                sendGTMEvent({ event: 'buttonClicked', value: 1000 })
-
-              }
             >
               <Image
                 alt="Add Line ขอใบเสนอราคา"
@@ -593,8 +595,12 @@ const Main = (props: Props) => {
           <a
             href="https://lin.ee/pPz1ZqN"
             target="_blank"
-            onClick={() =>               sendGTMEvent({ event: 'buttonClicked', value: 1000 })
-          }
+            onClick={() => {
+              if (typeof gtag_report_conversion === 'function') {
+                return gtag_report_conversion('https://lin.ee/pPz1ZqN');
+              }
+              return true;
+            }}
           >
             <button className="btn flex items-center w-full py-auto h-[50px] bg-[#01b202]">
               <Image
@@ -615,8 +621,12 @@ const Main = (props: Props) => {
       <a
         href="https://lin.ee/pPz1ZqN"
         target="_blank"
-        onClick={() =>               sendGTMEvent({ event: 'buttonClicked', value: 1000 })
-      }
+        onClick={() => {
+          if (typeof gtag_report_conversion === 'function') {
+            return gtag_report_conversion('https://lin.ee/pPz1ZqN');
+          }
+          return true;
+        }}
       >
         <button className="hidden lg:flex  fixed bottom-5 right-5 items-center space-x-2 px-4 py-2 bg-[#01b202] rounded hover:bg-[#01bd00ff] active:shadow-lg mouse shadow transition ease-in duration-200 focus:outline-none right-10 z-40">
           <Image

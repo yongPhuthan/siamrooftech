@@ -87,6 +87,30 @@ export default function RootLayout({
 }) {
   return (
     <html lang="th" className={myFont.className}>
+      <head>
+        {process.env.NODE_ENV === "production" && (
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `
+                function gtag_report_conversion(url) {
+                  var callback = function () {
+                    if (typeof(url) != 'undefined') {
+                      window.location = url;
+                    }
+                  };
+                  gtag('event', 'conversion', {
+                      'send_to': 'AW-17456457441/Kx9vCO6Q-oIbEOHN8YNB',
+                      'value': 1.0,
+                      'currency': 'THB',
+                      'event_callback': callback
+                  });
+                  return false;
+                }
+              `,
+            }}
+          />
+        )}
+      </head>
       {process.env.NODE_ENV === "production" ? (
         <>
           <GoogleTagManager gtmId={process.env.G_TAGMANAGER_ID || "GTM-MT74ZP2P"} />
