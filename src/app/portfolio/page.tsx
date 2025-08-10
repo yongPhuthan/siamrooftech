@@ -11,16 +11,39 @@ import { unstable_cache } from "next/cache";
 export const revalidate = 300; // Revalidate every 5 minutes
 
 export const metadata: Metadata = {
-  title: "ผลงานทั้งหมด - กันสาดพับเก็บได้ | สยามรูฟเทค",
+  title: "ผลงานกันสาดพับได้ ระบบมือหมุน-มอเตอร์ไฟฟ้า | Siamrooftech",
   description:
-    "ชมผลงานการติดตั้งกันสาดพับเก็บได้หลากหลายประเภท ทั้งร้านอาหาร คาเฟ่ บ้านพักอาศัย และอาคารพาณิชย์ จากสยามรูฟเทค",
+    "ชมผลงานกันสาดพับได้คุณภาพสูง ทั้งระบบมือหมุนและมอเตอร์ไฟฟ้า ร้านอาหาร คาเฟ่ บ้านพักอาศัย อาคารพาณิชย์ จาก Siamrooftech ประสบการณ์ 10+ ปี",
   keywords:
-    "ผลงาน, กันสาดพับเก็บได้, ติดตั้งกันสาด, ร้านอาหาร, คาเฟ่, บ้านพักอาศัย, สยามรูฟเทค",
+    "ผลงานกันสาดพับได้, กันสาดพับเก็บได้, ติดตั้งกันสาดพับได้, ผลงานกันสาดมือหมุน, ผลงานกันสาดมอเตอร์, ร้านอาหาร, คาเฟ่, บ้านพักอาศัย, Siamrooftech",
+  alternates: {
+    canonical: "https://www.siamrooftech.com/portfolio",
+  },
   openGraph: {
-    title: "ผลงานทั้งหมด - กันสาดพับเก็บได้ | สยามรูฟเทค",
+    title: "ผลงานกันสาดพับได้ ระบบมือหมุน-มอเตอร์ไฟฟ้า | Siamrooftech",
     description:
-      "ชมผลงานการติดตั้งกันสาดพับเก็บได้หลากหลายประเภท ทั้งร้านอาหาร คาเฟ่ บ้านพักอาศัย และอาคารพาณิชย์",
+      "ชมผลงานกันสาดพับได้คุณภาพสูง ทั้งระบบมือหมุนและมอเตอร์ไฟฟ้า ติดตั้งในร้านอาหาร คาเฟ่ บ้านพักอาศัย อาคารพาณิชย์",
     type: "website",
+    url: "https://www.siamrooftech.com/portfolio",
+    images: [
+      {
+        url: "https://pub-99f8d7bf688c4c79afcc2d91f37141f2.r2.dev/siamrooftech/medium/46570",
+        width: 800,
+        height: 600,
+        alt: "ผลงานกันสาดพับได้ Siamrooftech",
+      },
+    ],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
   },
 };
 
@@ -66,31 +89,60 @@ export default async function PortfolioPage() {
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
-    name: "ผลงานทั้งหมด - กันสาดพับเก็บได้",
+    name: "ผลงานกันสาดพับได้ - Siamrooftech",
     description:
-      "ชมผลงานการติดตั้งกันสาดพับเก็บได้หลากหลายประเภท จากสยามรูฟเทค",
-    url: "https://siamrooftech.com/portfolio",
+      "ชมผลงานกันสาดพับได้คุณภาพสูง ทั้งระบบมือหมุนและมอเตอร์ไฟฟ้า จาก Siamrooftech ประสบการณ์มากกว่า 10 ปี",
+    url: "https://www.siamrooftech.com/portfolio",
+    inLanguage: "th-TH",
     publisher: {
       "@type": "Organization",
-      name: "สยามรูฟเทค",
-      url: "https://siamrooftech.com",
+      name: "Siamrooftech",
+      url: "https://www.siamrooftech.com",
+      logo: "https://www.siamrooftech.com/logo.png",
+    },
+    breadcrumb: {
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        {
+          "@type": "ListItem",
+          position: 1,
+          name: "หน้าแรก",
+          item: "https://www.siamrooftech.com",
+        },
+        {
+          "@type": "ListItem",
+          position: 2,
+          name: "ผลงานกันสาดพับได้",
+          item: "https://www.siamrooftech.com/portfolio",
+        },
+      ],
     },
     mainEntity: {
       "@type": "ItemList",
+      name: "ผลงานกันสาดพับได้",
+      description: "รวมผลงานติดตั้งกันสาดพับได้ทุกประเภท",
       numberOfItems: projects.length,
-      itemListElement: projects.map((project, index) => ({
-        "@type": "Product",
+      itemListElement: projects.slice(0, 10).map((project, index) => ({
+        "@type": "CreativeWork",
         position: index + 1,
         name: project.title,
         description: Array.isArray(project.description)
           ? project.description.join(" ")
           : project.description,
         image: project.featured_image || project.images?.[0]?.original_size,
-        url: `https://siamrooftech.com/portfolio/${project.slug || project.id}`,
-        category: project.category,
-        manufacturer: {
+        url: `https://www.siamrooftech.com/portfolio/${project.slug || project.id}`,
+        about: "กันสาดพับได้",
+        keywords: "กันสาดพับได้, " + project.category,
+        creator: {
           "@type": "Organization",
-          name: "สยามรูฟเทค",
+          name: "Siamrooftech",
+          url: "https://www.siamrooftech.com",
+        },
+        datePublished: project.completionDate || project.created_at,
+        workExample: {
+          "@type": "VisualArtwork",
+          name: project.title,
+          artform: "การติดตั้งกันสาดพับได้",
         },
       })),
     },

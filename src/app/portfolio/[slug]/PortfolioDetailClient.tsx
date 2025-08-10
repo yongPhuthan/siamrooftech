@@ -32,6 +32,82 @@ export default function PortfolioDetailClient({ project }: PortfolioDetailClient
   const displayImages = project.images || [];
   const hasImages = displayImages.length > 0;
 
+  // Structured Data สำหรับหน้า Portfolio Detail
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "CreativeWork",
+    name: project.title,
+    description: Array.isArray(project.description) ? project.description.join(" ") : project.description,
+    image: project.featured_image || project.images?.[0]?.original_size,
+    url: `https://www.siamrooftech.com/portfolio/${project.slug || project.id}`,
+    about: "กันสาดพับได้",
+    keywords: `กันสาดพับได้, ${project.type}, ${project.category}, ${project.location}`,
+    creator: {
+      "@type": "Organization", 
+      name: "Siamrooftech",
+      url: "https://www.siamrooftech.com",
+    },
+    datePublished: project.completionDate || project.created_at,
+    workExample: {
+      "@type": "VisualArtwork",
+      name: project.title,
+      artform: "การติดตั้งกันสาดพับได้",
+      artMedium: project.canvas_material,
+      size: `${project.width} x ${project.extension} เมตร`,
+      locationCreated: project.location,
+      dateCreated: project.year,
+    },
+    mainEntity: {
+      "@type": "Product",
+      name: `กันสาดพับได้${project.type}`,
+      description: `กันสาดพับได้ระบบ${project.type} ขนาด ${project.width}x${project.extension} เมตร`,
+      category: "กันสาดพับได้",
+      brand: {
+        "@type": "Brand",
+        name: "Siamrooftech"
+      },
+      offers: {
+        "@type": "Offer",
+        availability: "https://schema.org/InStock",
+        price: "ติดต่อสอบราคา",
+        priceCurrency: "THB",
+        seller: {
+          "@type": "Organization",
+          name: "Siamrooftech"
+        }
+      }
+    },
+    breadcrumb: {
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        {
+          "@type": "ListItem",
+          position: 1,
+          name: "หน้าแรก",
+          item: "https://www.siamrooftech.com",
+        },
+        {
+          "@type": "ListItem", 
+          position: 2,
+          name: "ผลงาน",
+          item: "https://www.siamrooftech.com/portfolio",
+        },
+        {
+          "@type": "ListItem",
+          position: 3,
+          name: project.category,
+          item: `https://www.siamrooftech.com/portfolio/category/${encodeURIComponent(project.category)}`,
+        },
+        {
+          "@type": "ListItem",
+          position: 4,
+          name: project.title,
+          item: `https://www.siamrooftech.com/portfolio/${project.slug || project.id}`,
+        },
+      ],
+    },
+  };
+
 
 
   // Lightbox functions
@@ -186,6 +262,12 @@ export default function PortfolioDetailClient({ project }: PortfolioDetailClient
 
   return (
     <div className="min-h-screen bg-white">
+      {/* Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
+
       {/* Breadcrumbs */}
       <div className="bg-white border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">

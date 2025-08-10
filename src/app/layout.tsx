@@ -28,10 +28,10 @@ const myFont = localFont({
 });
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.siamrooftech.com/"),
-  title: "กันสาดพับเก็บได้ กันสาดอัตโนมัติ สวยๆ ทนทาน คุ้มราคา",
+  title: "กันสาดพับได้ ระบบมือหมุน-มอเตอร์ไฟฟ้า คุณภาพยุโรป | Siamrooftech",
   description:
-    "บริการติดตั้งกันสาดพับเก็บได้ ระบบมือหมุนและระบบมอเตอร์ไฟฟ้าคุณภาพสูงจาก Siamrooftech. ด้วยประสบการณ์และเทคนิคการติดตั้งระบบมือหมุนและมอเตอร์ไฟฟ้ากับโครงสร้างหน้างานต่างๆมากกว่า10ปี",
-  keywords: "กันสาดพับเก็บได้, กันสาดอัตโนมัติ, กันสาดมือหมุน, กันสาดมอเตอร์ไฟฟ้า, ติดตั้งกันสาด, Siamrooftech",
+    "ผู้เชี่ยวชาญกันสาดพับได้ ระบบมือหมุน-มอเตอร์ไฟฟ้า คุณภาพยุโรป ราคาไทย ประสบการณ์ 10+ ปี ครอบคลุมทั่วกรุงเทพฯ-ปริมณฑล บริการครบวงจร ใบเสนอราคาฟรี",
+  keywords: "กันสาดพับได้, กันสาดพับเก็บได้, กันสาดอัตโนมัติ, กันสาดมือหมุน, กันสาดมอเตอร์ไฟฟ้า, ติดตั้งกันสาดพับได้, ราคากันสาดพับได้, Siamrooftech, กันสาดคุณภาพ",
   authors: [{ name: "Siamrooftech" }],
   creator: "Siamrooftech",
   publisher: "Siamrooftech",
@@ -50,9 +50,9 @@ export const metadata: Metadata = {
     canonical: "https://www.siamrooftech.com/",
   },
   openGraph: {
-    title: "กันสาดพับเก็บได้ กันสาดอัตโนมัติ สวยๆ ทนทาน คุ้มราคา",
+    title: "กันสาดพับได้ ระบบมือหมุน-มอเตอร์ไฟฟ้า คุณภาพยุโรป | Siamrooftech",
     description:
-      "บริการติดตั้งกันสาดพับเก็บได้ ระบบมือหมุนและระบบมอเตอร์ไฟฟ้าคุณภาพสูงจาก Siamrooftech. ด้วยประสบการณ์และเทคนิคการติดตั้งระบบมือหมุนและมอเตอร์ไฟฟ้ากับโครงสร้างหน้างานต่างๆมากกว่า10ปี",
+      "ผู้เชี่ยวชาญกันสาดพับได้ ระบบมือหมุน-มอเตอร์ไฟฟ้า คุณภาพยุโรป ราคาไทย ประสบการณ์ 10+ ปี ครอบคลุมทั่วกรุงเทพฯ-ปริมณฑล บริการครบวงจร",
     url: "https://www.siamrooftech.com/",
     siteName: "Siamrooftech",
     images: [
@@ -60,13 +60,13 @@ export const metadata: Metadata = {
         url: "https://pub-99f8d7bf688c4c79afcc2d91f37141f2.r2.dev/siamrooftech/medium/46570",
         width: 800,
         height: 600,
-        alt: "กันสาดพับเก็บได้ Siamrooftech - บริการติดตั้งกันสาดคุณภาพสูง",
+        alt: "กันสาดพับได้ Siamrooftech - ผู้เชี่ยวชาญด้านกันสาดพับได้คุณภาพสูง",
       },
       {
         url: "https://pub-99f8d7bf688c4c79afcc2d91f37141f2.r2.dev/siamrooftech/original/46570",
-        width: 1800,
-        height: 1600,
-        alt: "กันสาดพับเก็บได้ Siamrooftech - ผลงานการติดตั้งคุณภาพ",
+        width: 1200,
+        height: 630,
+        alt: "กันสาดพับได้ Siamrooftech - ผลงานการติดตั้งกันสาดพับได้คุณภาพ",
       },
     ],
     locale: "th_TH",
@@ -74,8 +74,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "กันสาดพับเก็บได้ กันสาดอัตโนมัติ สวยๆ ทนทาน คุ้มราคา",
-    description: "บริการติดตั้งกันสาดพับเก็บได้ ระบบมือหมุนและระบบมอเตอร์ไฟฟ้าคุณภาพสูงจาก Siamrooftech",
+    title: "กันสาดพับได้ ระบบมือหมุน-มอเตอร์ไฟฟ้า คุณภาพยุโรป | Siamrooftech",
+    description: "ผู้เชี่ยวชาญกันสาดพับได้ ระบบมือหมุน-มอเตอร์ไฟฟ้า คุณภาพยุโรป ประสบการณ์ 10+ ปี บริการครบวงจร",
     images: ["https://pub-99f8d7bf688c4c79afcc2d91f37141f2.r2.dev/siamrooftech/medium/46570"],
   },
 };

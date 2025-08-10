@@ -2,55 +2,51 @@ import Main from './components/Main';
 
 const jsonLd = {
   '@context': 'https://schema.org',
-  '@type': 'LocalBusiness',
-  name: 'Siamrooftech',
-  description: 'บริการติดตั้งกันสาดพับเก็บได้ ระบบมือหมุนและระบบมอเตอร์ไฟฟ้าคุณภาพสูง',
+  '@type': ['LocalBusiness', 'Organization'],
+  name: 'Siamrooftech - กันสาดพับได้ คุณภาพสูง',
+  description: 'ผู้เชี่ยวชาญด้านกันสาดพับเก็บได้ ระบบมือหมุนและมอเตอร์ไฟฟ้า บริการติดตั้งครบวงจร มากกว่า 10 ปีประสบการณ์',
   url: 'https://www.siamrooftech.com',
   telephone: '+66-98-454-2455',
   email: 'contact@siamrooftech.com',
+  logo: 'https://www.siamrooftech.com/logo.png',
+  image: 'https://pub-99f8d7bf688c4c79afcc2d91f37141f2.r2.dev/siamrooftech/medium/46570',
   address: {
     '@type': 'PostalAddress',
     addressCountry: 'TH',
     addressLocality: 'กรุงเทพมหานคร',
     addressRegion: 'กรุงเทพมหานคร',
   },
-  // geo: {
-  //   '@type': 'GeoCoordinates',
-  //   latitude: 13.7563,
-  //   longitude: 100.5018,
-  // },
   openingHours: 'Mo-Sa 08:00-18:00',
   priceRange: '฿฿',
   serviceArea: {
     '@type': 'Country',
     name: 'Thailand',
   },
-  hasOfferCatalog: {
-    '@type': 'OfferCatalog',
-    name: 'กันสาดพับเก็บได้',
-    itemListElement: [
-      {
-        '@type': 'Offer',
-        itemOffered: {
-          '@type': 'Service',
-          name: 'กันสาดพับเก็บได้ระบบมือหมุน',
-          description: 'ติดตั้งกันสาดพับเก็บได้ระบบมือหมุน เหมาะสำหรับร้านอาหาร คาเฟ่ บ้านพักอาศัย',
-        },
+  makesOffer: [
+    {
+      '@type': 'Offer',
+      itemOffered: {
+        '@type': 'Service',
+        name: 'กันสาดพับเก็บได้ระบบมือหมุน',
+        description: 'ติดตั้งกันสาดพับเก็บได้ระบบมือหมุน เหมาะสำหรับร้านอาหาร คาเฟ่ บ้านพักอาศัย คุณภาพยุโรป ทนทาน',
+        category: 'กันสาดพับได้',
       },
-      {
-        '@type': 'Offer',
-        itemOffered: {
-          '@type': 'Service',
-          name: 'กันสาดพับเก็บได้ระบบมอเตอร์ไฟฟ้า',
-          description: 'ติดตั้งกันสาดพับเก็บได้ระบบมอเตอร์ไฟฟ้า เหมาะสำหรับอาคารสูง โรงแรม อาคารสำนักงาน',
-        },
+    },
+    {
+      '@type': 'Offer',
+      itemOffered: {
+        '@type': 'Service',
+        name: 'กันสาดพับเก็บได้ระบบมอเตอร์ไฟฟ้า',
+        description: 'ติดตั้งกันสาดพับเก็บได้ระบบมอเตอร์ไฟฟ้า พร้อมรีโมทคอนโทรล เหมาะสำหรับอาคารสูง โรงแรม อาคารสำนักงาน',
+        category: 'กันสาดพับได้',
       },
-    ],
-  },
+    },
+  ],
   aggregateRating: {
     '@type': 'AggregateRating',
     ratingValue: '4.8',
     reviewCount: '127',
+    bestRating: '5',
   },
   review: [
     {
@@ -64,9 +60,12 @@ const jsonLd = {
         '@type': 'Person',
         name: 'คุณสมชาย',
       },
-      reviewBody: 'บริการดีมาก ช่างมีความเชี่ยวชาญ งานเสร็จตรงเวลา คุณภาพดีเยี่ยม',
+      reviewBody: 'บริการกันสาดพับได้ดีมาก ช่างมีความเชี่ยวชาญ งานเสร็จตรงเวลา คุณภาพดีเยี่ยม แนะนำเลย',
     },
   ],
+  foundingDate: '2014',
+  numberOfEmployees: '15-20',
+  slogan: 'กันสาดพับได้ คุณภาพยุโรป ราคาไทย',
   sameAs: [
     'https://www.facebook.com/siamrooftech',
     'https://line.me/R/ti/p/@siamrooftech',

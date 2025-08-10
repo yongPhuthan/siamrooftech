@@ -65,8 +65,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     };
   }
 
-  const seoTitle = `กันสาดพับเก็บได้ ชนิด${project.type} ความกว้าง ${project.width} x ระยะแขนพับ ${project.extension} เมตร | สยามรูฟเทค`;
-  const seoDescription = `กันสาดพับเก็บได้แบบ${project.type} ขนาด ${project.width}x${project.extension} เมตร จำนวน ${project.arms_count} แขน วัสดุ${project.canvas_material} ชายผ้า${project.fabric_edge} ที่ ${project.location} ปี ${project.year}`;
+  const seoTitle = `กันสาดพับได้ ${project.type} ${project.width}x${project.extension}ม. | ${project.location} | Siamrooftech`;
+  const seoDescription = `ดูผลงานกันสาดพับได้ระบบ${project.type} ขนาด ${project.width}x${project.extension} เมตร ${project.arms_count} แขน วัสดุ${project.canvas_material} ชายผ้า${project.fabric_edge} ที่ ${project.location} ปี ${project.year}`;
 
   return {
     title: seoTitle,
@@ -74,16 +74,23 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     keywords: [
       'กันสาดพับได้',
       'กันสาดพับเก็บได้',
+      `ผลงานกันสาดพับได้`,
       `กันสาด${project.type}`,
       `กันสาด${project.width}เมตร`,
       `${project.canvas_material}`,
       `ชายผ้า${project.fabric_edge}`,
       project.location,
-      'สยามรูฟเทค'
+      project.category,
+      'Siamrooftech'
     ],
+    alternates: {
+      canonical: `https://www.siamrooftech.com/portfolio/${project.slug || project.id}`,
+    },
     openGraph: {
       title: seoTitle,
       description: seoDescription,
+      type: 'article',
+      url: `https://www.siamrooftech.com/portfolio/${project.slug || project.id}`,
       images: project.featured_image ? [
         {
           url: project.featured_image,
@@ -92,12 +99,24 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
           alt: seoTitle
         }
       ] : [],
+      siteName: 'Siamrooftech',
     },
     twitter: {
       card: 'summary_large_image',
       title: seoTitle,
       description: seoDescription,
       images: project.featured_image ? [project.featured_image] : [],
+    },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        "max-video-preview": -1,
+        "max-image-preview": "large",
+        "max-snippet": -1,
+      },
     },
   };
 }
