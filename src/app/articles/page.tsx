@@ -2,7 +2,8 @@ import { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import Breadcrumbs from '../components/ui/Breadcrumbs';
-import { articlesService, Article } from '../../lib/firestore';
+import { Article } from '../../lib/firestore';
+import { articlesAdminService } from '../../lib/firestore-admin';
 import FinalCTASection from '../components/FinalCTASection';
 
 export const metadata: Metadata = {
@@ -41,7 +42,7 @@ export default async function ArticlesPage() {
   let categories: string[] = ['ทั้งหมด'];
   
   try {
-    articles = await articlesService.getAll();
+    articles = await articlesAdminService.getAll();
     categories = getUniqueCategories(articles);
   } catch (error) {
     console.error('Error fetching articles:', error);

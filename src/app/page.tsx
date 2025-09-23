@@ -111,9 +111,38 @@ const faqJsonLd = {
   ],
 };
 
+async function fetchProjects() {
+  // สำหรับ SSG build time, ให้ใช้ fallback data แทน
+  if (process.env.NODE_ENV === 'production' && process.env.CI) {
+    console.log('Using fallback data for production build');
+    return [];
+  }
+  
+  try {
+    // ใช้ relative URL สำหรับ Server-side ใน production
+    const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
+    const response = await fetch(`${baseUrl}/api/projects`, {
+      next: { revalidate: 3600 }, // Cache for 1 hour
+      cache: 'force-cache'
+    });
+    
+    if (!response.ok) {
+      console.warn('Failed to fetch projects, using fallback');
+      return [];
+    }
+    
+    const projects = await response.json();
+    return projects;
+  } catch (error) {
+    console.error('Error fetching projects:', error);
+    return [];
+  }
+}
+
 export default async function Home() {
 // const keyword = props.searchParams.kw;
 const keyword  = 'กันสาดพับได้'
+const projects = await fetchProjects();
   return (
     <>
       <script
@@ -125,7 +154,7 @@ const keyword  = 'กันสาดพับได้'
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
       />
       <div className="bg-white ">
-          <Main  keyword={keyword ?  keyword :'กันสาดพับได้'}/>
+          <Main keyword={keyword ?  keyword :'กันสาดพับได้'} projects={projects}/>
          {/* <Main projects={projectsByTag} /> */}
         </div>
     </>

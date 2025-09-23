@@ -19,7 +19,10 @@
     "firebase:deploy": "firebase deploy",
     "firebase:functions": "firebase deploy --only functions",
     "check:all": "yarn type-check && yarn lint && yarn test",
-    "pre-commit": "yarn check:all && git add -A"
+    "pre-commit": "yarn check:all && git add -A",
+    "revalidate": "node scripts/revalidate.js",
+    "revalidate:dev": "node scripts/revalidate.js && npm run dev",
+    "clear-cache": "rm -rf .next/cache .next/server/app"
   },
   "dependencies": {
     "@emotion/cache": "^11.11.0",

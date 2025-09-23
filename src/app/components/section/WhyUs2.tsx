@@ -1,3 +1,5 @@
+'use client';
+
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import FoundationIcon from '@mui/icons-material/Foundation';
 import LayersIcon from '@mui/icons-material/Layers';
