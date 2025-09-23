@@ -206,7 +206,7 @@ const ProjectShow = (props:any) => {
                 ))}
               </div>
               {subtitle && (
-                <p className="text-[#3399FF] text-sm text-center font-medium">
+                <p className="text-white text-sm text-center font-medium">
                   {subtitle}
                 </p>
               )}
