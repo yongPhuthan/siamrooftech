@@ -7,6 +7,8 @@ export interface ProjectShowData {
   subtitle?: string;
   description: string[];
   items: ProjectShowItem[];
+  projectId?: string; // เพิ่มสำหรับ navigation
+  projectSlug?: string; // เพิ่มสำหรับ navigation
 }
 
 export interface ProjectShowItem {
@@ -66,7 +68,7 @@ export function transformFirestoreProjectsToProjectShow(
     if (projectItems.length > 0) {
       projectShowData.push({
         id: projectId++,
-        title: [keyword + ' ', project.category || 'โปรเจกต์'],
+        title: [keyword + ' ', project.category === 'อื่นๆ' ? project.location : project.category || 'โปรเจกต์'],
         subtitle: `${project.type || 'กันสาดพับได้'} หน้ากว้าง ${project.width} เมตร x ระยะแขนพับ ${project.extension} เมตร`,
         description: [
           `สถานที่ : ${project.location || 'ไม่ระบุ'}`,
@@ -74,7 +76,9 @@ export function transformFirestoreProjectsToProjectShow(
           `ขนาด : กว้าง ${project.width} cm x ยื่นออก ${project.extension} cm`,
           `วัสดุ : ${project.canvas_material || 'ผ้าอะคริลิคสเปนคุณภาพสูง'}`
         ],
-        items: projectItems
+        items: projectItems,
+        projectId: project.id,
+        projectSlug: project.slug
       });
     }
   });

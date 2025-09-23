@@ -1,6 +1,7 @@
 'use client';
 import Image from 'next/image';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 import { Navigation, Pagination } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -13,18 +14,25 @@ import 'swiper/swiper-bundle.css';
 
 const ProjectShow = (props:any) => {
   const [showModal, setShowModal] = useState(false);
+  const router = useRouter();
   const projects = props.projectShows;
   const title = props.title;
   const subtitle = props.subtitle;
   const description = props.description;
+  const projectId = props.projectId;
+  const projectSlug = props.projectSlug;
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const [open, setOpen] = useState(false);
 
-  const handleOpen = () => {
-    setOpen(true);
+  const handleProjectClick = () => {
+    if (projectSlug) {
+      router.push(`/portfolio/${projectSlug}`);
+    } else if (projectId) {
+      router.push(`/portfolio/${projectId}`);
+    }
   };
 
-  const handleImageClick = (imageSrc :string ) => {
+  const handleImageClick = (imageSrc: string, e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent project navigation when clicking image
     setSelectedImage(imageSrc);
     setShowModal(true);
   };
@@ -43,8 +51,8 @@ const ProjectShow = (props:any) => {
                   key={index}
                   className={`text-left font-bold text-3xl lg:text-4xl ${
                     index === 0
-                      ? 'border-l-4 border-blue-600 pl-4 mr-2 text-gray-900'
-                      : 'text-blue-600'
+                      ? 'border-l-4 border-[#008AD7] pl-4 mr-2 text-gray-900'
+                      : 'text-[#008AD7]'
                   }`}
                 >
                   {item}
@@ -60,7 +68,7 @@ const ProjectShow = (props:any) => {
           </div>
 
           {/* Content Grid - Improved Layout (Fitts's Law + Visual Hierarchy) */}
-          <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+          <div className="bg-white rounded-2xl shadow-lg overflow-hidden cursor-pointer" onClick={handleProjectClick}>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 p-6">
               {/* Main Image - Enhanced Touch Target */}
               <div className="space-y-4">
@@ -71,7 +79,7 @@ const ProjectShow = (props:any) => {
                     className="w-full h-auto aspect-[4/3] object-cover rounded-xl cursor-pointer transition-all duration-300 group-hover:scale-[1.02] group-hover:shadow-xl"
                     src={projects[0].originalSize}
                     alt={projects[0].title}
-                    onClick={() => handleImageClick(projects[0].originalSize)}
+                    onClick={(e) => handleImageClick(projects[0].originalSize, e)}
                   />
                   {/* Overlay badge */}
                   <div className="absolute top-3 right-3">
@@ -84,7 +92,7 @@ const ProjectShow = (props:any) => {
                 {/* Thumbnail Gallery - Improved Touch Targets */}
                 <div className="grid grid-cols-4 gap-3">
                   {projects.slice(0, 4).map((project:any) => (
-                    <div key={project.id} className="relative group cursor-pointer" onClick={() => handleImageClick(project.originalSize)}>
+                    <div key={project.id} className="relative group cursor-pointer" onClick={(e) => handleImageClick(project.originalSize, e)}>
                       <Image
                         alt={project.title}
                         width={140}
@@ -105,7 +113,7 @@ const ProjectShow = (props:any) => {
                     const [label, content] = item.split(' : ');
                     return (
                       <div key={index} className="flex flex-col space-y-1.5 p-4 bg-gray-50 rounded-xl">
-                        <span className="text-sm font-semibold text-blue-600 uppercase tracking-wide">
+                        <span className="text-sm font-semibold text-[#027DFF] uppercase tracking-wide">
                           {label}
                         </span>
                         <span className="text-base text-gray-800 font-medium">{content}</span>
@@ -180,10 +188,10 @@ const ProjectShow = (props:any) => {
       </div>
 
       {/* mobile */}
-      <div className="flex lg:hidden md:hidden flex-col bg-white rounded-2xl shadow-lg my-6 mx-4 overflow-hidden">
+      <div className="flex lg:hidden md:hidden flex-col bg-white rounded-2xl shadow-lg my-6 mx-4 overflow-hidden cursor-pointer" onClick={handleProjectClick}>
         <div className="w-full">
           {/* Mobile Title Section */}
-          <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-4">
+          <div className="bg-gradient-to-r from-[#008AD7] to-[#004589] p-4">
             <div className="space-y-2">
               <div className="flex items-center justify-center">
                 {title.map((item:any, index:number) => (
@@ -198,7 +206,7 @@ const ProjectShow = (props:any) => {
                 ))}
               </div>
               {subtitle && (
-                <p className="text-blue-100 text-sm text-center font-medium">
+                <p className="text-[#3399FF] text-sm text-center font-medium">
                   {subtitle}
                 </p>
               )}
@@ -209,7 +217,7 @@ const ProjectShow = (props:any) => {
             {/* main image */}
             <div className="relative group cursor-pointer rounded-xl overflow-hidden">
               <Image
-                onClick={handleOpen}
+                onClick={(e) => handleImageClick(projects[0]?.originalSize, e)}
                 sizes="(max-width: 320px) 280px, (max-width: 480px) 440px, 800px"
                 src={projects[0]?.originalSize}
                 alt={projects[0]?.title}
@@ -231,7 +239,7 @@ const ProjectShow = (props:any) => {
                 <div
                   key={project.id}
                   className="relative group cursor-pointer"
-                  onClick={props.handleOpen}
+                  onClick={(e) => handleImageClick(project.originalSize, e)}
                 >
                   <Image
                     className="w-full h-16 object-cover rounded-lg transition-all duration-200 group-hover:scale-105"
@@ -290,7 +298,7 @@ const ProjectShow = (props:any) => {
                 const [label, content] = item.split(' : ');
                 return (
                   <div key={index} className="p-3 bg-gray-50 rounded-xl border border-gray-100">
-                    <div className="text-xs font-semibold text-blue-600 uppercase tracking-wide mb-1">
+                    <div className="text-xs font-semibold text-[#027DFF] uppercase tracking-wide mb-1">
                       {label}
                     </div>
                     <div className="text-sm text-gray-800 font-medium">

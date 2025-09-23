@@ -41,6 +41,8 @@ const ProjectGalleryClient = ({ projects }: Props) => {
           title={project.title}
           subtitle={project.subtitle}
           description={project.description}
+          projectId={project.projectId}
+          projectSlug={project.projectSlug}
         />
       ))}
       <ImageGalleryModal
