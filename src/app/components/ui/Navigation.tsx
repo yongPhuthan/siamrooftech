@@ -3,6 +3,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
+import { trackLineClick, trackPhoneClick, trackContactClick } from '@/lib/gtag';
 
 export default function Navigation() {
   const [isOpen, setIsOpen] = useState(false);
@@ -89,6 +90,8 @@ export default function Navigation() {
                 rel="noopener noreferrer"
                 className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-2 rounded-full text-sm font-semibold hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105"
                 onClick={() => {
+                  trackLineClick();
+                  // Keep existing gtag_report_conversion for backwards compatibility
                   if (typeof gtag_report_conversion === 'function') {
                     return gtag_report_conversion('https://lin.ee/pPz1ZqN');
                   }
@@ -108,6 +111,8 @@ export default function Navigation() {
               rel="noopener noreferrer"
               className="bg-blue-600 text-white px-3 py-1.5 rounded-full text-xs font-semibold hover:bg-blue-700 transition-colors"
               onClick={() => {
+                trackLineClick();
+                // Keep existing gtag_report_conversion for backwards compatibility
                 if (typeof gtag_report_conversion === 'function') {
                   return gtag_report_conversion('https://lin.ee/pPz1ZqN');
                 }
@@ -158,6 +163,7 @@ export default function Navigation() {
                   <a 
                     href="tel:0984542455" 
                     className="flex items-center space-x-2 text-sm text-gray-600 hover:text-blue-600"
+                    onClick={() => trackPhoneClick('0984542455')}
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
@@ -170,6 +176,8 @@ export default function Navigation() {
                     rel="noopener noreferrer"
                     className="flex items-center space-x-2 text-sm text-gray-600 hover:text-green-600"
                     onClick={() => {
+                      trackLineClick();
+                      // Keep existing gtag_report_conversion for backwards compatibility
                       if (typeof gtag_report_conversion === 'function') {
                         return gtag_report_conversion('https://lin.ee/pPz1ZqN');
                       }

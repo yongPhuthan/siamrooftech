@@ -45,6 +45,7 @@ const Main = (props: Props) => {
           width={1200}
           height={200}
           imageClassName="rounded-2xl"
+          trackingType="hero"
         />
       </div>
 
@@ -75,6 +76,7 @@ const Main = (props: Props) => {
           width={600}
           height={600}
           imageClassName="rounded-md"
+          trackingType="middle"
         />
 
         <HowItWorks keyword={keyword} />
@@ -87,6 +89,7 @@ const Main = (props: Props) => {
             width={1200}
             height={200}
             imageClassName="rounded-2xl"
+            trackingType="bottom"
           />
         </div>
       </Stack>
@@ -98,6 +101,7 @@ const Main = (props: Props) => {
             imageAlt="line icon"
             width={25}
             height={25}
+            trackingType="mobile"
           >
             <p className="font_page text-[16px] ml-2 text-white font-semibold">
               คลิกไลน์ ประเมินราคาฟรี
@@ -113,6 +117,7 @@ const Main = (props: Props) => {
         imageAlt="line icon"
         width={50}
         height={50}
+        trackingType="desktop"
       >
         <span className="text-white font_page text-[18px] font-bold">
           คลิกไลน์ ประเมินราคาฟรี

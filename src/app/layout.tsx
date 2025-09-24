@@ -99,7 +99,7 @@ export default function RootLayout({
                     }
                   };
                   gtag('event', 'conversion', {
-                      'send_to': 'AW-17456457441/Kx9vCO6Q-oIbEOHN8YNB',
+                      'send_to': '${process.env.NEXT_PUBLIC_GA_TRACKING_ID}/${process.env.NEXT_PUBLIC_CONVERSION_LABEL}',
                       'value': 1.0,
                       'currency': 'THB',
                       'event_callback': callback
@@ -113,8 +113,8 @@ export default function RootLayout({
       </head>
       {process.env.NODE_ENV === "production" ? (
         <>
-          <GoogleTagManager gtmId={process.env.G_TAGMANAGER_ID || "GTM-MT74ZP2P"} />
-          <GoogleAnalytics gaId="AW-17456457441" />
+          <GoogleTagManager gtmId={process.env.NEXT_PUBLIC_GTM_ID || "GTM-MT74ZP2P"} />
+          <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_TRACKING_ID || "AW-17594563828"} />
         </>
       ) : null}
       <body className={`bg-white`}>

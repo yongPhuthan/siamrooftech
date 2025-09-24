@@ -1,6 +1,15 @@
 'use client';
 
 import Image from 'next/image';
+import {
+  trackLineClickHero,
+  trackLineClickMiddle,
+  trackLineClickBottom,
+  trackLineClickMobile,
+  trackLineClickDesktop
+} from '@/lib/gtag';
+
+type TrackingType = 'hero' | 'middle' | 'bottom' | 'mobile' | 'desktop';
 
 interface LineButtonProps {
   className?: string;
@@ -10,6 +19,7 @@ interface LineButtonProps {
   height: number;
   imageClassName?: string;
   children?: React.ReactNode;
+  trackingType?: TrackingType;
 }
 
 const LineButton = ({ 
@@ -19,10 +29,32 @@ const LineButton = ({
   width, 
   height, 
   imageClassName,
-  children 
+  children,
+  trackingType = 'hero' // default fallback
 }: LineButtonProps) => {
   const handleClick = () => {
-    // GTM conversion tracking
+    // New tracking system based on button position
+    switch (trackingType) {
+      case 'hero':
+        trackLineClickHero();
+        break;
+      case 'middle':
+        trackLineClickMiddle();
+        break;
+      case 'bottom':
+        trackLineClickBottom();
+        break;
+      case 'mobile':
+        trackLineClickMobile();
+        break;
+      case 'desktop':
+        trackLineClickDesktop();
+        break;
+      default:
+        trackLineClickHero(); // fallback
+    }
+    
+    // Keep existing GTM conversion tracking for backwards compatibility
     if (typeof window !== 'undefined' && typeof (window as any).gtag_report_conversion === 'function') {
       return (window as any).gtag_report_conversion('https://lin.ee/pPz1ZqN');
     }
