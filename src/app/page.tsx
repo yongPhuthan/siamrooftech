@@ -1,4 +1,6 @@
 import Main from './components/Main';
+import { projectsAdminService } from '@/lib/firestore-admin';
+import { Project } from '@/lib/firestore';
 
 const jsonLd = {
   '@context': 'https://schema.org',
@@ -111,30 +113,29 @@ const faqJsonLd = {
   ],
 };
 
-async function fetchProjects() {
-  // สำหรับ SSG build time, ให้ใช้ fallback data แทน
-  if (process.env.NODE_ENV === 'production' && process.env.CI) {
-    console.log('Using fallback data for production build');
-    return [];
-  }
-  
+// Enable ISR with 60 seconds revalidation (เหมือนหน้า "ผลงานทั้งหมด")
+export const revalidate = 60;
+
+async function fetchProjects(): Promise<Project[]> {
   try {
-    // ใช้ relative URL สำหรับ Server-side ใน production
-    const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
-    const response = await fetch(`${baseUrl}/api/projects`, {
-      next: { revalidate: 3600 }, // Cache for 1 hour
-      cache: 'force-cache'
+    console.log('🔍 [Homepage] Fetching projects using projectsAdminService.getAll()...');
+    
+    // ใช้ projectsAdminService.getAll() ตรงๆ เหมือนหน้า "ผลงานทั้งหมด"
+    const projects = await projectsAdminService.getAll();
+    
+    console.log('📊 [Homepage] Projects loaded:', {
+      count: projects?.length || 0,
+      source: 'Firebase Admin SDK',
+      hasData: projects && projects.length > 0
     });
     
-    if (!response.ok) {
-      console.warn('Failed to fetch projects, using fallback');
-      return [];
+    if (!projects || projects.length === 0) {
+      console.warn('⚠️ [Homepage] No projects loaded from Firebase Admin SDK');
     }
     
-    const projects = await response.json();
-    return projects;
+    return projects || [];
   } catch (error) {
-    console.error('Error fetching projects:', error);
+    console.error('❌ [Homepage] Error fetching projects:', error);
     return [];
   }
 }
