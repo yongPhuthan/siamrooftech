@@ -1,5 +1,4 @@
 'use client';
-
 import { useState } from 'react';
 import Image from 'next/image';
 import { ProjectImage } from '@/lib/firestore';
@@ -190,7 +189,7 @@ export default function ImageUploadTabs({
           </p>
           {activeTab === 'before' && beforeImages.length === 0 && (
             <p className="text-xs text-red-600 mt-2">
-              ⚠️ ถ้าไม่มีรูปก่อนติดตั้ง ระบบจะใช้รูปแรกของ "หลังติดตั้ง" แสดงแทน
+              ⚠️ ถ้าไม่มีรูปก่อนติดตั้ง ระบบจะใช้รูปแรกของ หลังติดตั้ง แสดงแทน
             </p>
           )}
         </div>
