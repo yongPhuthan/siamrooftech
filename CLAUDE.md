@@ -96,6 +96,25 @@ yarn firebase:functions  # Deploy only functions
 - **@mui/icons-material**: Material Design icons
 - **@fortawesome/react-fontawesome**: FontAwesome icons for additional icons
 
+### Design System
+**IMPORTANT: Before making UI changes to project-related components, ALWAYS consult:**
+- [`/docs/design-system/PROJECT_UI_DESIGN.md`](/docs/design-system/PROJECT_UI_DESIGN.md) - Comprehensive design patterns and component library
+
+This design system ensures consistency across:
+- **ProjectShow** (Homepage featured projects)
+- **Portfolio Grid & Cards** (Portfolio listing pages)
+- **Portfolio Detail Pages** (Individual project pages)
+- **Filter Chips** (Category filtering)
+- **Navigation Components** (Breadcrumbs, CTAs)
+
+**Key Design Principles:**
+- Color palette: Primary blues (#008AD7, #027DFF, blue-600), neutral grays
+- Typography: Sukhumvit Set font family with bold headings
+- Spacing: Consistent gaps (gap-3, gap-6, gap-8) and container widths (max-w-6xl, max-w-7xl)
+- Cards: rounded-2xl with shadow-sm → shadow-2xl on hover
+- Images: aspect-[4/3] with overlay effects
+- Animations: duration-300 for quick, duration-500 for dramatic transitions
+
 ### Animations & Interactions
 - **@react-spring/web v9.7.3**: Spring-physics based animations
 - **Swiper v11.0.6**: Touch slider component for portfolio galleries

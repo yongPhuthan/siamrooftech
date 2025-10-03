@@ -7,6 +7,8 @@ import { useCallback, useEffect, useState } from 'react';
 import { Project } from '../../../lib/firestore';
 import { usePortfolioStore } from '../../../store/portfolioStore';
 import Breadcrumbs from '../../components/ui/Breadcrumbs';
+import BeforeAfterGallery from '../../components/portfolio/BeforeAfterGallery';
+import { getBeforeImage, getAfterImages, shouldShowBeforeAfter } from '@/lib/project-image-utils';
 
 
 interface PortfolioDetailClientProps {
@@ -286,61 +288,83 @@ export default function PortfolioDetailClient({ project }: PortfolioDetailClient
 {/* Hero Section - Modern Amazon-like */}
 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
   <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-    {/* ===== Image Gallery ===== */}
+    {/* ===== Image Gallery - Before/After or Regular ===== */}
     <div className="flex flex-col gap-4">
       {hasImages ? (
-        <>
-          {/* Main Image */}
-          <div
-            className="relative w-full rounded-xl overflow-hidden bg-gray-100 shadow-md cursor-pointer"
-            style={{ aspectRatio: '1 / 1' }}
-            onClick={() => openLightbox(activeImageIndex)}
-          >
-            <Image
-              src={displayImages[activeImageIndex].original_size}
-              alt={
-                displayImages[activeImageIndex].alt_text ||
-                `${project.title} - รูปที่ ${activeImageIndex + 1}`
-              }
-              fill
-              priority
-              className="object-cover"
+        shouldShowBeforeAfter(project) ? (
+          <>
+            {/* Before/After Gallery */}
+            <BeforeAfterGallery
+              project={project}
+              beforeImage={getBeforeImage(project)}
+              afterImages={getAfterImages(project)}
             />
-          </div>
 
-          {/* Thumbnails */}
-          {displayImages.length > 1 && (
-            <div className="flex gap-3 overflow-x-auto pb-2">
-              {displayImages.map((img, index) => (
-                <button
-                  key={index}
-                  onClick={() => setActiveImageIndex(index)}
-                  className={`relative flex-shrink-0 rounded-lg overflow-hidden border-2 ${
-                    activeImageIndex === index
-                      ? 'border-blue-500 shadow-lg'
-                      : 'border-gray-300'
-                  }`}
-                  style={{ width: 80, height: 80 }}
-                >
-                  <Image
-                    src={img.small_size}
-                    alt={img.alt_text || `${project.title} thumbnail ${index + 1}`}
-                    fill
-                    className="object-cover"
-                  />
-                </button>
-              ))}
+            {/* Lightbox trigger */}
+            <div className="text-center">
+              <button
+                onClick={() => openLightbox(activeImageIndex)}
+                className="inline-flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700 font-medium transition-colors"
+              >
+                <ZoomInIcon fontSize="small" />
+                ดูภาพขนาดใหญ่
+              </button>
             </div>
-          )}
+          </>
+        ) : (
+          <>
+            {/* Regular Image Gallery (Backward Compatible) */}
+            <div
+              className="relative w-full rounded-xl overflow-hidden bg-gray-100 shadow-md cursor-pointer"
+              style={{ aspectRatio: '1 / 1' }}
+              onClick={() => openLightbox(activeImageIndex)}
+            >
+              <Image
+                src={displayImages[activeImageIndex].original_size}
+                alt={
+                  displayImages[activeImageIndex].alt_text ||
+                  `${project.title} - รูปที่ ${activeImageIndex + 1}`
+                }
+                fill
+                priority
+                className="object-cover"
+              />
+            </div>
 
-          {/* Image Caption */}
-          {displayImages[activeImageIndex]?.caption && (
-            <p className="text-sm text-gray-500">
-              {displayImages[activeImageIndex].caption} • รูปที่{' '}
-              {activeImageIndex + 1} จาก {displayImages.length}
-            </p>
-          )}
-        </>
+            {/* Thumbnails */}
+            {displayImages.length > 1 && (
+              <div className="flex gap-3 overflow-x-auto pb-2">
+                {displayImages.map((img, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setActiveImageIndex(index)}
+                    className={`relative flex-shrink-0 rounded-lg overflow-hidden border-2 ${
+                      activeImageIndex === index
+                        ? 'border-blue-500 shadow-lg'
+                        : 'border-gray-300'
+                    }`}
+                    style={{ width: 80, height: 80 }}
+                  >
+                    <Image
+                      src={img.small_size}
+                      alt={img.alt_text || `${project.title} thumbnail ${index + 1}`}
+                      fill
+                      className="object-cover"
+                    />
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {/* Image Caption */}
+            {displayImages[activeImageIndex]?.caption && (
+              <p className="text-sm text-gray-500">
+                {displayImages[activeImageIndex].caption} • รูปที่{' '}
+                {activeImageIndex + 1} จาก {displayImages.length}
+              </p>
+            )}
+          </>
+        )
       ) : (
         <div className="h-96 flex items-center justify-center rounded-xl bg-gray-100 text-gray-400">
           ไม่มีรูปภาพแสดง

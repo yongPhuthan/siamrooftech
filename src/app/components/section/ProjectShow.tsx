@@ -12,6 +12,8 @@ import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import 'swiper/swiper-bundle.css';
 
+import BeforeAfterSlider from '../ui/BeforeAfterSlider';
+
 const ProjectShow = (props:any) => {
   const [showModal, setShowModal] = useState(false);
   const router = useRouter();
@@ -21,7 +23,19 @@ const ProjectShow = (props:any) => {
   const description = props.description;
   const projectId = props.projectId;
   const projectSlug = props.projectSlug;
+  const fullProject = props.project; // Full project data for Before/After
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+
+  // Determine if we should show Before/After
+  const hasBeforeImage = fullProject?.images?.some((img: any) => img.type === 'before');
+  const shouldShowBeforeAfter = hasBeforeImage || (fullProject?.images?.length >= 2);
+
+  // Get before/after images
+  const beforeImage = hasBeforeImage
+    ? fullProject.images.find((img: any) => img.type === 'before').original_size
+    : projects[0]?.originalSize; // Fallback to first image
+
+  const afterImage = projects[0]?.originalSize; // First after image
 
   const handleProjectClick = () => {
     if (projectSlug) {
@@ -70,25 +84,50 @@ const ProjectShow = (props:any) => {
           {/* Content Grid - Improved Layout (Fitts's Law + Visual Hierarchy) */}
           <div className="bg-white rounded-2xl shadow-lg overflow-hidden cursor-pointer" onClick={handleProjectClick}>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 p-6">
-              {/* Main Image - Enhanced Touch Target */}
+              {/* Main Image - Before/After Slider or Regular Image */}
               <div className="space-y-4">
-                <div className="relative group">
-                  <Image
-                    width={600}
-                    height={450}
-                    className="w-full h-auto aspect-[4/3] object-cover rounded-xl cursor-pointer transition-all duration-300 group-hover:scale-[1.02] group-hover:shadow-xl"
-                    src={projects[0].originalSize}
-                    alt={projects[0].title}
-                    onClick={(e) => handleImageClick(projects[0].originalSize, e)}
-                  />
-                  {/* Overlay badge */}
-                  <div className="absolute top-3 right-3">
-                    <div className="bg-white/95 backdrop-blur-sm px-3 py-1.5 rounded-lg text-sm font-medium text-gray-800 shadow-sm">
-                      {projects.length} รูป
+                {shouldShowBeforeAfter ? (
+                  <>
+                    {/* Before/After Slider */}
+                    <div onClick={(e) => e.stopPropagation()}>
+                      <BeforeAfterSlider
+                        beforeImage={beforeImage}
+                        afterImage={afterImage}
+                        beforeAlt={`${title.join(' ')} - ก่อนติดตั้ง`}
+                        afterAlt={`${title.join(' ')} - หลังติดตั้ง`}
+                      />
                     </div>
-                  </div>
-                </div>
-                
+
+                    {/* Info Badge */}
+                    <div className="flex items-center justify-center gap-2 text-sm text-gray-600">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <span>เลื่อนเพื่อดูภาพก่อนและหลัง</span>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    {/* Regular Image (Backward Compatible) */}
+                    <div className="relative group">
+                      <Image
+                        width={600}
+                        height={450}
+                        className="w-full h-auto aspect-[4/3] object-cover rounded-xl cursor-pointer transition-all duration-300 group-hover:scale-[1.02] group-hover:shadow-xl"
+                        src={projects[0].originalSize}
+                        alt={projects[0].title}
+                        onClick={(e) => handleImageClick(projects[0].originalSize, e)}
+                      />
+                      {/* Overlay badge */}
+                      <div className="absolute top-3 right-3">
+                        <div className="bg-white/95 backdrop-blur-sm px-3 py-1.5 rounded-lg text-sm font-medium text-gray-800 shadow-sm">
+                          {projects.length} รูป
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                )}
+
                 {/* Thumbnail Gallery - Improved Touch Targets */}
                 <div className="grid grid-cols-4 gap-3">
                   {projects.slice(0, 4).map((project:any) => (
@@ -214,24 +253,35 @@ const ProjectShow = (props:any) => {
           </div>
           
           <div className="p-4 space-y-4">
-            {/* main image */}
-            <div className="relative group cursor-pointer rounded-xl overflow-hidden">
-              <Image
-                onClick={(e) => handleImageClick(projects[0]?.originalSize, e)}
-                sizes="(max-width: 320px) 280px, (max-width: 480px) 440px, 800px"
-                src={projects[0]?.originalSize}
-                alt={projects[0]?.title}
-                width={400}
-                height={300}
-                className="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-105"
-              />
-              {/* Image count badge */}
-              <div className="absolute top-3 right-3">
-                <div className="bg-white/95 backdrop-blur-sm px-2.5 py-1 rounded-lg text-xs font-medium text-gray-800">
-                  {projects.length} รูป
+            {/* main image - Before/After Slider or Regular */}
+            {shouldShowBeforeAfter ? (
+              <div onClick={(e) => e.stopPropagation()}>
+                <BeforeAfterSlider
+                  beforeImage={beforeImage}
+                  afterImage={afterImage}
+                  beforeAlt={`${title.join(' ')} - ก่อนติดตั้ง`}
+                  afterAlt={`${title.join(' ')} - หลังติดตั้ง`}
+                />
+              </div>
+            ) : (
+              <div className="relative group cursor-pointer rounded-xl overflow-hidden">
+                <Image
+                  onClick={(e) => handleImageClick(projects[0]?.originalSize, e)}
+                  sizes="(max-width: 320px) 280px, (max-width: 480px) 440px, 800px"
+                  src={projects[0]?.originalSize}
+                  alt={projects[0]?.title}
+                  width={400}
+                  height={300}
+                  className="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-105"
+                />
+                {/* Image count badge */}
+                <div className="absolute top-3 right-3">
+                  <div className="bg-white/95 backdrop-blur-sm px-2.5 py-1 rounded-lg text-xs font-medium text-gray-800">
+                    {projects.length} รูป
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
 
             {/* Thumbnail row - Better touch targets */}
             <div className="grid grid-cols-4 gap-2">

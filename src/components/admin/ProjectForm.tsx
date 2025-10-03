@@ -1109,40 +1109,104 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
                     เพิ่มรูปภาพ
                   </button>
                 </div>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                  {project.images.map((image, index) => (
-                    <div key={index} className="relative aspect-square rounded-lg overflow-hidden border border-gray-200 group">
-                      <img
-                        src={image.small_size || image.original_size}
-                        alt={image.alt_text || `รูปที่ ${index + 1}`}
-                        className="w-full h-full object-cover"
-                        loading="lazy"
-                      />
-                      
-                      {/* Delete button */}
-                      <button
-                        type="button"
-                        onClick={() => handleDeleteImage(index)}
-                        disabled={deletingImageIndex === index}
-                        className="absolute top-1 right-1 w-6 h-6 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center text-sm font-bold opacity-0 group-hover:opacity-100 transition-opacity duration-200 disabled:opacity-50"
-                        title="ลบรูปภาพ"
-                      >
-                        {deletingImageIndex === index ? (
-                          <svg className="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                            <path className="opacity-75" fill="currentColor" d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                          </svg>
-                        ) : (
-                          "×"
-                        )}
-                      </button>
-                      
-                      {/* Image info overlay */}
-                      <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white text-xs p-2">
-                        <div className="truncate">{image.title || `รูปที่ ${index + 1}`}</div>
-                      </div>
+
+                {/* Before Image Warning */}
+                {!project.images.some(img => img.type === 'before') && (
+                  <div className="mb-4 bg-yellow-50 border border-yellow-200 rounded-lg p-3 flex items-start">
+                    <svg className="w-5 h-5 text-yellow-600 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.667-2.694-1.667-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                    <div className="text-sm text-yellow-800">
+                      <p className="font-medium">ไม่มีรูป "ก่อนติดตั้ง" (🔴)</p>
+                      <p className="mt-1">ระบบจะใช้รูปแรกเป็นรูป "ก่อนติดตั้ง" สำหรับการแสดง Before/After</p>
                     </div>
-                  ))}
+                  </div>
+                )}
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                  {project.images.map((image, index) => {
+                    const getTypeBadge = (type?: 'before' | 'during' | 'after' | 'detail') => {
+                      switch (type) {
+                        case 'before':
+                          return { bg: 'bg-red-500', text: 'ก่อน', emoji: '🔴' };
+                        case 'during':
+                          return { bg: 'bg-yellow-500', text: 'ระหว่าง', emoji: '🟡' };
+                        case 'detail':
+                          return { bg: 'bg-blue-500', text: 'รายละเอียด', emoji: '🔵' };
+                        default:
+                          return { bg: 'bg-green-500', text: 'หลัง', emoji: '🟢' };
+                      }
+                    };
+
+                    const badge = getTypeBadge(image.type);
+
+                    return (
+                      <div key={index} className="space-y-2">
+                        <div className="relative aspect-square rounded-lg overflow-hidden border border-gray-200 group">
+                          <img
+                            src={image.small_size || image.original_size}
+                            alt={image.alt_text || `รูปที่ ${index + 1}`}
+                            className="w-full h-full object-cover"
+                            loading="lazy"
+                          />
+
+                          {/* Type Badge */}
+                          <div className={`absolute top-1 left-1 ${badge.bg} text-white px-2 py-0.5 rounded text-xs font-semibold flex items-center gap-1`}>
+                            <span>{badge.emoji}</span>
+                            <span>{badge.text}</span>
+                          </div>
+
+                          {/* Delete button */}
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteImage(index)}
+                            disabled={deletingImageIndex === index}
+                            className="absolute top-1 right-1 w-6 h-6 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center text-sm font-bold opacity-0 group-hover:opacity-100 transition-opacity duration-200 disabled:opacity-50"
+                            title="ลบรูปภาพ"
+                          >
+                            {deletingImageIndex === index ? (
+                              <svg className="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                <path className="opacity-75" fill="currentColor" d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                              </svg>
+                            ) : (
+                              "×"
+                            )}
+                          </button>
+
+                          {/* Image info overlay */}
+                          <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white text-xs p-2">
+                            <div className="truncate">{image.title || `รูปที่ ${index + 1}`}</div>
+                          </div>
+                        </div>
+
+                        {/* Image Type Selector */}
+                        <select
+                          value={image.type || 'after'}
+                          onChange={async (e) => {
+                            const newType = e.target.value as 'before' | 'during' | 'after' | 'detail';
+                            const updatedImages = [...project.images];
+                            updatedImages[index] = { ...updatedImages[index], type: newType };
+
+                            // Update in Firestore
+                            const projectRef = doc(db, 'projects', project.id);
+                            await updateDoc(projectRef, {
+                              images: updatedImages,
+                              updated_at: new Date()
+                            });
+
+                            // Update local state
+                            project.images = updatedImages;
+                          }}
+                          className="w-full px-2 py-1 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                        >
+                          <option value="before">🔴 ก่อนติดตั้ง</option>
+                          <option value="after">🟢 หลังติดตั้ง</option>
+                          <option value="during">🟡 ระหว่างติดตั้ง</option>
+                          <option value="detail">🔵 รายละเอียด</option>
+                        </select>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             )}
