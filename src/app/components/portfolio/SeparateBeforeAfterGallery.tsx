@@ -67,11 +67,11 @@ export default function SeparateBeforeAfterGallery({
             />
 
             {/* Hover overlay */}
-            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300 flex items-center justify-center">
+            {/* <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300 flex items-center justify-center">
               <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white/90 px-4 py-2 rounded-full text-sm font-medium text-gray-800">
                 🔍 คลิกเพื่อดูขนาดใหญ่
               </div>
-            </div>
+            </div> */}
           </div>
 
           {/* Thumbnails - Miller's Law: Max 8 visible */}
