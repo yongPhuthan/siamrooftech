@@ -5,7 +5,9 @@ import { collection, addDoc, doc, updateDoc } from "firebase/firestore";
 import { db } from "../../lib/firebase";
 import { UploadResult } from "../../app/lib/cloudflare/uploadImage";
 import ImageUpload, { ImageUploadRef } from "./ImageUpload";
-import { Project } from "../../lib/firestore";
+import ImageUploadTabs from "./ImageUploadTabs";
+import { Project, ProjectImage } from "../../lib/firestore";
+import { getAfterImages, getBeforeImages } from "../../lib/project-image-utils";
 import PDFAutofillComponent from "./PDFAutofillComponent";
 
 interface ProjectFormData {
@@ -88,7 +90,20 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
   } | null>(null);
   const [generatingDescription, setGeneratingDescription] = useState(false);
   const [deletingImageIndex, setDeletingImageIndex] = useState<number | null>(null);
+  const [isUploadingImages, setIsUploadingImages] = useState(false);
   const imageUploadRef = useRef<ImageUploadRef>(null);
+
+  // Separate state for Before/After images
+  const [afterImages, setAfterImages] = useState<ProjectImage[]>([]);
+  const [beforeImages, setBeforeImages] = useState<ProjectImage[]>([]);
+
+  // Initialize before/after images when project is loaded
+  useEffect(() => {
+    if (project && project.images) {
+      setAfterImages(getAfterImages(project));
+      setBeforeImages(getBeforeImages(project));
+    }
+  }, [project]);
 
   // Handle PDF autofill data
   const handlePDFAutofillData = (data: any) => {
@@ -113,19 +128,19 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
   // Delete individual image from Firestore
   const handleDeleteImage = async (imageIndex: number) => {
     if (!project || !project.images) return;
-    
+
     setDeletingImageIndex(imageIndex);
-    
+
     try {
       // Create updated images array without the deleted image
       const updatedImages = project.images.filter((_, index) => index !== imageIndex);
-      
+
       // Update featured_image if the deleted image was the featured image
       let updatedFeaturedImage = project.featured_image;
       if (project.featured_image === project.images[imageIndex]?.original_size) {
         updatedFeaturedImage = updatedImages.length > 0 ? updatedImages[0].original_size : '';
       }
-      
+
       // Update Firestore
       const projectRef = doc(db, 'projects', project.id);
       await updateDoc(projectRef, {
@@ -133,20 +148,169 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
         featured_image: updatedFeaturedImage,
         updated_at: new Date()
       });
-      
+
       // Update local state
       if (project.images) {
         project.images = updatedImages;
         project.featured_image = updatedFeaturedImage;
       }
-      
+
       console.log('Image deleted successfully');
-      
+
     } catch (error) {
       console.error('Error deleting image:', error);
       alert('เกิดข้อผิดพลาดในการลบรูปภาพ กรุณาลองใหม่');
     } finally {
       setDeletingImageIndex(null);
+    }
+  };
+
+  // Handler for ImageUploadTabs - Upload images
+  const handleTabImageUpload = async (files: FileList, type: 'before' | 'after') => {
+    setIsUploadingImages(true);
+    try {
+      // Convert FileList to array for processing
+      const filesArray = Array.from(files);
+
+      // Upload to Cloudflare (reuse existing logic)
+      const uploadPromises = filesArray.map(async (file) => {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const response = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (!response.ok) {
+          throw new Error(`Upload failed for ${file.name}`);
+        }
+
+        return await response.json();
+      });
+
+      const uploadResults: UploadResult[] = await Promise.all(uploadPromises);
+
+      // Convert to ProjectImage format
+      const newImages: ProjectImage[] = uploadResults.map((result, index) => ({
+        id: `${Date.now()}-${index}`,
+        project_id: project?.id || '',
+        small_size: result.thumbnailUrl || result.mediumUrl || result.originalUrl || '',
+        medium_size: result.mediumUrl || result.originalUrl || result.thumbnailUrl || '',
+        original_size: result.originalUrl || result.mediumUrl || result.thumbnailUrl || '',
+        alt_text: `กันสาดพับได้ ${generateTitle(formData.width, formData.extension)} - ${type === 'after' ? 'หลังติดตั้ง' : 'ก่อนติดตั้ง'} รูปที่ ${index + 1}`,
+        title: `กันสาดพับได้ ${generateTitle(formData.width, formData.extension)}`,
+        caption: '',
+        type: type,
+        order_index: (type === 'after' ? afterImages.length : beforeImages.length) + index,
+      }));
+
+      // Update state based on type
+      if (type === 'after') {
+        const updatedAfterImages = [...afterImages, ...newImages];
+        setAfterImages(updatedAfterImages);
+
+        // Update featured_image if this is the first after image
+        if (afterImages.length === 0 && newImages.length > 0) {
+          setFormData(prev => ({
+            ...prev,
+            featured_image: newImages[0].original_size,
+          }));
+        }
+      } else {
+        const updatedBeforeImages = [...beforeImages, ...newImages];
+        setBeforeImages(updatedBeforeImages);
+      }
+
+      // Update Firestore if editing existing project
+      if (project && project.id) {
+        const allImages = [...afterImages, ...beforeImages, ...newImages];
+        const projectRef = doc(db, 'projects', project.id);
+        await updateDoc(projectRef, {
+          images: allImages,
+          updated_at: new Date(),
+        });
+
+        // Update local project state
+        if (project.images) {
+          project.images = allImages;
+        }
+      }
+
+    } catch (error) {
+      console.error('Error uploading images:', error);
+      alert('เกิดข้อผิดพลาดในการอัพโหลดรูปภาพ กรุณาลองใหม่');
+    } finally {
+      setIsUploadingImages(false);
+    }
+  };
+
+  // Handler for ImageUploadTabs - Delete image
+  const handleTabImageDelete = async (imageId: string, type: 'before' | 'after') => {
+    try {
+      const targetImages = type === 'after' ? afterImages : beforeImages;
+      const updatedImages = targetImages.filter(img => img.id !== imageId);
+
+      // Update state
+      if (type === 'after') {
+        setAfterImages(updatedImages);
+      } else {
+        setBeforeImages(updatedImages);
+      }
+
+      // Update Firestore if editing existing project
+      if (project && project.id) {
+        const allImages = type === 'after'
+          ? [...updatedImages, ...beforeImages]
+          : [...afterImages, ...updatedImages];
+
+        const projectRef = doc(db, 'projects', project.id);
+        await updateDoc(projectRef, {
+          images: allImages,
+          updated_at: new Date(),
+        });
+
+        // Update local project state
+        if (project.images) {
+          project.images = allImages;
+        }
+      }
+    } catch (error) {
+      console.error('Error deleting image:', error);
+      alert('เกิดข้อผิดพลาดในการลบรูปภาพ กรุณาลองใหม่');
+    }
+  };
+
+  // Handler for ImageUploadTabs - Reorder images
+  const handleTabImageReorder = async (images: ProjectImage[], type: 'before' | 'after') => {
+    try {
+      // Update state
+      if (type === 'after') {
+        setAfterImages(images);
+      } else {
+        setBeforeImages(images);
+      }
+
+      // Update Firestore if editing existing project
+      if (project && project.id) {
+        const allImages = type === 'after'
+          ? [...images, ...beforeImages]
+          : [...afterImages, ...images];
+
+        const projectRef = doc(db, 'projects', project.id);
+        await updateDoc(projectRef, {
+          images: allImages,
+          updated_at: new Date(),
+        });
+
+        // Update local project state
+        if (project.images) {
+          project.images = allImages;
+        }
+      }
+    } catch (error) {
+      console.error('Error reordering images:', error);
+      alert('เกิดข้อผิดพลาดในการเรียงลำดับรูปภาพ กรุณาลองใหม่');
     }
   };
 
@@ -1085,138 +1249,31 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
           </div>
 
 
-          {/* Image Upload */}
+          {/* Image Upload - Tabs for Before/After */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-3">
               รูปภาพโปรเจค *
             </label>
-            
-            {/* Show existing images when editing */}
-            {project && project.images && project.images.length > 0 && (
-              <div className="mb-6">
-                <div className="flex items-center justify-between mb-3">
-                  <h4 className="text-sm font-medium text-gray-700">
-                    รูปภาพปัจจุบัน ({project.images.length} รูป)
-                  </h4>
-                  <button
-                    type="button"
-                    onClick={() => imageUploadRef.current?.triggerFileSelect()}
-                    className="inline-flex items-center px-3 py-1.5 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  >
-                    <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                    </svg>
-                    เพิ่มรูปภาพ
-                  </button>
-                </div>
 
-                {/* Before Image Warning */}
-                {!project.images.some(img => img.type === 'before') && (
-                  <div className="mb-4 bg-yellow-50 border border-yellow-200 rounded-lg p-3 flex items-start">
-                    <svg className="w-5 h-5 text-yellow-600 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.667-2.694-1.667-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                    </svg>
-                    <div className="text-sm text-yellow-800">
-                      <p className="font-medium">ไม่มีรูป "ก่อนติดตั้ง" (🔴)</p>
-                      <p className="mt-1">ระบบจะใช้รูปแรกเป็นรูป "ก่อนติดตั้ง" สำหรับการแสดง Before/After</p>
-                    </div>
-                  </div>
-                )}
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                  {project.images.map((image, index) => {
-                    const getTypeBadge = (type?: 'before' | 'during' | 'after' | 'detail') => {
-                      switch (type) {
-                        case 'before':
-                          return { bg: 'bg-red-500', text: 'ก่อน', emoji: '🔴' };
-                        case 'during':
-                          return { bg: 'bg-yellow-500', text: 'ระหว่าง', emoji: '🟡' };
-                        case 'detail':
-                          return { bg: 'bg-blue-500', text: 'รายละเอียด', emoji: '🔵' };
-                        default:
-                          return { bg: 'bg-green-500', text: 'หลัง', emoji: '🟢' };
-                      }
-                    };
-
-                    const badge = getTypeBadge(image.type);
-
-                    return (
-                      <div key={index} className="space-y-2">
-                        <div className="relative aspect-square rounded-lg overflow-hidden border border-gray-200 group">
-                          <img
-                            src={image.small_size || image.original_size}
-                            alt={image.alt_text || `รูปที่ ${index + 1}`}
-                            className="w-full h-full object-cover"
-                            loading="lazy"
-                          />
-
-                          {/* Type Badge */}
-                          <div className={`absolute top-1 left-1 ${badge.bg} text-white px-2 py-0.5 rounded text-xs font-semibold flex items-center gap-1`}>
-                            <span>{badge.emoji}</span>
-                            <span>{badge.text}</span>
-                          </div>
-
-                          {/* Delete button */}
-                          <button
-                            type="button"
-                            onClick={() => handleDeleteImage(index)}
-                            disabled={deletingImageIndex === index}
-                            className="absolute top-1 right-1 w-6 h-6 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center text-sm font-bold opacity-0 group-hover:opacity-100 transition-opacity duration-200 disabled:opacity-50"
-                            title="ลบรูปภาพ"
-                          >
-                            {deletingImageIndex === index ? (
-                              <svg className="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24">
-                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                                <path className="opacity-75" fill="currentColor" d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                              </svg>
-                            ) : (
-                              "×"
-                            )}
-                          </button>
-
-                          {/* Image info overlay */}
-                          <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white text-xs p-2">
-                            <div className="truncate">{image.title || `รูปที่ ${index + 1}`}</div>
-                          </div>
-                        </div>
-
-                        {/* Image Type Selector */}
-                        <select
-                          value={image.type || 'after'}
-                          onChange={async (e) => {
-                            const newType = e.target.value as 'before' | 'during' | 'after' | 'detail';
-                            const updatedImages = [...project.images];
-                            updatedImages[index] = { ...updatedImages[index], type: newType };
-
-                            // Update in Firestore
-                            const projectRef = doc(db, 'projects', project.id);
-                            await updateDoc(projectRef, {
-                              images: updatedImages,
-                              updated_at: new Date()
-                            });
-
-                            // Update local state
-                            project.images = updatedImages;
-                          }}
-                          className="w-full px-2 py-1 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
-                        >
-                          <option value="before">🔴 ก่อนติดตั้ง</option>
-                          <option value="after">🟢 หลังติดตั้ง</option>
-                          <option value="during">🟡 ระหว่างติดตั้ง</option>
-                          <option value="detail">🔵 รายละเอียด</option>
-                        </select>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
+            {project && project.id ? (
+              <ImageUploadTabs
+                afterImages={afterImages}
+                beforeImages={beforeImages}
+                onAfterImagesChange={setAfterImages}
+                onBeforeImagesChange={setBeforeImages}
+                onImageUpload={handleTabImageUpload}
+                onImageDelete={handleTabImageDelete}
+                onImageReorder={handleTabImageReorder}
+                isUploading={isUploadingImages}
+              />
+            ) : (
+              <ImageUpload
+                ref={imageUploadRef}
+                onUpload={handleImageUpload}
+                maxFiles={10}
+                showUploadArea={true}
+              />
             )}
-
-            <ImageUpload
-              ref={imageUploadRef}
-              onUpload={handleImageUpload}
-              maxFiles={10}
-              showUploadArea={!project || !project.images || project.images.length === 0}
-            />
           </div>
 
           {/* Description Section - Moved to Bottom */}

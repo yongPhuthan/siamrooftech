@@ -51,6 +51,18 @@ export function getAfterImages(project: Project): ProjectImage[] {
 }
 
 /**
+ * Get all "before" images for a project
+ * Returns empty array if no before images found
+ */
+export function getBeforeImages(project: Project): ProjectImage[] {
+  if (!project.images || project.images.length === 0) {
+    return [];
+  }
+
+  return project.images.filter((img) => img.type === 'before');
+}
+
+/**
  * Get "during" installation images
  */
 export function getDuringImages(project: Project): ProjectImage[] {

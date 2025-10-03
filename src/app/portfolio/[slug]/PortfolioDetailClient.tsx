@@ -7,8 +7,8 @@ import { useCallback, useEffect, useState } from 'react';
 import { Project } from '../../../lib/firestore';
 import { usePortfolioStore } from '../../../store/portfolioStore';
 import Breadcrumbs from '../../components/ui/Breadcrumbs';
-import BeforeAfterGallery from '../../components/portfolio/BeforeAfterGallery';
-import { getBeforeImage, getAfterImages, shouldShowBeforeAfter } from '@/lib/project-image-utils';
+import SeparateBeforeAfterGallery from '../../components/portfolio/SeparateBeforeAfterGallery';
+import { getBeforeImage, getAfterImages, getBeforeImages, shouldShowBeforeAfter } from '@/lib/project-image-utils';
 
 
 interface PortfolioDetailClientProps {
@@ -293,23 +293,17 @@ export default function PortfolioDetailClient({ project }: PortfolioDetailClient
       {hasImages ? (
         shouldShowBeforeAfter(project) ? (
           <>
-            {/* Before/After Gallery */}
-            <BeforeAfterGallery
+            {/* Separate Before/After Gallery */}
+            <SeparateBeforeAfterGallery
               project={project}
-              beforeImage={getBeforeImage(project)}
               afterImages={getAfterImages(project)}
+              beforeImages={getBeforeImages(project)}
+              onImageClick={(image, index, type) => {
+                const allImages = type === 'after' ? getAfterImages(project) : getBeforeImages(project);
+                const globalIndex = project.images?.findIndex(img => img.id === image.id) ?? index;
+                openLightbox(globalIndex);
+              }}
             />
-
-            {/* Lightbox trigger */}
-            <div className="text-center">
-              <button
-                onClick={() => openLightbox(activeImageIndex)}
-                className="inline-flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700 font-medium transition-colors"
-              >
-                <ZoomInIcon fontSize="small" />
-                ดูภาพขนาดใหญ่
-              </button>
-            </div>
           </>
         ) : (
           <>
