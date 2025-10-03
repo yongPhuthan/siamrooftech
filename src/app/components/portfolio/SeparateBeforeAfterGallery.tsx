@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { Project, ProjectImage } from '@/lib/firestore';
+import { Circle as CircleIcon } from '@mui/icons-material';
 
 interface SeparateBeforeAfterGalleryProps {
   project: Project;
@@ -40,8 +41,9 @@ export default function SeparateBeforeAfterGallery({
           {/* Header - Law of Proximity */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="bg-green-500 text-white px-4 py-2 rounded-lg font-semibold text-sm shadow-sm">
-                🟢 หลังติดตั้ง
+              <div className="border-2 border-green-500 text-green-700 px-4 py-2 rounded-lg font-semibold text-sm bg-white flex items-center gap-2">
+                <CircleIcon sx={{ fontSize: 16 }} className="text-green-600" />
+                <span>หลังติดตั้ง</span>
               </div>
               <span className="text-sm text-gray-600 font-medium">
                 {afterImages.length} รูป
@@ -137,8 +139,9 @@ export default function SeparateBeforeAfterGallery({
           {/* Header - Law of Proximity */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="bg-red-500 text-white px-4 py-2 rounded-lg font-semibold text-sm shadow-sm">
-                🔴 ก่อนติดตั้ง
+              <div className="border-2 border-red-500 text-red-700 px-4 py-2 rounded-lg font-semibold text-sm bg-white flex items-center gap-2">
+                <CircleIcon sx={{ fontSize: 16 }} className="text-red-600" />
+                <span>ก่อนติดตั้ง</span>
               </div>
               <span className="text-sm text-gray-600 font-medium">
                 {beforeImages.length} รูป

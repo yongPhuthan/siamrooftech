@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { Project } from "../../../lib/firestore";
+import { getAfterImages, getBeforeImages } from "../../../lib/project-image-utils";
+import { Circle as CircleIcon } from "@mui/icons-material";
 
 interface ProjectsListProps {
   projects: Project[];
@@ -60,6 +62,9 @@ export default function ProjectsList({ projects, onEdit, onDelete }: ProjectsLis
                   ประเภท
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  รูปภาพ
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   การจัดการ
                 </th>
               </tr>
@@ -106,12 +111,41 @@ export default function ProjectsList({ projects, onEdit, onDelete }: ProjectsLis
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                      project.type === 'ระบบมือหมุน' 
-                        ? 'bg-green-100 text-green-800' 
+                      project.type === 'ระบบมือหมุน'
+                        ? 'bg-green-100 text-green-800'
                         : 'bg-purple-100 text-purple-800'
                     }`}>
                       {project.type}
                     </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    {(() => {
+                      const afterImages = getAfterImages(project);
+                      const beforeImages = getBeforeImages(project);
+                      const hasBeforeImages = beforeImages.length > 0;
+
+                      return (
+                        <div className="flex flex-col gap-1">
+                          <div className="flex items-center gap-1.5">
+                            <CircleIcon sx={{ fontSize: 14 }} className="text-green-600" />
+                            <span className="text-xs font-medium text-gray-700">
+                              {afterImages.length}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-1.5">
+                            <CircleIcon sx={{ fontSize: 14 }} className="text-red-600" />
+                            <span className="text-xs font-medium text-gray-700">
+                              {beforeImages.length}
+                            </span>
+                            {!hasBeforeImages && (
+                              <span className="text-xs text-yellow-600" title="ไม่มีรูปก่อนติดตั้ง">
+                                ⚠️
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })()}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
                     <a
@@ -216,6 +250,30 @@ export default function ProjectsList({ projects, onEdit, onDelete }: ProjectsLis
                 <span className="ml-1 px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
                   {project.category}
                 </span>
+              </div>
+
+              {/* Before/After Images Info */}
+              <div className="flex items-center gap-4 pt-2 border-t border-gray-100">
+                <span className="text-gray-500 text-sm">รูปภาพ:</span>
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-1.5">
+                    <CircleIcon sx={{ fontSize: 16 }} className="text-green-600" />
+                    <span className="text-sm font-medium text-gray-900">
+                      {getAfterImages(project).length}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <CircleIcon sx={{ fontSize: 16 }} className="text-red-600" />
+                    <span className="text-sm font-medium text-gray-900">
+                      {getBeforeImages(project).length}
+                    </span>
+                    {getBeforeImages(project).length === 0 && (
+                      <span className="text-xs text-yellow-600" title="ไม่มีรูปก่อนติดตั้ง">
+                        ⚠️
+                      </span>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
 

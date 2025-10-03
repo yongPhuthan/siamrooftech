@@ -1,11 +1,10 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { collection, addDoc, doc, updateDoc } from "firebase/firestore";
 import { db } from "../../lib/firebase";
-import { UploadResult } from "../../app/lib/cloudflare/uploadImage";
-import ImageUpload, { ImageUploadRef } from "./ImageUpload";
-import ImageUploadTabs from "./ImageUploadTabs";
+import { UploadResult, uploadImageToCloudflare } from "../../app/lib/cloudflare/uploadImage";
+import ImageUploadTabs, { LocalImageFile } from "./ImageUploadTabs";
 import { Project, ProjectImage } from "../../lib/firestore";
 import { getAfterImages, getBeforeImages } from "../../lib/project-image-utils";
 import PDFAutofillComponent from "./PDFAutofillComponent";
@@ -23,12 +22,7 @@ interface ProjectFormData {
   fabric_edge: "ตัดเรียบ" | "โค้งลอน" | "ตัดเรียบ + พิมพ์ Logo" | "โค้งลอน + พิมพ์ Logo"; // ชายผ้า
   featured_image?: string;
   slug?: string; // จะถูกสร้างอัตโนมัติจากขนาด
-  images: Array<{
-    original_size: string;
-    alt_text: string;
-    title: string;
-    order_index: number;
-  }>;
+  images: ProjectImage[];
 }
 
 const categories = [
@@ -79,7 +73,6 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
     images: [],
   });
 
-  const [uploadedImages, setUploadedImages] = useState<UploadResult[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
   const [createdProjectId, setCreatedProjectId] = useState<string | null>(null);
@@ -91,11 +84,14 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
   const [generatingDescription, setGeneratingDescription] = useState(false);
   const [deletingImageIndex, setDeletingImageIndex] = useState<number | null>(null);
   const [isUploadingImages, setIsUploadingImages] = useState(false);
-  const imageUploadRef = useRef<ImageUploadRef>(null);
 
-  // Separate state for Before/After images
+  // Separate state for Before/After images (already uploaded)
   const [afterImages, setAfterImages] = useState<ProjectImage[]>([]);
   const [beforeImages, setBeforeImages] = useState<ProjectImage[]>([]);
+
+  // Separate state for local preview files (not yet uploaded)
+  const [localAfterFiles, setLocalAfterFiles] = useState<LocalImageFile[]>([]);
+  const [localBeforeFiles, setLocalBeforeFiles] = useState<LocalImageFile[]>([]);
 
   // Initialize before/after images when project is loaded
   useEffect(() => {
@@ -165,84 +161,35 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
     }
   };
 
-  // Handler for ImageUploadTabs - Upload images
-  const handleTabImageUpload = async (files: FileList, type: 'before' | 'after') => {
-    setIsUploadingImages(true);
-    try {
-      // Convert FileList to array for processing
-      const filesArray = Array.from(files);
+  // Helper function to upload local files to Cloudflare and convert to ProjectImage
+  const uploadLocalFilesToCloudflare = async (
+    localFiles: LocalImageFile[],
+    type: 'before' | 'after',
+    startIndex: number
+  ): Promise<ProjectImage[]> => {
+    if (localFiles.length === 0) return [];
 
-      // Upload to Cloudflare (reuse existing logic)
-      const uploadPromises = filesArray.map(async (file) => {
-        const formData = new FormData();
-        formData.append('file', file);
+    const uploadPromises = localFiles.map(async (localFile) => {
+      return await uploadImageToCloudflare(localFile.file);
+    });
 
-        const response = await fetch('/api/upload', {
-          method: 'POST',
-          body: formData,
-        });
+    const uploadResults: UploadResult[] = await Promise.all(uploadPromises);
 
-        if (!response.ok) {
-          throw new Error(`Upload failed for ${file.name}`);
-        }
+    // Convert to ProjectImage format
+    const newImages: ProjectImage[] = uploadResults.map((result, index) => ({
+      id: `${Date.now()}-${index}`,
+      project_id: project?.id || '',
+      small_size: result.thumbnailUrl || result.mediumUrl || result.originalUrl || '',
+      medium_size: result.mediumUrl || result.originalUrl || result.thumbnailUrl || '',
+      original_size: result.originalUrl || result.mediumUrl || result.thumbnailUrl || '',
+      alt_text: `กันสาดพับได้ ${generateTitle(formData.width, formData.extension)} - ${type === 'after' ? 'หลังติดตั้ง' : 'ก่อนติดตั้ง'} รูปที่ ${startIndex + index + 1}`,
+      title: `กันสาดพับได้ ${generateTitle(formData.width, formData.extension)}`,
+      caption: '',
+      type: type,
+      order_index: startIndex + index,
+    }));
 
-        return await response.json();
-      });
-
-      const uploadResults: UploadResult[] = await Promise.all(uploadPromises);
-
-      // Convert to ProjectImage format
-      const newImages: ProjectImage[] = uploadResults.map((result, index) => ({
-        id: `${Date.now()}-${index}`,
-        project_id: project?.id || '',
-        small_size: result.thumbnailUrl || result.mediumUrl || result.originalUrl || '',
-        medium_size: result.mediumUrl || result.originalUrl || result.thumbnailUrl || '',
-        original_size: result.originalUrl || result.mediumUrl || result.thumbnailUrl || '',
-        alt_text: `กันสาดพับได้ ${generateTitle(formData.width, formData.extension)} - ${type === 'after' ? 'หลังติดตั้ง' : 'ก่อนติดตั้ง'} รูปที่ ${index + 1}`,
-        title: `กันสาดพับได้ ${generateTitle(formData.width, formData.extension)}`,
-        caption: '',
-        type: type,
-        order_index: (type === 'after' ? afterImages.length : beforeImages.length) + index,
-      }));
-
-      // Update state based on type
-      if (type === 'after') {
-        const updatedAfterImages = [...afterImages, ...newImages];
-        setAfterImages(updatedAfterImages);
-
-        // Update featured_image if this is the first after image
-        if (afterImages.length === 0 && newImages.length > 0) {
-          setFormData(prev => ({
-            ...prev,
-            featured_image: newImages[0].original_size,
-          }));
-        }
-      } else {
-        const updatedBeforeImages = [...beforeImages, ...newImages];
-        setBeforeImages(updatedBeforeImages);
-      }
-
-      // Update Firestore if editing existing project
-      if (project && project.id) {
-        const allImages = [...afterImages, ...beforeImages, ...newImages];
-        const projectRef = doc(db, 'projects', project.id);
-        await updateDoc(projectRef, {
-          images: allImages,
-          updated_at: new Date(),
-        });
-
-        // Update local project state
-        if (project.images) {
-          project.images = allImages;
-        }
-      }
-
-    } catch (error) {
-      console.error('Error uploading images:', error);
-      alert('เกิดข้อผิดพลาดในการอัพโหลดรูปภาพ กรุณาลองใหม่');
-    } finally {
-      setIsUploadingImages(false);
-    }
+    return newImages;
   };
 
   // Handler for ImageUploadTabs - Delete image
@@ -330,12 +277,7 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
         fabric_edge: project.fabric_edge || "ตัดเรียบ",
         featured_image: project.featured_image,
         slug: project.slug,
-        images: project.images?.map((img, idx) => ({
-          original_size: img.original_size,
-          alt_text: img.alt_text || `${project.title} - รูปที่ ${idx + 1}`,
-          title: img.title,
-          order_index: img.order_index
-        })) || []
+        images: project.images || []
       });
     }
   }, [project]);
@@ -387,28 +329,37 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
       return;
     }
 
-    const selectedFiles = imageUploadRef.current?.getSelectedFiles() || [];
-    if (selectedFiles.length === 0 && uploadedImages.length === 0) {
+    // Check if we have images (uploaded or local files)
+    const allImages = [...afterImages, ...beforeImages];
+    const allLocalFiles = [...localAfterFiles, ...localBeforeFiles];
+
+    if (allImages.length === 0 && allLocalFiles.length === 0) {
       alert("กรุณาเลือกรูปภาพอย่างน้อย 1 รูป เพื่อให้ AI วิเคราะห์");
       return;
     }
 
     setGeneratingDescription(true);
-    
+
     try {
       // Convert images to base64
-      const images = selectedFiles.length > 0 ? selectedFiles : uploadedImages;
       const base64Images: string[] = [];
-      
-      for (const image of images.slice(0, 3)) { // Limit to 3 images for API efficiency
-        if ('file' in image) {
-          // Handle SelectedFile
-          const base64 = await convertFileToBase64(image.file);
+
+      // First, use local files (if any) - they're faster since already on device
+      for (const localFile of allLocalFiles.slice(0, 3)) {
+        try {
+          const base64 = await convertFileToBase64(localFile.file);
           base64Images.push(base64);
-        } else {
-          // Handle UploadResult - need to fetch the image and convert
+        } catch (error) {
+          console.warn('Failed to convert local file:', error);
+        }
+      }
+
+      // If we need more images, fetch from uploaded images
+      const remainingSlots = 3 - base64Images.length;
+      if (remainingSlots > 0 && allImages.length > 0) {
+        for (const image of allImages.slice(0, remainingSlots)) {
           try {
-            const response = await fetch(image.originalUrl || image.mediumUrl || image.thumbnailUrl || '');
+            const response = await fetch(image.original_size);
             const blob = await response.blob();
             const file = new File([blob], 'image.jpg', { type: blob.type });
             const base64 = await convertFileToBase64(file);
@@ -489,47 +440,8 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
     return { valid: errors.length === 0, errors };
   };
 
-  const handleImageUpload = (results: UploadResult[]) => {
-    // Validate all uploads have at least one URL
-    const failedUploads = results.filter((result, index) => 
-      !result.thumbnailUrl && !result.mediumUrl && !result.originalUrl
-    );
-    
-    if (failedUploads.length > 0) {
-      console.error('Some image uploads completely failed:', failedUploads);
-      alert(`เกิดข้อผิดพลาดในการอัพโหลด ${failedUploads.length} รูป กรุณาลองใหม่`);
-      return;
-    }
-    
-    // Log warnings for partial failures
-    results.forEach((result, index) => {
-      if (!result.thumbnailUrl) console.warn(`Missing thumbnailUrl for image ${index + 1}`);
-      if (!result.mediumUrl) console.warn(`Missing mediumUrl for image ${index + 1}`);
-      if (!result.originalUrl) console.warn(`Missing originalUrl for image ${index + 1}`);
-    });
-    
-    setUploadedImages(results);
-
-    // Convert to project image format with flexible size mapping
-    const projectImages = results.map((result, index) => ({
-      small_size: result.thumbnailUrl || result.mediumUrl || result.originalUrl || '',
-      medium_size: result.mediumUrl || result.originalUrl || result.thumbnailUrl || '',
-      original_size: result.originalUrl || result.mediumUrl || result.thumbnailUrl || '',
-      alt_text: `กันสาดพับได้ ${generateTitle(formData.width, formData.extension)} - กันสาดพับเก็บได้ รูปที่ ${index + 1}`,
-      title: `กันสาดพับได้ ${generateTitle(formData.width, formData.extension)} - กันสาดพับเก็บได้`,
-      order_index: index,
-    }));
-
-    setFormData((prev) => ({
-      ...prev,
-      featured_image: results[0]?.originalUrl || results[0]?.mediumUrl || results[0]?.thumbnailUrl || '',
-      images: projectImages,
-    }));
-  };
-
   const validateForm = (): { valid: boolean; errors: string[] } => {
     const errors: string[] = [];
-    const selectedFiles = imageUploadRef.current?.getSelectedFiles() || [];
 
     if (formData.width <= 0) errors.push("กรุณากรอกความกว้าง");
     if (formData.extension <= 0) errors.push("กรุณากรอกระยะยื่นออก");
@@ -539,10 +451,19 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
     if (formData.description.every((desc) => !desc.trim())) {
       errors.push("กรุณากรอกรายละเอียดอย่างน้อย 1 รายการ");
     }
-    // Only require images for new projects or if editing a project without existing images
+
+    // Check for images (uploaded + local preview files)
+    const hasUploadedImages = afterImages.length > 0 || beforeImages.length > 0;
+    const hasLocalFiles = localAfterFiles.length > 0 || localBeforeFiles.length > 0;
     const hasExistingImages = project && project.images && project.images.length > 0;
-    if (selectedFiles.length === 0 && uploadedImages.length === 0 && !hasExistingImages) {
-      errors.push("กรุณาเลือกรูปภาพอย่างน้อย 1 รูป");
+
+    if (!hasUploadedImages && !hasLocalFiles && !hasExistingImages) {
+      errors.push("กรุณาเลือกรูปภาพอย่างน้อย 1 รูป (หลังติดตั้ง)");
+    }
+
+    // Validate that we have at least one "after" image (uploaded or local)
+    if ((hasUploadedImages || hasLocalFiles) && afterImages.length === 0 && localAfterFiles.length === 0) {
+      errors.push("ต้องมีรูปหลังติดตั้งอย่างน้อย 1 รูป");
     }
 
     return { valid: errors.length === 0, errors };
@@ -558,96 +479,73 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
     }
 
     setSubmitting(true);
+    setIsUploadingImages(true);
 
     try {
       let finalFormData = { ...formData };
 
-      // Upload images if there are selected files
-      const selectedFiles = imageUploadRef.current?.getSelectedFiles() || [];
-      if (selectedFiles.length > 0) {
-        try {
-          const uploadResults = await imageUploadRef.current?.uploadFiles();
-          if (uploadResults && uploadResults.length > 0) {
-            // Convert to project image format with proper size mapping and validation
-            const projectImages = uploadResults.map((result, index) => {
-              console.log(`🖼️ Upload result ${index + 1}:`, {
-                thumbnailUrl: result.thumbnailUrl,
-                mediumUrl: result.mediumUrl,
-                originalUrl: result.originalUrl
-              });
-              
-              // Validate that we have at least one URL (preferably original or medium)
-              if (!result.originalUrl && !result.mediumUrl && !result.thumbnailUrl) {
-                console.error(`❌ Image ${index + 1} validation failed - no URLs:`, result);
-                throw new Error(`Image ${index + 1}: No valid URLs found`);
-              }
-              
-              // Log warning if missing expected URLs
-              if (!result.thumbnailUrl) {
-                console.warn(`⚠️ Image ${index + 1}: Missing thumbnailUrl`);
-              }
-              if (!result.originalUrl) {
-                console.warn(`⚠️ Image ${index + 1}: Missing originalUrl`);
-              }
-              
-              const imageData = {
-                small_size: result.thumbnailUrl || result.mediumUrl || result.originalUrl || '',
-                medium_size: result.mediumUrl || result.originalUrl || result.thumbnailUrl || '',
-                original_size: result.originalUrl || result.mediumUrl || result.thumbnailUrl || '',
-                alt_text: `กันสาดพับได้ ${generateTitle(formData.width, formData.extension)} - กันสาดพับเก็บได้ รูปที่ ${index + 1}`,
-                title: `กันสาดพับได้ ${generateTitle(formData.width, formData.extension)} - กันสาดพับเก็บได้`,
-                order_index: index,
-              };
-              
-              console.log(`✅ Created image data ${index + 1}:`, imageData);
-              return imageData;
-            });
+      // Step 1: Upload local files to Cloudflare first
+      let uploadedAfterImages: ProjectImage[] = [];
+      let uploadedBeforeImages: ProjectImage[] = [];
 
-            finalFormData = {
-              ...finalFormData,
-              featured_image: uploadResults[0]?.originalUrl || uploadResults[0]?.mediumUrl || uploadResults[0]?.thumbnailUrl || '', // First image as featured
-              images: projectImages,
-            };
-          }
-        } catch (uploadError) {
-          console.error("Error uploading images:", uploadError);
-          alert("เกิดข้อผิดพลาดในการอัพโหลดรูปภาพ");
+      if (localAfterFiles.length > 0) {
+        console.log(`📤 Uploading ${localAfterFiles.length} after images...`);
+        uploadedAfterImages = await uploadLocalFilesToCloudflare(
+          localAfterFiles,
+          'after',
+          afterImages.length
+        );
+        console.log(`✅ Uploaded ${uploadedAfterImages.length} after images`);
+      }
+
+      if (localBeforeFiles.length > 0) {
+        console.log(`📤 Uploading ${localBeforeFiles.length} before images...`);
+        uploadedBeforeImages = await uploadLocalFilesToCloudflare(
+          localBeforeFiles,
+          'before',
+          beforeImages.length
+        );
+        console.log(`✅ Uploaded ${uploadedBeforeImages.length} before images`);
+      }
+
+      setIsUploadingImages(false);
+
+      // Step 2: Combine all images (existing + newly uploaded)
+      const allImages = [
+        ...afterImages,
+        ...uploadedAfterImages,
+        ...beforeImages,
+        ...uploadedBeforeImages,
+      ];
+
+      if (allImages.length > 0) {
+        // Validate images
+        const invalidImages = allImages.filter(img =>
+          !img.small_size || !img.original_size
+        );
+
+        if (invalidImages.length > 0) {
+          console.error('Invalid images detected:', invalidImages);
+          alert(`พบรูปภาพที่ไม่สมบูรณ์ ${invalidImages.length} รูป กรุณาลองอัพโหลดใหม่`);
           return;
         }
-      } else if (uploadedImages.length > 0) {
-        // Use already uploaded images with proper size mapping and validation
-        const projectImages = uploadedImages.map((result, index) => {
-          // Validate that we have all required URLs
-          if (!result.thumbnailUrl || !result.originalUrl) {
-            throw new Error(`Image ${index + 1}: Missing required thumbnailUrl or originalUrl`);
-          }
-          
-          return {
-            small_size: result.thumbnailUrl,
-            medium_size: result.mediumUrl || result.originalUrl, // Fallback to original if medium missing
-            original_size: result.originalUrl,
-            alt_text: `กันสาดพับได้ ${generateTitle(formData.width, formData.extension)} - กันสาดพับเก็บได้ รูปที่ ${index + 1}`,
-            title: `กันสาดพับได้ ${generateTitle(formData.width, formData.extension)} - กันสาดพับเก็บได้`,
-            order_index: index,
-          };
-        });
+
+        // Use first after image as featured image, or first image if no after images
+        const featuredImage = afterImages.length > 0
+          ? afterImages[0].original_size
+          : allImages[0]?.original_size || '';
 
         finalFormData = {
           ...finalFormData,
-          featured_image: uploadedImages[0]?.originalUrl || uploadedImages[0]?.mediumUrl || uploadedImages[0]?.thumbnailUrl,
-          images: projectImages,
+          featured_image: featuredImage,
+          images: allImages,
         };
       } else if (project && project.images && project.images.length > 0) {
         // Keep existing images when editing and no new images uploaded
         finalFormData = {
           ...finalFormData,
           featured_image: project.featured_image,
-          images: project.images.map(img => ({
-            original_size: img.original_size,
-            alt_text: img.alt_text || `${project.title} - รูปโปรเจค`,
-            title: img.title,
-            order_index: img.order_index
-          })),
+          images: project.images,
         };
       }
 
@@ -805,10 +703,16 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
           fabric_edge: "ตัดเรียบ",
           images: [],
         });
-        setUploadedImages([]);
 
-        // Reset image upload component
-        imageUploadRef.current?.reset();
+        // Reset Before/After images state
+        setAfterImages([]);
+        setBeforeImages([]);
+
+        // Reset local preview files and revoke blob URLs
+        localAfterFiles.forEach(file => URL.revokeObjectURL(file.preview));
+        localBeforeFiles.forEach(file => URL.revokeObjectURL(file.preview));
+        setLocalAfterFiles([]);
+        setLocalBeforeFiles([]);
       }
 
       // Hide success message after 10 seconds
@@ -822,6 +726,7 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
       alert("เกิดข้อผิดพลาดในการบันทึกข้อมูล");
     } finally {
       setSubmitting(false);
+      setIsUploadingImages(false);
     }
   };
 
@@ -1255,25 +1160,19 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
               รูปภาพโปรเจค *
             </label>
 
-            {project && project.id ? (
-              <ImageUploadTabs
-                afterImages={afterImages}
-                beforeImages={beforeImages}
-                onAfterImagesChange={setAfterImages}
-                onBeforeImagesChange={setBeforeImages}
-                onImageUpload={handleTabImageUpload}
-                onImageDelete={handleTabImageDelete}
-                onImageReorder={handleTabImageReorder}
-                isUploading={isUploadingImages}
-              />
-            ) : (
-              <ImageUpload
-                ref={imageUploadRef}
-                onUpload={handleImageUpload}
-                maxFiles={10}
-                showUploadArea={true}
-              />
-            )}
+            <ImageUploadTabs
+              afterImages={afterImages}
+              beforeImages={beforeImages}
+              localAfterFiles={localAfterFiles}
+              localBeforeFiles={localBeforeFiles}
+              onAfterImagesChange={setAfterImages}
+              onBeforeImagesChange={setBeforeImages}
+              onLocalAfterFilesChange={setLocalAfterFiles}
+              onLocalBeforeFilesChange={setLocalBeforeFiles}
+              onImageDelete={handleTabImageDelete}
+              onImageReorder={handleTabImageReorder}
+              isUploading={isUploadingImages}
+            />
           </div>
 
           {/* Description Section - Moved to Bottom */}

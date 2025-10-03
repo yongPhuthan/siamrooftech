@@ -4,12 +4,23 @@ import { useState } from 'react';
 import Image from 'next/image';
 import { ProjectImage } from '@/lib/firestore';
 
+// Local file with preview (not yet uploaded)
+export interface LocalImageFile {
+  id: string;
+  file: File;
+  preview: string; // blob URL
+  type: 'before' | 'after';
+}
+
 interface ImageUploadTabsProps {
   afterImages: ProjectImage[];
   beforeImages: ProjectImage[];
+  localAfterFiles: LocalImageFile[];
+  localBeforeFiles: LocalImageFile[];
   onAfterImagesChange: (images: ProjectImage[]) => void;
   onBeforeImagesChange: (images: ProjectImage[]) => void;
-  onImageUpload: (files: FileList, type: 'before' | 'after') => Promise<void>;
+  onLocalAfterFilesChange: (files: LocalImageFile[]) => void;
+  onLocalBeforeFilesChange: (files: LocalImageFile[]) => void;
   onImageDelete: (imageId: string, type: 'before' | 'after') => Promise<void>;
   onImageReorder: (images: ProjectImage[], type: 'before' | 'after') => Promise<void>;
   isUploading?: boolean;
@@ -29,9 +40,12 @@ type TabType = 'after' | 'before';
 export default function ImageUploadTabs({
   afterImages,
   beforeImages,
+  localAfterFiles,
+  localBeforeFiles,
   onAfterImagesChange,
   onBeforeImagesChange,
-  onImageUpload,
+  onLocalAfterFilesChange,
+  onLocalBeforeFilesChange,
   onImageDelete,
   onImageReorder,
   isUploading = false,
@@ -40,11 +54,24 @@ export default function ImageUploadTabs({
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
 
   const currentImages = activeTab === 'after' ? afterImages : beforeImages;
+  const currentLocalFiles = activeTab === 'after' ? localAfterFiles : localBeforeFiles;
   const setCurrentImages = activeTab === 'after' ? onAfterImagesChange : onBeforeImagesChange;
+  const setCurrentLocalFiles = activeTab === 'after' ? onLocalAfterFilesChange : onLocalBeforeFilesChange;
 
-  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Total count includes both uploaded images and local preview files
+  const totalCount = currentImages.length + currentLocalFiles.length;
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      await onImageUpload(e.target.files, activeTab);
+      const newLocalFiles: LocalImageFile[] = Array.from(e.target.files).map(file => ({
+        id: `local-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        file,
+        preview: URL.createObjectURL(file),
+        type: activeTab,
+      }));
+
+      // Add to local files state (not uploading yet)
+      setCurrentLocalFiles([...currentLocalFiles, ...newLocalFiles]);
       e.target.value = ''; // Reset input
     }
   };
@@ -85,6 +112,20 @@ export default function ImageUploadTabs({
     }
   };
 
+  const handleDeleteLocalFile = (fileId: string) => {
+    if (window.confirm('ต้องการลบรูปนี้หรือไม่?')) {
+      // Find and revoke the blob URL to free memory
+      const fileToDelete = currentLocalFiles.find(f => f.id === fileId);
+      if (fileToDelete) {
+        URL.revokeObjectURL(fileToDelete.preview);
+      }
+
+      // Remove from local files
+      const updatedFiles = currentLocalFiles.filter(f => f.id !== fileId);
+      setCurrentLocalFiles(updatedFiles);
+    }
+  };
+
   return (
     <div className="space-y-4">
       {/* Tab Navigation */}
@@ -101,7 +142,7 @@ export default function ImageUploadTabs({
           <span className="text-lg">🟢</span>
           <span>หลังติดตั้ง</span>
           <span className="text-sm bg-green-100 text-green-800 px-2 py-0.5 rounded-full">
-            {afterImages.length}
+            {afterImages.length + localAfterFiles.length}
           </span>
         </button>
 
@@ -117,7 +158,7 @@ export default function ImageUploadTabs({
           <span className="text-lg">🔴</span>
           <span>ก่อนติดตั้ง</span>
           <span className="text-sm bg-red-100 text-red-800 px-2 py-0.5 rounded-full">
-            {beforeImages.length}
+            {beforeImages.length + localBeforeFiles.length}
           </span>
         </button>
       </div>
@@ -182,11 +223,16 @@ export default function ImageUploadTabs({
         </div>
 
         {/* Image Grid */}
-        {currentImages.length > 0 ? (
+        {totalCount > 0 ? (
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <h4 className="text-sm font-semibold text-gray-700">
-                รูปทั้งหมด ({currentImages.length})
+                รูปทั้งหมด ({totalCount})
+                {currentLocalFiles.length > 0 && (
+                  <span className="ml-2 text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
+                    {currentLocalFiles.length} รอบันทึก
+                  </span>
+                )}
               </h4>
               <p className="text-xs text-gray-500">
                 💡 ลากรูปเพื่อเรียงลำดับ
@@ -194,6 +240,7 @@ export default function ImageUploadTabs({
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {/* Show uploaded images first */}
               {currentImages.map((image, index) => (
                 <div
                   key={image.id || index}
@@ -252,6 +299,61 @@ export default function ImageUploadTabs({
                   )}
                 </div>
               ))}
+
+              {/* Show local preview files (not yet uploaded) */}
+              {currentLocalFiles.map((localFile, index) => (
+                <div
+                  key={localFile.id}
+                  className="relative group rounded-lg overflow-hidden border-2 border-dashed border-blue-400 bg-blue-50/50 transition-all duration-200"
+                >
+                  {/* Preview Image */}
+                  <div className="relative aspect-[4/3]">
+                    <Image
+                      src={localFile.preview}
+                      alt={`Preview ${index + 1}`}
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                      unoptimized // Required for blob URLs
+                    />
+
+                    {/* Hover Overlay */}
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all duration-200" />
+
+                    {/* Preview Badge */}
+                    <div className="absolute top-2 left-2 px-2 py-1 rounded-lg text-xs font-bold text-white bg-blue-500">
+                      รอบันทึก
+                    </div>
+
+                    {/* Order Badge */}
+                    <div className="absolute top-2 left-20 px-2 py-1 rounded-lg text-xs font-bold bg-white/90 text-gray-700">
+                      #{currentImages.length + index + 1}
+                    </div>
+
+                    {/* Delete Button */}
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteLocalFile(localFile.id)}
+                      className="absolute top-2 right-2 p-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-200 shadow-lg"
+                      title="ลบรูป"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+
+                  {/* File Info */}
+                  <div className="p-2 bg-white">
+                    <p className="text-xs text-gray-600 truncate">
+                      {localFile.file.name}
+                    </p>
+                    <p className="text-xs text-blue-600 font-medium">
+                      {(localFile.file.size / 1024 / 1024).toFixed(2)} MB
+                    </p>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         ) : (
@@ -281,7 +383,7 @@ export default function ImageUploadTabs({
         )}
 
         {/* Validation Warning */}
-        {activeTab === 'after' && afterImages.length === 0 && (
+        {activeTab === 'after' && afterImages.length === 0 && localAfterFiles.length === 0 && (
           <div className="mt-4 p-4 bg-yellow-50 border-l-4 border-yellow-400 rounded">
             <div className="flex items-start gap-3">
               <svg className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
