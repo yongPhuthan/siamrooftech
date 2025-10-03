@@ -651,15 +651,6 @@ return (
         </div>
       </section>
     )}
-
-    {/* Final CTA Section ... (ไม่เปลี่ยน) */}
-    {/* ... (ที่เหลือส่วน Lightbox, Footer ยังคงเหมือนเดิม) */}
-
-    {/* Custom Responsive Lightbox */}
-    {isLightboxOpen && (
-      /* ... (lightbox code unchanged) */
-      <div>/* lightbox content */</div>
-    )}
   </div>
 );
 
