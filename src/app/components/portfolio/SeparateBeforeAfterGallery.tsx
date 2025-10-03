@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { Project, ProjectImage } from '@/lib/firestore';
-import { Circle as CircleIcon } from '@mui/icons-material';
+import { CheckCircleOutline, HourglassEmpty, RadioButtonUnchecked } from '@mui/icons-material';
 
 interface SeparateBeforeAfterGalleryProps {
   project: Project;
@@ -34,24 +34,20 @@ export default function SeparateBeforeAfterGallery({
   const hasBeforeImages = beforeImages.length > 0;
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       {/* ===== After Section (Priority - Serial Position Effect) ===== */}
       {hasAfterImages && (
-        <section className="space-y-4 p-6 bg-gradient-to-br from-green-50 to-white rounded-2xl border-2 border-green-100 shadow-sm">
-          {/* Header - Law of Proximity */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="border-2 border-green-500 text-green-700 px-4 py-2 rounded-lg font-semibold text-sm bg-white flex items-center gap-2">
-                <CircleIcon sx={{ fontSize: 16 }} className="text-green-600" />
-                <span>หลังติดตั้ง</span>
-              </div>
-              <span className="text-sm text-gray-600 font-medium">
-                {afterImages.length} รูป
-              </span>
+        <section className="space-y-4">
+          {/* Header - Clean minimal style */}
+          <div className="flex items-center justify-between rounded-xl bg-gray-50 px-4 py-3 mt-2">
+            {/* Left side */}
+            <div className="flex items-center gap-2">
+              {/* <CheckCircleOutline className="text-green-500" style={{ fontSize: 22 }} /> */}
+              <span className="text-sm font-medium text-gray-800">หลังติดตั้ง</span>
             </div>
 
-            {/* Image counter */}
-            <div className="bg-white px-3 py-1.5 rounded-full text-xs text-gray-600 border border-green-200">
+            {/* Right side (counter) */}
+            <div className="text-xs text-gray-500">
               {activeAfterIndex + 1} / {afterImages.length}
             </div>
           </div>
@@ -80,47 +76,32 @@ export default function SeparateBeforeAfterGallery({
 
           {/* Thumbnails - Miller's Law: Max 8 visible */}
           {afterImages.length > 1 && (
-            <div className="space-y-2">
-              <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-                รูปทั้งหมด
-              </h4>
-              <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
-                {afterImages.map((img, idx) => (
-                  <button
-                    key={img.id || idx}
-                    onClick={() => setActiveAfterIndex(idx)}
-                    className={`relative flex-shrink-0 rounded-lg overflow-hidden transition-all duration-200 ${
-                      activeAfterIndex === idx
-                        ? 'ring-4 ring-green-500 shadow-lg scale-105'
-                        : 'ring-2 ring-gray-200 hover:ring-green-300 hover:shadow-md'
+            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+              {afterImages.map((img, idx) => (
+                <button
+                  key={img.id || idx}
+                  onClick={() => setActiveAfterIndex(idx)}
+                  className={`relative flex-shrink-0 rounded-lg overflow-hidden transition-all duration-200 ${activeAfterIndex === idx
+                    ? 'ring-2 ring-gray-900 shadow-md'
+                    : 'ring-1 ring-gray-300 hover:ring-gray-400'
                     }`}
-                    style={{ width: 80, height: 80 }}
-                    aria-label={`ดูรูปที่ ${idx + 1}`}
-                  >
-                    <Image
-                      src={img.small_size || img.original_size}
-                      alt={`Thumbnail ${idx + 1}`}
-                      fill
-                      className="object-cover"
-                      sizes="80px"
-                    />
+                  style={{ width: 72, height: 72 }}
+                  aria-label={`ดูรูปที่ ${idx + 1}`}
+                >
+                  <Image
+                    src={img.small_size || img.original_size}
+                    alt={`Thumbnail ${idx + 1}`}
+                    fill
+                    className="object-cover"
+                    sizes="72px"
+                  />
 
-                    {/* Active indicator */}
-                    {activeAfterIndex === idx && (
-                      <div className="absolute inset-0 bg-green-500/20 flex items-center justify-center">
-                        <div className="bg-green-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold">
-                          ✓
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Index badge */}
-                    <div className="absolute bottom-1 right-1 bg-black/70 text-white text-xs px-1.5 py-0.5 rounded">
-                      {idx + 1}
-                    </div>
-                  </button>
-                ))}
-              </div>
+                  {/* Active overlay */}
+                  {activeAfterIndex === idx && (
+                    <div className="absolute inset-0 bg-black/10" />
+                  )}
+                </button>
+              ))}
             </div>
           )}
 
@@ -135,21 +116,17 @@ export default function SeparateBeforeAfterGallery({
 
       {/* ===== Before Section ===== */}
       {hasBeforeImages && (
-        <section className="space-y-4 p-6 bg-gradient-to-br from-red-50 to-white rounded-2xl border-2 border-red-100 shadow-sm">
-          {/* Header - Law of Proximity */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="border-2 border-red-500 text-red-700 px-4 py-2 rounded-lg font-semibold text-sm bg-white flex items-center gap-2">
-                <CircleIcon sx={{ fontSize: 16 }} className="text-red-600" />
-                <span>ก่อนติดตั้ง</span>
-              </div>
-              <span className="text-sm text-gray-600 font-medium">
-                {beforeImages.length} รูป
-              </span>
+        <section className="space-y-4">
+          {/* Header - Clean minimal style */}
+          <div className="flex items-center justify-between rounded-xl bg-gray-50 px-4 py-3">
+            {/* Left side */}
+            <div className="flex items-center gap-2">
+              {/* <HourglassEmpty className="text-gray-400" style={{ fontSize: 22 }} /> */}
+              <span className="text-sm font-medium text-gray-800">ก่อนติดตั้ง</span>
             </div>
 
-            {/* Image counter */}
-            <div className="bg-white px-3 py-1.5 rounded-full text-xs text-gray-600 border border-red-200">
+            {/* Right side (counter) */}
+            <div className="text-xs text-gray-500">
               {activeBeforeIndex + 1} / {beforeImages.length}
             </div>
           </div>
@@ -177,47 +154,32 @@ export default function SeparateBeforeAfterGallery({
 
           {/* Thumbnails - Miller's Law: Max 8 visible */}
           {beforeImages.length > 1 && (
-            <div className="space-y-2">
-              <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-                รูปทั้งหมด
-              </h4>
-              <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
-                {beforeImages.map((img, idx) => (
-                  <button
-                    key={img.id || idx}
-                    onClick={() => setActiveBeforeIndex(idx)}
-                    className={`relative flex-shrink-0 rounded-lg overflow-hidden transition-all duration-200 ${
-                      activeBeforeIndex === idx
-                        ? 'ring-4 ring-red-500 shadow-lg scale-105'
-                        : 'ring-2 ring-gray-200 hover:ring-red-300 hover:shadow-md'
+            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+              {beforeImages.map((img, idx) => (
+                <button
+                  key={img.id || idx}
+                  onClick={() => setActiveBeforeIndex(idx)}
+                  className={`relative flex-shrink-0 rounded-lg overflow-hidden transition-all duration-200 ${activeBeforeIndex === idx
+                    ? 'ring-2 ring-gray-900 shadow-md'
+                    : 'ring-1 ring-gray-300 hover:ring-gray-400'
                     }`}
-                    style={{ width: 80, height: 80 }}
-                    aria-label={`ดูรูปที่ ${idx + 1}`}
-                  >
-                    <Image
-                      src={img.small_size || img.original_size}
-                      alt={`Thumbnail ${idx + 1}`}
-                      fill
-                      className="object-cover"
-                      sizes="80px"
-                    />
+                  style={{ width: 72, height: 72 }}
+                  aria-label={`ดูรูปที่ ${idx + 1}`}
+                >
+                  <Image
+                    src={img.small_size || img.original_size}
+                    alt={`Thumbnail ${idx + 1}`}
+                    fill
+                    className="object-cover"
+                    sizes="72px"
+                  />
 
-                    {/* Active indicator */}
-                    {activeBeforeIndex === idx && (
-                      <div className="absolute inset-0 bg-red-500/20 flex items-center justify-center">
-                        <div className="bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold">
-                          ✓
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Index badge */}
-                    <div className="absolute bottom-1 right-1 bg-black/70 text-white text-xs px-1.5 py-0.5 rounded">
-                      {idx + 1}
-                    </div>
-                  </button>
-                ))}
-              </div>
+                  {/* Active overlay */}
+                  {activeBeforeIndex === idx && (
+                    <div className="absolute inset-0 bg-black/10" />
+                  )}
+                </button>
+              ))}
             </div>
           )}
 
