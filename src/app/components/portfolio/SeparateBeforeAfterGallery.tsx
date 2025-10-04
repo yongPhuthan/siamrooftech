@@ -29,6 +29,8 @@ export default function SeparateBeforeAfterGallery({
 }: SeparateBeforeAfterGalleryProps) {
   const [activeAfterIndex, setActiveAfterIndex] = useState(0);
   const [activeBeforeIndex, setActiveBeforeIndex] = useState(0);
+  const [isAfterImageLoading, setIsAfterImageLoading] = useState(false);
+  const [isBeforeImageLoading, setIsBeforeImageLoading] = useState(false);
 
   const hasAfterImages = afterImages.length > 0;
   const hasBeforeImages = beforeImages.length > 0;
@@ -57,6 +59,15 @@ export default function SeparateBeforeAfterGallery({
             className="relative aspect-[4/3] rounded-xl overflow-hidden cursor-pointer bg-gray-100 group"
             onClick={() => onImageClick?.(afterImages[activeAfterIndex], activeAfterIndex, 'after')}
           >
+            {/* Loading Spinner */}
+            {isAfterImageLoading && (
+              <div className="absolute inset-0 flex items-center justify-center bg-gray-100 z-10">
+                <div className="relative">
+                  <div className="w-12 h-12 border-4 border-gray-200 border-t-gray-400 rounded-full animate-spin"></div>
+                </div>
+              </div>
+            )}
+
             <Image
               src={afterImages[activeAfterIndex].original_size}
               alt={afterImages[activeAfterIndex].alt_text || `${project.title} - หลังติดตั้ง`}
@@ -64,6 +75,7 @@ export default function SeparateBeforeAfterGallery({
               className="object-cover transition-transform duration-300 group-hover:scale-105"
               priority
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              onLoadingComplete={() => setIsAfterImageLoading(false)}
             />
 
             {/* Hover overlay */}
@@ -80,7 +92,10 @@ export default function SeparateBeforeAfterGallery({
               {afterImages.map((img, idx) => (
                 <button
                   key={img.id || idx}
-                  onClick={() => setActiveAfterIndex(idx)}
+                  onClick={() => {
+                    setIsAfterImageLoading(true);
+                    setActiveAfterIndex(idx);
+                  }}
                   className={`relative flex-shrink-0 rounded-lg overflow-hidden transition-all duration-200 ${activeAfterIndex === idx
                     ? 'ring-2 ring-gray-900 shadow-md'
                     : 'ring-1 ring-gray-300 hover:ring-gray-400'
@@ -136,12 +151,22 @@ export default function SeparateBeforeAfterGallery({
             className="relative aspect-[4/3] rounded-xl overflow-hidden cursor-pointer bg-gray-100 group"
             onClick={() => onImageClick?.(beforeImages[activeBeforeIndex], activeBeforeIndex, 'before')}
           >
+            {/* Loading Spinner */}
+            {isBeforeImageLoading && (
+              <div className="absolute inset-0 flex items-center justify-center bg-gray-100 z-10">
+                <div className="relative">
+                  <div className="w-12 h-12 border-4 border-gray-200 border-t-gray-400 rounded-full animate-spin"></div>
+                </div>
+              </div>
+            )}
+
             <Image
               src={beforeImages[activeBeforeIndex].original_size}
               alt={beforeImages[activeBeforeIndex].alt_text || `${project.title} - ก่อนติดตั้ง`}
               fill
               className="object-cover transition-transform duration-300 group-hover:scale-105"
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              onLoadingComplete={() => setIsBeforeImageLoading(false)}
             />
 
             {/* Hover overlay */}
@@ -158,7 +183,10 @@ export default function SeparateBeforeAfterGallery({
               {beforeImages.map((img, idx) => (
                 <button
                   key={img.id || idx}
-                  onClick={() => setActiveBeforeIndex(idx)}
+                  onClick={() => {
+                    setIsBeforeImageLoading(true);
+                    setActiveBeforeIndex(idx);
+                  }}
                   className={`relative flex-shrink-0 rounded-lg overflow-hidden transition-all duration-200 ${activeBeforeIndex === idx
                     ? 'ring-2 ring-gray-900 shadow-md'
                     : 'ring-1 ring-gray-300 hover:ring-gray-400'

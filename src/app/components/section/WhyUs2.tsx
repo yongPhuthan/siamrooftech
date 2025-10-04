@@ -27,63 +27,42 @@ const WhyUs2 = (props: Props) => {
   return (
     <>
       {isDesktop ? (
-        <Stack
-          px={10}
-          alignItems={'center'}
-          gap={3}
-          my={3}
-          direction={'column'}
-        >
-          <div className="md:flex md:justify-center md:items-center mb-5 md:space-x-4">
-            <h1 className="text-3xl text-[#427ed2ff] md:text-4xl font_page font-bold text-center">
+        <div className="max-w-6xl mx-auto px-6 py-12">
+          <div className="flex justify-center items-center gap-3 mb-10">
+            <h2 className="text-3xl text-[#427ed2ff] font-bold text-center">
               {keyword}
-            </h1>
-            <h1 className="text-3xl md:text-4xl font_page font-bold text-center ">
+            </h2>
+            <h2 className="text-3xl font-bold text-center">
               ไว้ใจสยามรูฟเทค
-            </h1>
+            </h2>
           </div>
-          <Grid
-            style={{
-              borderRadius: '12px',
-              border: '1px solid #D9D9D9',
-              background: 'var(--Background-Light-Paper, #FFF)',
-              boxShadow:
-                '0px 12px 24px -4px rgba(145, 158, 171, 0.12), 0px 0px 2px 0px rgba(145, 158, 171, 0.20)',
-            }}
-            container
-            maxWidth={'100%'}
-            alignItems={'center'}
-            justifyContent={'space-between'}
-          >
-            <Grid mt={3} item xs={7}>
-              <Stack alignItems={'center'} gap={3} direction={'column'}>
-                <Avatar
-                  sx={{ width: 90, height: 90, backgroundColor: '#E9F0FE' }}
-                >
-                  <FoundationIcon
-                    fontSize="large"
-                    sx={{ color: '#1769D8', fontSize: '50px' }}
-                  />
-                </Avatar>
-                <Typography fontSize={24} fontWeight={700} align="center">
-                  วางใจเรื่องความแข็งแรงปลอดภัย
-                </Typography>
-                <Typography variant="body1" maxWidth={'90%'} align="center">
-                  ทีมงานของเรามีประสบการณ์ติดตั้ง{keyword}มานาน
-                  ทำให้เราเข้าใจถึงปัญหาและความเสี่ยงที่ลูกค้าอาจจะได้เจอจากการติดตั้ง
-                  {keyword}ที่ไม่มีคุณภาพ ดังนั้นงานติดตั้ง{keyword}
-                  ทุกงานของเราคำนึงถึงความปลอดภัยในเคสการใช้งานกับพื้นผิวและวัสดุของพื้นที่หน้างานต่างๆ
-                  ที่จำเป็นต้องออกแบบการติดตั้งให้เหมาะสมกับพื้นที่และการใช้งานของลูกค้าที่แตกต่างกัน
-                </Typography>
-                <a
-                    href="https://lin.ee/pPz1ZqN"
-                    target="_blank"
-                    className="inline-block"
+
+          <div className="space-y-6">
+            {/* Card 1: ความแข็งแรงปลอดภัย */}
+            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-lg transition-shadow duration-300 overflow-hidden">
+              <div className="grid grid-cols-3 gap-0">
+                <div className="col-span-2 p-8 flex flex-col items-center justify-center">
+                  <Avatar
+                    sx={{ width: 72, height: 72, backgroundColor: '#E9F0FE', mb: 3 }}
                   >
+                    <FoundationIcon
+                      sx={{ color: '#1769D8', fontSize: '40px' }}
+                    />
+                  </Avatar>
+                  <h3 className="text-xl font-bold text-center mb-4">
+                    วางใจเรื่องความแข็งแรงปลอดภัย
+                  </h3>
+                  <p className="text-gray-600 text-center text-sm leading-relaxed mb-6">
+                    ทีมงานของเรามีประสบการณ์ติดตั้ง{keyword}มานาน
+                    ทำให้เราเข้าใจถึงปัญหาและความเสี่ยงที่ลูกค้าอาจจะได้เจอจากการติดตั้ง
+                    {keyword}ที่ไม่มีคุณภาพ ดังนั้นงานติดตั้ง{keyword}
+                    ทุกงานของเราคำนึงถึงความปลอดภัยในเคสการใช้งานกับพื้นผิวและวัสดุของพื้นที่หน้างานต่างๆ
+                  </p>
+                  <a href="https://lin.ee/pPz1ZqN" target="_blank">
                     <button
-                      className="btn btn-outline btn-large w-[300px] btn-primary mx-auto" // Use DaisyUI button class
+                      className="btn btn-outline btn-primary"
                       onClick={() => {
-                        window.dataLayer = window.dataLayer || ([] as any);
+                        window.dataLayer = window.dataLayer || [];
                         window.dataLayer.push({
                           event: 'button_click',
                           event_category: 'Button',
@@ -95,67 +74,52 @@ const WhyUs2 = (props: Props) => {
                       ประเมินราคาฟรี
                     </button>
                   </a>
-              </Stack>
-            </Grid>
-            <Grid item xs={3}>
-              <Image
-                src={'/images/1675672547482.jpg'}
-                width={300}
-                height={150}
-                style={{ borderRadius: '0 12px  12px 0' }}
-                layout="responsive"
-                alt="กันสาดพับเก็บได้"
-              />
-            </Grid>
-          </Grid>
-          <Grid
-            style={{
-              borderRadius: '12px',
-              border: '1px solid #D9D9D9',
-              background: 'var(--Background-Light-Paper, #FFF)',
-              boxShadow:
-                '0px 12px 24px -4px rgba(145, 158, 171, 0.12), 0px 0px 2px 0px rgba(145, 158, 171, 0.20)',
-            }}
-            container
-            flexDirection={'row-reverse'}
-            maxWidth={'100%'}
-            justifyContent={'space-between'}
-          >
-            <Grid mt={3} item xs={6}>
-              <Stack
-                alignItems={'center'}
-                py={6}
-                gap={3}
-                direction={'column'}
-                justifyContent={'flex-start'}
-                mr={10}
-              >
-                <Avatar
-                  sx={{ width: 90, height: 90, backgroundColor: '#E9F0FE' }}
-                >
-                  <LayersIcon
-                    fontSize="large"
-                    sx={{ color: '#1769D8', fontSize: '50px' }}
+                </div>
+                <div className="col-span-1">
+                  <Image
+                    src="/images/1675672547482.jpg"
+                    width={400}
+                    height={600}
+                    className="w-full h-full object-cover"
+                    alt="กันสาดพับเก็บได้"
                   />
-                </Avatar>
-                <h1 className="text-2xl  md:text-2xl font_page font-bold text-center">
-                  การออกแบบที่เข้ากับหน้างาน
-                </h1>
-                <Typography variant="body1" align="center">
-                  ไม่เพียงแค่เรื่องความแข็งแรงของงานติดตั้งเท่านั้นแต่เรายังคำนึงถึงดีไซน์ของกันสาดที่ต้องเข้ากันได้ดีกับหน้างานของลูกค้าเพราะเราเข้าใจว่า
-                  {keyword} คือหน้าตาของบ้านดังนั้นวัสดุและโทนสีของผ้าใบ
-                  {keyword}
-                  จะต้องเข้ากันได้ดีกับโทนบานของลูกค้าเช่นกัน
-                </Typography>
-                <a
-                    href="https://lin.ee/pPz1ZqN"
-                    target="_blank"
-                    className="inline-block"
+                </div>
+              </div>
+            </div>
+            {/* Card 2: การออกแบบที่เข้ากับหน้างาน */}
+            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-lg transition-shadow duration-300 overflow-hidden">
+              <div className="grid grid-cols-3 gap-0">
+                <div className="col-span-1">
+                  <Image
+                    src="/images/line_oa_chat_230513_163101.jpg"
+                    width={400}
+                    height={600}
+                    className="w-full h-full object-cover"
+                    alt="กันสาดพับเก็บได้"
+                  />
+                </div>
+                <div className="col-span-2 p-8 flex flex-col items-center justify-center">
+                  <Avatar
+                    sx={{ width: 72, height: 72, backgroundColor: '#E9F0FE', mb: 3 }}
                   >
+                    <LayersIcon
+                      sx={{ color: '#1769D8', fontSize: '40px' }}
+                    />
+                  </Avatar>
+                  <h3 className="text-xl font-bold text-center mb-4">
+                    การออกแบบที่เข้ากับหน้างาน
+                  </h3>
+                  <p className="text-gray-600 text-center text-sm leading-relaxed mb-6">
+                    ไม่เพียงแค่เรื่องความแข็งแรงของงานติดตั้งเท่านั้นแต่เรายังคำนึงถึงดีไซน์ของกันสาดที่ต้องเข้ากันได้ดีกับหน้างานของลูกค้าเพราะเราเข้าใจว่า
+                    {keyword} คือหน้าตาของบ้านดังนั้นวัสดุและโทนสีของผ้าใบ
+                    {keyword}
+                    จะต้องเข้ากันได้ดีกับโทนบานของลูกค้าเช่นกัน
+                  </p>
+                  <a href="https://lin.ee/pPz1ZqN" target="_blank">
                     <button
-                      className="btn btn-outline btn-large w-[300px] btn-primary mx-auto" // Use DaisyUI button class
+                      className="btn btn-outline btn-primary"
                       onClick={() => {
-                        window.dataLayer = window.dataLayer || ([] as any);
+                        window.dataLayer = window.dataLayer || [];
                         window.dataLayer.push({
                           event: 'button_click',
                           event_category: 'Button',
@@ -167,60 +131,33 @@ const WhyUs2 = (props: Props) => {
                       ประเมินราคาฟรี
                     </button>
                   </a>
-              </Stack>
-            </Grid>
-            <Grid item xs={6}>
-              <Image
-                src={'/images/line_oa_chat_230513_163101.jpg'}
-                width={600}
-                height={900}
-                style={{ borderRadius: ' 12px 0 0  12px ' }}
-                alt="กันสาดพับเก็บได้"
-              />
-            </Grid>
-          </Grid>
-          <Grid
-            style={{
-              borderRadius: '12px',
-              border: '1px solid #D9D9D9',
-              background: 'var(--Background-Light-Paper, #FFF)',
-              boxShadow:
-                '0px 12px 24px -4px rgba(145, 158, 171, 0.12), 0px 0px 2px 0px rgba(145, 158, 171, 0.20)',
-            }}
-            container
-            maxWidth={'100%'}
-            alignItems={'center'}
-            justifyContent={'space-between'}
-          >
-            <Grid mt={3} item xs={6}>
-              <Stack alignItems={'center'} gap={3} direction={'column'}>
-                <Avatar
-                  sx={{ width: 90, height: 90, backgroundColor: '#E9F0FE' }}
-                >
-                  <FavoriteIcon
-                    fontSize="large"
-                    sx={{ color: '#1769D8', fontSize: '50px' }}
-                  />
-                </Avatar>
-                <Typography fontSize={24} fontWeight={700} align="center">
-                  ใส่ใจบริการหลังการขายทุกงานติดตั้ง
-                </Typography>
-                <Typography variant="body1" maxWidth={'90%'} align="center">
-                  ในกรณีที่เกิดปัญหาจากการใช้งานเรามีบริการหลังการขายที่พร้อมเข้าไปหน้างานโดยใช้เวลาประมาณ
-                  2-7 วันหลังรับเรื่องจากลูกค้า และเราเข้าใจว่า{keyword}
-                  เป็นงานที่มีความเชี่ยวชาญและวัสดุอุปกรณ์เฉพาะทางที่ต้องมีประสบการณ์ในการติดตั้งดังนั้นในกรณีที่มีปัญหาเล็กๆน้อยๆหลังการใช้งานเป็นเรื่องยุ่งยากที่ลูกค้าจะต้องหาซื้อวัสดุอุปกรณ์มาแก้ไขเอง
-                  ดังนั้นถึงแม้หมดระยะประกันไปแล้วเราก็ยังเข้าไปดูแล
-                  ปรับ-เปลี่ยนวัสดุอุปกรณ์โดยคิดค่าแรงค่าเดินทางและค่าวัสดุเพียงเล็กน้อยเท่านั้น
-                </Typography>
-                <a
-                    href="https://lin.ee/pPz1ZqN"
-                    target="_blank"
-                    className="inline-block"
+                </div>
+              </div>
+            </div>
+            {/* Card 3: บริการหลังการขาย */}
+            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-lg transition-shadow duration-300 overflow-hidden">
+              <div className="grid grid-cols-3 gap-0">
+                <div className="col-span-2 p-8 flex flex-col items-center justify-center">
+                  <Avatar
+                    sx={{ width: 72, height: 72, backgroundColor: '#E9F0FE', mb: 3 }}
                   >
+                    <FavoriteIcon
+                      sx={{ color: '#1769D8', fontSize: '40px' }}
+                    />
+                  </Avatar>
+                  <h3 className="text-xl font-bold text-center mb-4">
+                    ใส่ใจบริการหลังการขายทุกงานติดตั้ง
+                  </h3>
+                  <p className="text-gray-600 text-center text-sm leading-relaxed mb-6">
+                    ในกรณีที่เกิดปัญหาจากการใช้งานเรามีบริการหลังการขายที่พร้อมเข้าไปหน้างานโดยใช้เวลาประมาณ
+                    2-7 วันหลังรับเรื่องจากลูกค้า และเราเข้าใจว่า{keyword}
+                    เป็นงานที่มีความเชี่ยวชาญและวัสดุอุปกรณ์เฉพาะทางที่ต้องมีประสบการณ์ในการติดตั้งดังนั้นในกรณีที่มีปัญหาเล็กๆน้อยๆหลังการใช้งานเป็นเรื่องยุ่งยากที่ลูกค้าจะต้องหาซื้อวัสดุอุปกรณ์มาแก้ไขเอง
+                  </p>
+                  <a href="https://lin.ee/pPz1ZqN" target="_blank">
                     <button
-                      className="btn btn-outline btn-large w-[300px] btn-primary mx-auto" // Use DaisyUI button class
+                      className="btn btn-outline btn-primary"
                       onClick={() => {
-                        window.dataLayer = window.dataLayer || ([] as any);
+                        window.dataLayer = window.dataLayer || [];
                         window.dataLayer.push({
                           event: 'button_click',
                           event_category: 'Button',
@@ -232,20 +169,20 @@ const WhyUs2 = (props: Props) => {
                       ประเมินราคาฟรี
                     </button>
                   </a>
-              </Stack>
-            </Grid>
-            <Grid item xs={6}>
-              <Image
-                src={'/images/aftersales.jpg'}
-                width={300}
-                height={150}
-                style={{ borderRadius: '0 12px  12px 0' }}
-                layout="responsive"
-                alt="กันสาดพับเก็บได้"
-              />
-            </Grid>
-          </Grid>
-        </Stack>
+                </div>
+                <div className="col-span-1">
+                  <Image
+                    src="/images/aftersales.jpg"
+                    width={400}
+                    height={600}
+                    className="w-full h-full object-cover"
+                    alt="กันสาดพับเก็บได้"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       ) : (
         <>
           <Stack direction={'column'} gap={0}>

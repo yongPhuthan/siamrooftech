@@ -12,8 +12,6 @@ import { Project } from "@/lib/firestore";
 import { transformFirestoreProjectsToProjectShow } from "@/lib/project-utils";
 import ProjectGalleryClient from "./ProjectGalleryClient";
 import LineButton from "./LineButton";
-import LineButtonMobile from "./LineButtonMobile";
-import LineButtonDesktop from "./LineButtonDesktop";
 import PortfolioButton from "./PortfolioButton";
 
 type Props = {
@@ -87,11 +85,6 @@ const Main = (props: Props) => {
         </div>
       </Stack>
 
-      {/* Mobile Sticky Line Button */}
-      <LineButtonMobile />
-
-      {/* Desktop Floating Line Button */}
-      <LineButtonDesktop />
       <div className="bg-gradient-to-br pt-20 mx-auto  from-gray-100 to-gray-200">
 
 

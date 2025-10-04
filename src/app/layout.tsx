@@ -5,6 +5,7 @@ import { Suspense } from "react";
 import "./globals.css";
 import { Providers } from "./providers";
 import Navigation from "./components/ui/Navigation";
+import LineButtonsLayout from "./components/LineButtonsLayout";
 
 const myFont = localFont({
   src: [
@@ -122,6 +123,7 @@ export default function RootLayout({
         <Providers>
           <Navigation />
           <Suspense>{children}</Suspense>
+          <LineButtonsLayout />
         </Providers>
       </body>
     </html>

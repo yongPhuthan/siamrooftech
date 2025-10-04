@@ -662,69 +662,159 @@ return (
     {/* Lightbox Modal */}
     {isLightboxOpen && lightboxImages.length > 0 && (
       <div
-        className="fixed inset-0 z-50 flex items-center justify-center bg-black/95"
+        className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/95"
         onClick={closeLightbox}
         onWheel={handleWheel}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
       >
-        {/* Close Button */}
-        <button
-          onClick={closeLightbox}
-          className="absolute top-4 right-4 z-50 bg-white/10 hover:bg-white/20 text-white p-3 rounded-full transition-all"
-          aria-label="ปิด"
-        >
-          <CloseIcon fontSize="large" />
-        </button>
+        {/* Mobile: Top Controls Bar */}
+        <div className="md:hidden absolute top-0 left-0 right-0 z-50 bg-gradient-to-b from-black/80 to-transparent p-3">
+          <div className="flex items-center justify-between gap-2">
+            {/* Zoom Controls */}
+            <div className="flex items-center gap-1 bg-white/20 backdrop-blur-sm rounded-full px-2 py-1">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleZoom(-0.2);
+                }}
+                className="text-white hover:text-blue-300 transition-colors px-1.5 text-lg font-bold"
+                aria-label="ซูมออก"
+              >
+                −
+              </button>
+              <span className="text-white text-xs font-medium px-1 min-w-[36px] text-center">
+                {Math.round(zoomLevel * 100)}%
+              </span>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleZoom(0.2);
+                }}
+                className="text-white hover:text-blue-300 transition-colors px-1.5 text-lg font-bold"
+                aria-label="ซูมเข้า"
+              >
+                +
+              </button>
+            </div>
 
-        {/* Image Counter & Type Indicator */}
-        <div className="absolute top-4 left-4 z-50 bg-white/10 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm">
-          {isBeforeAfterMode && (
-            <span className="mr-2 font-semibold">
-              {lightboxImageType === 'before' ? '🕐 ก่อนติดตั้ง' : '✅ หลังติดตั้ง'}
-            </span>
-          )}
-          {lightboxImageIndex + 1} / {lightboxImages.length}
+            {/* Close Button */}
+            <button
+              onClick={closeLightbox}
+              className="bg-white/20 hover:bg-white/30 text-white p-2 rounded-full transition-all flex-shrink-0"
+              aria-label="ปิด"
+            >
+              <CloseIcon fontSize="small" />
+            </button>
+          </div>
         </div>
 
-        {/* Zoom Controls */}
-        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-50 flex gap-2 bg-white/10 backdrop-blur-sm rounded-full px-3 py-2">
+        {/* Desktop: Separate Controls */}
+        <div className="hidden md:block">
+          {/* Close Button */}
           <button
-            onClick={(e) => {
-              e.stopPropagation();
-              handleZoom(-0.2);
-            }}
-            className="text-white hover:text-blue-400 transition-colors px-2"
-            aria-label="ซูมออก"
+            onClick={closeLightbox}
+            className="absolute top-4 right-4 z-50 bg-white/10 hover:bg-white/20 text-white p-3 rounded-full transition-all"
+            aria-label="ปิด"
           >
-            −
+            <CloseIcon fontSize="large" />
           </button>
-          <span className="text-white text-sm px-2">{Math.round(zoomLevel * 100)}%</span>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              handleZoom(0.2);
-            }}
-            className="text-white hover:text-blue-400 transition-colors px-2"
-            aria-label="ซูมเข้า"
-          >
-            <ZoomInIcon />
-          </button>
+
+          {/* Image Counter & Type Indicator */}
+          <div className="absolute top-4 left-4 z-50 bg-white/10 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm">
+            {isBeforeAfterMode && (
+              <span className="mr-2 font-semibold">
+                {lightboxImageType === 'before' ? '🕐 ก่อนติดตั้ง' : '✅ หลังติดตั้ง'}
+              </span>
+            )}
+            {lightboxImageIndex + 1} / {lightboxImages.length}
+          </div>
+
+          {/* Zoom Controls */}
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 z-50 flex gap-2 bg-white/10 backdrop-blur-sm rounded-full px-3 py-2">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleZoom(-0.2);
+              }}
+              className="text-white hover:text-blue-400 transition-colors px-2"
+              aria-label="ซูมออก"
+            >
+              −
+            </button>
+            <span className="text-white text-sm px-2">{Math.round(zoomLevel * 100)}%</span>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleZoom(0.2);
+              }}
+              className="text-white hover:text-blue-400 transition-colors px-2"
+              aria-label="ซูมเข้า"
+            >
+              <ZoomInIcon />
+            </button>
+          </div>
         </div>
 
-        {/* Previous Button */}
+        {/* Desktop Navigation Buttons */}
         {lightboxImages.length > 1 && (
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              prevLightboxImage();
-            }}
-            className="absolute left-4 z-50 bg-white/10 hover:bg-white/20 text-white p-3 rounded-full transition-all"
-            aria-label="รูปก่อนหน้า"
-          >
-            <ChevronLeftIcon fontSize="large" />
-          </button>
+          <div className="hidden md:block">
+            {/* Previous Button */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                prevLightboxImage();
+              }}
+              className="absolute left-4 z-50 bg-white/10 hover:bg-white/20 text-white p-3 rounded-full transition-all"
+              aria-label="รูปก่อนหน้า"
+            >
+              <ChevronLeftIcon fontSize="large" />
+            </button>
+
+            {/* Next Button */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                nextLightboxImage();
+              }}
+              className="absolute right-4 z-50 bg-white/10 hover:bg-white/20 text-white p-3 rounded-full transition-all"
+              aria-label="รูปถัดไป"
+            >
+              <ChevronRightIcon fontSize="large" />
+            </button>
+          </div>
+        )}
+
+        {/* Mobile Navigation Buttons - Bottom Clean Design */}
+        {lightboxImages.length > 1 && (
+          <div className="md:hidden absolute bottom-20 left-1/2 -translate-x-1/2 z-50 flex items-center gap-4">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                prevLightboxImage();
+              }}
+              className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white p-3 rounded-full transition-all shadow-lg"
+              aria-label="รูปก่อนหน้า"
+            >
+              <ChevronLeftIcon fontSize="medium" />
+            </button>
+
+            <div className="bg-white/20 backdrop-blur-sm text-white px-3 py-1.5 rounded-full text-xs font-medium">
+              {lightboxImageIndex + 1} / {lightboxImages.length}
+            </div>
+
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                nextLightboxImage();
+              }}
+              className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white p-3 rounded-full transition-all shadow-lg"
+              aria-label="รูปถัดไป"
+            >
+              <ChevronRightIcon fontSize="medium" />
+            </button>
+          </div>
         )}
 
         {/* Main Image */}
@@ -752,30 +842,16 @@ return (
           />
         </div>
 
-        {/* Next Button */}
-        {lightboxImages.length > 1 && (
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              nextLightboxImage();
-            }}
-            className="absolute right-4 z-50 bg-white/10 hover:bg-white/20 text-white p-3 rounded-full transition-all"
-            aria-label="รูปถัดไป"
-          >
-            <ChevronRightIcon fontSize="large" />
-          </button>
-        )}
-
         {/* Caption */}
         {lightboxImages[lightboxImageIndex]?.caption && (
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-50 bg-white/10 backdrop-blur-sm text-white px-6 py-3 rounded-full max-w-2xl text-center">
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-50 bg-white/10 backdrop-blur-sm text-white px-4 md:px-6 py-2 md:py-3 rounded-full max-w-xs md:max-w-2xl text-center text-xs md:text-sm">
             {lightboxImages[lightboxImageIndex].caption}
           </div>
         )}
 
         {/* Instructions - Desktop only */}
         <div className="hidden md:block absolute bottom-4 right-4 z-50 bg-white/10 backdrop-blur-sm text-white/70 px-4 py-2 rounded-full text-xs">
-          ESC: ปิด | ←/→: เปลี่ยนรูป | Scroll: ซูม
+          ESC: ปิด | ←/→: เปลี่ยนรูป | Scroll: ซูม | Double-click: ซูม
         </div>
       </div>
     )}
