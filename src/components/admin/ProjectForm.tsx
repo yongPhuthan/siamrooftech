@@ -1181,7 +1181,8 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
               <label className="block text-lg font-semibold text-gray-800">
                 รายละเอียดโปรเจค *
               </label>
-              <button
+              {/* TODO: Enable when AI system is ready */}
+              {/* <button
                 type="button"
                 onClick={generateDescription}
                 disabled={generatingDescription}
@@ -1200,10 +1201,11 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
                     ✨ Gen with AI
                   </>
                 )}
-              </button>
+              </button> */}
             </div>
-            
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+
+            {/* TODO: Enable when AI system is ready */}
+            {/* <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
               <div className="flex items-start">
                 <div className="flex-shrink-0">
                   <svg className="w-5 h-5 text-blue-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1223,7 +1225,7 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
                   </p>
                 </div>
               </div>
-            </div>
+            </div> */}
 
             <div className="space-y-3">
               {formData.description.map((desc, index) => (
@@ -1235,7 +1237,7 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
                     }
                     rows={3}
                     className="flex-1 px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
-                    placeholder={`รายละเอียดที่ ${index + 1} (ใช้ AI หรือพิมพ์เอง)`}
+                    placeholder={`รายละเอียดที่ ${index + 1}`}
                   />
                   {formData.description.length > 1 && (
                     <button
