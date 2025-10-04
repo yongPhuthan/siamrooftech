@@ -27,8 +27,8 @@
 }
 @font-face {
   font-family: 'Sukhumvit Set';
-  src: url('/fonts/SukhumvitSet-Bold') format('truetype');
-  font-weight: normal;
+  src: url('/fonts/SukhumvitSet-Bold.ttf') format('truetype');
+  font-weight: bold;
   font-style: normal;
   font-display: swap;
 }
@@ -236,3 +236,13 @@ position: absolute !important;
   }
 }
 
+/* Safe area utilities for iPhone notch/home indicator */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .pb-safe {
+    padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+  }
+
+  .safe-area-inset-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}

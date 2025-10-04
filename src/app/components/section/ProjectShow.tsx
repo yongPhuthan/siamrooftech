@@ -1,21 +1,10 @@
 'use client';
 import Image from 'next/image';
-import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-
-import { Navigation, Pagination } from 'swiper/modules';
-import { Swiper, SwiperSlide } from 'swiper/react';
-
-import 'swiper/css';
-import 'swiper/css/autoplay';
-import 'swiper/css/navigation';
-import 'swiper/css/pagination';
-import 'swiper/swiper-bundle.css';
 
 import BeforeAfterSlider from '../ui/BeforeAfterSlider';
 
 const ProjectShow = (props:any) => {
-  const [showModal, setShowModal] = useState(false);
   const router = useRouter();
   const projects = props.projectShows;
   const title = props.title;
@@ -24,7 +13,6 @@ const ProjectShow = (props:any) => {
   const projectId = props.projectId;
   const projectSlug = props.projectSlug;
   const fullProject = props.project; // Full project data for Before/After
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   // Determine if we should show Before/After
   const hasBeforeImage = fullProject?.images?.some((img: any) => img.type === 'before');
@@ -43,12 +31,6 @@ const ProjectShow = (props:any) => {
     } else if (projectId) {
       router.push(`/portfolio/${projectId}`);
     }
-  };
-
-  const handleImageClick = (imageSrc: string, e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent project navigation when clicking image
-    setSelectedImage(imageSrc);
-    setShowModal(true);
   };
 
   return (
@@ -116,7 +98,6 @@ const ProjectShow = (props:any) => {
                         className="w-full h-auto aspect-[4/3] object-cover rounded-xl cursor-pointer transition-all duration-300 group-hover:scale-[1.02] group-hover:shadow-xl"
                         src={projects[0].originalSize}
                         alt={projects[0].title}
-                        onClick={(e) => handleImageClick(projects[0].originalSize, e)}
                       />
                       {/* Overlay badge */}
                       <div className="absolute top-3 right-3">
@@ -131,7 +112,7 @@ const ProjectShow = (props:any) => {
                 {/* Thumbnail Gallery - Improved Touch Targets */}
                 <div className="grid grid-cols-4 gap-3">
                   {projects.slice(0, 4).map((project:any) => (
-                    <div key={project.id} className="relative group cursor-pointer" onClick={(e) => handleImageClick(project.originalSize, e)}>
+                    <div key={project.id} className="relative group cursor-pointer">
                       <Image
                         alt={project.title}
                         width={140}
@@ -165,64 +146,6 @@ const ProjectShow = (props:any) => {
           </div>
 
           <div className="my-8 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent" />
-          
-          {/* Modal for full-screen view */}
-          {showModal && (
-            <div
-              className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-90 flex items-center justify-center z-50"
-              onClick={() => setShowModal(false)}
-            >
-              <Swiper
-                navigation={{
-                  nextEl: '.swiper-button-next',
-                  prevEl: '.swiper-button-prev',
-                }}
-                pagination={{
-                  type: 'fraction',
-                  el: '.swiper-fraction',
-                }}
-                modules={[Navigation, Pagination]}
-              >
-                {projects.map((project:any, index:number) => (
-                  <SwiperSlide key={index}>
-                    <Image
-                      width={900}
-                      height={900}
-                      alt={project.title}
-                      className="max-h-[97vh] mx-auto z-50"
-                      src={project.originalSize}
-                      draggable="false"
-                    />
-                  </SwiperSlide>
-                ))}
-              </Swiper>
-              <div className="swiper-fraction absolute top-2 right-2 p-2"></div>
-              <div className="swiper-button-prev"></div>
-              <div className="swiper-button-next"></div>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setShowModal(false);
-                }}
-                className="absolute top-[3%] left-2 p-2 text-white bg-opacity-70 rounded-full z-50 cursor-pointer"
-              >
-                <svg
-                  className="w-8 h-8"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-              </button>
-            </div>
-          )}
         </div>
       </div>
 
@@ -266,7 +189,6 @@ const ProjectShow = (props:any) => {
             ) : (
               <div className="relative group cursor-pointer rounded-xl overflow-hidden">
                 <Image
-                  onClick={(e) => handleImageClick(projects[0]?.originalSize, e)}
                   sizes="(max-width: 320px) 280px, (max-width: 480px) 440px, 800px"
                   src={projects[0]?.originalSize}
                   alt={projects[0]?.title}
@@ -289,7 +211,6 @@ const ProjectShow = (props:any) => {
                 <div
                   key={project.id}
                   className="relative group cursor-pointer"
-                  onClick={(e) => handleImageClick(project.originalSize, e)}
                 >
                   <Image
                     className="w-full h-16 object-cover rounded-lg transition-all duration-200 group-hover:scale-105"
@@ -302,45 +223,6 @@ const ProjectShow = (props:any) => {
                 </div>
               ))}
             </div>
-
-            {showModal && (
-              <div
-                className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-90 flex items-center justify-center z-50"
-                onClick={() => setShowModal(false)}
-              >
-                <div
-                  className="relative max-h-[90vh] w-auto"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <Image
-                    width={500}
-                    height={500}
-                    alt="caption"
-                    className="max-h-[90vh] w-auto"
-                    src={selectedImage || ''}
-                  />
-                </div>
-                <button
-                  className="absolute top-2 left-2 p-2 text-white bg-opacity-70 rounded-full"
-                  onClick={() => setShowModal(false)}
-                >
-                  <svg
-                    className="w-8 h-8"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
-                </button>
-              </div>
-            )}
           
             {/* Mobile Project Details */}
             <div className="space-y-3">

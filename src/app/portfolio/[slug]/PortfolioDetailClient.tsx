@@ -8,53 +8,19 @@ import { Project } from '../../../lib/firestore';
 import { usePortfolioStore } from '../../../store/portfolioStore';
 import Breadcrumbs from '../../components/ui/Breadcrumbs';
 import SeparateBeforeAfterGallery from '../../components/portfolio/SeparateBeforeAfterGallery';
+import PortfolioCTA from '../../components/section/PortfolioCTA';
 import { getBeforeImage, getAfterImages, getBeforeImages, shouldShowBeforeAfter } from '@/lib/project-image-utils';
-import {
-  trackLineClickHero,
-  trackLineClickMiddle,
-  trackLineClickBottom,
-  trackLineClickMobile,
-  trackLineClickDesktop
-} from '@/lib/gtag';
 
 interface PortfolioDetailClientProps {
   project: Project;
 }
-let trackingType = 'bottom' 
-  const handleClick = () => {
-    // New tracking system based on button position
-    switch (trackingType) {
-      case 'hero':
-        trackLineClickHero();
-        break;
-      case 'middle':
-        trackLineClickMiddle();
-        break;
-      case 'bottom':
-        trackLineClickBottom();
-        break;
-      case 'mobile':
-        trackLineClickMobile();
-        break;
-      case 'desktop':
-        trackLineClickDesktop();
-        break;
-      default:
-        trackLineClickHero(); // fallback
-    }
-    
-    // Keep existing GTM conversion tracking for backwards compatibility
-    if (typeof window !== 'undefined' && typeof (window as any).gtag_report_conversion === 'function') {
-      return (window as any).gtag_report_conversion('https://lin.ee/pPz1ZqN');
-    }
-    return true;
-  };
 
 export default function PortfolioDetailClient({ project }: PortfolioDetailClientProps) {
   const { getRelatedProjects } = usePortfolioStore();
   const relatedProjects = getRelatedProjects(project, 3);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [lightboxImageIndex, setLightboxImageIndex] = useState(0);
+  const [lightboxImageType, setLightboxImageType] = useState<'before' | 'after' | 'regular'>('regular');
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [imageLoaded, setImageLoaded] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(1);
@@ -64,10 +30,14 @@ export default function PortfolioDetailClient({ project }: PortfolioDetailClient
   const [swipeThreshold] = useState(50);
   const [initialDistance, setInitialDistance] = useState<number | null>(null);
   const [initialZoom, setInitialZoom] = useState(1);
-  
-  
+
+
   const displayImages = project.images || [];
   const hasImages = displayImages.length > 0;
+  const isBeforeAfterMode = shouldShowBeforeAfter(project);
+  const lightboxImages = isBeforeAfterMode
+    ? (lightboxImageType === 'before' ? getBeforeImages(project) : getAfterImages(project))
+    : displayImages;
 
   // Structured Data สำหรับหน้า Portfolio Detail
   const structuredData = {
@@ -148,8 +118,9 @@ export default function PortfolioDetailClient({ project }: PortfolioDetailClient
 
 
   // Lightbox functions
-  const openLightbox = (index: number) => {
+  const openLightbox = (index: number, type: 'before' | 'after' | 'regular' = 'regular') => {
     setLightboxImageIndex(index);
+    setLightboxImageType(type);
     setImageLoaded(false);
     setIsLightboxOpen(true);
   };
@@ -165,15 +136,15 @@ export default function PortfolioDetailClient({ project }: PortfolioDetailClient
     setImageLoaded(false);
     setZoomLevel(1);
     setPanPosition({ x: 0, y: 0 });
-    setLightboxImageIndex((prev) => (prev + 1) % displayImages.length);
-  }, [displayImages.length]);
+    setLightboxImageIndex((prev) => (prev + 1) % lightboxImages.length);
+  }, [lightboxImages.length]);
 
   const prevLightboxImage = useCallback(() => {
     setImageLoaded(false);
     setZoomLevel(1);
     setPanPosition({ x: 0, y: 0 });
-    setLightboxImageIndex((prev) => (prev - 1 + displayImages.length) % displayImages.length);
-  }, [displayImages.length]);
+    setLightboxImageIndex((prev) => (prev - 1 + lightboxImages.length) % lightboxImages.length);
+  }, [lightboxImages.length]);
 
   // Keyboard controls
   const handleKeyPress = useCallback((e: KeyboardEvent) => {
@@ -345,9 +316,7 @@ return (
                   afterImages={getAfterImages(project)}
                   beforeImages={getBeforeImages(project)}
                   onImageClick={(image, index, type) => {
-                    const allImages = type === 'after' ? getAfterImages(project) : getBeforeImages(project);
-                    const globalIndex = project.images?.findIndex(img => img.id === image.id) ?? index;
-                    openLightbox(globalIndex);
+                    openLightbox(index, type);
                   }}
                 />
               </>
@@ -602,7 +571,6 @@ return (
         </div>
       </section>
     )}
-
     {/* Related Projects */}
     {relatedProjects.length > 0 && (
       <section className="py-16 bg-white">
@@ -687,84 +655,130 @@ return (
         </div>
       </section>
     )}
-     {/* Final CTA Section - Redesigned with Better Spacing */}
-      <section className="relative py-16 sm:py-20 lg:py-24 bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 text-white overflow-hidden">
-        {/* Background Pattern */}
-        <div className="absolute inset-0 opacity-5">
-          <div className='absolute inset-0 bg-[url(`data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23ffffff" fill-opacity="0.1"%3E%3Ccircle cx="7" cy="7" r="1"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E`)]' />
+
+    {/* Final CTA Section */}
+    <PortfolioCTA />
+
+    {/* Lightbox Modal */}
+    {isLightboxOpen && lightboxImages.length > 0 && (
+      <div
+        className="fixed inset-0 z-50 flex items-center justify-center bg-black/95"
+        onClick={closeLightbox}
+        onWheel={handleWheel}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+      >
+        {/* Close Button */}
+        <button
+          onClick={closeLightbox}
+          className="absolute top-4 right-4 z-50 bg-white/10 hover:bg-white/20 text-white p-3 rounded-full transition-all"
+          aria-label="ปิด"
+        >
+          <CloseIcon fontSize="large" />
+        </button>
+
+        {/* Image Counter & Type Indicator */}
+        <div className="absolute top-4 left-4 z-50 bg-white/10 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm">
+          {isBeforeAfterMode && (
+            <span className="mr-2 font-semibold">
+              {lightboxImageType === 'before' ? '🕐 ก่อนติดตั้ง' : '✅ หลังติดตั้ง'}
+            </span>
+          )}
+          {lightboxImageIndex + 1} / {lightboxImages.length}
         </div>
-        
-        <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center space-y-8 sm:space-y-12">
-            {/* Main Headline */}
-            <div className="space-y-4 sm:space-y-6">
-              <h2 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight">
-                <span className="block mb-2 sm:mb-3">ต้องการกันสาดพับเก็บได้</span>
-                <span className="block text-blue-400">สำหรับโปรเจกต์ของคุณ?</span>
-              </h2>
-              
-              {/* Divider */}
-              <div className="flex justify-center">
-                <div className="w-16 sm:w-24 h-1 bg-gradient-to-r from-blue-400 to-green-400 rounded-full" />
-              </div>
-            </div>
 
-    
+        {/* Zoom Controls */}
+        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-50 flex gap-2 bg-white/10 backdrop-blur-sm rounded-full px-3 py-2">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleZoom(-0.2);
+            }}
+            className="text-white hover:text-blue-400 transition-colors px-2"
+            aria-label="ซูมออก"
+          >
+            −
+          </button>
+          <span className="text-white text-sm px-2">{Math.round(zoomLevel * 100)}%</span>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleZoom(0.2);
+            }}
+            className="text-white hover:text-blue-400 transition-colors px-2"
+            aria-label="ซูมเข้า"
+          >
+            <ZoomInIcon />
+          </button>
+        </div>
 
-            {/* Call to Action Buttons */}
-            <div className="space-y-6 sm:space-y-8">
-              <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center max-w-lg mx-auto">
-                <Button 
-                  onClick={
-                    ()=>handleClick()
-                  }
-                  variant="contained" 
-                  size="large"
-                  component="a"
-                  href="https://lin.ee/pPz1ZqN"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex-1 sm:flex-none sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold rounded-xl shadow-lg transform hover:scale-105 transition-all duration-200"
-                >
-                  <span className="flex items-center justify-center gap-2">
-                    <span>ขอใบเสนอราคาฟรี</span>
-                    <span className="text-xl">→</span>
-                  </span>
-                </Button>
-                
-                <Button 
-                  variant="outlined" 
-                  size="large"
-                   onClick={
-                    ()=>handleClick()
-                  }
-                  href="tel:0984542455"
-                  component="a"
-                  className="flex-1 sm:flex-none sm:px-8 py-3 sm:py-4 border-2 border-gray-400 hover:border-white text-gray-200 hover:text-white hover:bg-white/10 font-semibold rounded-xl transition-all duration-200"
-                >
-                  <span className="flex items-center justify-center gap-2">
-                    <span className="text-xl">📞</span>
-                    <span>โทรปรึกษาทันที</span>
-                  </span>
-                </Button>
-              </div>
-              
-              {/* Additional Info */}
-              <div className="text-center space-y-2">
-                <p className="text-sm sm:text-base text-gray-400">
-                  ⏰ <strong className="text-white">เปิดบริการ:</strong> จันทร์-เสาร์ 8:00-18:00 น.
-                </p>
-                <p className="text-xs sm:text-sm text-gray-500">
-                  บริการครอบคลุมทั่วกรุงเทพฯ และปริมณฑล • ประสบการณ์กว่า 10 ปี
-                </p>
-              </div>
-            </div>
+        {/* Previous Button */}
+        {lightboxImages.length > 1 && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              prevLightboxImage();
+            }}
+            className="absolute left-4 z-50 bg-white/10 hover:bg-white/20 text-white p-3 rounded-full transition-all"
+            aria-label="รูปก่อนหน้า"
+          >
+            <ChevronLeftIcon fontSize="large" />
+          </button>
+        )}
+
+        {/* Main Image */}
+        <div
+          className="relative max-w-[90vw] max-h-[85vh] overflow-hidden"
+          onClick={(e) => e.stopPropagation()}
+          onDoubleClick={handleDoubleClick}
+          style={{
+            transform: `scale(${zoomLevel}) translate(${panPosition.x}px, ${panPosition.y}px)`,
+            transition: isDragging ? 'none' : 'transform 0.2s ease-out',
+            cursor: zoomLevel > 1 ? 'grab' : 'default',
+          }}
+        >
+          <Image
+            src={lightboxImages[lightboxImageIndex].original_size}
+            alt={
+              lightboxImages[lightboxImageIndex].alt_text ||
+              `${project.title} - ${lightboxImageType === 'before' ? 'ก่อนติดตั้ง' : lightboxImageType === 'after' ? 'หลังติดตั้ง' : 'รูปภาพ'} ${lightboxImageIndex + 1}`
+            }
+            width={1200}
+            height={900}
+            className="object-contain max-h-[85vh]"
+            onLoad={() => setImageLoaded(true)}
+            priority
+          />
+        </div>
+
+        {/* Next Button */}
+        {lightboxImages.length > 1 && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              nextLightboxImage();
+            }}
+            className="absolute right-4 z-50 bg-white/10 hover:bg-white/20 text-white p-3 rounded-full transition-all"
+            aria-label="รูปถัดไป"
+          >
+            <ChevronRightIcon fontSize="large" />
+          </button>
+        )}
+
+        {/* Caption */}
+        {lightboxImages[lightboxImageIndex]?.caption && (
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-50 bg-white/10 backdrop-blur-sm text-white px-6 py-3 rounded-full max-w-2xl text-center">
+            {lightboxImages[lightboxImageIndex].caption}
           </div>
+        )}
+
+        {/* Instructions - Desktop only */}
+        <div className="hidden md:block absolute bottom-4 right-4 z-50 bg-white/10 backdrop-blur-sm text-white/70 px-4 py-2 rounded-full text-xs">
+          ESC: ปิด | ←/→: เปลี่ยนรูป | Scroll: ซูม
         </div>
-        
-        {/* Bottom Gradient */}
-        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gray-600 to-transparent" />
-      </section>
+      </div>
+    )}
   </div>
 );
 
