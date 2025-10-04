@@ -40,23 +40,17 @@ const Main = (props: Props) => {
         <WhyUs keyword={keyword} />
       </div>
       {/* Hero CTA - Full Width Line Button */}
-      <div className="w-full px-4 py-6">
-        <div className="max-w-4xl mx-auto">
+        <div className="flex items-center justify-center">
           <LineButton
-            className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 w-full h-auto sm:h-20 py-4 sm:py-0 bg-[#06C755] hover:bg-[#05B34A] active:bg-[#04A041] rounded-2xl transition-all duration-300 shadow-lg hover:shadow-xl active:scale-[0.98]"
-            imageSrc="/images/line.png"
-            imageAlt="Line Official"
-            width={40}
-            height={40}
-            imageClassName="drop-shadow-md"
-            trackingType="hero"
-          >
-            <span className="text-white text-xl sm:text-2xl font-bold tracking-wide text-center">
-              คลิกไลน์ ประเมินราคาฟรี
-            </span>
-          </LineButton>
+            className="btn btn-link w-1000 mx-auto"
+            imageSrc="/images/Add Line.png"
+            imageAlt="Add Line ขอใบเสนอราคา"
+            width={1200}
+            height={200}
+            imageClassName="rounded-2xl"
+            trackingType="bottom"
+          />
         </div>
-      </div>
 
       <div className="bg-[#fafafaff] pt-5 ">
         <ProjectGalleryClient projects={projects} />
@@ -78,16 +72,6 @@ const Main = (props: Props) => {
         gap={2}
         sx={{ width: "100%" }} // Make sure the Stack takes full width
       >
-        <LineButton
-          className="btn btn-link w-1000 mx-auto"
-          imageSrc="https://siamroof.workstandard.co/siamrooftech/4700950199970095519.jpeg"
-          imageAlt="Add Line ขอใบเสนอราคา"
-          width={600}
-          height={600}
-          imageClassName="rounded-md"
-          trackingType="middle"
-        />
-
         <HowItWorks keyword={keyword} />
 
         <div className="flex items-center justify-center">
