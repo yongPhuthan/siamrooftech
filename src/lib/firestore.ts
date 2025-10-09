@@ -88,6 +88,13 @@ export interface Article {
   slug: string;
   created_at?: string | any; // ISO string when serialized, Firestore timestamp on server
   updated_at?: string | any; // ISO string when serialized, Firestore timestamp on server
+  // SEO fields
+  seoTitle?: string; // Custom SEO title (max 60 chars)
+  seoDescription?: string; // Custom meta description (max 160 chars)
+  seoKeywords?: string[]; // SEO keywords array ["กันสาดพับได้", "เทคนิค", ...]
+  isPublished: boolean; // Draft vs Published status
+  viewCount?: number; // Track article popularity
+  lastModified?: string | any; // Track last update timestamp
 }
 
 export interface Category {

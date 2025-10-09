@@ -304,7 +304,7 @@ export const projectsAdminService = {
 const fallbackArticles: Article[] = [];
 
 export const articlesAdminService = {
-  // Get all articles
+  // Get all articles (including drafts for admin)
   async getAll(): Promise<Article[]> {
     try {
       if (!adminDb) {
@@ -313,16 +313,17 @@ export const articlesAdminService = {
       }
 
       const articlesCol = adminDb.collection('articles');
+      // ✅ FIX: ดึงทั้งหมด ไม่กรอง published_at (เพื่อให้ admin เห็น draft ด้วย)
       const querySnapshot = await articlesCol
-        .where('published_at', '!=', null)
-        .orderBy('published_at', 'desc')
+        .orderBy('created_at', 'desc')  // เรียงตาม created_at แทน published_at
         .get();
-      
+
       const articleList: Article[] = [];
       querySnapshot.forEach((doc) => {
         articleList.push(serializeArticle({ id: doc.id, ...doc.data() }));
       });
-      
+
+      console.log(`✅ articlesAdminService.getAll() → ${articleList.length} articles (including drafts)`);
       return articleList;
     } catch (error) {
       console.error('Firebase Admin getAll articles error:', error);

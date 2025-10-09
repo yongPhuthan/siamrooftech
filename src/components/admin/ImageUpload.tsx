@@ -64,54 +64,56 @@ const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(({
     }
   };
 
+  const uploadFiles = async () => {
+    if (selectedFiles.length === 0) return [];
+
+    setUploading(true);
+    setUploadProgress(new Array(selectedFiles.length).fill(0));
+
+    try {
+      const uploadPromises = selectedFiles.map(async (selectedFile, index) => {
+        try {
+          setUploadProgress(prev => {
+            const newProgress = [...prev];
+            newProgress[index] = 50;
+            return newProgress;
+          });
+
+          const result = await uploadImageToCloudflare(selectedFile.file);
+
+          setUploadProgress(prev => {
+            const newProgress = [...prev];
+            newProgress[index] = 100;
+            return newProgress;
+          });
+
+          return result;
+        } catch (error) {
+          console.error(`Error uploading ${selectedFile.file.name}:`, error);
+          throw error;
+        }
+      });
+
+      const results = await Promise.all(uploadPromises);
+      onUpload(results);
+
+      selectedFiles.forEach(file => URL.revokeObjectURL(file.preview));
+      setSelectedFiles([]);
+      setUploadProgress([]);
+      return results;
+    } catch (error) {
+      console.error('Upload error:', error);
+      throw error;
+    } finally {
+      setUploading(false);
+    }
+  };
+
   useImperativeHandle(ref, () => ({
     reset: resetComponent,
     getSelectedFiles: () => selectedFiles,
     triggerFileSelect: () => fileInputRef.current?.click(),
-    uploadFiles: async () => {
-      if (selectedFiles.length === 0) return [];
-
-      setUploading(true);
-      setUploadProgress(new Array(selectedFiles.length).fill(0));
-
-      try {
-        const uploadPromises = selectedFiles.map(async (selectedFile, index) => {
-          try {
-            setUploadProgress(prev => {
-              const newProgress = [...prev];
-              newProgress[index] = 50;
-              return newProgress;
-            });
-
-            const result = await uploadImageToCloudflare(selectedFile.file);
-            
-            setUploadProgress(prev => {
-              const newProgress = [...prev];
-              newProgress[index] = 100;
-              return newProgress;
-            });
-
-            return result;
-          } catch (error) {
-            console.error(`Error uploading ${selectedFile.file.name}:`, error);
-            throw error;
-          }
-        });
-
-        const results = await Promise.all(uploadPromises);
-        onUpload(results);
-        
-        selectedFiles.forEach(file => URL.revokeObjectURL(file.preview));
-        setSelectedFiles([]);
-        setUploadProgress([]);
-        return results;
-      } catch (error) {
-        console.error('Upload error:', error);
-        throw error;
-      } finally {
-        setUploading(false);
-      }
-    }
+    uploadFiles
   }));
 
   const handleFiles = async (files: FileList) => {
@@ -346,6 +348,37 @@ const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(({
                 </div>
               </div>
             ))}
+          </div>
+
+          {/* Upload Button */}
+          <div className="flex justify-center pt-4">
+            <button
+              type="button"
+              onClick={async () => {
+                try {
+                  await uploadFiles();
+                } catch (error) {
+                  console.error('Upload failed:', error);
+                  alert('การอัปโหลดล้มเหลว กรุณาลองใหม่อีกครั้ง');
+                }
+              }}
+              disabled={uploading}
+              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed font-medium transition-colors flex items-center gap-2"
+            >
+              {uploading ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                  กำลังอัปโหลด...
+                </>
+              ) : (
+                <>
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                  </svg>
+                  อัปโหลดรูปภาพ ({selectedFiles.length} ไฟล์)
+                </>
+              )}
+            </button>
           </div>
         </div>
       )}

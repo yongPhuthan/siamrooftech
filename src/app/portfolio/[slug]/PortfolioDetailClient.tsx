@@ -630,7 +630,8 @@ return (
 
                   {/* Title */}
                   <h3 className="text-lg font-semibold text-gray-900 mb-1 line-clamp-2">
-                    {relatedProject.title}
+                            กันสาดพับเก็บได้ ขนาดหน้ากว้าง {project.width} เมตร x ระยะแขนพับ {project.extension} เมตร
+
                   </h3>
 
                   {/* Year */}

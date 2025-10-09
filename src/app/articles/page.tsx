@@ -7,9 +7,15 @@ import { articlesAdminService } from '../../lib/firestore-admin';
 import FinalCTASection from '../components/FinalCTASection';
 
 export const metadata: Metadata = {
-  title: 'บทความ - เทคนิคและคำแนะนำกันสาดพับเก็บได้ | สยามรูฟเทค',
-  description: 'อ่านบทความเกี่ยวกับกันสาดพับเก็บได้ เทคนิคการติดตั้ง การดูแลรักษา และคำแนะนำจากผู้เชี่ยวชาญ',
-  keywords: 'บทความ กันสาด พับเก็บได้ เทคนิค การติดตั้ง การดูแลรักษา',
+  title: 'บทความกันสาดพับได้ - เทคนิค คำแนะนำ การดูแล | Siamrooftech',
+  description: 'อ่านบทความเกี่ยวกับกันสาดพับได้ เทคนิคการเลือก การติดตั้ง การดูแลรักษา และคำแนะนำจากผู้เชี่ยวชาญมากกว่า 10 ปี',
+  keywords: 'กันสาดพับได้, บทความกันสาด, เทคนิค, การติดตั้ง, การดูแล, กันสาดพับเก็บได้',
+  openGraph: {
+    title: 'บทความกันสาดพับได้ - เทคนิคและคำแนะนำ | Siamrooftech',
+    description: 'ความรู้และเทคนิคจากผู้เชี่ยวชาญด้านกันสาดพับได้ เรื่องการเลือก การติดตั้ง และการดูแลรักษา',
+    type: 'website',
+    url: 'https://www.siamrooftech.com/articles',
+  },
 };
 
 // Helper function to get unique categories from articles
@@ -40,9 +46,11 @@ function formatDate(timestamp: any): string {
 export default async function ArticlesPage() {
   let articles: Article[] = [];
   let categories: string[] = ['ทั้งหมด'];
-  
+
   try {
-    articles = await articlesAdminService.getAll();
+    const allArticles = await articlesAdminService.getAll();
+    // ✅ FIX: Filter เฉพาะ published articles สำหรับ public page
+    articles = allArticles.filter(article => article.isPublished === true);
     categories = getUniqueCategories(articles);
   } catch (error) {
     console.error('Error fetching articles:', error);
@@ -63,28 +71,31 @@ export default async function ArticlesPage() {
         </div>
       </div>
 
-      {/* Header */}
-      <div className="bg-gradient-to-r from-green-600 to-green-800 text-white py-16">
+      {/* Header - เปลี่ยนจากเขียวเป็นน้ำเงิน */}
+      <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h1 className="text-4xl lg:text-5xl font-bold mb-6">บทความและคำแนะนำ</h1>
-            <p className="text-xl lg:text-2xl text-green-100 max-w-3xl mx-auto">
+            <p className="text-xl lg:text-2xl text-blue-100 max-w-3xl mx-auto">
               ความรู้และเทคนิคจากผู้เชี่ยวชาญด้านกันสาดพับเก็บได้
             </p>
           </div>
         </div>
       </div>
 
-      {/* Filter Categories */}
+      {/* Filter Categories - เปลี่ยนเป็นสีน้ำเงินและ style แบบ Portfolio */}
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex flex-wrap gap-3 justify-center">
-            {categories.map((category) => (
+            {categories.map((category, index) => (
               <button
                 key={category}
-                className="px-6 py-2 rounded-full border-2 border-green-600 text-green-600 hover:bg-green-600 hover:text-white transition-colors duration-200 font-medium"
+                className="group relative inline-flex items-center px-6 py-3 rounded-full font-medium text-sm transition-all duration-300 transform hover:scale-105 bg-white text-gray-700 hover:bg-blue-50 border border-gray-200 hover:border-blue-300 shadow-sm"
+                style={{ animationDelay: `${index * 50}ms` }}
               >
-                {category}
+                <span className="relative z-10 font-medium">
+                  {category}
+                </span>
               </button>
             ))}
           </div>
@@ -95,51 +106,64 @@ export default async function ArticlesPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {articles.map((article) => (
-            <Link 
-              key={article.id} 
+            <Link
+              key={article.id}
               href={`/articles/${article.slug || article.id}`}
-              className="group bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+              className="group block"
             >
-              <div className="relative h-48 overflow-hidden">
+              <article className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2">
+              <div className="relative aspect-[4/3] overflow-hidden bg-gray-100">
                 <Image
                   src={article.featured_image || '/images/default-article.jpg'}
                   alt={article.title}
                   fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-300"
+                  className="object-cover transition-all duration-700 group-hover:scale-110"
                 />
-                <div className="absolute top-4 left-4">
-                  <span className="bg-green-600 text-white px-3 py-1 rounded-full text-sm font-medium">
+                {/* Category Badge - Top Left */}
+                <div className="absolute top-3 left-3">
+                  <span className="bg-blue-600 text-white px-3 py-1 rounded-lg text-sm font-medium backdrop-blur-sm">
                     {article.category}
+                  </span>
+                </div>
+                {/* Read Time Badge - Top Right */}
+                <div className="absolute top-3 right-3">
+                  <span className="bg-white/95 backdrop-blur-sm px-3 py-1 rounded-lg text-sm font-medium text-gray-800 shadow-sm">
+                    {article.read_time}
                   </span>
                 </div>
               </div>
               
-              <div className="p-6">
-                <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-green-600 transition-colors line-clamp-2">
+              <div className="p-4 space-y-3">
+                {/* Title */}
+                <h3 className="font-semibold text-gray-900 text-lg leading-tight line-clamp-2 group-hover:text-blue-600 transition-colors duration-200">
                   {article.title}
                 </h3>
-                <p className="text-gray-600 mb-4 line-clamp-3">
+
+                {/* Excerpt */}
+                <p className="text-gray-600 text-sm leading-relaxed line-clamp-2">
                   {article.excerpt}
                 </p>
-                
-                <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
-                  <div className="flex items-center space-x-4">
+
+                {/* Meta: Author + Date */}
+                <div className="flex items-center justify-between text-sm text-gray-500">
+                  <div className="flex items-center space-x-2">
                     <span>{article.author}</span>
                     <span>•</span>
                     <span>{formatDate(article.published_at)}</span>
                   </div>
-                  <span className="text-green-600 font-medium">{article.read_time}</span>
                 </div>
-                
-                <div className="pt-4 border-t border-gray-100">
-                  <span className="text-green-600 font-medium group-hover:text-green-700 flex items-center">
+
+                {/* CTA */}
+                <div className="pt-2 border-t border-gray-100">
+                  <span className="text-blue-600 text-sm font-medium opacity-0 group-hover:opacity-100 transition-all duration-200 transform translate-x-2 group-hover:translate-x-0 flex items-center">
                     อ่านต่อ
-                    <svg className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                     </svg>
                   </span>
                 </div>
               </div>
+              </article>
             </Link>
           ))}
         </div>

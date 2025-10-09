@@ -16,5 +16,11 @@ const config: Config = {
     },
   },
   plugins: [require("daisyui")],
+  // ✅ FIX: Disable DaisyUI base styles ที่ทำให้ input มีสีพื้นหลังเข้ม
+  daisyui: {
+    styled: false,  // ปิด component styles อัตโนมัติ
+    themes: false,  // ปิด theme system
+    base: false,    // ปิด base styles (reset CSS)
+  },
 };
 export default config;
