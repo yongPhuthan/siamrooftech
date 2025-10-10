@@ -321,7 +321,7 @@ const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(({
           <h4 className="font-medium text-gray-900">
             รูปภาพที่เลือก ({selectedFiles.length}/{maxFiles})
           </h4>
-          
+
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
             {selectedFiles.map((selectedFile, index) => (
               <div key={selectedFile.id} className="relative aspect-square rounded-lg overflow-hidden border border-gray-200 group">
@@ -350,35 +350,11 @@ const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(({
             ))}
           </div>
 
-          {/* Upload Button */}
-          <div className="flex justify-center pt-4">
-            <button
-              type="button"
-              onClick={async () => {
-                try {
-                  await uploadFiles();
-                } catch (error) {
-                  console.error('Upload failed:', error);
-                  alert('การอัปโหลดล้มเหลว กรุณาลองใหม่อีกครั้ง');
-                }
-              }}
-              disabled={uploading}
-              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed font-medium transition-colors flex items-center gap-2"
-            >
-              {uploading ? (
-                <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                  กำลังอัปโหลด...
-                </>
-              ) : (
-                <>
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                  </svg>
-                  อัปโหลดรูปภาพ ({selectedFiles.length} ไฟล์)
-                </>
-              )}
-            </button>
+          {/* Upload info - no button, will upload on form submit */}
+          <div className="text-center py-2">
+            <p className="text-sm text-gray-600">
+              💡 รูปภาพจะถูกอัปโหลดเมื่อคุณกดปุ่มบันทึกบทความ
+            </p>
           </div>
         </div>
       )}

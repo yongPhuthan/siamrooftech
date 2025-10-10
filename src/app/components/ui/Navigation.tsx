@@ -16,13 +16,27 @@ export default function Navigation() {
   ];
 
   useEffect(() => {
+    if (pathname?.startsWith('/admin')) {
+      setIsScrolled(false);
+      return;
+    }
+
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
     };
 
+    handleScroll();
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [pathname]);
+
+  useEffect(() => {
+    setIsOpen(false);
+  }, [pathname]);
+
+  if (pathname?.startsWith('/admin')) {
+    return null;
+  }
 
   const isActive = (href: string) => {
     if (href === '/') {

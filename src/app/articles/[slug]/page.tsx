@@ -166,10 +166,10 @@ export default async function ArticleDetailPage({ params }: Props) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
 
-      <div className="min-h-screen bg-gray-50">
-        {/* Breadcrumbs */}
-        <div className="bg-white border-b">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <div className="min-h-screen bg-white">
+        {/* Breadcrumbs - Clean design */}
+        <div className="border-b border-gray-100">
+          <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <Breadcrumbs
               items={[
                 { name: 'หน้าแรก', href: '/' },
@@ -181,47 +181,34 @@ export default async function ArticleDetailPage({ params }: Props) {
           </div>
         </div>
 
-        {/* Article Content */}
-        <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
-          {/* Category Badge */}
-          <div className="mb-4">
-            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+        {/* Article Content - Clean & Minimal */}
+        <article className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+          {/* Category Label - Subtle */}
+          <div className="mb-6">
+            <span className="inline-block px-3 py-1 text-xs font-medium text-gray-600 bg-gray-100 rounded">
               {article.category}
             </span>
           </div>
 
-          {/* Title */}
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-6 leading-tight">
+          {/* Title - Clean Typography */}
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-6 leading-tight tracking-tight">
             {article.title}
           </h1>
 
-          {/* Meta Info */}
-          <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 mb-8 pb-8 border-b border-gray-200">
-            <div className="flex items-center">
-              <svg className="w-5 h-5 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-              </svg>
-              {article.author}
-            </div>
-            <span>•</span>
-            <div className="flex items-center">
-              <svg className="w-5 h-5 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
+          {/* Meta Info - Minimal */}
+          <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500 mb-10 pb-8 border-b border-gray-100">
+            <span>{article.author}</span>
+            <span className="text-gray-300">|</span>
+            <time dateTime={article.published_at || article.created_at}>
               {formatDate(article.published_at || article.created_at)}
-            </div>
-            <span>•</span>
-            <div className="flex items-center">
-              <svg className="w-5 h-5 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              {article.read_time}
-            </div>
+            </time>
+            <span className="text-gray-300">|</span>
+            <span>{article.read_time}</span>
           </div>
 
-          {/* Featured Image */}
+          {/* Featured Image - Clean rounded corners */}
           {article.featured_image && (
-            <div className="relative aspect-[16/9] overflow-hidden rounded-2xl mb-8 shadow-lg">
+            <div className="relative aspect-[16/9] overflow-hidden rounded-lg mb-10">
               <Image
                 src={article.featured_image}
                 alt={article.title}
@@ -232,41 +219,48 @@ export default async function ArticleDetailPage({ params }: Props) {
             </div>
           )}
 
-          {/* Excerpt */}
-          <div className="text-xl text-gray-700 leading-relaxed mb-8 p-6 bg-blue-50 rounded-xl border-l-4 border-blue-600">
+          {/* Excerpt - Subtle highlight */}
+          <div className="text-lg text-gray-700 leading-relaxed mb-10 pl-4 border-l-2 border-gray-900">
             {article.excerpt}
           </div>
 
-          {/* Content - Aesthetic-Usability: Beautiful typography */}
+          {/* Content - Clean Typography with better readability */}
           <div className="prose prose-lg max-w-none">
             <div
-              className="text-gray-800 leading-relaxed"
+              className="text-gray-800 leading-relaxed space-y-4"
               style={{
                 fontSize: '1.125rem',
-                lineHeight: '1.75',
+                lineHeight: '1.8',
+                fontFamily: 'system-ui, -apple-system, sans-serif',
               }}
               dangerouslySetInnerHTML={{
                 __html: article.content
-                  .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                  .replace(/\*(.*?)\*/g, '<em>$1</em>')
-                  .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" class="text-blue-600 hover:text-blue-700 underline">$1</a>')
-                  .replace(/\n\n/g, '</p><p class="mb-4">')
-                  .replace(/^(.+)$/gm, '<p class="mb-4">$1</p>'),
+                  // Markdown parsing
+                  .replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold text-gray-900">$1</strong>')
+                  .replace(/\*(.*?)\*/g, '<em class="italic">$1</em>')
+                  .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" class="text-gray-900 underline hover:text-gray-600 transition-colors">$1</a>')
+                  // Headings
+                  .replace(/^### (.+)$/gm, '<h3 class="text-2xl font-bold text-gray-900 mt-10 mb-4">$1</h3>')
+                  .replace(/^## (.+)$/gm, '<h2 class="text-3xl font-bold text-gray-900 mt-12 mb-6">$1</h2>')
+                  // Lists
+                  .replace(/^- (.+)$/gm, '<li class="ml-6 mb-2">$1</li>')
+                  // Paragraphs
+                  .replace(/\n\n/g, '</p><p class="mb-6">')
+                  .replace(/^(.+)$/gm, '<p class="mb-6 text-gray-700">$1</p>'),
               }}
             />
           </div>
 
-          {/* Tags */}
+          {/* Tags - Minimal style */}
           {article.tags && article.tags.length > 0 && (
-            <div className="mt-12 pt-8 border-t border-gray-200">
-              <h3 className="text-sm font-semibold text-gray-900 mb-3">แท็ก:</h3>
+            <div className="mt-16 pt-8 border-t border-gray-100">
               <div className="flex flex-wrap gap-2">
                 {article.tags.map((tag, index) => (
                   <span
                     key={index}
-                    className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors"
+                    className="inline-block px-3 py-1 text-xs font-medium text-gray-600 bg-gray-50 hover:bg-gray-100 rounded transition-colors"
                   >
-                    #{tag}
+                    {tag}
                   </span>
                 ))}
               </div>
@@ -274,11 +268,11 @@ export default async function ArticleDetailPage({ params }: Props) {
           )}
         </article>
 
-        {/* Related Articles - Miller's Law: 3-4 items */}
+        {/* Related Articles - Clean minimal cards */}
         {relatedArticles.length > 0 && (
-          <section className="bg-white py-12 sm:py-16">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-8">
+          <section className="bg-gray-50 py-16 sm:py-20">
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+              <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-10">
                 บทความที่เกี่ยวข้อง
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -288,27 +282,30 @@ export default async function ArticleDetailPage({ params }: Props) {
                     href={`/articles/${related.slug}`}
                     className="group block"
                   >
-                    <article className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border border-gray-200">
-                      <div className="relative aspect-[4/3] overflow-hidden bg-gray-100">
+                    <article className="bg-white rounded-lg overflow-hidden border border-gray-100 hover:border-gray-200 transition-all duration-300 hover:shadow-md">
+                      {/* Image */}
+                      <div className="relative aspect-[16/9] overflow-hidden bg-gray-100">
                         <Image
                           src={related.featured_image || '/images/default-article.jpg'}
                           alt={related.title}
                           fill
-                          className="object-cover transition-all duration-700 group-hover:scale-110"
+                          className="object-cover transition-transform duration-500 group-hover:scale-105"
                         />
-                        <div className="absolute top-3 left-3">
-                          <span className="bg-blue-600 text-white px-3 py-1 rounded-lg text-sm font-medium">
-                            {related.category}
-                          </span>
-                        </div>
                       </div>
-                      <div className="p-4 space-y-2">
-                        <h3 className="font-semibold text-gray-900 text-base leading-tight line-clamp-2 group-hover:text-blue-600 transition-colors">
+                      {/* Content */}
+                      <div className="p-5 space-y-3">
+                        <div className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                          {related.category}
+                        </div>
+                        <h3 className="font-semibold text-gray-900 text-lg leading-tight line-clamp-2 group-hover:text-gray-600 transition-colors">
                           {related.title}
                         </h3>
-                        <p className="text-gray-600 text-sm line-clamp-2">
+                        <p className="text-gray-600 text-sm line-clamp-2 leading-relaxed">
                           {related.excerpt}
                         </p>
+                        <div className="pt-2 text-xs text-gray-500">
+                          {related.read_time}
+                        </div>
                       </div>
                     </article>
                   </Link>

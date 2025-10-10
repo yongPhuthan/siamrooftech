@@ -730,77 +730,42 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
     }
   };
 
+  const inputClass =
+    "w-full rounded-2xl border border-gray-200 bg-white px-3.5 py-3 text-sm text-gray-900 shadow-sm focus:border-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-900/10";
+  const textareaClass =
+    "w-full rounded-2xl border border-gray-200 bg-white px-4 py-4 text-base leading-relaxed text-gray-900 shadow-sm focus:border-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-900/10 min-h-[140px]";
+
   return (
-    <div className="max-w-4xl mx-auto p-6">
+    <div className="mx-auto w-full max-w-5xl  py-6 sm:px-2 lg:px-2">
       {success && (
-        <div className="mb-6 space-y-4">
-          {/* Main Success Message */}
-          <div className="bg-green-50 border border-green-200 text-green-700 px-6 py-4 rounded-lg">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <svg
-                  className="w-5 h-5 mr-2"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M5 13l4 4L19 7"
-                  />
+        <div className="mb-6 space-y-3">
+          <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-4">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-start gap-2">
+                <svg className="h-5 w-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
-                <span className="font-medium">บันทึกโปรเจคเรียบร้อยแล้ว!</span>
+                <div className="text-sm leading-relaxed text-emerald-900">
+                  <p className="font-semibold">บันทึกโปรเจคเรียบร้อยแล้ว</p>
+                  <p className="text-emerald-700">ตรวจสอบบนหน้าเว็บไซต์เพื่อดูการอัปเดตล่าสุด</p>
+                </div>
               </div>
               {createdProjectId && (
-                <div className="flex gap-3">
+                <div className="flex w-full flex-col gap-2 text-sm sm:w-auto sm:flex-row">
                   <a
                     href={`/portfolio/${createdProjectId}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-700 transition-colors flex items-center"
+                    className="inline-flex items-center justify-center rounded-lg border border-emerald-300 px-3 py-2 text-emerald-700 transition-colors hover:border-emerald-400"
                   >
-                    <svg
-                      className="w-4 h-4 mr-2"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                      />
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                      />
-                    </svg>
-                    ดูโปรเจค
+                    เปิดหน้าโปรเจค
                   </a>
                   <a
                     href="/portfolio"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="border border-green-600 text-green-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-600 hover:text-white transition-colors flex items-center"
+                    className="inline-flex items-center justify-center rounded-lg border border-emerald-300 px-3 py-2 text-emerald-700 transition-colors hover:border-emerald-400"
                   >
-                    <svg
-                      className="w-4 h-4 mr-2"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M19 11H5m14 0l-4-4m4 4l-4 4"
-                      />
-                    </svg>
                     ดูผลงานทั้งหมด
                   </a>
                 </div>
@@ -808,100 +773,24 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
             </div>
           </div>
 
-          {/* Cache Revalidation Status */}
           {revalidationStatus && (
-            <div
-              className={`border px-4 py-3 rounded-lg ${
-                revalidationStatus.success
-                  ? "bg-blue-50 border-blue-200 text-blue-700"
-                  : "bg-yellow-50 border-yellow-200 text-yellow-700"
-              }`}
-            >
-              <div className="flex items-start">
-                {revalidationStatus.success ? (
-                  <svg
-                    className="w-4 h-4 mr-2 mt-0.5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M13 10V3L4 14h7v7l9-11h-7z"
-                    />
-                  </svg>
-                ) : (
-                  <svg
-                    className="w-4 h-4 mr-2 mt-0.5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 18.5c-.77.833.192 2.5 1.732 2.5z"
-                    />
-                  </svg>
-                )}
-                <div className="flex-1 text-sm">
-                  <span className="font-medium">
-                    {revalidationStatus.success
-                      ? "Cache อัปเดตสำเร็จ"
-                      : "Cache อัปเดตล้มเหลว"}
-                  </span>
-                  {revalidationStatus.details && (
-                    <div className="mt-1">
-                      {revalidationStatus.success ? (
-                        <div className="space-y-1">
-                          <p>
-                            โปรเจคจะแสดงในเว็บไซต์ทันที (
-                            {revalidationStatus.details.executionTime}ms)
-                          </p>
-                          {process.env.NODE_ENV === "development" &&
-                            revalidationStatus.details.operations && (
-                              <details className="mt-2">
-                                <summary className="cursor-pointer text-xs text-blue-600 hover:text-blue-800">
-                                  ดูรายละเอียด Cache Revalidation
-                                </summary>
-                                <div className="mt-2 p-2 bg-blue-100 rounded text-xs font-mono">
-                                  <div>
-                                    Tags:{" "}
-                                    {revalidationStatus.details.tags?.join(
-                                      ", "
-                                    ) || "None"}
-                                  </div>
-                                  <div>
-                                    Paths:{" "}
-                                    {revalidationStatus.details.paths?.join(
-                                      ", "
-                                    ) || "None"}
-                                  </div>
-                                  <div>
-                                    Operations:{" "}
-                                    {revalidationStatus.details.operations
-                                      ?.length || 0}
-                                  </div>
-                                  {revalidationStatus.details.operations?.map(
-                                    (op: any, idx: number) => (
-                                      <div key={idx} className="ml-2">
-                                        {op.type}: {op.target} (
-                                        {op.success ? "✅" : "❌"}){" "}
-                                        {op.executionTime}ms
-                                      </div>
-                                    )
-                                  )}
-                                </div>
-                              </details>
-                            )}
-                        </div>
-                      ) : (
-                        <p>โปรเจคอาจใช้เวลาสักครู่ก่อนจะแสดงในเว็บไซต์</p>
-                      )}
-                    </div>
+            <div className="rounded-2xl border border-gray-200 bg-gray-50 px-4 py-4 text-sm text-gray-700">
+              <div className="flex items-start gap-2">
+                <span className="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full border border-gray-300 text-[10px] text-gray-500">
+                  i
+                </span>
+                <div className="space-y-1">
+                  <p className="font-medium text-gray-900">
+                    {revalidationStatus.success ? "อัปเดตแคชสำเร็จ" : "ไม่สามารถอัปเดตแคช"}
+                  </p>
+                  {revalidationStatus.success ? (
+                    <p className="text-xs text-gray-500">
+                      โปรเจคจะแสดงในเว็บไซต์ทันที ({revalidationStatus.details?.executionTime}ms)
+                    </p>
+                  ) : (
+                    <p className="text-xs text-gray-500">
+                      โปรเจคอาจใช้เวลาสักครู่ก่อนจะแสดงบนเว็บไซต์
+                    </p>
                   )}
                 </div>
               </div>
@@ -910,15 +799,15 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
         </div>
       )}
 
-      <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-        <div className="bg-blue-600 text-white px-6 py-4">
-          <h1 className="text-2xl font-bold">
-            {project ? 'แก้ไขโปรเจค' : 'เพิ่มโปรเจคใหม่'}
+      <div className="overflow-hidden w-full rounded-3xl border border-gray-200 bg-white shadow-sm">
+        <div className="border-b border-gray-200 px-6 py-5">
+          <h1 className="text-xl font-semibold text-gray-900">
+            {project ? "แก้ไขโปรเจค" : "เพิ่มโปรเจคใหม่"}
           </h1>
-          <p className="text-blue-100 mt-1">กรอกข้อมูลโปรเจคและอัพโหลดรูปภาพ</p>
+          <p className="mt-1 text-sm text-gray-500">กรอกข้อมูลหลักและแนบรูปภาพการทำงาน</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-8">
+        <form onSubmit={handleSubmit} className="space-y-8 px-6 py-6">
           {/* PDF Autofill Section */}
           {/* {!project && (
             <PDFAutofillComponent 
@@ -945,12 +834,12 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
                     type="number"
                     id="width"
                     name="width"
-                    value={formData.width || ''}
-                    onChange={(e) => setFormData(prev => ({ ...prev, width: Number(e.target.value) || 0 }))}
+                    value={formData.width || ""}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, width: Number(e.target.value) || 0 }))}
                     required
                     min="0"
                     step="0.1"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    className={inputClass}
                     placeholder="เช่น 3.5"
                   />
                 </div>
@@ -965,12 +854,12 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
                     type="number"
                     id="extension"
                     name="extension"
-                    value={formData.extension || ''}
-                    onChange={(e) => setFormData(prev => ({ ...prev, extension: Number(e.target.value) || 0 }))}
+                    value={formData.extension || ""}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, extension: Number(e.target.value) || 0 }))}
                     required
                     min="0"
                     step="0.1"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    className={inputClass}
                     placeholder="เช่น 2.0"
                   />
                 </div>
@@ -990,11 +879,11 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
                 value={formData.category}
                 onChange={handleInputChange}
                 required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                className={inputClass}
               >
                 <option value="">เลือกหมวดหมู่</option>
                 {categories.map((cat) => (
-                  <option key={cat} value={cat}>
+                  <option  key={cat} value={cat}>
                     {cat}
                   </option>
                 ))}
@@ -1015,7 +904,7 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
                 value={formData.location}
                 onChange={handleInputChange}
                 required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                className={inputClass}
                 placeholder="เช่น กรุงเทพฯ, ชลบุรี"
               />
             </div>
@@ -1033,7 +922,7 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
                 value={formData.year}
                 onChange={handleInputChange}
                 required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                className={inputClass}
               >
                 {years.map((year) => (
                   <option key={year} value={year.toString()}>
@@ -1049,39 +938,39 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
             <label className="block text-sm font-medium text-gray-700 mb-3">
               ประเภทระบบ *
             </label>
-            <div className="flex flex-col gap-4">
-              <label className="flex items-center">
+            <div className="flex flex-col gap-3">
+              <label className="flex items-center justify-between rounded-xl border border-gray-200 px-3 py-2 text-sm text-gray-700">
                 <input
                   type="radio"
                   name="type"
                   value="ระบบมือหมุน"
                   checked={formData.type === "ระบบมือหมุน"}
                   onChange={handleInputChange}
-                  className="mr-2"
+                  className="h-4 w-4 accent-gray-900"
                 />
-                <span>ระบบมือหมุน</span>
+                <span className="ml-3 flex-1">ระบบมือหมุน</span>
               </label>
-              <label className="flex items-center">
+              <label className="flex items-center justify-between rounded-xl border border-gray-200 px-3 py-2 text-sm text-gray-700">
                 <input
                   type="radio"
                   name="type"
                   value="มอเตอร์ไฟฟ้า"
                   checked={formData.type === "มอเตอร์ไฟฟ้า"}
                   onChange={handleInputChange}
-                  className="mr-2"
+                  className="h-4 w-4 accent-gray-900"
                 />
-                <span>มอเตอร์ไฟฟ้า</span>
+                <span className="ml-3 flex-1">มอเตอร์ไฟฟ้า</span>
               </label>
-              <label className="flex items-center">
+              <label className="flex items-center justify-between rounded-xl border border-gray-200 px-3 py-2 text-sm text-gray-700">
                 <input
                   type="radio"
                   name="type"
                   value="สองระบบ (มือหมุน + มอเตอร์ไฟฟ้า)"
                   checked={formData.type === "สองระบบ (มือหมุน + มอเตอร์ไฟฟ้า)"}
                   onChange={handleInputChange}
-                  className="mr-2"
+                  className="h-4 w-4 accent-gray-900"
                 />
-                <span>สองระบบ (มือหมุน + มอเตอร์ไฟฟ้า)</span>
+                <span className="ml-3 flex-1">สองระบบ (มือหมุน + มอเตอร์ไฟฟ้า)</span>
               </label>
             </div>
           </div>
@@ -1101,7 +990,7 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
                 value={formData.arms_count}
                 onChange={handleInputChange}
                 required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                className={inputClass}
               >
                 <option value="2">2 แขน</option>
                 <option value="3">3 แขน</option>
@@ -1123,7 +1012,7 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
                 value={formData.canvas_material}
                 onChange={handleInputChange}
                 required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                className={inputClass}
               >
                 <option value="ผ้าอะคริลิคสเปน">ผ้าอะคริลิคสเปน</option>
                 <option value="ผ้าอะคริลิค">ผ้าอะคริลิค</option>
@@ -1143,7 +1032,7 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
                 value={formData.fabric_edge}
                 onChange={handleInputChange}
                 required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                className={inputClass}
               >
                 <option value="ตัดเรียบ">ตัดเรียบ</option>
                 <option value="โค้งลอน">โค้งลอน</option>
@@ -1176,7 +1065,7 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
           </div>
 
           {/* Description Section - Moved to Bottom */}
-          <div className="bg-gray-50 border border-gray-200 rounded-xl p-6">
+          <div className="bg-gray-50 border border-gray-200 rounded-xl p-4">
             <div className="flex items-center justify-between mb-4">
               <label className="block text-lg font-semibold text-gray-800">
                 รายละเอียดโปรเจค *
@@ -1235,15 +1124,15 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
                     onChange={(e) =>
                       handleDescriptionChange(index, e.target.value)
                     }
-                    rows={3}
-                    className="flex-1 px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
+                    rows={12}
+                    className={`${textareaClass} flex-1 resize-none`}
                     placeholder={`รายละเอียดที่ ${index + 1}`}
                   />
                   {formData.description.length > 1 && (
                     <button
                       type="button"
                       onClick={() => removeDescriptionField(index)}
-                      className="px-3 py-2 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg transition-colors"
+                      className="rounded-xl border border-gray-200 px-3 py-2 text-sm text-gray-500 transition-colors hover:border-gray-300 hover:text-gray-700"
                     >
                       <svg
                         className="w-5 h-5"
@@ -1265,20 +1154,10 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
               <button
                 type="button"
                 onClick={addDescriptionField}
-                className="flex items-center text-blue-600 hover:text-blue-800 hover:bg-blue-50 px-3 py-2 rounded-lg transition-colors"
+                className="inline-flex items-center gap-2 rounded-xl border border-gray-200 px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:border-gray-300 hover:text-gray-900"
               >
-                <svg
-                  className="w-5 h-5 mr-1"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                  />
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v12m6-6H6" />
                 </svg>
                 เพิ่มรายละเอียด
               </button>
@@ -1286,11 +1165,11 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
           </div>
 
           {/* Submit Button */}
-          <div className="flex justify-end">
+          <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
             <button
               type="submit"
               disabled={submitting}
-              className="bg-blue-600 text-white px-8 py-3 rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center"
+              className="inline-flex w-full items-center justify-center rounded-xl bg-gray-900 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-black disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
             >
               {submitting ? (
                 <>

@@ -42,11 +42,16 @@ export default function ArticlesList({
 }: ArticlesListProps) {
   return (
     <div className="space-y-4">
-      {articles.map((article) => (
-        <article
-          key={article.id}
-          className="bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden border border-gray-200"
-        >
+      {articles.map((article) => {
+        const isPublished = article.isPublished === true;
+        const publishDate = formatDate(article.published_at || article.created_at);
+        const updatedDate = formatDate(article.updated_at || article.created_at);
+
+        return (
+          <article
+            key={article.id}
+            className="bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden border border-gray-200"
+          >
           <div className="grid grid-cols-1 md:grid-cols-12 gap-4 p-4">
             {/* Featured Image - Miller's Law: Visual chunk */}
             <div className="md:col-span-3">
@@ -101,7 +106,7 @@ export default function ArticlesList({
                   <svg className="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
-                  {formatDate(article.published_at || article.created_at)}
+                  {publishDate}
                 </span>
 
                 {/* Read Time */}
@@ -142,11 +147,11 @@ export default function ArticlesList({
               )}
             </div>
 
-            {/* Actions - Fitts's Law: Large clickable areas */}
-            <div className="md:col-span-3 flex md:flex-col gap-2">
+            {/* Actions - Mobile: IconButtons, Desktop: Full buttons */}
+            <div className="md:col-span-3 flex flex-col gap-3">
               {/* Status Badge */}
-              <div className="flex items-center justify-center md:justify-start">
-                {article.isPublished ? (
+              <div className="hidden md:flex items-center justify-start">
+                {isPublished ? (
                   <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
                     <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
@@ -163,18 +168,124 @@ export default function ArticlesList({
                 )}
               </div>
 
-              {/* Action Buttons */}
-              <div className="flex flex-col gap-2 flex-1">
+              {/* Mobile Status & Actions */}
+              <div className="md:hidden border-t border-gray-100 pt-4 mt-2">
+                <div className="flex items-center justify-between text-sm">
+                  <span className={`inline-flex items-center px-3 py-1 rounded-full font-medium ${
+                    isPublished ? 'bg-emerald-50 text-emerald-700' : 'bg-gray-100 text-gray-600'
+                  }`}>
+                    <span className="mr-2 flex h-4 w-4 items-center justify-center">
+                      {isPublished ? (
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 3.75a8.25 8.25 0 100 16.5 8.25 8.25 0 000-16.5z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 12.75l1.5 1.5 3-3" />
+                        </svg>
+                      ) : (
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 7.5v4.125l2.625 2.625" />
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      )}
+                    </span>
+                    {isPublished ? 'เผยแพร่แล้ว' : 'ฉบับร่าง'}
+                  </span>
+                  {updatedDate && (
+                    <span className="text-xs text-gray-500">
+                      ปรับปรุง {updatedDate}
+                    </span>
+                  )}
+                </div>
+
+                <div className="mt-4 grid grid-cols-2 gap-2">
+                  {/* Toggle Publish */}
+                  <button
+                    onClick={() => onTogglePublish(article)}
+                    className={`flex flex-col items-center justify-center gap-1 rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
+                      isPublished
+                        ? 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
+                        : 'border-blue-200 bg-white text-blue-700 hover:border-blue-300'
+                    }`}
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+                      {isPublished ? (
+                        <>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 3.75a8.25 8.25 0 100 16.5 8.25 8.25 0 000-16.5z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 12.75l1.5 1.5 3-3" />
+                        </>
+                      ) : (
+                        <>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 7.5v4.125l2.625 2.625" />
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </>
+                      )}
+                    </svg>
+                    <span>{isPublished ? 'ยกเลิกเผยแพร่' : 'เผยแพร่'}</span>
+                  </button>
+
+                  {/* Preview / Public View */}
+                  <a
+                    href={`/articles/${article.slug}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex flex-col items-center justify-center gap-1 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:border-gray-300"
+                    title={isPublished ? 'ดูหน้า Public' : 'ดูตัวอย่าง'}
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+                      {isPublished ? (
+                        <>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 3.75a8.25 8.25 0 100 16.5 8.25 8.25 0 000-16.5z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12h19.5" />
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 3.75c2.625 2.768 4.125 6.626 4.125 8.25s-1.5 5.482-4.125 8.25m0-16.5c-2.625 2.768-4.125 6.626-4.125 8.25s1.5 5.482 4.125 8.25" />
+                        </>
+                      ) : (
+                        <>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12c1.5-2.667 4.5-6 9.75-6s8.25 3.333 9.75 6c-1.5 2.667-4.5 6-9.75 6s-8.25-3.333-9.75-6z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </>
+                      )}
+                    </svg>
+                    <span>{isPublished ? 'หน้า Public' : 'ตัวอย่าง'}</span>
+                  </a>
+
+                  {/* Edit */}
+                  <button
+                    onClick={() => onEdit(article)}
+                    className="flex flex-col items-center justify-center gap-1 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:border-gray-300"
+                    title="แก้ไข"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 5.487l1.651-1.651a1.875 1.875 0 112.652 2.652L7.125 20.526H3.75v-3.375L16.862 5.487z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25L16.5 5.25" />
+                    </svg>
+                    <span>แก้ไข</span>
+                  </button>
+
+                  {/* Delete */}
+                  <button
+                    onClick={() => onDelete(article)}
+                    className="flex flex-col items-center justify-center gap-1 rounded-lg border border-red-100 bg-white px-3 py-2 text-sm font-medium text-red-600 transition-colors hover:border-red-200"
+                    title="ลบ"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 9.75v9m4.5-9v9M5.25 6.75h13.5M18 6.75L17.115 19.125a1.875 1.875 0 01-1.872 1.625H8.757a1.875 1.875 0 01-1.872-1.625L6 6.75m3-3h6a1.125 1.125 0 011.125 1.125V6.75H7.875V4.875A1.125 1.125 0 019 3.75z" />
+                    </svg>
+                    <span>ลบ</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Action Buttons - Desktop (Full buttons) */}
+              <div className="hidden md:flex flex-col gap-2 flex-1">
                 {/* Toggle Publish */}
                 <button
                   onClick={() => onTogglePublish(article)}
                   className={`w-full px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    article.isPublished
+                    isPublished
                       ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                       : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
                   }`}
                 >
-                  {article.isPublished ? 'ยกเลิกเผยแพร่' : 'เผยแพร่'}
+                  {isPublished ? 'ยกเลิกเผยแพร่' : 'เผยแพร่'}
                 </button>
 
                 {/* Preview/View Public */}
@@ -184,9 +295,20 @@ export default function ArticlesList({
                   rel="noopener noreferrer"
                   className="w-full px-4 py-2 bg-green-50 text-green-700 hover:bg-green-100 rounded-lg text-sm font-medium transition-colors text-center flex items-center justify-center gap-2"
                 >
-                  {article.isPublished ? 'ดูหน้า Public' : 'ดูตัวอย่าง'}
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  {isPublished ? 'ดูหน้า Public' : 'ดูตัวอย่าง'}
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+                    {isPublished ? (
+                      <>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 3.75a8.25 8.25 0 100 16.5 8.25 8.25 0 000-16.5z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12h19.5" />
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 3.75c2.625 2.768 4.125 6.626 4.125 8.25s-1.5 5.482-4.125 8.25m0-16.5c-2.625 2.768-4.125 6.626-4.125 8.25s1.5 5.482 4.125 8.25" />
+                      </>
+                    ) : (
+                      <>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12c1.5-2.667 4.5-6 9.75-6s8.25 3.333 9.75 6c-1.5 2.667-4.5 6-9.75 6s-8.25-3.333-9.75-6z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </>
+                    )}
                   </svg>
                 </a>
 
@@ -209,7 +331,8 @@ export default function ArticlesList({
             </div>
           </div>
         </article>
-      ))}
+      );
+      })}
     </div>
   );
 }
