@@ -1,4 +1,5 @@
 import { adminDb } from './firebase-admin';
+import admin from './firebase-admin';
 import { Project, Article } from './firestore';
 
 // Helper function to serialize Firestore documents for Client Components
@@ -295,6 +296,32 @@ export const projectsAdminService = {
       return await this.deleteById(project.id);
     } catch (error) {
       console.error('Firebase Admin deleteBySlug error:', error);
+      return false;
+    }
+  },
+
+  // Increment view count for a project
+  async incrementViewCount(projectId: string): Promise<boolean> {
+    try {
+      if (!adminDb) {
+        console.warn('Firebase Admin not available, cannot increment view count');
+        return false;
+      }
+
+      console.log(`👁️ Incrementing view count for project: ${projectId}`);
+
+      const projectRef = adminDb.collection('projects').doc(projectId);
+
+      // Use FieldValue.increment for atomic update
+      await projectRef.update({
+        viewCount: admin.firestore.FieldValue.increment(1),
+        lastViewedAt: new Date().toISOString()
+      });
+
+      console.log(`✅ Successfully incremented view count for project: ${projectId}`);
+      return true;
+    } catch (error) {
+      console.error('Firebase Admin incrementViewCount error:', error);
       return false;
     }
   }

@@ -4,7 +4,7 @@ import { useState, useRef, useImperativeHandle, forwardRef } from 'react';
 import { uploadImageToCloudflare, UploadResult } from '../../app/lib/cloudflare/uploadImage';
 import { generateFileHash } from '../../app/lib/utils/fileHash';
 
-interface SelectedFile {
+export interface SelectedFile {
   file: File;
   preview: string;
   id: string;
@@ -16,6 +16,7 @@ interface ImageUploadProps {
   multiple?: boolean;
   className?: string;
   showUploadArea?: boolean;
+  onSelectedFilesChange?: (files: SelectedFile[]) => void;
 }
 
 export interface ImageUploadRef {
@@ -46,7 +47,8 @@ const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(({
   maxFiles = 5, 
   multiple = true, 
   className = '',
-  showUploadArea = true
+  showUploadArea = true,
+  onSelectedFilesChange,
 }, ref) => {
   const [uploading, setUploading] = useState(false);
   const [dragActive, setDragActive] = useState(false);
@@ -59,6 +61,7 @@ const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(({
     setSelectedFiles([]);
     setUploadProgress([]);
     setUploading(false);
+    onSelectedFilesChange?.([]);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -99,6 +102,7 @@ const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(({
 
       selectedFiles.forEach(file => URL.revokeObjectURL(file.preview));
       setSelectedFiles([]);
+      onSelectedFilesChange?.([]);
       setUploadProgress([]);
       return results;
     } catch (error) {
@@ -173,7 +177,11 @@ const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(({
       id: Math.random().toString(36).substring(7)
     }));
 
-    setSelectedFiles(prev => [...prev, ...newSelectedFiles]);
+    setSelectedFiles(prev => {
+      const updatedSelection = [...prev, ...newSelectedFiles];
+      onSelectedFilesChange?.(updatedSelection);
+      return updatedSelection;
+    });
   };
 
   const removeFile = (fileId: string) => {
@@ -182,7 +190,9 @@ const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(({
       if (fileToRemove) {
         URL.revokeObjectURL(fileToRemove.preview);
       }
-      return prev.filter(f => f.id !== fileId);
+      const updated = prev.filter(f => f.id !== fileId);
+      onSelectedFilesChange?.(updated);
+      return updated;
     });
   };
 

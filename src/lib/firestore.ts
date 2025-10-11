@@ -30,6 +30,8 @@ export interface Project {
   seoTitle?: string;
   seoDescription?: string;
   seoKeywords?: string[];
+  viewCount?: number; // Track number of views
+  lastViewedAt?: string; // Last view timestamp
 }
 
 export interface ProjectTimeline {
@@ -74,11 +76,19 @@ export interface ProjectImage {
   created_at?: string | any; // ISO string when serialized, Firestore timestamp on server
 }
 
+export interface ArticleBlock {
+  id: string; // Unique block ID
+  image?: string; // Image URL (after upload)
+  content: string; // Block content text
+  order_index: number; // Order in the article
+  created_at?: string | any; // ISO string when serialized
+}
+
 export interface Article {
   id: string; // Firestore uses string IDs
   title: string;
   excerpt: string;
-  content: string;
+  content: string; // Full article content (backward compatible)
   featured_image?: string;
   category: string;
   author: string;
@@ -95,6 +105,9 @@ export interface Article {
   isPublished: boolean; // Draft vs Published status
   viewCount?: number; // Track article popularity
   lastModified?: string | any; // Track last update timestamp
+  // Block-based content (NEW - Mobile-first authoring)
+  blocks?: ArticleBlock[]; // Array of content blocks (image + text)
+  authoringMode?: 'simple' | 'blocks'; // Track which mode was used
 }
 
 export interface Category {

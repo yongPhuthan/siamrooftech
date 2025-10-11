@@ -58,7 +58,7 @@ export default function AdminLayout({
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between gap-6">
             <div className="flex items-center gap-6">
-              <Link href="/" className="flex items-center gap-2 text-lg font-semibold text-blue-700">
+              <Link href="/admin" className="flex items-center gap-2 text-lg font-semibold text-blue-700">
                 <span>สยามรูฟเทค</span>
                 <span className="rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-600">
                   Admin

@@ -112,6 +112,24 @@ function formatDate(timestamp: any): string {
   }
 }
 
+function convertMarkdownToHtml(content: string): string {
+  if (!content) return '';
+
+  const normalized = content.replace(/\r\n/g, '\n').trim();
+
+  if (!normalized) return '';
+
+  return normalized
+    .replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold text-gray-900">$1</strong>')
+    .replace(/\*(.*?)\*/g, '<em class="italic">$1</em>')
+    .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" class="text-gray-900 underline hover:text-gray-600 transition-colors">$1</a>')
+    .replace(/^### (.+)$/gm, '<h3 class="text-2xl font-bold text-gray-900 mt-10 mb-4">$1</h3>')
+    .replace(/^## (.+)$/gm, '<h2 class="text-3xl font-bold text-gray-900 mt-12 mb-6">$1</h2>')
+    .replace(/^- (.+)$/gm, '<li class="ml-6 mb-2">$1</li>')
+    .replace(/\n\n/g, '</p><p class="mb-6">')
+    .replace(/^(.+)$/gm, '<p class="mb-6 text-gray-700">$1</p>');
+}
+
 export default async function ArticleDetailPage({ params }: Props) {
   const { slug } = await params;
   const article = await fetchArticleData(slug);
@@ -125,6 +143,11 @@ export default async function ArticleDetailPage({ params }: Props) {
   const relatedArticles = allArticles
     .filter(a => a.category === article.category && a.id !== article.id)
     .slice(0, 3);
+  const sortedBlocks = (article.blocks ?? []).slice().sort(
+    (a, b) => (a.order_index ?? 0) - (b.order_index ?? 0)
+  );
+  const hasBlockContent = sortedBlocks.length > 0;
+  const featuredImageUrl = article.featured_image || sortedBlocks[0]?.image || '';
 
   // Structured Data for SEO
   const structuredData = {
@@ -207,10 +230,10 @@ export default async function ArticleDetailPage({ params }: Props) {
           </div>
 
           {/* Featured Image - Clean rounded corners */}
-          {article.featured_image && (
+          {featuredImageUrl && (
             <div className="relative aspect-[16/9] overflow-hidden rounded-lg mb-10">
               <Image
-                src={article.featured_image}
+                src={featuredImageUrl}
                 alt={article.title}
                 fill
                 className="object-cover"
@@ -225,31 +248,51 @@ export default async function ArticleDetailPage({ params }: Props) {
           </div>
 
           {/* Content - Clean Typography with better readability */}
-          <div className="prose prose-lg max-w-none">
-            <div
-              className="text-gray-800 leading-relaxed space-y-4"
-              style={{
-                fontSize: '1.125rem',
-                lineHeight: '1.8',
-                fontFamily: 'system-ui, -apple-system, sans-serif',
-              }}
-              dangerouslySetInnerHTML={{
-                __html: article.content
-                  // Markdown parsing
-                  .replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold text-gray-900">$1</strong>')
-                  .replace(/\*(.*?)\*/g, '<em class="italic">$1</em>')
-                  .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" class="text-gray-900 underline hover:text-gray-600 transition-colors">$1</a>')
-                  // Headings
-                  .replace(/^### (.+)$/gm, '<h3 class="text-2xl font-bold text-gray-900 mt-10 mb-4">$1</h3>')
-                  .replace(/^## (.+)$/gm, '<h2 class="text-3xl font-bold text-gray-900 mt-12 mb-6">$1</h2>')
-                  // Lists
-                  .replace(/^- (.+)$/gm, '<li class="ml-6 mb-2">$1</li>')
-                  // Paragraphs
-                  .replace(/\n\n/g, '</p><p class="mb-6">')
-                  .replace(/^(.+)$/gm, '<p class="mb-6 text-gray-700">$1</p>'),
-              }}
-            />
-          </div>
+          {hasBlockContent ? (
+            <div className="space-y-12">
+              {sortedBlocks.map((block, index) => {
+                const htmlContent = convertMarkdownToHtml(block.content || '');
+                const showBlockImage = Boolean(block.image) && index !== 0;
+
+                return (
+                  <section key={block.id || index} className="space-y-6">
+                    {showBlockImage && (
+                      <div className="relative aspect-[16/9] overflow-hidden rounded-lg bg-gray-100">
+                        <Image
+                          src={block.image as string}
+                          alt={`รูปประกอบบทความลำดับที่ ${index + 1}`}
+                          fill
+                          className="object-cover"
+                          sizes="(min-width: 1024px) 900px, 100vw"
+                          priority={false}
+                        />
+                      </div>
+                    )}
+                    {htmlContent && (
+                      <div
+                        className="prose prose-lg max-w-none text-gray-800 leading-relaxed"
+                        dangerouslySetInnerHTML={{ __html: htmlContent }}
+                      />
+                    )}
+                  </section>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="prose prose-lg max-w-none">
+              <div
+                className="text-gray-800 leading-relaxed space-y-4"
+                style={{
+                  fontSize: '1.125rem',
+                  lineHeight: '1.8',
+                  fontFamily: 'system-ui, -apple-system, sans-serif',
+                }}
+                dangerouslySetInnerHTML={{
+                  __html: convertMarkdownToHtml(article.content || ''),
+                }}
+              />
+            </div>
+          )}
 
           {/* Tags - Minimal style */}
           {article.tags && article.tags.length > 0 && (
