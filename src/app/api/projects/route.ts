@@ -13,27 +13,17 @@ export async function GET(): Promise<
   const requestId = Math.random().toString(36).substring(7);
 
   try {
-    if (debugMode) {
-      console.log(`🔄 [API-${requestId}] Starting projects fetch from Firestore...`);
-    }
-
     // Step 1: ลองดึงจาก Firestore โดยตรง (ถือว่าเป็น source of truth)
     let projects = await projectsAdminService.getAll();
     const fetchTime = Date.now() - startTime;
 
-    console.log('🔍 [DEBUG] Projects from service:', projects);
-    console.log('🔍 [DEBUG] Projects type:', typeof projects);
-    console.log('🔍 [DEBUG] Projects length:', projects ? projects.length : 'null/undefined');
-
     // Step 2: ถ้าไม่มีข้อมูล → ส่ง 404
     if (!projects) {
-      console.log(`❌ [API-${requestId}] No projects found (${fetchTime}ms)`);
       return NextResponse.json({ error: "Project not found" }, { status: 404 });
     }
 
     // Step 2.1: ถ้าเป็น array ว่าง → ส่งกลับ array ว่าง
     if (Array.isArray(projects) && projects.length === 0) {
-      console.log(`📋 [API-${requestId}] Empty projects array (${fetchTime}ms)`);
       return NextResponse.json([], {
         status: 200,
         headers: {
@@ -56,13 +46,6 @@ export async function GET(): Promise<
     });
 
     const totalTime = Date.now() - startTime;
-
-    if (debugMode) {
-      console.log(`✅ [API-${requestId}] Fetched ${projects.length} projects (${totalTime}ms)`);
-      console.log(`📊 [API-${requestId}] Data source: FIRESTORE ADMIN`);
-      console.log(`🏷️ [API-${requestId}] Cache Tag: "projects"`);
-      console.log(`⏱️ [API-${requestId}] Breakdown: Fetch=${fetchTime}ms, Sort=${totalTime-fetchTime}ms`);
-    }
 
     // Step 3: คืนค่าข้อมูล + ให้ tag สำหรับ ISR cache + debug headers
     const headers: Record<string, string> = {

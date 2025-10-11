@@ -16,18 +16,13 @@ export default function AdminArticlesPage() {
 
   const fetchArticles = async () => {
     try {
-      console.log('🔄 Fetching articles from /api/articles');
-
       // Admin request - include drafts
       const response = await fetch('/api/articles?includeDrafts=true');
-      console.log('📡 Response status:', response.status);
 
       if (response.ok) {
         const data = await response.json();
-        console.log('📋 Articles data:', data);
 
         const articlesData = Array.isArray(data) ? data : [];
-        console.log('📋 Number of articles:', articlesData.length);
 
         setArticles(articlesData);
       } else {

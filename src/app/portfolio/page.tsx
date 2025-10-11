@@ -50,7 +50,6 @@ export const metadata: Metadata = {
 // ✅ ดึงข้อมูลตรงจาก Firestore (ไม่ผ่าน fetch API loopback) พร้อม Debug logging
 const fetchProjectsData = unstable_cache(
   async (): Promise<Project[] | null> => {
-    console.log("🆕 [fetchProjectsData] CACHE MISS → Fetching from Firestore...");
     const projects = await projectsAdminService.getAll();
     if (!projects) return null;
 

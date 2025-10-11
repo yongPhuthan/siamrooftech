@@ -15,8 +15,6 @@ export const revalidate = 3600;
 
 // ✅ สร้าง cache function สำหรับ project เดียว
 const _fetchProjectData = async (slug: string): Promise<Project | null> => {
-  console.log(`🆕 [fetchProjectData] CACHE MISS → Fetching slug: ${slug}`);
-
   let project = await projectsAdminService.getBySlug(slug);
   if (!project) {
     project = await projectsAdminService.getById(slug);
@@ -35,7 +33,6 @@ const fetchProjectData = (slug: string) =>
 // ✅ ดึงข้อมูลโปรเจคทั้งหมดสำหรับ related projects
 const fetchProjectsData = unstable_cache(
   async (): Promise<Project[] | null> => {
-    console.log("🆕 [fetchProjectsData-detail] CACHE MISS → Fetching from Firestore...");
     const projects = await projectsAdminService.getAll();
     if (!projects) return null;
 

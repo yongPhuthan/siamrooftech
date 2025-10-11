@@ -118,17 +118,9 @@ export const revalidate = 60;
 
 async function fetchProjects(): Promise<Project[]> {
   try {
-    console.log('🔍 [Homepage] Fetching projects using projectsAdminService.getAll()...');
-    
     // ใช้ projectsAdminService.getAll() ตรงๆ เหมือนหน้า "ผลงานทั้งหมด"
     const projects = await projectsAdminService.getAll();
-    
-    console.log('📊 [Homepage] Projects loaded:', {
-      count: projects?.length || 0,
-      source: 'Firebase Admin SDK',
-      hasData: projects && projects.length > 0
-    });
-    
+
     if (!projects || projects.length === 0) {
       console.warn('⚠️ [Homepage] No projects loaded from Firebase Admin SDK');
     }

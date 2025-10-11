@@ -45,9 +45,6 @@ export async function POST(request: NextRequest) {
             executionTime: pathExecutionTime
           });
           
-          if (debug) {
-            console.log(`✅ Revalidated path: ${path} (${pathExecutionTime}ms)`);
-          }
         } catch (error) {
           results.operations.push({
             type: 'path',
@@ -79,9 +76,6 @@ export async function POST(request: NextRequest) {
             executionTime: tagExecutionTime
           });
           
-          if (debug) {
-            console.log(`✅ Revalidated tag: ${tag} (${tagExecutionTime}ms)`);
-          }
         } catch (error) {
           results.operations.push({
             type: 'tag',
@@ -110,10 +104,6 @@ export async function POST(request: NextRequest) {
     }
 
     results.executionTime = Date.now() - startTime;
-
-    if (debug) {
-      console.log(`🔄 Revalidation completed in ${results.executionTime}ms:`, results);
-    }
 
     return NextResponse.json(results);
 

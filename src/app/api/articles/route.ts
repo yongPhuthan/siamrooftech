@@ -17,16 +17,10 @@ export async function GET(
   const includeDrafts = searchParams.get('includeDrafts') === 'true';
 
   try {
-    if (debugMode) {
-      console.log(`🔄 [API-${requestId}] Starting articles fetch from Firestore...`);
-      console.log(`📋 [API-${requestId}] Include drafts: ${includeDrafts}`);
-    }
-
     let articles = await articlesAdminService.getAll();
     const fetchTime = Date.now() - startTime;
 
     if (!articles) {
-      console.log(`❌ [API-${requestId}] No articles found (${fetchTime}ms)`);
       return NextResponse.json({ error: "Articles not found" }, { status: 404 });
     }
 
@@ -36,11 +30,6 @@ export async function GET(
     }
 
     const totalTime = Date.now() - startTime;
-
-    if (debugMode) {
-      console.log(`✅ [API-${requestId}] Fetched ${articles.length} articles (${totalTime}ms)`);
-      console.log(`📊 [API-${requestId}] Data source: FIRESTORE ADMIN`);
-    }
 
     const headers: Record<string, string> = {
       "x-revalidate-tag": "articles",
@@ -83,7 +72,6 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    console.log(`📝 [API-${requestId}] Creating new article: ${body.title}`);
 
     // Generate slug from title if not provided
     const slug = body.slug || body.title
@@ -120,7 +108,6 @@ export async function POST(request: NextRequest) {
     revalidateTag('articles');
 
     const totalTime = Date.now() - startTime;
-    console.log(`✅ [API-${requestId}] Created article ${docRef.id} (${totalTime}ms)`);
 
     return NextResponse.json(newArticle, {
       status: 201,

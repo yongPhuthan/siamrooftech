@@ -206,8 +206,8 @@ export const trackPortfolioButtonClick = () => {
 };
 
 // Helper function สำหรับ debug (เฉพาะ development)
-export const debugTracking = (eventName: string, data: any) => {
+export const debugTracking = (_eventName: string, _data: any) => {
   if (process.env.NODE_ENV === 'development') {
-    console.log(`[GTAG Debug] ${eventName}:`, data);
+    return;
   }
 };

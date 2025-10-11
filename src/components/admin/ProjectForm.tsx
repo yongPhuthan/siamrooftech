@@ -117,8 +117,6 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
       ...(data.fabric_edge && ["ตัดเรียบ", "โค้งลอน", "ตัดเรียบ + พิมพ์ Logo", "โค้งลอน + พิมพ์ Logo"].includes(data.fabric_edge) && { fabric_edge: data.fabric_edge }),
     }));
 
-    // Show success message or notification
-    console.log('PDF data extracted and form updated:', data);
   };
 
   // Delete individual image from Firestore
@@ -150,9 +148,6 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
         project.images = updatedImages;
         project.featured_image = updatedFeaturedImage;
       }
-
-      console.log('Image deleted successfully');
-
     } catch (error) {
       console.error('Error deleting image:', error);
       alert('เกิดข้อผิดพลาดในการลบรูปภาพ กรุณาลองใหม่');
@@ -489,23 +484,19 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
       let uploadedBeforeImages: ProjectImage[] = [];
 
       if (localAfterFiles.length > 0) {
-        console.log(`📤 Uploading ${localAfterFiles.length} after images...`);
         uploadedAfterImages = await uploadLocalFilesToCloudflare(
           localAfterFiles,
           'after',
           afterImages.length
         );
-        console.log(`✅ Uploaded ${uploadedAfterImages.length} after images`);
       }
 
       if (localBeforeFiles.length > 0) {
-        console.log(`📤 Uploading ${localBeforeFiles.length} before images...`);
         uploadedBeforeImages = await uploadLocalFilesToCloudflare(
           localBeforeFiles,
           'before',
           beforeImages.length
         );
-        console.log(`✅ Uploaded ${uploadedBeforeImages.length} before images`);
       }
 
       setIsUploadingImages(false);
@@ -604,12 +595,10 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
         const docRef = doc(db, "projects", project.id);
         await updateDoc(docRef, cleanedFormData);
         docId = project.id;
-        console.log("✅ Project updated with ID: ", project.id, "slug:", generatedSlug);
       } else {
         // Add new project
         const docRef = await addDoc(collection(db, "projects"), cleanedFormData);
         docId = docRef.id;
-        console.log("✅ Project added with ID: ", docRef.id, "slug:", generatedSlug);
       }
 
       setCreatedProjectId(generatedSlug);
@@ -629,8 +618,6 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
           secret: process.env.REVALIDATION_SECRET_TOKEN,
         };
 
-        console.log("🔄 Starting cache revalidation...", revalidationPayload);
-
         const revalidateResponse = await fetch("/api/revalidate", {
           method: "POST",
           headers: {
@@ -649,22 +636,11 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
           });
         } else {
           const result = await revalidateResponse.json();
-          console.log("✅ Cache revalidation completed:", result);
           setRevalidationStatus({
             completed: true,
             success: true,
             details: result,
           });
-
-          // Show detailed revalidation results in development
-          if (process.env.NODE_ENV === "development") {
-            console.log("📊 Revalidation Details:", {
-              executionTime: result.executionTime,
-              operations: result.operations,
-              tags: result.tags,
-              paths: result.paths,
-            });
-          }
         }
       } catch (revalidateError) {
         console.error("❌ Failed to revalidate cache:", revalidateError);

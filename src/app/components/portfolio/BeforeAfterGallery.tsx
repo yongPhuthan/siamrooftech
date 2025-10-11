@@ -225,7 +225,6 @@ export default function BeforeAfterGallery({
                 className="w-full mt-2 text-center text-sm text-blue-600 font-medium py-2 hover:bg-blue-50 rounded-lg transition-colors"
                 onClick={() => {
                   // Could expand to show all thumbnails or open lightbox
-                  console.log('Show all images');
                 }}
               >
                 ดูรูปทั้งหมด ({afterImages.length} รูป)

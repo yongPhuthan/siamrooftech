@@ -9,13 +9,13 @@ require('dotenv').config({ path: '.env.local' });
 const admin = require('firebase-admin');
 
 async function testFirebaseAdmin() {
-  console.log('🧪 Testing Firebase Admin SDK Connection...\n');
+  console.info('🧪 Testing Firebase Admin SDK Connection...\n');
 
   // ตรวจสอบ Environment Variables
-  console.log('📋 Environment Variables:');
-  console.log(`FIREBASE_SERVICE_ACCOUNT_KEY: ${process.env.FIREBASE_SERVICE_ACCOUNT_KEY ? '✅ Set' : '❌ Not set'}`);
-  console.log(`NEXT_PUBLIC_FIREBASE_PROJECT_ID: ${process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || '❌ Not set'}`);
-  console.log('');
+  console.info('📋 Environment Variables:');
+  console.info(`FIREBASE_SERVICE_ACCOUNT_KEY: ${process.env.FIREBASE_SERVICE_ACCOUNT_KEY ? '✅ Set' : '❌ Not set'}`);
+  console.info(`NEXT_PUBLIC_FIREBASE_PROJECT_ID: ${process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || '❌ Not set'}`);
+  console.info('');
 
   try {
     // Initialize Firebase Admin
@@ -26,39 +26,39 @@ async function testFirebaseAdmin() {
           credential: admin.credential.cert(serviceAccount),
           projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || serviceAccount.project_id,
         });
-        console.log('✅ Firebase Admin initialized with service account');
+        console.info('✅ Firebase Admin initialized with service account');
       } else {
-        console.log('❌ No service account key found');
+        console.warn('❌ No service account key found');
         return;
       }
     }
 
     // Test Firestore connection
     const db = admin.firestore();
-    console.log('📊 Testing Firestore connection...');
+    console.info('📊 Testing Firestore connection...');
 
     // Try to fetch projects
     const projectsCol = db.collection('projects');
     const snapshot = await projectsCol.limit(1).get();
     
-    console.log(`✅ Firestore connection successful!`);
-    console.log(`📄 Total projects found: ${snapshot.size}`);
+    console.info(`✅ Firestore connection successful!`);
+    console.info(`📄 Total projects found: ${snapshot.size}`);
 
     if (!snapshot.empty) {
       const firstDoc = snapshot.docs[0];
-      console.log(`📝 Sample project: ${firstDoc.id} - ${firstDoc.data().title}`);
+      console.info(`📝 Sample project: ${firstDoc.id} - ${firstDoc.data().title}`);
     }
 
-    console.log('\n🎉 All tests passed! Firebase Admin is working correctly.');
+    console.info('\n🎉 All tests passed! Firebase Admin is working correctly.');
 
   } catch (error) {
     console.error('❌ Error during testing:', error);
     
     if (error.code === 'permission-denied') {
-      console.log('\n💡 Possible solutions:');
-      console.log('1. Check Firestore security rules');
-      console.log('2. Verify service account permissions');
-      console.log('3. Make sure the project ID is correct');
+      console.info('\n💡 Possible solutions:');
+      console.info('1. Check Firestore security rules');
+      console.info('2. Verify service account permissions');
+      console.info('3. Make sure the project ID is correct');
     }
   }
 }

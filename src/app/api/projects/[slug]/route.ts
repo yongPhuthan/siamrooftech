@@ -80,8 +80,6 @@ export async function DELETE(
   try {
     const { slug } = await params;
 
-    console.log(`🗑️ Attempting to delete project with slug: ${slug}`);
-
     // Delete the project
     const success = await projectsAdminService.deleteBySlug(slug);
 
@@ -95,8 +93,6 @@ export async function DELETE(
     // Revalidate cache after deletion
     revalidateTag("projects");
     revalidateTag(`project-${slug}`);
-
-    console.log(`✅ Successfully deleted project with slug: ${slug}`);
 
     return NextResponse.json({
       success: true,

@@ -111,40 +111,28 @@ export const projectsAdminService = {
   // Get all projects
   async getAll(): Promise<Project[]> {
     try {
-      console.log('🚀 [DEBUG] Starting getAll() method');
-      console.log('🔍 [DEBUG] adminDb available?', !!adminDb);
-      
       if (!adminDb) {
         console.warn('⚠️ Firebase Admin not available, using static fallback data');
-        console.log('📋 [DEBUG] Fallback projects count:', fallbackProjects.length);
         return fallbackProjects;
       }
 
-      console.log('📊 Fetching projects from Firestore with Admin SDK...');
       const projectsCol = adminDb.collection('projects');
       const querySnapshot = await projectsCol.orderBy('created_at', 'desc').get();
-      
-      console.log(`✅ Found ${querySnapshot.size} projects in Firestore`);
-      
+
       if (querySnapshot.size === 0) {
-        console.log('📋 No projects in Firestore, returning fallback data');
-        console.log('📋 [DEBUG] Fallback projects count:', fallbackProjects.length);
         return fallbackProjects;
       }
-      
+
       const projectList: Project[] = [];
       querySnapshot.forEach((doc) => {
         const data = doc.data();
-        console.log(`📄 Project: ${doc.id} - ${data.title || 'No title'}`);
         projectList.push(serializeProject({ id: doc.id, ...data }));
       });
-      
-      console.log('✅ [DEBUG] Returning project list with length:', projectList.length);
+
       return projectList;
     } catch (error) {
       console.error('❌ Firebase Admin getAll error:', error);
       console.warn('🔄 Using static fallback data due to Firebase error');
-      console.log('📋 [DEBUG] Fallback projects count:', fallbackProjects.length);
       return fallbackProjects;
     }
   },
@@ -209,18 +197,15 @@ export const projectsAdminService = {
 
       // Normalize slug to lowercase
       const normalizedSlug = slug.toLowerCase();
-      console.log(`🔍 Searching for project with slug: ${normalizedSlug}`);
 
       const projectsCol = adminDb.collection('projects');
       const querySnapshot = await projectsCol.where('slug', '==', normalizedSlug).get();
-      
+
       if (querySnapshot.empty) {
-        console.log(`❌ No project found with slug: ${normalizedSlug}`);
         return null;
       }
-      
+
       const doc = querySnapshot.docs[0];
-      console.log(`✅ Found project: ${doc.id} - ${doc.data().title}`);
       return serializeProject({ id: doc.id, ...doc.data() });
     } catch (error) {
       console.error('Firebase Admin getBySlug error:', error);
@@ -265,12 +250,9 @@ export const projectsAdminService = {
         return false;
       }
 
-      console.log(`🗑️ Deleting project with ID: ${projectId}`);
-      
       const projectRef = adminDb.collection('projects').doc(projectId);
       await projectRef.delete();
-      
-      console.log(`✅ Successfully deleted project: ${projectId}`);
+
       return true;
     } catch (error) {
       console.error('Firebase Admin deleteById error:', error);
@@ -289,7 +271,6 @@ export const projectsAdminService = {
       // First find the project by slug
       const project = await this.getBySlug(slug);
       if (!project) {
-        console.log(`❌ No project found with slug: ${slug}`);
         return false;
       }
 
@@ -308,8 +289,6 @@ export const projectsAdminService = {
         return false;
       }
 
-      console.log(`👁️ Incrementing view count for project: ${projectId}`);
-
       const projectRef = adminDb.collection('projects').doc(projectId);
 
       // Use FieldValue.increment for atomic update
@@ -318,7 +297,6 @@ export const projectsAdminService = {
         lastViewedAt: new Date().toISOString()
       });
 
-      console.log(`✅ Successfully incremented view count for project: ${projectId}`);
       return true;
     } catch (error) {
       console.error('Firebase Admin incrementViewCount error:', error);
@@ -350,7 +328,6 @@ export const articlesAdminService = {
         articleList.push(serializeArticle({ id: doc.id, ...doc.data() }));
       });
 
-      console.log(`✅ articlesAdminService.getAll() → ${articleList.length} articles (including drafts)`);
       return articleList;
     } catch (error) {
       console.error('Firebase Admin getAll articles error:', error);

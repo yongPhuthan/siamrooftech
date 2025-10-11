@@ -18,12 +18,10 @@ export async function GET(
 
   try {
     const { slug } = await context.params;
-    console.log(`🔍 [API-${requestId}] Fetching article: ${slug}`);
 
     const article = await articlesAdminService.getBySlug(slug);
 
     if (!article) {
-      console.log(`❌ [API-${requestId}] Article not found: ${slug}`);
       return NextResponse.json(
         { error: "Article not found" },
         { status: 404 }
@@ -31,7 +29,6 @@ export async function GET(
     }
 
     const totalTime = Date.now() - startTime;
-    console.log(`✅ [API-${requestId}] Found article ${article.id} (${totalTime}ms)`);
 
     return NextResponse.json(article, {
       status: 200,
@@ -73,8 +70,6 @@ export async function PUT(
     const { slug } = await context.params;
     const body = await request.json();
 
-    console.log(`✏️ [API-${requestId}] Updating article: ${slug}`);
-
     // Find article by slug
     const article = await articlesAdminService.getBySlug(slug);
     if (!article) {
@@ -108,7 +103,6 @@ export async function PUT(
     revalidateTag(`article-${slug}`);
 
     const totalTime = Date.now() - startTime;
-    console.log(`✅ [API-${requestId}] Updated article ${article.id} (${totalTime}ms)`);
 
     return NextResponse.json(updatedArticle, {
       status: 200,
@@ -149,7 +143,6 @@ export async function DELETE(
     }
 
     const { slug } = await context.params;
-    console.log(`🗑️ [API-${requestId}] Deleting article: ${slug}`);
 
     // Find article by slug
     const article = await articlesAdminService.getBySlug(slug);
@@ -169,7 +162,6 @@ export async function DELETE(
     revalidateTag(`article-${slug}`);
 
     const totalTime = Date.now() - startTime;
-    console.log(`✅ [API-${requestId}] Deleted article ${article.id} (${totalTime}ms)`);
 
     return NextResponse.json(
       {
@@ -220,8 +212,6 @@ export async function PATCH(
     const body = await request.json();
     const { isPublished } = body;
 
-    console.log(`🔄 [API-${requestId}] Toggle publish status for: ${slug}`);
-
     // Find article by slug
     const article = await articlesAdminService.getBySlug(slug);
     if (!article) {
@@ -245,7 +235,6 @@ export async function PATCH(
     revalidateTag(`article-${slug}`);
 
     const totalTime = Date.now() - startTime;
-    console.log(`✅ [API-${requestId}] Updated publish status (${totalTime}ms)`);
 
     return NextResponse.json(
       {
