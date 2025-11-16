@@ -52,12 +52,13 @@ export default function ImageUploadTabs({
   const [activeTab, setActiveTab] = useState<TabType>('after');
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
 
+  // Image tab logic
   const currentImages = activeTab === 'after' ? afterImages : beforeImages;
   const currentLocalFiles = activeTab === 'after' ? localAfterFiles : localBeforeFiles;
   const setCurrentImages = activeTab === 'after' ? onAfterImagesChange : onBeforeImagesChange;
   const setCurrentLocalFiles = activeTab === 'after' ? onLocalAfterFilesChange : onLocalBeforeFilesChange;
 
-  // Total count includes both uploaded images and local preview files
+  // Total count
   const totalCount = currentImages.length + currentLocalFiles.length;
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {

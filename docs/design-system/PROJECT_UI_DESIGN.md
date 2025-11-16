@@ -878,6 +878,356 @@ src/theme.ts - MUI theme configuration
 
 ---
 
-**Last Updated**: 2025-10-03
+## 🆕 Component 11: Video Player
+
+**Interactive video player for project videos with custom controls**
+
+### VideoPlayer Component
+
+**Location**: `src/components/ui/VideoPlayer.tsx`
+
+**Usage**:
+```tsx
+<VideoPlayer
+  video={projectVideo}
+  autoPlay={false}
+  muted={false}
+  controls={true}
+  onPlay={() => console.log('Playing')}
+  onPause={() => console.log('Paused')}
+/>
+```
+
+**Features**:
+- 🎬 Custom video controls (Play/Pause, Mute, Fullscreen, Progress bar)
+- 📱 Mobile-friendly touch controls
+- ⌨️ Keyboard navigation (Space/K: play/pause, M: mute, F: fullscreen, ←/→: seek)
+- 🎨 Type-specific badges (Before/After/During/Detail)
+- ⚡ Auto-hide controls after 3 seconds (desktop)
+- 🖼️ Poster/thumbnail support
+
+**Design Tokens**:
+```css
+/* Container */
+aspect-ratio: 16/9;
+border-radius: 0.75rem; /* rounded-xl */
+background: black;
+
+/* Type Badges */
+.badge-before { background: rgba(239, 68, 68, 0.9); } /* red-500 */
+.badge-after { background: rgba(34, 197, 94, 0.9); } /* green-500 */
+.badge-during { background: rgba(234, 179, 8, 0.9); } /* yellow-500 */
+.badge-detail { background: rgba(59, 130, 246, 0.9); } /* blue-500 */
+
+/* Play Button Overlay */
+width: 64px (mobile), 80px (desktop);
+background: rgba(255, 255, 255, 0.95);
+border-radius: 50%;
+transition: all 0.2s;
+hover: scale(1.1);
+
+/* Controls Bar */
+background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+padding: 12px (mobile), 16px (desktop);
+```
+
+---
+
+## 🆕 Component 12: Video Modal
+
+**Fullscreen video player modal with navigation**
+
+**Location**: `src/components/ui/VideoModal.tsx`
+
+**Usage**:
+```tsx
+<VideoModal
+  isOpen={isOpen}
+  videos={projectVideos}
+  currentIndex={0}
+  onClose={() => setIsOpen(false)}
+  onNext={() => setCurrentIndex(prev => prev + 1)}
+  onPrevious={() => setCurrentIndex(prev => prev - 1)}
+/>
+```
+
+**Features**:
+- ⚫ Fullscreen overlay (95% opacity black)
+- 🎬 Integrated VideoPlayer with controls
+- ⬅️ ➡️ Navigation buttons (desktop) / bottom controls (mobile)
+- ⌨️ Keyboard: ESC to close, ←/→ to navigate
+- 🔄 Auto-play next video on end
+- 📱 Mobile swipe gestures support
+
+**Design Tokens**:
+```css
+/* Modal Overlay */
+background: rgba(0, 0, 0, 0.95);
+backdrop-filter: blur(8px);
+z-index: 99999;
+
+/* Navigation Buttons */
+.nav-button {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(8px);
+  border-radius: 50%;
+  padding: 12px;
+  transition: all 0.2s;
+}
+.nav-button:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Video Counter Badge */
+background: rgba(255, 255, 255, 0.1);
+backdrop-filter: blur(8px);
+padding: 8px 16px;
+border-radius: 999px;
+font-size: 12px;
+```
+
+---
+
+## 🆕 Component 13: Video Preview (Admin)
+
+**Video thumbnail preview with controls for admin forms**
+
+**Location**: `src/components/admin/VideoPreview.tsx`
+
+**Usage**:
+```tsx
+<VideoPreview
+  video={projectVideo}
+  onDelete={() => handleDelete(video.id)}
+  onTypeChange={(type) => handleTypeChange(video.id, type)}
+  showControls={true}
+/>
+```
+
+**Features**:
+- 🖼️ Thumbnail display with play icon overlay
+- 🏷️ Type badge (Before/After/During/Detail)
+- ⏱️ Duration badge
+- 🎚️ Type selector dropdown
+- 🗑️ Delete button with confirmation (2-click)
+- 📊 File info display (format, size)
+
+**Design Tokens**:
+```css
+/* Card Container */
+background: white;
+border: 2px solid #e5e7eb; /* gray-200 */
+border-radius: 0.75rem;
+transition: border-color 0.2s;
+
+.card:hover {
+  border-color: #93c5fd; /* blue-300 */
+}
+
+/* Thumbnail Overlay */
+.play-overlay {
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.card:hover .play-overlay {
+  opacity: 1;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+/* Controls */
+.type-selector {
+  font-size: 12px;
+  padding: 6px 8px;
+  border: 1px solid #d1d5db; /* gray-300 */
+  border-radius: 0.5rem;
+}
+
+.delete-button {
+  background: #fef2f2; /* red-50 */
+  color: #dc2626; /* red-600 */
+  transition: all 0.2s;
+}
+.delete-button.confirm {
+  background: #dc2626; /* red-600 */
+  color: white;
+}
+```
+
+---
+
+## 🆕 Component 14: Video Gallery Section
+
+**Video grid display in portfolio detail pages**
+
+**Location**: Used in `src/app/portfolio/[slug]/PortfolioDetailClient.tsx`
+
+**Features**:
+- 📹 Grid layout: 1 column (mobile), 2 (tablet), 3 (desktop)
+- 🎬 Click to open video in fullscreen modal
+- 🎨 Consistent spacing with other sections
+- 🏷️ Section header with video icon
+
+**Design Tokens**:
+```css
+/* Section */
+padding: 4rem 0; /* py-16 */
+background: white;
+border-top: 1px solid #f3f4f6; /* border-gray-100 */
+
+/* Section Header */
+.header-icon {
+  width: 32px;
+  height: 32px;
+  background: #2563eb; /* blue-600 */
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-center;
+}
+
+/* Video Grid */
+display: grid;
+grid-template-columns: 1fr; /* mobile */
+gap: 1.5rem;
+
+@media (min-width: 640px) {
+  grid-template-columns: repeat(2, 1fr); /* tablet */
+}
+
+@media (min-width: 1024px) {
+  grid-template-columns: repeat(3, 1fr); /* desktop */
+}
+```
+
+---
+
+## Video Utility Functions
+
+**Location**: `src/lib/project-video-utils.ts`
+
+### Key Functions:
+```typescript
+// Get all videos
+getVideos(project) → ProjectVideo[]
+
+// Get videos by type
+getBeforeVideos(project) → ProjectVideo[]
+getAfterVideos(project) → ProjectVideo[]
+getDuringVideos(project) → ProjectVideo[]
+getDetailVideos(project) → ProjectVideo[]
+
+// Checks
+hasVideos(project) → boolean
+shouldShowVideos(project) → boolean
+hasBeforeAfterVideos(project) → boolean
+
+// Utility
+getFeaturedVideo(project) → ProjectVideo | null
+getVideoTypeBadge(type) → { color, label, emoji }
+sortVideos(videos) → ProjectVideo[]
+getVideoStats(project) → { total, before, after, during, detail }
+```
+
+**Location**: `src/lib/cloudflare/uploadVideo.ts`
+
+### Key Functions:
+```typescript
+// Validation
+validateVideoFile(file) → { valid, error? }
+
+// Metadata extraction
+getVideoDuration(file) → Promise<number>
+generateVideoThumbnail(file, seekTime?) → Promise<string>
+
+// Upload
+uploadVideoToCloudflare(file, onProgress?) → Promise<VideoUploadResult>
+
+// Formatting
+formatVideoDuration(seconds) → string // "2:35"
+formatFileSize(bytes) → string // "50 MB"
+```
+
+---
+
+## Video Integration Patterns
+
+### In Portfolio Cards
+```tsx
+{/* Video Badge - Bottom Left */}
+{hasVideos(project) && (
+  <div className="absolute bottom-3 left-3 z-10">
+    <div className="bg-blue-600/90 backdrop-blur-sm px-2 py-1 rounded-lg
+      text-xs font-semibold text-white flex items-center gap-1">
+      <PlayIcon className="w-3 h-3" />
+      <span>{project.videos?.length || 0} วีดีโอ</span>
+    </div>
+  </div>
+)}
+```
+
+### In Portfolio Detail Pages
+```tsx
+{/* Video Gallery Section */}
+{projectHasVideos && (
+  <section className="py-16 bg-white border-t border-gray-100">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* Header with icon */}
+      <div className="mb-8">...</div>
+
+      {/* Video Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {projectVideos.map((video, index) => (
+          <div key={video.id} onClick={() => openVideoModal(index)}>
+            <VideoPlayer video={video} controls={false} />
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+)}
+
+{/* Video Modal */}
+<VideoModal
+  isOpen={isVideoModalOpen}
+  videos={projectVideos}
+  currentIndex={currentVideoIndex}
+  onClose={closeModal}
+  onNext={nextVideo}
+  onPrevious={prevVideo}
+/>
+```
+
+---
+
+## Best Practices for Videos
+
+### Upload Guidelines
+- **Format**: MP4 (H.264 codec) preferred
+- **Resolution**: 720p-1080p recommended
+- **File Size**: Max 100MB per video
+- **Duration**: 15-60 seconds optimal for engagement
+- **Aspect Ratio**: 16:9 standard
+
+### Performance
+- Always include thumbnail/poster image
+- Use `preload="metadata"` (not `auto`)
+- Lazy load videos below the fold
+- Consider using Cloudflare Stream for large videos
+
+### Accessibility
+- Provide meaningful alt text for thumbnails
+- Include visible controls
+- Support keyboard navigation
+- Consider adding captions/subtitles (future)
+
+### SEO
+- Include Schema.org VideoObject structured data
+- Use descriptive video titles
+- Add proper meta tags
+- Consider video sitemaps
+
+---
+
+**Last Updated**: 2025-10-12
 **Maintained By**: Development Team
-**Version**: 1.1 (Added Before/After Feature)
+**Version**: 1.2 (Added Video Feature)

@@ -4,9 +4,10 @@ import { useState, useEffect } from "react";
 import { collection, addDoc, doc, updateDoc } from "firebase/firestore";
 import { db } from "../../lib/firebase";
 import { UploadResult, uploadImageToCloudflare } from "../../app/lib/cloudflare/uploadImage";
-import ImageUploadTabs, { LocalImageFile } from "./ImageUploadTabs";
-import { Project, ProjectImage } from "../../lib/firestore";
+import MediaUploadTabs, { LocalImageFile, LocalVideoFile } from "./MediaUploadTabs";
+import { Project, ProjectImage, ProjectVideo } from "../../lib/firestore";
 import { getAfterImages, getBeforeImages } from "../../lib/project-image-utils";
+import { uploadVideoToCloudflare } from "../../lib/cloudflare/uploadVideo";
 import PDFAutofillComponent from "./PDFAutofillComponent";
 
 interface ProjectFormData {
@@ -23,6 +24,7 @@ interface ProjectFormData {
   featured_image?: string;
   slug?: string; // จะถูกสร้างอัตโนมัติจากขนาด
   images: ProjectImage[];
+  videos?: ProjectVideo[]; // Optional videos array
 }
 
 const categories = [
@@ -93,11 +95,20 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
   const [localAfterFiles, setLocalAfterFiles] = useState<LocalImageFile[]>([]);
   const [localBeforeFiles, setLocalBeforeFiles] = useState<LocalImageFile[]>([]);
 
-  // Initialize before/after images when project is loaded
+  // Video state (NEW)
+  const [videos, setVideos] = useState<ProjectVideo[]>([]);
+  const [localVideoFiles, setLocalVideoFiles] = useState<LocalVideoFile[]>([]);
+
+  // Initialize before/after images and videos when project is loaded
   useEffect(() => {
-    if (project && project.images) {
-      setAfterImages(getAfterImages(project));
-      setBeforeImages(getBeforeImages(project));
+    if (project) {
+      if (project.images) {
+        setAfterImages(getAfterImages(project));
+        setBeforeImages(getBeforeImages(project));
+      }
+      if (project.videos) {
+        setVideos(project.videos);
+      }
     }
   }, [project]);
 
@@ -185,6 +196,50 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
     }));
 
     return newImages;
+  };
+
+  // Handler for video delete
+  const handleVideoDelete = async (videoId: string) => {
+    try {
+      const updatedVideos = videos.filter(v => v.id !== videoId);
+      setVideos(updatedVideos);
+
+      // Update Firestore if editing existing project
+      if (project && project.id) {
+        const projectRef = doc(db, 'projects', project.id);
+        await updateDoc(projectRef, {
+          videos: updatedVideos,
+          updated_at: new Date(),
+        });
+
+        // Update local project state
+        if (project.videos) {
+          project.videos = updatedVideos;
+        }
+      }
+    } catch (error) {
+      console.error('Error deleting video:', error);
+      alert('เกิดข้อผิดพลาดในการลบวีดีโอ กรุณาลองใหม่');
+    }
+  };
+
+  // Handler for video type change
+  const handleVideoTypeChange = (videoId: string, type: 'before' | 'after' | 'during' | 'detail') => {
+    const updatedVideos = videos.map(v =>
+      v.id === videoId ? { ...v, type } : v
+    );
+    setVideos(updatedVideos);
+
+    // Update Firestore if editing existing project
+    if (project && project.id) {
+      const projectRef = doc(db, 'projects', project.id);
+      updateDoc(projectRef, {
+        videos: updatedVideos,
+        updated_at: new Date(),
+      }).catch(error => {
+        console.error('Error updating video type:', error);
+      });
+    }
   };
 
   // Handler for ImageUploadTabs - Delete image
@@ -499,6 +554,34 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
         );
       }
 
+      // Step 1.5: Upload local video files
+      let uploadedVideos: ProjectVideo[] = [];
+      if (localVideoFiles.length > 0) {
+        for (const localVideo of localVideoFiles) {
+          try {
+            const result = await uploadVideoToCloudflare(localVideo.file);
+            if (result.success) {
+              uploadedVideos.push({
+                id: `video-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+                project_id: project?.id || '',
+                title: generateTitle(formData.width, formData.extension),
+                video_url: result.videoUrl,
+                thumbnail_url: result.thumbnailUrl,
+                duration: result.duration,
+                file_size: result.fileSize,
+                mime_type: result.mimeType,
+                type: localVideo.type,
+                order_index: videos.length + uploadedVideos.length,
+                created_at: new Date().toISOString(),
+              });
+            }
+          } catch (error) {
+            console.error('Error uploading video:', error);
+            alert(`ไม่สามารถอัปโหลดวีดีโอได้: ${localVideo.file.name}`);
+          }
+        }
+      }
+
       setIsUploadingImages(false);
 
       // Step 2: Combine all images (existing + newly uploaded)
@@ -508,6 +591,9 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
         ...beforeImages,
         ...uploadedBeforeImages,
       ];
+
+      // Step 2.5: Combine all videos (existing + newly uploaded)
+      const allVideos = [...videos, ...uploadedVideos];
 
       if (allImages.length > 0) {
         // Validate images
@@ -530,6 +616,7 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
           ...finalFormData,
           featured_image: featuredImage,
           images: allImages,
+          videos: allVideos.length > 0 ? allVideos : undefined, // Add videos if available
         };
       } else if (project && project.images && project.images.length > 0) {
         // Keep existing images when editing and no new images uploaded
@@ -537,7 +624,16 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
           ...finalFormData,
           featured_image: project.featured_image,
           images: project.images,
+          videos: allVideos.length > 0 ? allVideos : (project.videos || undefined), // Keep existing or add new videos
         };
+      } else {
+        // No images, but might have videos
+        if (allVideos.length > 0) {
+          finalFormData = {
+            ...finalFormData,
+            videos: allVideos,
+          };
+        }
       }
 
       let generatedSlug: string;
@@ -707,23 +803,25 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
   };
 
   const inputClass =
-    "w-full rounded-2xl border border-gray-200 bg-white px-3.5 py-3 text-sm text-gray-900 shadow-sm focus:border-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-900/10";
+    "w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 transition-colors focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900";
   const textareaClass =
-    "w-full rounded-2xl border border-gray-200 bg-white px-4 py-4 text-base leading-relaxed text-gray-900 shadow-sm focus:border-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-900/10 min-h-[140px]";
+    "w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm leading-relaxed text-gray-900 transition-colors focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900 min-h-[120px]";
 
   return (
-    <div className="mx-auto w-full max-w-5xl  py-6 sm:px-2 lg:px-2">
+    <div className="mx-auto w-full max-w-7xl py-6 px-4 sm:px-6 lg:px-8">
       {success && (
         <div className="mb-6 space-y-3">
-          <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-4">
+          <div className="rounded-lg border border-gray-300 bg-white px-4 py-4 shadow-sm">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <div className="flex items-start gap-2">
-                <svg className="h-5 w-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                <div className="text-sm leading-relaxed text-emerald-900">
+              <div className="flex items-start gap-3">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100">
+                  <svg className="h-4 w-4 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <div className="text-sm leading-relaxed text-gray-900">
                   <p className="font-semibold">บันทึกโปรเจคเรียบร้อยแล้ว</p>
-                  <p className="text-emerald-700">ตรวจสอบบนหน้าเว็บไซต์เพื่อดูการอัปเดตล่าสุด</p>
+                  <p className="text-gray-600">ตรวจสอบบนหน้าเว็บไซต์เพื่อดูการอัปเดตล่าสุด</p>
                 </div>
               </div>
               {createdProjectId && (
@@ -732,7 +830,7 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
                     href={`/portfolio/${createdProjectId}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center rounded-lg border border-emerald-300 px-3 py-2 text-emerald-700 transition-colors hover:border-emerald-400"
+                    className="inline-flex items-center justify-center rounded-lg bg-gray-900 px-4 py-2 text-white transition-colors hover:bg-gray-800"
                   >
                     เปิดหน้าโปรเจค
                   </a>
@@ -740,7 +838,7 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
                     href="/portfolio"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center rounded-lg border border-emerald-300 px-3 py-2 text-emerald-700 transition-colors hover:border-emerald-400"
+                    className="inline-flex items-center justify-center rounded-lg border border-gray-300 px-4 py-2 text-gray-700 transition-colors hover:bg-gray-50"
                   >
                     ดูผลงานทั้งหมด
                   </a>
@@ -750,21 +848,21 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
           </div>
 
           {revalidationStatus && (
-            <div className="rounded-2xl border border-gray-200 bg-gray-50 px-4 py-4 text-sm text-gray-700">
+            <div className="rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-700">
               <div className="flex items-start gap-2">
-                <span className="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full border border-gray-300 text-[10px] text-gray-500">
+                <span className="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-white border border-gray-300 text-[10px] font-semibold text-gray-600">
                   i
                 </span>
-                <div className="space-y-1">
+                <div className="space-y-0.5">
                   <p className="font-medium text-gray-900">
                     {revalidationStatus.success ? "อัปเดตแคชสำเร็จ" : "ไม่สามารถอัปเดตแคช"}
                   </p>
                   {revalidationStatus.success ? (
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-gray-600">
                       โปรเจคจะแสดงในเว็บไซต์ทันที ({revalidationStatus.details?.executionTime}ms)
                     </p>
                   ) : (
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-gray-600">
                       โปรเจคอาจใช้เวลาสักครู่ก่อนจะแสดงบนเว็บไซต์
                     </p>
                   )}
@@ -775,15 +873,15 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
         </div>
       )}
 
-      <div className="overflow-hidden w-full rounded-3xl border border-gray-200 bg-white shadow-sm">
-        <div className="border-b border-gray-200 px-6 py-5">
-          <h1 className="text-xl font-semibold text-gray-900">
+      <div className="overflow-hidden w-full rounded-lg border border-gray-200 bg-white">
+        <div className="border-b border-gray-200 px-6 py-6">
+          <h1 className="text-2xl font-bold text-gray-900">
             {project ? "แก้ไขโปรเจค" : "เพิ่มโปรเจคใหม่"}
           </h1>
-          <p className="mt-1 text-sm text-gray-500">กรอกข้อมูลหลักและแนบรูปภาพการทำงาน</p>
+          <p className="mt-2 text-sm text-gray-600">กรอกข้อมูลหลักและแนบรูปภาพการทำงาน</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-8 px-6 py-6">
+        <form onSubmit={handleSubmit} className="space-y-6 px-6 py-8">
           {/* PDF Autofill Section */}
           {/* {!project && (
             <PDFAutofillComponent 
@@ -793,16 +891,16 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
           )} */}
 
           {/* Basic Information */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-semibold text-gray-900 mb-2">
                 ขนาด *
               </label>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label
                     htmlFor="width"
-                    className="block text-xs font-medium text-gray-600 mb-1"
+                    className="block text-xs font-medium text-gray-700 mb-1.5"
                   >
                     กว้าง (เมตร)
                   </label>
@@ -822,7 +920,7 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
                 <div>
                   <label
                     htmlFor="extension"
-                    className="block text-xs font-medium text-gray-600 mb-1"
+                    className="block text-xs font-medium text-gray-700 mb-1.5"
                   >
                     ยื่นออก (เมตร)
                   </label>
@@ -845,7 +943,7 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
             <div>
               <label
                 htmlFor="category"
-                className="block text-sm font-medium text-gray-700 mb-2"
+                className="block text-sm font-semibold text-gray-900 mb-2"
               >
                 หมวดหมู่ *
               </label>
@@ -869,7 +967,7 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
             <div>
               <label
                 htmlFor="location"
-                className="block text-sm font-medium text-gray-700 mb-2"
+                className="block text-sm font-semibold text-gray-900 mb-2"
               >
                 สถานที่ *
               </label>
@@ -888,7 +986,7 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
             <div>
               <label
                 htmlFor="year"
-                className="block text-sm font-medium text-gray-700 mb-2"
+                className="block text-sm font-semibold text-gray-900 mb-2"
               >
                 ปีที่ดำเนินการ *
               </label>
@@ -952,11 +1050,11 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
           </div>
 
           {/* Additional Specifications */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             <div>
               <label
                 htmlFor="arms_count"
-                className="block text-sm font-medium text-gray-700 mb-2"
+                className="block text-sm font-semibold text-gray-900 mb-2"
               >
                 จำนวนแขนพับ *
               </label>
@@ -978,7 +1076,7 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
             <div>
               <label
                 htmlFor="canvas_material"
-                className="block text-sm font-medium text-gray-700 mb-2"
+                className="block text-sm font-semibold text-gray-900 mb-2"
               >
                 วัสดุผ้าใบ *
               </label>
@@ -998,7 +1096,7 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
             <div>
               <label
                 htmlFor="fabric_edge"
-                className="block text-sm font-medium text-gray-700 mb-2"
+                className="block text-sm font-semibold text-gray-900 mb-2"
               >
                 ชายผ้า *
               </label>
@@ -1025,25 +1123,31 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
               รูปภาพโปรเจค *
             </label>
 
-            <ImageUploadTabs
+            <MediaUploadTabs
               afterImages={afterImages}
               beforeImages={beforeImages}
               localAfterFiles={localAfterFiles}
               localBeforeFiles={localBeforeFiles}
+              videos={videos}
+              localVideoFiles={localVideoFiles}
               onAfterImagesChange={setAfterImages}
               onBeforeImagesChange={setBeforeImages}
               onLocalAfterFilesChange={setLocalAfterFiles}
               onLocalBeforeFilesChange={setLocalBeforeFiles}
+              onVideosChange={setVideos}
+              onLocalVideoFilesChange={setLocalVideoFiles}
               onImageDelete={handleTabImageDelete}
               onImageReorder={handleTabImageReorder}
+              onVideoDelete={handleVideoDelete}
+              onVideoTypeChange={handleVideoTypeChange}
               isUploading={isUploadingImages}
             />
           </div>
 
           {/* Description Section - Moved to Bottom */}
-          <div className="bg-gray-50 border border-gray-200 rounded-xl p-4">
+          <div className="border border-gray-200 rounded-lg p-5 bg-gray-50">
             <div className="flex items-center justify-between mb-4">
-              <label className="block text-lg font-semibold text-gray-800">
+              <label className="block text-base font-semibold text-gray-900">
                 รายละเอียดโปรเจค *
               </label>
               {/* TODO: Enable when AI system is ready */}
@@ -1108,7 +1212,7 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
                     <button
                       type="button"
                       onClick={() => removeDescriptionField(index)}
-                      className="rounded-xl border border-gray-200 px-3 py-2 text-sm text-gray-500 transition-colors hover:border-gray-300 hover:text-gray-700"
+                      className="rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-600 transition-colors hover:border-red-300 hover:bg-red-50 hover:text-red-700"
                     >
                       <svg
                         className="w-5 h-5"
@@ -1130,10 +1234,10 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
               <button
                 type="button"
                 onClick={addDescriptionField}
-                className="inline-flex items-center gap-2 rounded-xl border border-gray-200 px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:border-gray-300 hover:text-gray-900"
+                className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 hover:border-gray-400"
               >
                 <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v12m6-6H6" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 6v12m6-6H6" />
                 </svg>
                 เพิ่มรายละเอียด
               </button>
@@ -1141,15 +1245,15 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
           </div>
 
           {/* Submit Button */}
-          <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
+          <div className="flex flex-col gap-3 pt-4 border-t border-gray-200 sm:flex-row sm:justify-end">
             <button
               type="submit"
               disabled={submitting}
-              className="inline-flex w-full items-center justify-center rounded-xl bg-gray-900 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-black disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+              className="inline-flex w-full items-center justify-center rounded-lg bg-gray-900 px-8 py-3 text-base font-semibold text-white transition-all hover:bg-gray-800 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto shadow-sm"
             >
               {submitting ? (
                 <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
                   กำลังอัพโหลดและบันทึก...
                 </>
               ) : (
@@ -1163,7 +1267,7 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
-                      strokeWidth={2}
+                      strokeWidth={2.5}
                       d="M5 13l4 4L19 7"
                     />
                   </svg>

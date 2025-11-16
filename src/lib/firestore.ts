@@ -18,6 +18,8 @@ export interface Project {
   fabric_edge: 'ตัดเรียบ' | 'โค้งลอน' | 'ตัดเรียบ + พิมพ์ Logo' | 'โค้งลอน + พิมพ์ Logo'; // ชายผ้า
   featured_image?: string;
   images: ProjectImage[];
+  videos?: ProjectVideo[]; // Array of project videos (NEW)
+  featured_video?: string; // Featured video URL (optional, NEW)
   created_at?: string | any; // ISO string when serialized, Firestore timestamp on server
   updated_at?: string | any; // ISO string when serialized, Firestore timestamp on server
   slug: string;
@@ -73,6 +75,21 @@ export interface ProjectImage {
   order_index: number;
   type?: 'before' | 'during' | 'after' | 'detail';
   caption?: string;
+  created_at?: string | any; // ISO string when serialized, Firestore timestamp on server
+}
+
+export interface ProjectVideo {
+  id: string; // Unique video ID
+  project_id: string;
+  title: string;
+  description?: string;
+  video_url: string; // Main video URL (Cloudflare Stream or Firebase Storage)
+  thumbnail_url?: string; // Video thumbnail/poster image
+  duration?: number; // Video duration in seconds
+  file_size?: number; // File size in bytes
+  mime_type?: string; // video/mp4, video/webm, etc.
+  type?: 'before' | 'during' | 'after' | 'detail'; // Same as ProjectImage for consistency
+  order_index: number;
   created_at?: string | any; // ISO string when serialized, Firestore timestamp on server
 }
 
@@ -311,6 +328,58 @@ export function isValidImageType(type: any): type is ProjectImage['type'] {
 }
 
 /**
+ * Validate project videos to ensure data integrity
+ * - Must have valid video URLs
+ * - File size should not exceed 100MB
+ * - Duration should be reasonable (< 10 minutes)
+ */
+export function validateProjectVideos(videos: ProjectVideo[]): {
+  valid: boolean;
+  errors: string[];
+} {
+  const errors: string[] = [];
+
+  if (!videos || videos.length === 0) {
+    return { valid: true, errors: [] }; // Videos are optional
+  }
+
+  // ไม่ควรมีวีดีโอมากเกิน 10 วีดีโอ
+  if (videos.length > 10) {
+    errors.push('วีดีโอไม่ควรเกิน 10 วีดีโอ');
+  }
+
+  // เช็คว่าทุกวีดีโอมี URLs ที่จำเป็น
+  const invalidVideos = videos.filter(video => !video.video_url);
+  if (invalidVideos.length > 0) {
+    errors.push(`พบวีดีโอที่ไม่สมบูรณ์ ${invalidVideos.length} วีดีโอ (ไม่มี URL)`);
+  }
+
+  // เช็คขนาดไฟล์ (ถ้ามี)
+  const oversizedVideos = videos.filter(video => video.file_size && video.file_size > 100 * 1024 * 1024);
+  if (oversizedVideos.length > 0) {
+    errors.push(`พบวีดีโอที่มีขนาดใหญ่เกิน 100MB จำนวน ${oversizedVideos.length} วีดีโอ`);
+  }
+
+  // เช็คความยาว (ถ้ามี)
+  const tooLongVideos = videos.filter(video => video.duration && video.duration > 600);
+  if (tooLongVideos.length > 0) {
+    errors.push(`พบวีดีโอที่ยาวเกิน 10 นาที จำนวน ${tooLongVideos.length} วีดีโอ`);
+  }
+
+  return {
+    valid: errors.length === 0,
+    errors,
+  };
+}
+
+/**
+ * Validate that video type is valid
+ */
+export function isValidVideoType(type: any): type is ProjectVideo['type'] {
+  return ['before', 'after', 'during', 'detail', undefined].includes(type);
+}
+
+/**
  * Get validation summary for a project
  */
 export function getProjectValidationSummary(project: Partial<Project>): {
@@ -342,6 +411,22 @@ export function getProjectValidationSummary(project: Partial<Project>): {
     const afterImages = project.images.filter(img => img.type === 'after' || !img.type);
     if (afterImages.length < 3) {
       warnings.push(`มีรูปหลังติดตั้งเพียง ${afterImages.length} รูป - แนะนำให้มีอย่างน้อย 3 รูป`);
+    }
+  }
+
+  // Video validation (NEW)
+  if (project.videos) {
+    const videoValidation = validateProjectVideos(project.videos);
+    errors.push(...videoValidation.errors);
+
+    // Warnings for videos
+    if (project.videos.length > 5) {
+      warnings.push(`มีวีดีโอ ${project.videos.length} วีดีโอ - แนะนำไม่เกิน 5 วีดีโอเพื่อประสิทธิภาพ`);
+    }
+
+    const videosWithoutThumbnail = project.videos.filter(video => !video.thumbnail_url);
+    if (videosWithoutThumbnail.length > 0) {
+      warnings.push(`มีวีดีโอ ${videosWithoutThumbnail.length} วีดีโอที่ไม่มีภาพปก (thumbnail)`);
     }
   }
 

@@ -10,6 +10,9 @@ import Breadcrumbs from '../../components/ui/Breadcrumbs';
 import SeparateBeforeAfterGallery from '../../components/portfolio/SeparateBeforeAfterGallery';
 import PortfolioCTA from '../../components/section/PortfolioCTA';
 import { getBeforeImage, getAfterImages, getBeforeImages, shouldShowBeforeAfter } from '@/lib/project-image-utils';
+import { hasVideos, getVideos, sortVideos } from '@/lib/project-video-utils';
+import VideoPlayer from '@/components/ui/VideoPlayer';
+import VideoModal from '@/components/ui/VideoModal';
 
 interface PortfolioDetailClientProps {
   project: Project;
@@ -31,6 +34,10 @@ export default function PortfolioDetailClient({ project }: PortfolioDetailClient
   const [initialDistance, setInitialDistance] = useState<number | null>(null);
   const [initialZoom, setInitialZoom] = useState(1);
 
+  // Video modal state
+  const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
+  const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
+
 
   const displayImages = project.images || [];
   const hasImages = displayImages.length > 0;
@@ -38,6 +45,10 @@ export default function PortfolioDetailClient({ project }: PortfolioDetailClient
   const lightboxImages = isBeforeAfterMode
     ? (lightboxImageType === 'before' ? getBeforeImages(project) : getAfterImages(project))
     : displayImages;
+
+  // Video data
+  const projectHasVideos = hasVideos(project);
+  const projectVideos = projectHasVideos ? sortVideos(getVideos(project)) : [];
 
   // Structured Data สำหรับหน้า Portfolio Detail
   const structuredData = {
@@ -571,6 +582,59 @@ return (
         </div>
       </section>
     )}
+
+    {/* Video Gallery Section */}
+    {projectHasVideos && (
+      <section className="py-16 bg-white border-t border-gray-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Header */}
+          <div className="mb-8">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M8 5v14l11-7z" />
+                </svg>
+              </div>
+              <Typography variant="h4" component="h2" className="font-bold text-gray-900">
+                วีดีโอผลงาน
+              </Typography>
+            </div>
+            <Typography variant="body1" color="text.secondary">
+              ชมวีดีโอเพิ่มเติมของโปรเจกต์นี้
+            </Typography>
+          </div>
+
+          {/* Video Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {projectVideos.map((video, index) => (
+              <div
+                key={video.id}
+                className="cursor-pointer"
+                onClick={() => {
+                  setCurrentVideoIndex(index);
+                  setIsVideoModalOpen(true);
+                }}
+              >
+                <VideoPlayer video={video} controls={false} />
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    )}
+
+    {/* Video Modal */}
+    <VideoModal
+      isOpen={isVideoModalOpen}
+      videos={projectVideos}
+      currentIndex={currentVideoIndex}
+      onClose={() => setIsVideoModalOpen(false)}
+      onNext={() => setCurrentVideoIndex((prev) => (prev + 1) % projectVideos.length)}
+      onPrevious={() =>
+        setCurrentVideoIndex((prev) => (prev - 1 + projectVideos.length) % projectVideos.length)
+      }
+    />
+
     {/* Related Projects */}
     {relatedProjects.length > 0 && (
       <section className="py-16 bg-white">

@@ -4,6 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
 import { Project } from '../../../lib/firestore';
+import { hasVideos } from '../../../lib/project-video-utils';
 
 interface PortfolioCardProps {
   project: Project;
@@ -108,6 +109,18 @@ export default function PortfolioCard({ project, index }: PortfolioCardProps) {
               {project.category}
             </div>
           </div>
+
+          {/* Video Badge - Bottom Left (if project has videos) */}
+          {hasVideos(project) && (
+            <div className="absolute bottom-3 left-3 z-10">
+              <div className="bg-blue-600/90 backdrop-blur-sm px-2 py-1 rounded-lg text-xs font-semibold text-white flex items-center gap-1 shadow-sm">
+                <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M8 5v14l11-7z" />
+                </svg>
+                <span>{project.videos?.length || 0} วีดีโอ</span>
+              </div>
+            </div>
+          )}
 
           {/* Hover overlay */}
           <div

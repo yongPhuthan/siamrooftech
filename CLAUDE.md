@@ -144,10 +144,18 @@ This design system ensures consistency across:
 
 ### 3. Core Pages
 - Homepage (SSG) - **UPDATED** with enhanced ProjectShow
-- Portfolio showcase (SSG/ISR)
+- Portfolio showcase (SSG/ISR) - **NEW** Video support
 - Contact page (SSG with client form)
 - Articles/Blog (ISR)
 - Admin dashboard (Client-side)
+
+### 4. Video Feature (NEW - v1.2)
+- **Display**: Video gallery in portfolio detail pages
+- **Player**: Custom HTML5 video player with controls
+- **Modal**: Fullscreen video playback with navigation
+- **Types**: Before/After/During/Detail video categorization
+- **Upload**: Cloudflare-ready upload system (Admin UI pending)
+- **SEO**: Video schema support (future enhancement)
 
 ## Database Schema (Firestore)
 
@@ -217,10 +225,14 @@ interface Article {
 ## Important Files & Patterns
 
 ### Key Files to Understand
-- `src/lib/firestore.ts` - Database utilities and schemas
+- `src/lib/firestore.ts` - Database utilities and schemas **UPDATED with ProjectVideo**
 - `src/lib/firestore-admin.ts` - Server-side Firebase Admin SDK
 - `src/lib/project-utils.ts` - **NEW** Data transformation for ProjectShow
+- `src/lib/project-video-utils.ts` - **NEW v1.2** Video utility functions
+- `src/lib/cloudflare/uploadVideo.ts` - **NEW v1.2** Video upload system
 - `src/lib/seo.ts` - SEO helpers and meta tag generation
+- `src/components/ui/VideoPlayer.tsx` - **NEW v1.2** Custom video player
+- `src/components/ui/VideoModal.tsx` - **NEW v1.2** Fullscreen video modal
 - `src/components/ui/` - Reusable UI components
 - `src/app/portfolio/[slug]/page.tsx` - Portfolio detail page (SSG example)
 - `src/app/admin/` - Admin dashboard (client-side)
