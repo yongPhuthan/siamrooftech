@@ -7,11 +7,42 @@ export type UploadResult = {
   originalUrl?: string;
 };
 
+export type UploadOptions = {
+  watermarkText?: string | null;
+};
+
+const DEFAULT_WATERMARK_TEXT = 'LINE:@ROOFTECH';
+
+async function applyWatermark(file: File, watermarkText: string): Promise<File> {
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('text', watermarkText);
+
+  const response = await fetch('/api/upload/watermark', {
+    method: 'POST',
+    body: formData,
+  });
+
+  if (!response.ok) {
+    throw new Error('ไม่สามารถใส่ลายน้ำได้');
+  }
+
+  const blob = await response.blob();
+  return new File([blob], file.name, { type: blob.type || file.type });
+}
+
 export async function uploadImageToCloudflare(
-  file: File
+  file: File,
+  options?: UploadOptions
 ): Promise<UploadResult> {
   const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg';
-  
+  const watermarkText =
+    options?.watermarkText === undefined
+      ? DEFAULT_WATERMARK_TEXT
+      : options.watermarkText;
+  const sourceFile =
+    watermarkText === null ? file : await applyWatermark(file, watermarkText);
+
   // Generate unique ID based on file content hash + timestamp + extension
   const fileHash = await getShortFileHash(file);
   const timestamp = Date.now();
@@ -27,12 +58,11 @@ export async function uploadImageToCloudflare(
   const result: UploadResult = {};
 
   for (const [label, maxSize] of Object.entries(sizes)) {
-    const resized = await imageCompression(file, {
+    const resized = await imageCompression(sourceFile, {
       maxWidthOrHeight: maxSize,
       useWebWorker: true,
     });
 
-    // Each size gets uploaded to its own size folder with same ID
     const fileName = `${imageId}.${ext}`;
 
     console.log(`📤 Uploading ${label} size (${maxSize}px) for file: ${fileName}`);
@@ -59,10 +89,9 @@ export async function uploadImageToCloudflare(
     if (!uploadRes.ok) throw new Error('Upload to Cloudflare failed');
 
     const publicUrl = `${process.env.NEXT_PUBLIC_CF_PUBLIC_URL}/${objectPath}`;
-    
+
     console.log(`✅ Successfully uploaded ${label}: ${publicUrl}`);
 
-    // บันทึก URL สำหรับขนาดต่างๆ
     (result as any)[`${label}Url`] = publicUrl;
   }
 

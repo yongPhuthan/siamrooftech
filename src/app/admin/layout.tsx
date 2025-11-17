@@ -46,6 +46,17 @@ export default function AdminLayout({
         </svg>
       ),
     },
+    {
+      name: 'อัปโหลดรูปภาพ',
+      href: '/admin/image-upload',
+      icon: (
+        <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
+          <rect x="4" y="6" width="16" height="12" rx="2" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9 11l3 3 3-3" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 14v3" />
+        </svg>
+      ),
+    },
   ];
 
   const isActive = (href: string) =>

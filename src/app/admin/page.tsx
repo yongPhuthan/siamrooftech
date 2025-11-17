@@ -102,6 +102,15 @@ export default function AdminPage() {
                       เพิ่มโปรเจคผลงาน
                     </Link>
                   </li>
+                  <li>
+                    <Link href="/admin/image-upload" className="inline-flex items-center gap-2 hover:text-blue-600">
+                      <svg className="h-4 w-4" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} fill="none">
+                        <rect x="3" y="6" width="18" height="12" rx="2" />
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M7 11l2.5 3 2.5-3 2.5 3L17 11" />
+                      </svg>
+                      อัปโหลดรูปภาพ
+                    </Link>
+                  </li>
                 </ul>
               </div>
               <div className="rounded-2xl border border-gray-200 bg-gradient-to-br from-blue-50 to-white p-6 shadow-sm">

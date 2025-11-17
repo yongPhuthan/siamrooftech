@@ -50,6 +50,17 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       )
     },
     {
+      name: 'อัปโหลดรูปภาพ',
+      href: '/admin/image-upload',
+      icon: (
+        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+          <rect x="3" y="6" width="18" height="12" rx="2" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M7 10l2.5 3 2.5-3 2.5 3L17 10" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 14v4" />
+        </svg>
+      )
+    },
+    {
       name: 'ดูเว็บไซต์',
       href: '/',
       icon: (

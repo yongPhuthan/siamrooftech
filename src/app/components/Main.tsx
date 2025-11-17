@@ -7,6 +7,7 @@ import EndSection from "./section/EndSection";
 import FinalCTASection from "./FinalCTASection";
 import Footer from "./ui/Footer";
 import Whyus2 from "./section/WhyUs2";
+import DamageWarningSection from "./section/DamageWarningSection";
 import { Stack } from "@mui/material";
 import { Project } from "@/lib/firestore";
 import { transformFirestoreProjectsToProjectShow } from "@/lib/project-utils";
@@ -62,6 +63,7 @@ const Main = (props: Props) => {
           </div>
         )}
       </div>
+      <DamageWarningSection />
       <Whyus2 keyword={keyword} />
       <Stack
         direction={"column"}
