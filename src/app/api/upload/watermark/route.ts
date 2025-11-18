@@ -48,7 +48,7 @@ export async function POST(request: Request) {
       ])
       .toBuffer();
 
-    return new NextResponse(watermarkedBuffer, {
+    return new NextResponse(new Uint8Array(watermarkedBuffer), {
       headers: {
         'Content-Type': file.type || 'image/png',
         'Cache-Control': 'no-store',
