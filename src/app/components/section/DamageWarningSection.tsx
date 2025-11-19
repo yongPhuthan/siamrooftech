@@ -1,7 +1,5 @@
 'use client';
 
-import Image from 'next/image';
-
 const warningCards = [
   {
     src: 'https://assets.siamrooftech.com/medium/7a6166aaa4d6bd66-1763383268896-psbcsx-jpg.jpg',
@@ -59,15 +57,14 @@ function DamageWarningSection() {
               >
                 <div className={`flex flex-col gap-6 px-6 py-6 lg:flex-row ${reverse ? 'lg:flex-row-reverse' : ''}`}>
                   <div
-                    className="relative flex-1 overflow-hidden rounded-xl border border-gray-200 bg-black aspect-[2/3] md:aspect-[3/4] lg:aspect-[2/3]"
+                    className="relative flex-1 overflow-hidden rounded-xl border border-gray-200 bg-black aspect-[4/3] md:aspect-[3/2] lg:aspect-[4/3] max-h-[360px]"
                     onContextMenu={(event) => event.preventDefault()}
                   >
-                    <Image
+                    <img
                       src={card.src}
                       alt={card.alt}
-                      fill
-                      sizes="(max-width: 1024px) 100vw, 50vw"
-                      className="object-cover filter grayscale contrast-90 opacity-90"
+                      className="object-cover filter grayscale contrast-90 opacity-90 w-full h-full"
+                      loading="lazy"
                     />
                     <span className="absolute inset-x-0 bottom-0 text-center text-xs uppercase tracking-widest text-white/80 bg-black/40 py-1">
                       เหตุการณ์จริง
