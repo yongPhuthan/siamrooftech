@@ -1,5 +1,6 @@
 // app/portfolio/page.tsx
 import { Metadata } from "next";
+import Link from "next/link";
 import { projectsAdminService } from "../../lib/firestore-admin";
 import { Project } from "../../lib/firestore";
 import Breadcrumbs from "../components/ui/Breadcrumbs";
@@ -76,9 +77,9 @@ export default async function PortfolioPage() {
         <h1 className="text-3xl font-bold text-gray-800">ไม่พบโปรเจค</h1>
         <p className="text-gray-500 mt-2">
           โปรดตรวจสอบอีกครั้ง หรือกลับไปที่{" "}
-          <a href="/" className="text-blue-600 underline">
+          <Link href="/" className="text-blue-600 underline">
             หน้าแรก
-          </a>
+          </Link>
         </p>
       </div>
     );

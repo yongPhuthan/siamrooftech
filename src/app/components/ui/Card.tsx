@@ -4,7 +4,6 @@ import React from 'react';
 
 
 function Card({ project }: any) {
-    console.log('project', project)
     return (
         <div className="card card-compact rounded-md bg-base-100 border-1 relative">
           <Image

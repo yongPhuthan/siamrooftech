@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import PortfolioCard from './PortfolioCard';
 import { Project } from '../../../lib/firestore';
 
@@ -86,7 +87,7 @@ export default function PortfolioGrid({
           </div>
           <h3 className="text-xl font-semibold text-gray-900 mb-2">ยังไม่มีผลงานในหมวดนี้</h3>
           <p className="text-gray-600 mb-6">กรุณาติดตามผลงานใหม่ๆ ของเราในอนาคต</p>
-          <a
+          <Link
             href="/portfolio"
             className="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors duration-200"
           >
@@ -94,7 +95,7 @@ export default function PortfolioGrid({
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
             ดูผลงานทั้งหมด
-          </a>
+          </Link>
         </div>
       </div>
     );

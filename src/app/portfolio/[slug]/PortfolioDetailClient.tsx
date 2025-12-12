@@ -3,6 +3,7 @@
 import { ChevronLeft as ChevronLeftIcon, ChevronRight as ChevronRightIcon, Close as CloseIcon, ZoomIn as ZoomInIcon } from '@mui/icons-material';
 import { Button, Chip, Typography } from '@mui/material';
 import Image from 'next/image';
+import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
 import { Project } from '../../../lib/firestore';
 import { usePortfolioStore } from '../../../store/portfolioStore';
@@ -650,18 +651,18 @@ return (
               </p>
             </div>
             {/* Desktop / Tablet only */}
-            <a
+            <Link
               href="/portfolio"
               className="hidden sm:inline-flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
             >
               ดูผลงานทั้งหมด →
-            </a>
+            </Link>
           </div>
 
           {/* Cards Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {relatedProjects.map((relatedProject) => (
-              <a
+              <Link
                 key={relatedProject.id}
                 href={`/portfolio/${relatedProject.slug || relatedProject.id}`}
                 className="rounded-xl overflow-hidden border border-gray-200 hover:shadow-md transition-shadow bg-white flex flex-col"
@@ -703,17 +704,17 @@ return (
                     ปี {relatedProject.year}
                   </span>
                 </div>
-              </a>
+              </Link>
             ))}
 
             {/* Mobile only → ปุ่มหลังการ์ดสุดท้าย */}
             <div className="sm:hidden">
-              <a
+              <Link
                 href="/portfolio"
                 className="mt-4 w-full inline-flex justify-center items-center gap-2 px-4 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
               >
                 ดูผลงานทั้งหมด →
-              </a>
+              </Link>
             </div>
           </div>
           
