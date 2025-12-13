@@ -53,12 +53,6 @@ const LineButton = ({
       default:
         trackLineClickHero(); // fallback
     }
-    
-    // Keep existing GTM conversion tracking for backwards compatibility
-    if (typeof window !== 'undefined' && typeof (window as any).gtag_report_conversion === 'function') {
-      return (window as any).gtag_report_conversion('https://lin.ee/pPz1ZqN');
-    }
-    return true;
   };
 
   return (

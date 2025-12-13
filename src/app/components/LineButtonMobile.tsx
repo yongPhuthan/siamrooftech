@@ -30,11 +30,6 @@ export default function LineButtonMobile({
 }: LineButtonMobileProps) {
   const handleClick = () => {
     trackLineClickMobile();
-
-    // GTM conversion tracking
-    if (typeof window !== 'undefined' && typeof (window as any).gtag_report_conversion === 'function') {
-      (window as any).gtag_report_conversion('https://lin.ee/pPz1ZqN');
-    }
   };
 
   return (

@@ -14,6 +14,4 @@ declare global {
     interface Window {
       dataLayer: any[];
     }
-    
-    function gtag_report_conversion(url: string): boolean;
   }

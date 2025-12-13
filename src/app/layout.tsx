@@ -1,4 +1,4 @@
-import { GoogleTagManager, GoogleAnalytics } from "@next/third-parties/google";
+import { GoogleTagManager } from "@next/third-parties/google";
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { Suspense } from "react";
@@ -90,33 +90,10 @@ export default function RootLayout({
     <html lang="th" className={myFont.className}>
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-        {process.env.NODE_ENV === "production" && (
-          <script
-            dangerouslySetInnerHTML={{
-              __html: `
-                function gtag_report_conversion(url) {
-                  var callback = function () {
-                    if (typeof(url) != 'undefined') {
-                      window.location = url;
-                    }
-                  };
-                  gtag('event', 'conversion', {
-                      'send_to': '${process.env.NEXT_PUBLIC_GA_TRACKING_ID}/${process.env.NEXT_PUBLIC_CONVERSION_LABEL}',
-                      'value': 1.0,
-                      'currency': 'THB',
-                      'event_callback': callback
-                  });
-                  return false;
-                }
-              `,
-            }}
-          />
-        )}
       </head>
       {process.env.NODE_ENV === "production" ? (
         <>
           <GoogleTagManager gtmId={process.env.NEXT_PUBLIC_GTM_ID || "GTM-MT74ZP2P"} />
-          <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_TRACKING_ID || "AW-17594563828"} />
         </>
       ) : null}
       <body className={`bg-white`}>

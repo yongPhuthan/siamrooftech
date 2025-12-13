@@ -60,15 +60,15 @@ const WhyUs2 = (props: Props) => {
                   </p>
                   <a href="https://lin.ee/pPz1ZqN" target="_blank">
                     <button
-                      className="btn btn-outline btn-primary"
-                      onClick={() => {
-                        window.dataLayer = window.dataLayer || [];
-                        window.dataLayer.push({
-                          event: 'button_click',
-                          event_category: 'Button',
-                          event_action: 'Click',
-                          event_label: 'สอบถามราคา',
-                        });
+	                      className="btn btn-outline btn-primary"
+	                      onClick={() => {
+	                        const dataLayer = (window.dataLayer = window.dataLayer || []);
+	                        dataLayer.push({
+	                          event: 'button_click',
+	                          event_category: 'Button',
+	                          event_action: 'Click',
+	                          event_label: 'สอบถามราคา',
+	                        });
                       }}
                     >
                       ประเมินราคาฟรี
@@ -117,15 +117,15 @@ const WhyUs2 = (props: Props) => {
                   </p>
                   <a href="https://lin.ee/pPz1ZqN" target="_blank">
                     <button
-                      className="btn btn-outline btn-primary"
-                      onClick={() => {
-                        window.dataLayer = window.dataLayer || [];
-                        window.dataLayer.push({
-                          event: 'button_click',
-                          event_category: 'Button',
-                          event_action: 'Click',
-                          event_label: 'สอบถามราคา',
-                        });
+	                      className="btn btn-outline btn-primary"
+	                      onClick={() => {
+	                        const dataLayer = (window.dataLayer = window.dataLayer || []);
+	                        dataLayer.push({
+	                          event: 'button_click',
+	                          event_category: 'Button',
+	                          event_action: 'Click',
+	                          event_label: 'สอบถามราคา',
+	                        });
                       }}
                     >
                       ประเมินราคาฟรี
@@ -155,15 +155,15 @@ const WhyUs2 = (props: Props) => {
                   </p>
                   <a href="https://lin.ee/pPz1ZqN" target="_blank">
                     <button
-                      className="btn btn-outline btn-primary"
-                      onClick={() => {
-                        window.dataLayer = window.dataLayer || [];
-                        window.dataLayer.push({
-                          event: 'button_click',
-                          event_category: 'Button',
-                          event_action: 'Click',
-                          event_label: 'สอบถามราคา',
-                        });
+	                      className="btn btn-outline btn-primary"
+	                      onClick={() => {
+	                        const dataLayer = (window.dataLayer = window.dataLayer || []);
+	                        dataLayer.push({
+	                          event: 'button_click',
+	                          event_category: 'Button',
+	                          event_action: 'Click',
+	                          event_label: 'สอบถามราคา',
+	                        });
                       }}
                     >
                       ประเมินราคาฟรี
@@ -235,15 +235,15 @@ const WhyUs2 = (props: Props) => {
                     className="inline-block"
                   >
                     <button
-                      className="btn btn-outline btn-large  btn-primary mx-auto" // Use DaisyUI button class
-                      onClick={() => {
-                        window.dataLayer = window.dataLayer || ([] as any);
-                        window.dataLayer.push({
-                          event: 'button_click',
-                          event_category: 'Button',
-                          event_action: 'Click',
-                          event_label: 'สอบถามราคา',
-                        });
+	                      className="btn btn-outline btn-large  btn-primary mx-auto" // Use DaisyUI button class
+	                      onClick={() => {
+	                        const dataLayer = (window.dataLayer = window.dataLayer || []);
+	                        dataLayer.push({
+	                          event: 'button_click',
+	                          event_category: 'Button',
+	                          event_action: 'Click',
+	                          event_label: 'สอบถามราคา',
+	                        });
                       }}
                     >
                       ประเมินราคาฟรี
@@ -287,15 +287,15 @@ const WhyUs2 = (props: Props) => {
                     className="inline-block"
                   >
                     <button
-                      className="btn btn-outline btn-large btn-primary mx-auto" // Use DaisyUI button class
-                      onClick={() => {
-                        window.dataLayer = window.dataLayer || ([] as any);
-                        window.dataLayer.push({
-                          event: 'button_click',
-                          event_category: 'Button',
-                          event_action: 'Click',
-                          event_label: 'สอบถามราคา',
-                        });
+	                      className="btn btn-outline btn-large btn-primary mx-auto" // Use DaisyUI button class
+	                      onClick={() => {
+	                        const dataLayer = (window.dataLayer = window.dataLayer || []);
+	                        dataLayer.push({
+	                          event: 'button_click',
+	                          event_category: 'Button',
+	                          event_action: 'Click',
+	                          event_label: 'สอบถามราคา',
+	                        });
                       }}
                     >
                       ประเมินราคาฟรี
@@ -340,15 +340,15 @@ const WhyUs2 = (props: Props) => {
                     className="inline-block"
                   >
                     <button
-                      className="btn btn-outline btn-large btn-primary mx-auto" // Use DaisyUI button class
-                      onClick={() => {
-                        window.dataLayer = window.dataLayer || ([] as any);
-                        window.dataLayer.push({
-                          event: 'button_click',
-                          event_category: 'Button',
-                          event_action: 'Click',
-                          event_label: 'สอบถามราคา',
-                        });
+	                      className="btn btn-outline btn-large btn-primary mx-auto" // Use DaisyUI button class
+	                      onClick={() => {
+	                        const dataLayer = (window.dataLayer = window.dataLayer || []);
+	                        dataLayer.push({
+	                          event: 'button_click',
+	                          event_category: 'Button',
+	                          event_action: 'Click',
+	                          event_label: 'สอบถามราคา',
+	                        });
                       }}
                     >
                       ประเมินราคาฟรี

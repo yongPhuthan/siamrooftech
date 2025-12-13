@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { contactService } from '../../../lib/firestore';
+import { trackContactFormSubmitSuccess } from '@/lib/gtag';
 
 interface ContactFormProps {
   projectTitle?: string;
@@ -62,6 +63,7 @@ export default function ContactForm({ projectTitle, category }: ContactFormProps
     try {
       await contactService.submit(formData);
       setSubmitStatus('success');
+      trackContactFormSubmitSuccess(formData.subject);
       setFormData({
         name: '',
         phone: '',

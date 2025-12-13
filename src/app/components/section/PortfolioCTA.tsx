@@ -1,6 +1,7 @@
 'use client';
 
 import { Button } from '@mui/material';
+import { trackLineClick, trackPhoneClick } from '@/lib/gtag';
 
 interface PortfolioCTAProps {
   className?: string;
@@ -17,25 +18,11 @@ interface PortfolioCTAProps {
  */
 export default function PortfolioCTA({ className = '' }: PortfolioCTAProps) {
   const handleLineClick = () => {
-    // Track Line button click
-    if (typeof window !== 'undefined' && window.gtag) {
-      window.gtag('event', 'line_click_bottom', {
-        event_category: 'engagement',
-        event_label: 'line_button_bottom_section',
-        value: 1
-      });
-    }
+    trackLineClick('portfolio_cta');
   };
 
   const handlePhoneClick = () => {
-    // Track phone click
-    if (typeof window !== 'undefined' && window.gtag) {
-      window.gtag('event', 'phone_click_portfolio_cta', {
-        event_category: 'engagement',
-        event_label: 'phone_call_from_portfolio',
-        value: 1
-      });
-    }
+    trackPhoneClick('0984542455', 'portfolio_cta');
   };
 
   return (
