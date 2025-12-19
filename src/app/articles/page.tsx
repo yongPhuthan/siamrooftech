@@ -126,11 +126,11 @@ export default async function ArticlesPage() {
                   </span>
                 </div>
                 {/* Read Time Badge - Top Right */}
-                <div className="absolute top-3 right-3">
+                {/* <div className="absolute top-3 right-3">
                   <span className="bg-white/95 backdrop-blur-sm px-3 py-1 rounded-lg text-sm font-medium text-gray-800 shadow-sm">
                     {article.read_time}
                   </span>
-                </div>
+                </div> */}
               </div>
               
               <div className="p-4 space-y-3">
@@ -170,8 +170,9 @@ export default async function ArticlesPage() {
       </div>
 
       <FinalCTASection 
-        title="สนใจบทความและคำแนะนำ"
-        subtitle="เพิ่มเติมเกี่ยวกับกันสาดพับเก็บได้?"
+        title="กันสาดพับเก็บได้
+สำหรับโปรเจกต์ของคุณ"
+        subtitle="ติดต่อเราเพื่อรับคำแนะนำจากผู้เชี่ยวชาญ"
       />
     </div>
   );

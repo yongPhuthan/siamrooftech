@@ -192,7 +192,7 @@ export default async function ArticleDetailPage({ params }: Props) {
       <div className="min-h-screen bg-white">
         {/* Breadcrumbs - Clean design */}
         <div className="border-b border-gray-100">
-          <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <Breadcrumbs
               items={[
                 { name: 'หน้าแรก', href: '/' },
@@ -205,7 +205,7 @@ export default async function ArticleDetailPage({ params }: Props) {
         </div>
 
         {/* Article Content - Clean & Minimal */}
-        <article className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+        <article className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
           {/* Category Label - Subtle */}
           <div className="mb-6">
             <span className="inline-block px-3 py-1 text-xs font-medium text-gray-600 bg-gray-100 rounded">
@@ -214,9 +214,9 @@ export default async function ArticleDetailPage({ params }: Props) {
           </div>
 
           {/* Title - Clean Typography */}
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-6 leading-tight tracking-tight">
-            {article.title}
-          </h1>
+<h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-6 leading-snug lg:leading-normal tracking-tight">
+  {article.title}
+</h1>
 
           {/* Meta Info - Minimal */}
           <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500 mb-10 pb-8 border-b border-gray-100">
@@ -231,7 +231,7 @@ export default async function ArticleDetailPage({ params }: Props) {
 
           {/* Featured Image - Clean rounded corners */}
           {featuredImageUrl && (
-            <div className="relative aspect-[16/9] overflow-hidden rounded-lg mb-10">
+            <div className="relative aspect-[16/9] overflow-hidden rounded-lg mb-10 max-w-[80%] mx-auto">
               <Image
                 src={featuredImageUrl}
                 alt={article.title}
@@ -253,11 +253,18 @@ export default async function ArticleDetailPage({ params }: Props) {
               {sortedBlocks.map((block, index) => {
                 const htmlContent = convertMarkdownToHtml(block.content || '');
                 const showBlockImage = Boolean(block.image) && index !== 0;
+                const paragraphCount = (htmlContent.match(/<p /g) || []).length;
+                const plainContent = htmlContent.replace(/<[^>]+>/g, '').trim();
+                const isCaptionOnly =
+                  showBlockImage &&
+                  paragraphCount === 1 &&
+                  plainContent.length > 0 &&
+                  plainContent.length <= 140;
 
                 return (
                   <section key={block.id || index} className="space-y-6">
                     {showBlockImage && (
-                      <div className="relative aspect-[16/9] overflow-hidden rounded-lg bg-gray-100">
+                      <div className="relative aspect-[16/9] overflow-hidden rounded-lg bg-gray-100 max-w-[80%] mx-auto">
                         <Image
                           src={block.image as string}
                           alt={`รูปประกอบบทความลำดับที่ ${index + 1}`}
@@ -270,7 +277,9 @@ export default async function ArticleDetailPage({ params }: Props) {
                     )}
                     {htmlContent && (
                       <div
-                        className="prose prose-lg max-w-none text-gray-800 leading-relaxed"
+                        className={`prose prose-lg max-w-none text-gray-800 leading-relaxed ${
+                          isCaptionOnly ? 'text-center' : ''
+                        }`}
                         dangerouslySetInnerHTML={{ __html: htmlContent }}
                       />
                     )}
@@ -359,7 +368,8 @@ export default async function ArticleDetailPage({ params }: Props) {
         )}
 
         <FinalCTASection
-          title="ต้องการคำปรึกษาเกี่ยวกับกันสาดพับได้?"
+          title="กันสาดพับเก็บได้
+สำหรับโปรเจกต์ของคุณ"
           subtitle="ติดต่อเราเพื่อรับคำแนะนำจากผู้เชี่ยวชาญ"
         />
       </div>

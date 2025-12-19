@@ -13,6 +13,7 @@ export default function Navigation() {
   const navItems = [
     { name: 'หน้าแรก', href: '/' },
     { name: 'ผลงาน', href: '/portfolio' },
+    { name: 'บทความ', href: '/articles' },
   ];
 
   useEffect(() => {
@@ -44,6 +45,9 @@ export default function Navigation() {
     }
     if (href === '/portfolio') {
       return pathname.startsWith('/portfolio') || pathname.startsWith('/works');
+    }
+    if (href === '/articles') {
+      return pathname.startsWith('/articles');
     }
     return pathname === href;
   };

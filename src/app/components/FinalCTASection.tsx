@@ -25,7 +25,7 @@ export default function FinalCTASection({
         <div className="text-center space-y-8 sm:space-y-12">
           {/* Main Headline */}
           <div className="space-y-4 sm:space-y-6">
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight">
+            <h2 className="text-2xl sm:text-3xl lg:text-3xl xl:text-4xl font-bold leading-tight">
               <span className="block mb-2 sm:mb-3">{title}</span>
               <span className="block text-blue-400">{subtitle}</span>
             </h2>
