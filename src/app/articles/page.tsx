@@ -2,6 +2,7 @@ import { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import Breadcrumbs from '../components/ui/Breadcrumbs';
+import ImageWatermark from '../components/ui/ImageWatermark';
 import { Article } from '../../lib/firestore';
 import { articlesAdminService } from '../../lib/firestore-admin';
 import FinalCTASection from '../components/FinalCTASection';
@@ -112,26 +113,28 @@ export default async function ArticlesPage() {
               className="group block"
             >
               <article className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2">
-              <div className="relative aspect-[4/3] overflow-hidden bg-gray-100">
-                <Image
-                  src={article.featured_image || '/images/default-article.jpg'}
-                  alt={article.title}
-                  fill
-                  className="object-cover transition-all duration-700 group-hover:scale-110"
-                />
-                {/* Category Badge - Top Left */}
-                <div className="absolute top-3 left-3">
-                  <span className="bg-blue-600 text-white px-3 py-1 rounded-lg text-sm font-medium backdrop-blur-sm">
-                    {article.category}
-                  </span>
+              <ImageWatermark>
+                <div className="relative aspect-[4/3] overflow-hidden bg-gray-100">
+                  <Image
+                    src={article.featured_image || '/images/default-article.jpg'}
+                    alt={article.title}
+                    fill
+                    className="object-cover transition-all duration-700 group-hover:scale-110"
+                  />
+                  {/* Category Badge - Top Left */}
+                  <div className="absolute top-3 left-3">
+                    <span className="bg-blue-600 text-white px-3 py-1 rounded-lg text-sm font-medium backdrop-blur-sm">
+                      {article.category}
+                    </span>
+                  </div>
+                  {/* Read Time Badge - Top Right */}
+                  {/* <div className="absolute top-3 right-3">
+                    <span className="bg-white/95 backdrop-blur-sm px-3 py-1 rounded-lg text-sm font-medium text-gray-800 shadow-sm">
+                      {article.read_time}
+                    </span>
+                  </div> */}
                 </div>
-                {/* Read Time Badge - Top Right */}
-                {/* <div className="absolute top-3 right-3">
-                  <span className="bg-white/95 backdrop-blur-sm px-3 py-1 rounded-lg text-sm font-medium text-gray-800 shadow-sm">
-                    {article.read_time}
-                  </span>
-                </div> */}
-              </div>
+              </ImageWatermark>
               
               <div className="p-4 space-y-3">
                 {/* Title */}

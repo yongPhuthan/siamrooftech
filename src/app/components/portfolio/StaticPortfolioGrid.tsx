@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Project } from "../../../lib/firestore";
+import ImageWatermark from "../ui/ImageWatermark";
 
 interface StaticPortfolioGridProps {
   projects: Project[];
@@ -72,33 +73,35 @@ export default function StaticPortfolioGrid({
           >
             <article className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2">
               {/* Image Container */}
-              <div className="relative aspect-[4/3] overflow-hidden bg-gray-100">
-                <Image
-                  src={
-                    project.featured_image ||
-                    project.images?.[0]?.original_size ||
-                    "/images/default-project.jpg"
-                  }
-                  alt={project.images[0].description ?? project.title }
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                />
+              <ImageWatermark>
+                <div className="relative aspect-[4/3] overflow-hidden bg-gray-100">
+                  <Image
+                    src={
+                      project.featured_image ||
+                      project.images?.[0]?.original_size ||
+                      "/images/default-project.jpg"
+                    }
+                    alt={project.images[0].description ?? project.title }
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                  />
 
-                {/* Image overlay with project count */}
-                <div className="absolute top-3 right-3">
-                  <div className="bg-white/95 backdrop-blur-sm px-2 py-1 rounded-lg text-xs font-medium text-gray-800 shadow-sm">
-                    {project.images?.length || 1} รูป
+                  {/* Image overlay with project count */}
+                  <div className="absolute top-3 right-3">
+                    <div className="bg-white/95 backdrop-blur-sm px-2 py-1 rounded-lg text-xs font-medium text-gray-800 shadow-sm">
+                      {project.images?.length || 1} รูป
+                    </div>
+                  </div>
+
+                  {/* Category badge */}
+                  <div className="absolute top-3 left-3">
+                    <div className="bg-black/70 backdrop-blur-sm px-2 py-1 rounded-lg text-xs font-medium text-white">
+                      {project.category}
+                    </div>
                   </div>
                 </div>
-
-                {/* Category badge */}
-                <div className="absolute top-3 left-3">
-                  <div className="bg-black/70 backdrop-blur-sm px-2 py-1 rounded-lg text-xs font-medium text-white">
-                    {project.category}
-                  </div>
-                </div>
-              </div>
+              </ImageWatermark>
 
               {/* Content */}
               <div className="p-4 space-y-3">

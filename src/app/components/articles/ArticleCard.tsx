@@ -1,5 +1,8 @@
+'use client';
+
 import Link from 'next/link';
 import Image from 'next/image';
+import { Watermark } from 'antd';
 import { Article } from '../../../lib/firestore';
 
 interface ArticleCardProps {
@@ -38,32 +41,44 @@ export default function ArticleCard({ article }: ArticleCardProps) {
     >
       <article className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2">
         {/* Image Container - aspect-[4/3] like Portfolio */}
-        <div className="relative aspect-[4/3] overflow-hidden bg-gray-100">
-          <Image
-            src={article.featured_image || '/images/default-article.jpg'}
-            alt={article.title}
-            fill
-            className="object-cover transition-all duration-700 group-hover:scale-110"
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-          />
+        <Watermark
+          content="SiamRooftech"
+          gap={[64, 64]}
+          rotate={-22}
+          zIndex={9999}
+          width={140}
+          height={64}
+          font={{ color: 'rgba(255, 255, 255, 0.45)', fontSize: 16, fontWeight: 700 }}
+          className="block w-full"
+          style={{ width: '100%' }}
+        >
+          <div className="relative aspect-[4/3] overflow-hidden bg-gray-100">
+            <Image
+              src={article.featured_image || '/images/default-article.jpg'}
+              alt={article.title}
+              fill
+              className="object-cover transition-all duration-700 group-hover:scale-110"
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            />
 
-          {/* Category Badge - Top Left */}
-          <div className="absolute top-3 left-3">
-            <span className="bg-blue-600 text-white px-3 py-1 rounded-lg text-sm font-medium backdrop-blur-sm shadow-sm">
-              {article.category}
-            </span>
+            {/* Category Badge - Top Left */}
+            <div className="absolute top-3 left-3">
+              <span className="bg-blue-600 text-white px-3 py-1 rounded-lg text-sm font-medium backdrop-blur-sm shadow-sm">
+                {article.category}
+              </span>
+            </div>
+
+            {/* Read Time Badge - Top Right */}
+            <div className="absolute top-3 right-3">
+              <span className="bg-white/95 backdrop-blur-sm px-3 py-1 rounded-lg text-sm font-medium text-gray-800 shadow-sm">
+                {article.read_time}
+              </span>
+            </div>
+
+            {/* Hover Overlay */}
+            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300" />
           </div>
-
-          {/* Read Time Badge - Top Right */}
-          <div className="absolute top-3 right-3">
-            <span className="bg-white/95 backdrop-blur-sm px-3 py-1 rounded-lg text-sm font-medium text-gray-800 shadow-sm">
-              {article.read_time}
-            </span>
-          </div>
-
-          {/* Hover Overlay */}
-          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300" />
-        </div>
+        </Watermark>
 
         {/* Content */}
         <div className="p-4 space-y-3">

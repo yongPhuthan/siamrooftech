@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
+import { Watermark } from 'antd';
 import { Project } from '../../../lib/firestore';
 import { hasVideos } from '../../../lib/project-video-utils';
 
@@ -38,108 +39,120 @@ export default function PortfolioCard({ project, index }: PortfolioCardProps) {
         onMouseLeave={() => setIsHovered(false)}
       >
         {/* Image Container */}
-        <div className="relative aspect-[4/3] overflow-hidden bg-gray-100">
-          {shouldShowBeforeAfter ? (
-            <>
-              {/* After Image (Default) */}
-              <Image
-                src={afterImage || '/images/default-project.jpg'}
-                alt={`${project.title} - หลังติดตั้ง`}
-                fill
-                className={`object-cover transition-all duration-700 ${
-                  isHovered ? 'opacity-0 scale-110' : 'opacity-100 scale-100'
-                } ${imageLoaded ? '' : 'opacity-0'}`}
-                onLoad={() => setImageLoaded(true)}
-                sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
-              />
+        <Watermark
+          content="SiamRooftech"
+          gap={[64, 64]}
+          rotate={-22}
+          zIndex={9999}
+          width={140}
+          height={64}
+          font={{ color: 'rgba(255, 255, 255, 0.45)', fontSize: 16, fontWeight: 700 }}
+          className="block w-full"
+          style={{ width: '100%' }}
+        >
+          <div className="relative aspect-[4/3] overflow-hidden bg-gray-100">
+            {shouldShowBeforeAfter ? (
+              <>
+                {/* After Image (Default) */}
+                <Image
+                  src={afterImage || '/images/default-project.jpg'}
+                  alt={`${project.title} - หลังติดตั้ง`}
+                  fill
+                  className={`object-cover transition-all duration-700 ${
+                    isHovered ? 'opacity-0 scale-110' : 'opacity-100 scale-100'
+                  } ${imageLoaded ? '' : 'opacity-0'}`}
+                  onLoad={() => setImageLoaded(true)}
+                  sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                />
 
-              {/* Before Image (Hover) */}
-              <Image
-                src={beforeImage || '/images/default-project.jpg'}
-                alt={`${project.title} - ก่อนติดตั้ง`}
-                fill
-                className={`object-cover transition-all duration-700 ${
-                  isHovered ? 'opacity-100 scale-110' : 'opacity-0 scale-100'
-                }`}
-                sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
-              />
+                {/* Before Image (Hover) */}
+                <Image
+                  src={beforeImage || '/images/default-project.jpg'}
+                  alt={`${project.title} - ก่อนติดตั้ง`}
+                  fill
+                  className={`object-cover transition-all duration-700 ${
+                    isHovered ? 'opacity-100 scale-110' : 'opacity-0 scale-100'
+                  }`}
+                  sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                />
 
-              {/* Before/After Badge */}
-              <div className="absolute top-3 right-3 z-10">
-                <div className={`backdrop-blur-sm px-2 py-1 rounded-lg text-xs font-semibold shadow-sm transition-all duration-300 ${
-                  isHovered
-                    ? 'bg-red-500/95 text-white'
-                    : 'bg-green-500/95 text-white'
-                }`}>
-                  {isHovered ? '🔴 ก่อน' : '🟢 หลัง'}
+                {/* Before/After Badge */}
+                <div className="absolute top-3 right-3 z-10">
+                  <div className={`backdrop-blur-sm px-2 py-1 rounded-lg text-xs font-semibold shadow-sm transition-all duration-300 ${
+                    isHovered
+                      ? 'bg-red-500/95 text-white'
+                      : 'bg-green-500/95 text-white'
+                  }`}>
+                    {isHovered ? '🔴 ก่อน' : '🟢 หลัง'}
+                  </div>
                 </div>
-              </div>
-            </>
-          ) : (
-            <>
-              {/* Regular Image (Backward Compatible) */}
-              <Image
-                src={project.featured_image || project.images?.[0]?.original_size || '/images/default-project.jpg'}
-                alt={project.title}
-                fill
-                className={`object-cover transition-all duration-700 ${
-                  isHovered ? 'scale-110' : 'scale-100'
-                } ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
-                onLoad={() => setImageLoaded(true)}
-                sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
-              />
+              </>
+            ) : (
+              <>
+                {/* Regular Image (Backward Compatible) */}
+                <Image
+                  src={project.featured_image || project.images?.[0]?.original_size || '/images/default-project.jpg'}
+                  alt={project.title}
+                  fill
+                  className={`object-cover transition-all duration-700 ${
+                    isHovered ? 'scale-110' : 'scale-100'
+                  } ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
+                  onLoad={() => setImageLoaded(true)}
+                  sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                />
 
-              {/* Image count badge */}
-              <div className="absolute top-3 right-3">
-                <div className="bg-white/95 backdrop-blur-sm px-2 py-1 rounded-lg text-xs font-medium text-gray-800 shadow-sm">
-                  {project.images?.length || 1} รูป
+                {/* Image count badge */}
+                <div className="absolute top-3 right-3">
+                  <div className="bg-white/95 backdrop-blur-sm px-2 py-1 rounded-lg text-xs font-medium text-gray-800 shadow-sm">
+                    {project.images?.length || 1} รูป
+                  </div>
                 </div>
+              </>
+            )}
+
+            {/* Loading skeleton */}
+            {!imageLoaded && (
+              <div className="absolute inset-0 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 animate-pulse" />
+            )}
+
+            {/* Category badge */}
+            <div className="absolute top-3 left-3 z-10">
+              <div className="bg-black/70 backdrop-blur-sm px-2 py-1 rounded-lg text-xs font-medium text-white">
+                {project.category}
               </div>
-            </>
-          )}
-
-          {/* Loading skeleton */}
-          {!imageLoaded && (
-            <div className="absolute inset-0 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 animate-pulse" />
-          )}
-
-          {/* Category badge */}
-          <div className="absolute top-3 left-3 z-10">
-            <div className="bg-black/70 backdrop-blur-sm px-2 py-1 rounded-lg text-xs font-medium text-white">
-              {project.category}
             </div>
+
+            {/* Video Badge - Bottom Left (if project has videos) */}
+            {hasVideos(project) && (
+              <div className="absolute bottom-3 left-3 z-10">
+                <div className="bg-blue-600/90 backdrop-blur-sm px-2 py-1 rounded-lg text-xs font-semibold text-white flex items-center gap-1 shadow-sm">
+                  <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M8 5v14l11-7z" />
+                  </svg>
+                  <span>{project.videos?.length || 0} วีดีโอ</span>
+                </div>
+              </div>
+            )}
+
+            {/* Hover overlay */}
+            <div
+              className={`absolute inset-0 bg-black/20 transition-opacity duration-300 ${
+                isHovered ? 'opacity-100' : 'opacity-0'
+              }`}
+            />
+
+            {/* Hover hint for Before/After */}
+            {shouldShowBeforeAfter && (
+              <div className={`absolute bottom-3 left-1/2 -translate-x-1/2 z-10 transition-all duration-300 ${
+                isHovered ? 'opacity-0 translate-y-2' : 'opacity-100 translate-y-0'
+              }`}>
+                <div className="bg-blue-600/90 backdrop-blur-sm px-3 py-1.5 rounded-full text-xs font-medium text-white whitespace-nowrap shadow-lg">
+                  ⚡ Hover เพื่อดูภาพก่อน
+                </div>
+              </div>
+            )}
           </div>
-
-          {/* Video Badge - Bottom Left (if project has videos) */}
-          {hasVideos(project) && (
-            <div className="absolute bottom-3 left-3 z-10">
-              <div className="bg-blue-600/90 backdrop-blur-sm px-2 py-1 rounded-lg text-xs font-semibold text-white flex items-center gap-1 shadow-sm">
-                <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M8 5v14l11-7z" />
-                </svg>
-                <span>{project.videos?.length || 0} วีดีโอ</span>
-              </div>
-            </div>
-          )}
-
-          {/* Hover overlay */}
-          <div
-            className={`absolute inset-0 bg-black/20 transition-opacity duration-300 ${
-              isHovered ? 'opacity-100' : 'opacity-0'
-            }`}
-          />
-
-          {/* Hover hint for Before/After */}
-          {shouldShowBeforeAfter && (
-            <div className={`absolute bottom-3 left-1/2 -translate-x-1/2 z-10 transition-all duration-300 ${
-              isHovered ? 'opacity-0 translate-y-2' : 'opacity-100 translate-y-0'
-            }`}>
-              <div className="bg-blue-600/90 backdrop-blur-sm px-3 py-1.5 rounded-full text-xs font-medium text-white whitespace-nowrap shadow-lg">
-                ⚡ Hover เพื่อดูภาพก่อน
-              </div>
-            </div>
-          )}
-        </div>
+        </Watermark>
 
         {/* Content */}
         <div className="p-4 space-y-3">

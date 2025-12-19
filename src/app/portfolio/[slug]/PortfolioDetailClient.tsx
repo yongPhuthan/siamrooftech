@@ -8,6 +8,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Project } from '../../../lib/firestore';
 import { usePortfolioStore } from '../../../store/portfolioStore';
 import Breadcrumbs from '../../components/ui/Breadcrumbs';
+import ImageWatermark from '../../components/ui/ImageWatermark';
 import SeparateBeforeAfterGallery from '../../components/portfolio/SeparateBeforeAfterGallery';
 import PortfolioCTA from '../../components/section/PortfolioCTA';
 import { getBeforeImage, getAfterImages, getBeforeImages, shouldShowBeforeAfter } from '@/lib/project-image-utils';
@@ -335,22 +336,24 @@ return (
             ) : (
               <>
                 {/* Regular Image Gallery (Backward Compatible) */}
-                <div
-                  className="relative w-full rounded-xl overflow-hidden bg-gray-100 shadow-md cursor-pointer"
-                  style={{ aspectRatio: '1 / 1' }}
-                  onClick={() => openLightbox(activeImageIndex)}
-                >
-                  <Image
-                    src={displayImages[activeImageIndex].original_size}
-                    alt={
-                      displayImages[activeImageIndex].alt_text ||
-                      `${project.title} - รูปที่ ${activeImageIndex + 1}`
-                    }
-                    fill
-                    priority
-                    className="object-cover"
-                  />
-                </div>
+                <ImageWatermark>
+                  <div
+                    className="relative w-full rounded-xl overflow-hidden bg-gray-100 shadow-md cursor-pointer"
+                    style={{ aspectRatio: '1 / 1' }}
+                    onClick={() => openLightbox(activeImageIndex)}
+                  >
+                    <Image
+                      src={displayImages[activeImageIndex].original_size}
+                      alt={
+                        displayImages[activeImageIndex].alt_text ||
+                        `${project.title} - รูปที่ ${activeImageIndex + 1}`
+                      }
+                      fill
+                      priority
+                      className="object-cover"
+                    />
+                  </div>
+                </ImageWatermark>
 
                 {/* Thumbnails */}
                 {displayImages.length > 1 && (
@@ -894,18 +897,20 @@ return (
             cursor: zoomLevel > 1 ? 'grab' : 'default',
           }}
         >
-          <Image
-            src={lightboxImages[lightboxImageIndex].original_size}
-            alt={
-              lightboxImages[lightboxImageIndex].alt_text ||
-              `${project.title} - ${lightboxImageType === 'before' ? 'ก่อนติดตั้ง' : lightboxImageType === 'after' ? 'หลังติดตั้ง' : 'รูปภาพ'} ${lightboxImageIndex + 1}`
-            }
-            width={1200}
-            height={900}
-            className="object-contain max-h-[85vh]"
-            onLoad={() => setImageLoaded(true)}
-            priority
-          />
+          <ImageWatermark className="block w-full h-full">
+            <Image
+              src={lightboxImages[lightboxImageIndex].original_size}
+              alt={
+                lightboxImages[lightboxImageIndex].alt_text ||
+                `${project.title} - ${lightboxImageType === 'before' ? 'ก่อนติดตั้ง' : lightboxImageType === 'after' ? 'หลังติดตั้ง' : 'รูปภาพ'} ${lightboxImageIndex + 1}`
+              }
+              width={1200}
+              height={900}
+              className="object-contain max-h-[85vh]"
+              onLoad={() => setImageLoaded(true)}
+              priority
+            />
+          </ImageWatermark>
         </div>
 
         {/* Caption */}

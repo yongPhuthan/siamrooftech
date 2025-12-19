@@ -36,6 +36,7 @@
     "@next/third-parties": "^15.5.9",
     "@react-spring/web": "^9.7.3",
     "@types/uuid": "^10.0.0",
+    "antd": "^6.1.1",
     "browser-image-compression": "^2.0.2",
     "canvas": "^3.1.2",
     "dommatrix": "^0.1.1",

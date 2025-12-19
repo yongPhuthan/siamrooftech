@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Image from 'next/image';
 import { Project, ProjectImage } from '@/lib/firestore';
 import { CheckCircleOutline, HourglassEmpty, RadioButtonUnchecked } from '@mui/icons-material';
+import ImageWatermark from '../ui/ImageWatermark';
 
 interface SeparateBeforeAfterGalleryProps {
   project: Project;
@@ -55,36 +56,38 @@ export default function SeparateBeforeAfterGallery({
           </div>
 
           {/* Main Image */}
-          <div
-            className="relative aspect-[4/3] rounded-xl overflow-hidden cursor-pointer bg-gray-100 group"
-            onClick={() => onImageClick?.(afterImages[activeAfterIndex], activeAfterIndex, 'after')}
-          >
-            {/* Loading Spinner */}
-            {isAfterImageLoading && (
-              <div className="absolute inset-0 flex items-center justify-center bg-gray-100 z-10">
-                <div className="relative">
-                  <div className="w-12 h-12 border-4 border-gray-200 border-t-gray-400 rounded-full animate-spin"></div>
+          <ImageWatermark>
+            <div
+              className="relative aspect-[4/3] rounded-xl overflow-hidden cursor-pointer bg-gray-100 group"
+              onClick={() => onImageClick?.(afterImages[activeAfterIndex], activeAfterIndex, 'after')}
+            >
+              {/* Loading Spinner */}
+              {isAfterImageLoading && (
+                <div className="absolute inset-0 flex items-center justify-center bg-gray-100 z-10">
+                  <div className="relative">
+                    <div className="w-12 h-12 border-4 border-gray-200 border-t-gray-400 rounded-full animate-spin"></div>
+                  </div>
+                </div>
+              )}
+
+              <Image
+                src={afterImages[activeAfterIndex].original_size}
+                alt={afterImages[activeAfterIndex].alt_text || `${project.title} - หลังติดตั้ง`}
+                fill
+                className="object-cover transition-transform duration-300 group-hover:scale-105"
+                priority
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                onLoadingComplete={() => setIsAfterImageLoading(false)}
+              />
+
+              {/* Hover overlay */}
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300 flex items-center justify-center">
+                <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white/90 px-4 py-2 rounded-full text-sm font-medium text-gray-800">
+                  🔍 คลิกเพื่อดูขนาดใหญ่
                 </div>
               </div>
-            )}
-
-            <Image
-              src={afterImages[activeAfterIndex].original_size}
-              alt={afterImages[activeAfterIndex].alt_text || `${project.title} - หลังติดตั้ง`}
-              fill
-              className="object-cover transition-transform duration-300 group-hover:scale-105"
-              priority
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              onLoadingComplete={() => setIsAfterImageLoading(false)}
-            />
-
-            {/* Hover overlay */}
-            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300 flex items-center justify-center">
-              <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white/90 px-4 py-2 rounded-full text-sm font-medium text-gray-800">
-                🔍 คลิกเพื่อดูขนาดใหญ่
-              </div>
             </div>
-          </div>
+          </ImageWatermark>
 
           {/* Thumbnails - Miller's Law: Max 8 visible */}
           {afterImages.length > 1 && (
@@ -147,35 +150,37 @@ export default function SeparateBeforeAfterGallery({
           </div>
 
           {/* Main Image */}
-          <div
-            className="relative aspect-[4/3] rounded-xl overflow-hidden cursor-pointer bg-gray-100 group"
-            onClick={() => onImageClick?.(beforeImages[activeBeforeIndex], activeBeforeIndex, 'before')}
-          >
-            {/* Loading Spinner */}
-            {isBeforeImageLoading && (
-              <div className="absolute inset-0 flex items-center justify-center bg-gray-100 z-10">
-                <div className="relative">
-                  <div className="w-12 h-12 border-4 border-gray-200 border-t-gray-400 rounded-full animate-spin"></div>
+          <ImageWatermark>
+            <div
+              className="relative aspect-[4/3] rounded-xl overflow-hidden cursor-pointer bg-gray-100 group"
+              onClick={() => onImageClick?.(beforeImages[activeBeforeIndex], activeBeforeIndex, 'before')}
+            >
+              {/* Loading Spinner */}
+              {isBeforeImageLoading && (
+                <div className="absolute inset-0 flex items-center justify-center bg-gray-100 z-10">
+                  <div className="relative">
+                    <div className="w-12 h-12 border-4 border-gray-200 border-t-gray-400 rounded-full animate-spin"></div>
+                  </div>
+                </div>
+              )}
+
+              <Image
+                src={beforeImages[activeBeforeIndex].original_size}
+                alt={beforeImages[activeBeforeIndex].alt_text || `${project.title} - ก่อนติดตั้ง`}
+                fill
+                className="object-cover transition-transform duration-300 group-hover:scale-105"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                onLoadingComplete={() => setIsBeforeImageLoading(false)}
+              />
+
+              {/* Hover overlay */}
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300 flex items-center justify-center">
+                <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white/90 px-4 py-2 rounded-full text-sm font-medium text-gray-800">
+                  🔍 คลิกเพื่อดูขนาดใหญ่
                 </div>
               </div>
-            )}
-
-            <Image
-              src={beforeImages[activeBeforeIndex].original_size}
-              alt={beforeImages[activeBeforeIndex].alt_text || `${project.title} - ก่อนติดตั้ง`}
-              fill
-              className="object-cover transition-transform duration-300 group-hover:scale-105"
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              onLoadingComplete={() => setIsBeforeImageLoading(false)}
-            />
-
-            {/* Hover overlay */}
-            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300 flex items-center justify-center">
-              <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white/90 px-4 py-2 rounded-full text-sm font-medium text-gray-800">
-                🔍 คลิกเพื่อดูขนาดใหญ่
-              </div>
             </div>
-          </div>
+          </ImageWatermark>
 
           {/* Thumbnails - Miller's Law: Max 8 visible */}
           {beforeImages.length > 1 && (

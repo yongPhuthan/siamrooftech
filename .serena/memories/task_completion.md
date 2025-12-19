@@ -1,0 +1,1 @@
+When finishing a task: run `yarn type-check`, `yarn lint`, and `yarn test` (TDD workflow); ensure SEO constraints for public pages (SSG/ISR, no `use client`), and check design system consistency.
