@@ -3,6 +3,8 @@ import { revalidateTag } from "next/cache";
 import { articlesAdminService } from "@/lib/firestore-admin";
 import { Article } from "@/lib/firestore";
 import { adminDb } from "@/lib/firebase-admin";
+import { ensureKeywordInSlug, normalizeSlug, truncateSlug } from "@/lib/articles/slug-generator";
+import { PRIMARY_KEYWORD, SEO_LIMITS } from "@/types/article";
 
 // GET: ดึงข้อมูลบทความทั้งหมด (รวม draft สำหรับ admin)
 export async function GET(
@@ -74,10 +76,9 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
 
     // Generate slug from title if not provided
-    const slug = body.slug || body.title
-      .toLowerCase()
-      .replace(/[^\u0E00-\u0E7Fa-z0-9]+/g, '-')
-      .replace(/(^-|-$)/g, '');
+    const baseSlug = normalizeSlug(body.slug || body.title);
+    const withKeyword = ensureKeywordInSlug(baseSlug, PRIMARY_KEYWORD);
+    const slug = truncateSlug(withKeyword, SEO_LIMITS.SLUG_MAX);
 
     // Prepare article data
     const now = new Date().toISOString();

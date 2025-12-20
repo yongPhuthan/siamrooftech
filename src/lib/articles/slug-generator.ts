@@ -3,18 +3,18 @@
  * Auto-generates SEO-friendly slugs
  */
 
-import { SEO_LIMITS } from '../../types/article';
+import { PRIMARY_KEYWORD, SEO_LIMITS } from '../../types/article';
 
 /**
  * Generate URL-friendly slug from Thai/English text
  * Handles Thai characters, removes special chars, converts to lowercase
  */
-export function generateSlug(text: string): string {
+export function normalizeSlug(text: string): string {
   if (!text || text.trim().length === 0) {
     return '';
   }
 
-  let slug = text
+  const slug = text
     .toLowerCase()
     .trim()
     // Keep Thai characters (ก-๙), English (a-z0-9), spaces, and hyphens
@@ -24,15 +24,48 @@ export function generateSlug(text: string): string {
     // Remove leading/trailing hyphens
     .replace(/^-+|-+$/g, '');
 
-  // Limit length
-  if (slug.length > SEO_LIMITS.SLUG_MAX) {
-    // Try to cut at word boundary
-    const truncated = slug.substring(0, SEO_LIMITS.SLUG_MAX);
-    const lastHyphen = truncated.lastIndexOf('-');
-    slug = lastHyphen > 20 ? truncated.substring(0, lastHyphen) : truncated;
+  return slug;
+}
+
+export function truncateSlug(slug: string, maxLength: number): string {
+  if (!slug) return '';
+  if (slug.length <= maxLength) return slug;
+
+  const truncated = slug.substring(0, maxLength);
+  const lastHyphen = truncated.lastIndexOf('-');
+  return lastHyphen > 20 ? truncated.substring(0, lastHyphen) : truncated.replace(/-+$/g, '');
+}
+
+export function ensureKeywordInSlug(slug: string, keyword: string): string {
+  const keywordSlug = normalizeSlug(keyword);
+  if (!keywordSlug) return slug;
+  if (!slug) return keywordSlug;
+  if (slug.includes(keywordSlug)) return slug;
+  return `${keywordSlug}-${slug}`;
+}
+
+export function generateSlug(text: string): string {
+  return truncateSlug(normalizeSlug(text), SEO_LIMITS.SLUG_MAX);
+}
+
+export function getArticleRouteSlug(article: { slug?: string; title?: string; id?: string }): string {
+  const baseText = article.slug || article.title || '';
+  const normalizedBase = normalizeSlug(baseText);
+  const keywordSlug = normalizeSlug(PRIMARY_KEYWORD);
+  const withKeyword = ensureKeywordInSlug(normalizedBase, PRIMARY_KEYWORD);
+  const maxLength = SEO_LIMITS.SLUG_MAX;
+
+  const truncated = truncateSlug(withKeyword, maxLength);
+  const wasTruncated = truncated !== withKeyword;
+
+  if (wasTruncated && article.id) {
+    const suffix = `-${article.id.slice(0, 6)}`;
+    const baseLimit = Math.max(1, maxLength - suffix.length);
+    const trimmedBase = truncateSlug(withKeyword, baseLimit).replace(/-+$/g, '');
+    return `${trimmedBase || keywordSlug}${suffix}`.replace(/-+$/g, '');
   }
 
-  return slug;
+  return truncated || keywordSlug;
 }
 
 /**

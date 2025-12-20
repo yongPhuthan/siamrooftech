@@ -3,9 +3,21 @@ import { revalidateTag } from "next/cache";
 import { articlesAdminService } from "@/lib/firestore-admin";
 import { Article } from "@/lib/firestore";
 import { adminDb } from "@/lib/firebase-admin";
+import { getArticleRouteSlug } from "@/lib/articles/slug-generator";
 
 interface RouteContext {
   params: Promise<{ slug: string }>;
+}
+
+async function resolveArticleBySlug(slug: string): Promise<Article | null> {
+  const decodedSlug = decodeURIComponent(slug);
+  const article = await articlesAdminService.getBySlug(decodedSlug);
+  if (article) {
+    return article;
+  }
+
+  const allArticles = await articlesAdminService.getAll();
+  return allArticles.find((item) => getArticleRouteSlug(item) === decodedSlug) || null;
 }
 
 // GET: ดึงบทความตาม slug
@@ -19,7 +31,7 @@ export async function GET(
   try {
     const { slug } = await context.params;
 
-    const article = await articlesAdminService.getBySlug(slug);
+    const article = await resolveArticleBySlug(slug);
 
     if (!article) {
       return NextResponse.json(
@@ -71,7 +83,7 @@ export async function PUT(
     const body = await request.json();
 
     // Find article by slug
-    const article = await articlesAdminService.getBySlug(slug);
+    const article = await resolveArticleBySlug(slug);
     if (!article) {
       return NextResponse.json(
         { error: "Article not found" },
@@ -145,7 +157,7 @@ export async function DELETE(
     const { slug } = await context.params;
 
     // Find article by slug
-    const article = await articlesAdminService.getBySlug(slug);
+    const article = await resolveArticleBySlug(slug);
     if (!article) {
       return NextResponse.json(
         { error: "Article not found" },
@@ -213,7 +225,7 @@ export async function PATCH(
     const { isPublished } = body;
 
     // Find article by slug
-    const article = await articlesAdminService.getBySlug(slug);
+    const article = await resolveArticleBySlug(slug);
     if (!article) {
       return NextResponse.json(
         { error: "Article not found" },

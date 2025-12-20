@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { articlesAdminService } from '@/lib/firestore-admin';
@@ -7,6 +7,7 @@ import { Article } from '@/lib/firestore';
 import Breadcrumbs from '../../components/ui/Breadcrumbs';
 import FinalCTASection from '../../components/FinalCTASection';
 import { unstable_cache } from 'next/cache';
+import { getArticleRouteSlug } from '@/lib/articles/slug-generator';
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -22,7 +23,12 @@ const fetchArticleData = (slug: string) =>
       const decodedSlug = decodeURIComponent(slug);
       console.log(`🆕 [fetchArticleData] CACHE MISS → Fetching slug: ${decodedSlug}`);
       const article = await articlesAdminService.getBySlug(decodedSlug);
-      return article || null;
+      if (article) {
+        return article;
+      }
+
+      const allArticles = await articlesAdminService.getAll();
+      return allArticles.find((item) => getArticleRouteSlug(item) === decodedSlug) || null;
     },
     [`article-data-${slug}`],
     { revalidate: 3600 }
@@ -43,7 +49,7 @@ const fetchAllArticles = unstable_cache(
 export async function generateStaticParams() {
   const articles = await articlesAdminService.getAll();
   return articles.map((article) => ({
-    slug: article.slug,
+    slug: getArticleRouteSlug(article),
   }));
 }
 
@@ -61,7 +67,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const title = article.seoTitle || `${article.title} | บทความกันสาดพับได้`;
   const description = article.seoDescription || article.excerpt;
   const keywords = article.seoKeywords?.join(', ') || 'กันสาดพับได้, บทความ';
-  const canonicalUrl = `https://www.siamrooftech.com/articles/${article.slug}`;
+  const canonicalUrl = `https://www.siamrooftech.com/articles/${getArticleRouteSlug(article)}`;
 
   return {
     title,
@@ -138,6 +144,12 @@ export default async function ArticleDetailPage({ params }: Props) {
     notFound();
   }
 
+  const decodedSlug = decodeURIComponent(slug);
+  const routeSlug = getArticleRouteSlug(article);
+  if (decodedSlug !== routeSlug) {
+    redirect(`/articles/${routeSlug}`);
+  }
+
   // Get related articles (same category, limit 3)
   const allArticles = await fetchAllArticles();
   const relatedArticles = allArticles
@@ -177,7 +189,7 @@ export default async function ArticleDetailPage({ params }: Props) {
     inLanguage: 'th-TH',
     mainEntityOfPage: {
       '@type': 'WebPage',
-      '@id': `https://www.siamrooftech.com/articles/${article.slug}`,
+      '@id': `https://www.siamrooftech.com/articles/${routeSlug}`,
     },
   };
 
@@ -198,7 +210,7 @@ export default async function ArticleDetailPage({ params }: Props) {
                 { name: 'หน้าแรก', href: '/' },
                 { name: 'บทความ', href: '/articles' },
                 { name: article.category, href: `/articles?category=${article.category}` },
-                { name: article.title, href: `/articles/${article.slug}` },
+                { name: article.title, href: `/articles/${routeSlug}` },
               ]}
             />
           </div>
@@ -331,7 +343,7 @@ export default async function ArticleDetailPage({ params }: Props) {
                 {relatedArticles.map((related) => (
                   <Link
                     key={related.id}
-                    href={`/articles/${related.slug}`}
+                    href={`/articles/${getArticleRouteSlug(related)}`}
                     className="group block"
                   >
                     <article className="bg-white rounded-lg overflow-hidden border border-gray-100 hover:border-gray-200 transition-all duration-300 hover:shadow-md">

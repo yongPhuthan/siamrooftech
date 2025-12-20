@@ -6,6 +6,7 @@ import ImageWatermark from '../components/ui/ImageWatermark';
 import { Article } from '../../lib/firestore';
 import { articlesAdminService } from '../../lib/firestore-admin';
 import FinalCTASection from '../components/FinalCTASection';
+import { getArticleRouteSlug } from '../../lib/articles/slug-generator';
 
 export const metadata: Metadata = {
   title: 'บทความกันสาดพับได้ - เทคนิค คำแนะนำ การดูแล | Siamrooftech',
@@ -109,7 +110,7 @@ export default async function ArticlesPage() {
           {articles.map((article) => (
             <Link
               key={article.id}
-              href={`/articles/${article.slug || article.id}`}
+              href={`/articles/${getArticleRouteSlug(article)}`}
               className="group block"
             >
               <article className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2">

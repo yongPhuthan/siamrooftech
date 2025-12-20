@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Watermark } from 'antd';
 import { Article } from '../../../lib/firestore';
+import { getArticleRouteSlug } from '../../../lib/articles/slug-generator';
 
 interface ArticleCardProps {
   article: Article;
@@ -36,7 +37,7 @@ function formatDate(timestamp: any): string {
 export default function ArticleCard({ article }: ArticleCardProps) {
   return (
     <Link
-      href={`/articles/${article.slug}`}
+      href={`/articles/${getArticleRouteSlug(article)}`}
       className="group block"
     >
       <article className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2">
