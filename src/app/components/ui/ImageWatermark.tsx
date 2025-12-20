@@ -1,6 +1,5 @@
 'use client';
 
-import { Watermark } from 'antd';
 import * as React from 'react';
 
 type ImageWatermarkProps = {
@@ -9,6 +8,31 @@ type ImageWatermarkProps = {
 };
 
 export default function ImageWatermark({ children, className }: ImageWatermarkProps) {
+  const [Watermark, setWatermark] = React.useState<React.ComponentType<any> | null>(null);
+
+  React.useEffect(() => {
+    let isMounted = true;
+    import('antd')
+      .then((mod) => {
+        if (isMounted) {
+          setWatermark(() => mod.Watermark);
+        }
+      })
+      .catch(() => {
+        if (isMounted) {
+          setWatermark(null);
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  if (!Watermark) {
+    return <div className={className ?? 'block w-full'}>{children}</div>;
+  }
+
   return (
     <Watermark
       content="SiamRooftech"
