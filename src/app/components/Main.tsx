@@ -56,7 +56,10 @@ const Main = (props: Props) => {
         {/* ปุ่มดูผลงานทั้งหมด หากมีผลงานเกิน 25 รายการ */}
         {hasMore && (
           <div className="flex justify-center py-8">
-            <PortfolioButton className="btn btn-primary px-8 py-3 text-lg font-semibold hover:shadow-lg transition-all duration-300 bg-blue-600 hover:bg-blue-700 text-white border-none rounded-lg">
+            <PortfolioButton
+              position="homepage_project_gallery_more"
+              className="btn btn-primary px-8 py-3 text-lg font-semibold hover:shadow-lg transition-all duration-300 bg-blue-600 hover:bg-blue-700 text-white border-none rounded-lg"
+            >
               <span>ดูผลงานทั้งหมด →</span>
             </PortfolioButton>
           </div>

@@ -120,6 +120,8 @@ export const trackLineClick = (position: string = 'unknown') => {
     event: 'line_click',
     event_category: 'engagement',
     event_label: 'line_button',
+    lead_type: 'line',
+    conversion_priority: 'primary',
     position,
     value: 1,
   });
@@ -130,6 +132,8 @@ export const trackPhoneClick = (phoneNumber: string, position: string = 'unknown
     event: 'phone_click',
     event_category: 'engagement',
     event_label: 'phone_call',
+    lead_type: 'phone',
+    conversion_priority: 'primary',
     phone_number: phoneNumber,
     position,
     value: 1,
@@ -162,6 +166,7 @@ export const trackPortfolioButtonClick = (position: string = 'unknown') => {
     event: 'portfolio_view_click',
     event_category: 'navigation',
     event_label: 'portfolio_button',
+    conversion_priority: 'secondary',
     position,
     value: 2,
   });
