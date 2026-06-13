@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
-import { Watermark } from 'antd';
+import ImageWatermark from '../ui/ImageWatermark';
 import { Project } from '../../../lib/firestore';
 import { hasVideos } from '../../../lib/project-video-utils';
 
@@ -38,18 +38,8 @@ export default function PortfolioCard({ project, index }: PortfolioCardProps) {
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        {/* Image Container */}
-        <Watermark
-          content="SiamRooftech"
-          gap={[64, 64]}
-          rotate={-22}
-          zIndex={9999}
-          width={140}
-          height={64}
-          font={{ color: 'rgba(255, 255, 255, 0.45)', fontSize: 16, fontWeight: 700 }}
-          className="block w-full"
-          style={{ width: '100%' }}
-        >
+        {/* Image Container with Watermark */}
+        <ImageWatermark className="block w-full">
           <div className="relative aspect-[4/3] overflow-hidden bg-gray-100">
             {shouldShowBeforeAfter ? (
               <>
@@ -77,7 +67,7 @@ export default function PortfolioCard({ project, index }: PortfolioCardProps) {
                 />
 
                 {/* Before/After Badge */}
-                <div className="absolute top-3 right-3 z-10">
+                <div className="absolute top-3 right-3 z-30">
                   <div className={`backdrop-blur-sm px-2 py-1 rounded-lg text-xs font-semibold shadow-sm transition-all duration-300 ${
                     isHovered
                       ? 'bg-red-500/95 text-white'
@@ -102,7 +92,7 @@ export default function PortfolioCard({ project, index }: PortfolioCardProps) {
                 />
 
                 {/* Image count badge */}
-                <div className="absolute top-3 right-3">
+                <div className="absolute top-3 right-3 z-30">
                   <div className="bg-white/95 backdrop-blur-sm px-2 py-1 rounded-lg text-xs font-medium text-gray-800 shadow-sm">
                     {project.images?.length || 1} รูป
                   </div>
@@ -116,7 +106,7 @@ export default function PortfolioCard({ project, index }: PortfolioCardProps) {
             )}
 
             {/* Category badge */}
-            <div className="absolute top-3 left-3 z-10">
+            <div className="absolute top-3 left-3 z-30">
               <div className="bg-black/70 backdrop-blur-sm px-2 py-1 rounded-lg text-xs font-medium text-white">
                 {project.category}
               </div>
@@ -124,7 +114,7 @@ export default function PortfolioCard({ project, index }: PortfolioCardProps) {
 
             {/* Video Badge - Bottom Left (if project has videos) */}
             {hasVideos(project) && (
-              <div className="absolute bottom-3 left-3 z-10">
+              <div className="absolute bottom-3 left-3 z-30">
                 <div className="bg-blue-600/90 backdrop-blur-sm px-2 py-1 rounded-lg text-xs font-semibold text-white flex items-center gap-1 shadow-sm">
                   <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M8 5v14l11-7z" />
@@ -136,14 +126,14 @@ export default function PortfolioCard({ project, index }: PortfolioCardProps) {
 
             {/* Hover overlay */}
             <div
-              className={`absolute inset-0 bg-black/20 transition-opacity duration-300 ${
+              className={`absolute inset-0 bg-black/20 transition-opacity duration-300 z-10 ${
                 isHovered ? 'opacity-100' : 'opacity-0'
               }`}
             />
 
             {/* Hover hint for Before/After */}
             {shouldShowBeforeAfter && (
-              <div className={`absolute bottom-3 left-1/2 -translate-x-1/2 z-10 transition-all duration-300 ${
+              <div className={`absolute bottom-3 left-1/2 -translate-x-1/2 z-30 transition-all duration-300 ${
                 isHovered ? 'opacity-0 translate-y-2' : 'opacity-100 translate-y-0'
               }`}>
                 <div className="bg-blue-600/90 backdrop-blur-sm px-3 py-1.5 rounded-full text-xs font-medium text-white whitespace-nowrap shadow-lg">
@@ -152,7 +142,7 @@ export default function PortfolioCard({ project, index }: PortfolioCardProps) {
               </div>
             )}
           </div>
-        </Watermark>
+        </ImageWatermark>
 
         {/* Content */}
         <div className="p-4 space-y-3">

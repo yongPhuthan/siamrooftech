@@ -1,8 +1,6 @@
-'use client';
-
 import Link from 'next/link';
 import Image from 'next/image';
-import { Watermark } from 'antd';
+import ImageWatermark from '../ui/ImageWatermark';
 import { Article } from '../../../lib/firestore';
 import { getArticleRouteSlug } from '../../../lib/articles/slug-generator';
 
@@ -42,17 +40,7 @@ export default function ArticleCard({ article }: ArticleCardProps) {
     >
       <article className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2">
         {/* Image Container - aspect-[4/3] like Portfolio */}
-        <Watermark
-          content="SiamRooftech"
-          gap={[64, 64]}
-          rotate={-22}
-          zIndex={9999}
-          width={140}
-          height={64}
-          font={{ color: 'rgba(255, 255, 255, 0.45)', fontSize: 16, fontWeight: 700 }}
-          className="block w-full"
-          style={{ width: '100%' }}
-        >
+        <ImageWatermark className="block w-full">
           <div className="relative aspect-[4/3] overflow-hidden bg-gray-100">
             <Image
               src={article.featured_image || '/images/default-article.jpg'}
@@ -63,23 +51,23 @@ export default function ArticleCard({ article }: ArticleCardProps) {
             />
 
             {/* Category Badge - Top Left */}
-            <div className="absolute top-3 left-3">
+            <div className="absolute top-3 left-3 z-30">
               <span className="bg-blue-600 text-white px-3 py-1 rounded-lg text-sm font-medium backdrop-blur-sm shadow-sm">
                 {article.category}
               </span>
             </div>
 
             {/* Read Time Badge - Top Right */}
-            <div className="absolute top-3 right-3">
+            <div className="absolute top-3 right-3 z-30">
               <span className="bg-white/95 backdrop-blur-sm px-3 py-1 rounded-lg text-sm font-medium text-gray-800 shadow-sm">
                 {article.read_time}
               </span>
             </div>
 
             {/* Hover Overlay */}
-            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300" />
+            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300 z-10" />
           </div>
-        </Watermark>
+        </ImageWatermark>
 
         {/* Content */}
         <div className="p-4 space-y-3">

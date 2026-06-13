@@ -8,7 +8,6 @@ import FinalCTASection from "./FinalCTASection";
 import Footer from "./ui/Footer";
 import Whyus2 from "./section/WhyUs2";
 import DamageWarningSection from "./section/DamageWarningSection";
-import { Stack } from "@mui/material";
 import { Project } from "@/lib/firestore";
 import { transformFirestoreProjectsToProjectShow } from "@/lib/project-utils";
 import ProjectGalleryClient from "./ProjectGalleryClient";
@@ -39,7 +38,7 @@ const Main = (props: Props) => {
         <WhyUs keyword={keyword} />
       </div>
       {/* Hero CTA - Full Width Line Button */}
-        <div className="flex items-center justify-center">
+        {/* <div className="flex items-center justify-center">
           <LineButton
             className="btn btn-link w-1000 mx-auto"
             imageSrc="/images/Add Line.png"
@@ -49,9 +48,9 @@ const Main = (props: Props) => {
             imageClassName="rounded-2xl"
             trackingType="bottom"
           />
-        </div>
+        </div> */}
 
-      <div className="bg-[#fafafaff] pt-5 ">
+      <div className="bg-[#fafafaff] pt-10 mt-10 ">
         <ProjectGalleryClient projects={projects} />
 
         {/* ปุ่มดูผลงานทั้งหมด หากมีผลงานเกิน 25 รายการ */}
@@ -65,27 +64,21 @@ const Main = (props: Props) => {
       </div>
       <DamageWarningSection />
       <Whyus2 keyword={keyword} />
-      <Stack
-        direction={"column"}
-        justifyContent={"center"}
-        alignItems={"center"} // This will center the children horizontally
-        gap={2}
-        sx={{ width: "100%" }} // Make sure the Stack takes full width
-      >
+      <div className="flex flex-col items-center justify-center gap-4 w-full">
         <HowItWorks keyword={keyword} />
 
-        <div className="flex items-center justify-center">
+        <div className="flex w-full items-center justify-center px-4">
           <LineButton
-            className="btn btn-link w-1000 mx-auto"
+            className="mx-auto block w-full max-w-5xl border-0 bg-transparent p-0"
             imageSrc="/images/Add Line.png"
             imageAlt="Add Line ขอใบเสนอราคา"
             width={1200}
             height={200}
-            imageClassName="rounded-2xl"
+            imageClassName="w-full rounded-2xl"
             trackingType="bottom"
           />
         </div>
-      </Stack>
+      </div>
 
       <div className="bg-gradient-to-br pt-20 mx-auto  from-gray-100 to-gray-200">
 

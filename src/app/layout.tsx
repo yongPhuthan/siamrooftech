@@ -3,9 +3,13 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { Suspense } from "react";
 import "./globals.css";
-import { Providers } from "./providers";
+import AttributionCapture from "./components/AttributionCapture";
 import Navigation from "./components/ui/Navigation";
 import LineButtonsLayout from "./components/LineButtonsLayout";
+import { Geist } from "next/font/google";
+import { cn } from "@/lib/utils";
+
+const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
 const myFont = localFont({
   src: [
@@ -87,21 +91,22 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="th" className={myFont.className}>
+    <html lang="th" className={cn(myFont.className, "font-sans", geist.variable)}>
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
       </head>
       {process.env.NODE_ENV === "production" ? (
         <>
-          <GoogleTagManager gtmId={process.env.NEXT_PUBLIC_GTM_ID || "GTM-MT74ZP2P"} />
+          <GoogleTagManager gtmId={process.env.NEXT_PUBLIC_GTM_ID || "GTM-TDXKN9MG"} />
         </>
       ) : null}
       <body className={`bg-white`}>
-        <Providers>
-          <Navigation />
-          <Suspense>{children}</Suspense>
-          <LineButtonsLayout />
-        </Providers>
+        <Suspense fallback={null}>
+          <AttributionCapture />
+        </Suspense>
+        <Navigation />
+        <Suspense>{children}</Suspense>
+        <LineButtonsLayout />
       </body>
     </html>
   );

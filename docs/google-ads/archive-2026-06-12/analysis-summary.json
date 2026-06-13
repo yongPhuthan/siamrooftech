@@ -1,0 +1,93 @@
+{
+  "generated_at": "2026-06-12",
+  "account_totals": {
+    "clicks": 2176.0,
+    "impressions": 25155.0,
+    "cost_thb": 34570.130000000005,
+    "ctr_pct": 8.650367720135161,
+    "avg_cpc_thb": 15.887008272058825,
+    "conversions": 0
+  },
+  "identified_search_terms": {
+    "rows": 237,
+    "clicks": 1479.0,
+    "cost_thb": 23511.7
+  },
+  "clusters": [
+    {
+      "Cluster": "Electric / automatic",
+      "Terms": 61,
+      "Clicks": 512.0,
+      "Impr.": 4501.0,
+      "Cost": 7988.740000000002,
+      "Share cost": 23.108793631959152,
+      "CTR": 11.375249944456787,
+      "Avg CPC": 15.603007812500003
+    },
+    {
+      "Cluster": "Price intent",
+      "Terms": 40,
+      "Clicks": 350.0,
+      "Impr.": 2498.0,
+      "Cost": 5500.57,
+      "Share cost": 15.911337330811307,
+      "CTR": 14.011208967173738,
+      "Avg CPC": 15.715914285714286
+    },
+    {
+      "Cluster": "Retailer comparison",
+      "Terms": 13,
+      "Clicks": 117.0,
+      "Impr.": 1259.0,
+      "Cost": 1883.0300000000002,
+      "Share cost": 5.446985591318286,
+      "CTR": 9.293089753772836,
+      "Avg CPC": 16.094273504273506
+    },
+    {
+      "Cluster": "Fabric / canvas",
+      "Terms": 50,
+      "Clicks": 80.0,
+      "Impr.": 1294.0,
+      "Cost": 1324.79,
+      "Share cost": 3.832181134407073,
+      "CTR": 6.182380216383308,
+      "Avg CPC": 16.559874999999998
+    },
+    {
+      "Cluster": "DIY / how-to / ready-made",
+      "Terms": 33,
+      "Clicks": 54.0,
+      "Impr.": 689.0,
+      "Cost": 824.04,
+      "Share cost": 2.383676312469753,
+      "CTR": 7.837445573294629,
+      "Avg CPC": 15.26
+    },
+    {
+      "Cluster": "Manual crank",
+      "Terms": 3,
+      "Clicks": 5.0,
+      "Impr.": 91.0,
+      "Cost": 81.16,
+      "Share cost": 0.23476914897340562,
+      "CTR": 5.4945054945054945,
+      "Avg CPC": 16.232
+    },
+    {
+      "Cluster": "Vertical / side shade",
+      "Terms": 2,
+      "Clicks": 3.0,
+      "Impr.": 18.0,
+      "Cost": 51.88,
+      "Share cost": 0.15007175269517353,
+      "CTR": 16.666666666666664,
+      "Avg CPC": 17.293333333333333
+    }
+  ],
+  "data_quality": {
+    "ads_export": "partial_time_series_only",
+    "campaigns_export": "partial_time_series_only",
+    "conversions": "not usable"
+  }
+}

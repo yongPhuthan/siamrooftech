@@ -4,8 +4,8 @@ import Image from 'next/image';
 function WhyUs({keyword}: {keyword: string}) {
   return (
     <>
-<div className="mt-10 md:px-12 lg:px-24 mx-auto">
-    <div className="md:flex md:justify-center md:items-center mb-5 md:space-x-4">
+<div className="mt-2 md:px-12 lg:px-24 mx-auto">
+    <div className="md:flex md:justify-center md:items-center mb-2 md:space-x-4">
         <h1 className="text-3xl text-[#427ed2ff] md:text-4xl font_page font-bold text-center">
             {keyword}
         </h1>

@@ -60,17 +60,17 @@ const LineButton = ({
       href="https://lin.ee/pPz1ZqN"
       target="_blank"
       rel="noopener noreferrer"
-      className="inline-block"
+      className="block w-full"
       onClick={handleClick}
     >
-      <button className={className}>
+      <button type="button" className={className}>
         {children}
         <Image
           alt={imageAlt}
           src={imageSrc}
           width={width}
           height={height}
-          className={imageClassName}
+          className={`h-auto max-w-full ${imageClassName || ''}`}
         />
       </button>
     </a>

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useCallback } from 'react';
-import { Close as CloseIcon, ChevronLeft as ChevronLeftIcon, ChevronRight as ChevronRightIcon } from '@mui/icons-material';
+import { X as CloseIcon, ChevronLeft as ChevronLeftIcon, ChevronRight as ChevronRightIcon } from 'lucide-react';
 import { ProjectVideo } from '../../lib/firestore';
 import VideoPlayer from './VideoPlayer';
 import { getVideoTypeBadge } from '../../lib/project-video-utils';
@@ -73,7 +73,7 @@ export default function VideoModal({
         className="absolute top-4 right-4 z-50 bg-white/10 hover:bg-white/20 text-white p-3 rounded-full transition-all shadow-lg"
         aria-label="ปิด"
       >
-        <CloseIcon fontSize="large" />
+        <CloseIcon className="w-8 h-8" />
       </button>
 
       {/* Video Info - Top Left (Desktop) */}
@@ -99,7 +99,7 @@ export default function VideoModal({
               className="absolute left-4 z-50 bg-white/10 hover:bg-white/20 text-white p-3 rounded-full transition-all shadow-lg"
               aria-label="วีดีโอก่อนหน้า"
             >
-              <ChevronLeftIcon fontSize="large" />
+              <ChevronLeftIcon className="w-8 h-8" />
             </button>
           )}
 
@@ -113,7 +113,7 @@ export default function VideoModal({
               className="absolute right-4 z-50 bg-white/10 hover:bg-white/20 text-white p-3 rounded-full transition-all shadow-lg"
               aria-label="วีดีโอถัดไป"
             >
-              <ChevronRightIcon fontSize="large" />
+              <ChevronRightIcon className="w-8 h-8" />
             </button>
           )}
         </div>
@@ -131,7 +131,7 @@ export default function VideoModal({
               className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white p-3 rounded-full transition-all shadow-lg"
               aria-label="วีดีโอก่อนหน้า"
             >
-              <ChevronLeftIcon fontSize="medium" />
+              <ChevronLeftIcon className="w-6 h-6" />
             </button>
           )}
 
@@ -148,7 +148,7 @@ export default function VideoModal({
               className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white p-3 rounded-full transition-all shadow-lg"
               aria-label="วีดีโอถัดไป"
             >
-              <ChevronRightIcon fontSize="medium" />
+              <ChevronRightIcon className="w-6 h-6" />
             </button>
           )}
         </div>

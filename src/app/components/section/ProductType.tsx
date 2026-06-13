@@ -34,7 +34,7 @@ function ProductType(props: ProductTypeProps) {
   ];
   return (
     <>
-      <div className="rounded m-4 md:m-20">
+      <section className="rounded px-4 py-8 md:px-20 md:py-12">
         {/* <h2 className="font_page font-bold my-5 md:my-10 text-xl md:text-3xl text-center ">
 กันสาดที่เหมาะกับหน้างานของคุณ
         </h2> */}
@@ -44,12 +44,12 @@ function ProductType(props: ProductTypeProps) {
             </p>
         <div className="grid grid-cols-1 container mt-5  mx-auto gap-4 md:gap-5 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
           {projects.map((project:any) => (
-            <div key={project.id} className="h-auto md:h-200">
+            <div key={project.id} className="h-auto">
               <Card project={project} />
             </div>
           ))}
         </div>
-      </div>
+      </section>
     </>
   );
 }

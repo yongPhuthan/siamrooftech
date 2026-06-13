@@ -14,29 +14,29 @@ export default function PortfolioWithFilters() {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-5">
 
       {/* Category Filters - Chip Design */}
-      <div className="space-y-6">
+      <div className="space-y-4">
 
 
         {/* Filter Chips - Mobile Optimized */}
         <div className="relative">
           {/* Desktop: Centered flex-wrap layout */}
-          <div className="hidden md:flex flex-wrap gap-3 justify-center max-w-4xl mx-auto">
+          <div className="hidden md:flex flex-wrap gap-2 justify-center max-w-4xl mx-auto">
             {categories.map((category, index) => {
               const isActive = category.name === filter.activeCategory;
-              
+
               return (
                 <button
                   key={`กันสาด${category.name}`}
                   onClick={() => handleCategoryChange(category.name)}
                   className={`
-                    group relative inline-flex items-center px-6 py-3 rounded-full font-medium text-sm
-                    transition-all duration-300 transform hover:scale-105 chip-filter
-                    ${isActive 
-                      ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/25 ring-2 ring-blue-600/20' 
-                      : 'bg-white text-gray-700 hover:bg-blue-50 border border-gray-200 hover:border-blue-300 hover:shadow-md hover:text-blue-600'
+                    group relative inline-flex items-center px-4 py-2 rounded-full font-medium text-sm
+                    transition-all duration-200 chip-filter
+                    ${isActive
+                      ? 'bg-blue-600 text-white shadow-sm'
+                      : 'bg-white text-gray-700 hover:bg-blue-50 border border-gray-200 hover:border-blue-300 hover:text-blue-600'
                     }
                   `}
                   style={{
@@ -44,16 +44,16 @@ export default function PortfolioWithFilters() {
                   }}
                 >
                   <span className="relative z-10 font-medium">
-                    {`กันสาด${category.name}`}
+                    {category.name === 'ทั้งหมด' ? 'กันสาดทั้งหมด' : `กันสาด${category.name}`}
                   </span>
-                  
+
                   {/* Count badge */}
-                  <span 
+                  <span
                     className={`
                       ml-3 inline-flex items-center justify-center min-w-[24px] h-6 px-2 text-xs font-bold rounded-full
                       transition-all duration-300
-                      ${isActive 
-                        ? 'bg-white/20 text-white' 
+                      ${isActive
+                        ? 'bg-white/20 text-white'
                         : 'bg-gray-100 text-gray-600 group-hover:bg-blue-100 group-hover:text-blue-600'
                       }
                     `}
@@ -62,13 +62,6 @@ export default function PortfolioWithFilters() {
                   </span>
 
                   {/* Active glow effect */}
-                  {isActive && (
-                    <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-600 to-blue-700 opacity-90 animate-pulse" 
-                         style={{ animationDuration: '2s' }} />
-                  )}
-
-                  {/* Hover ripple effect */}
-                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-50 to-blue-100 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 </button>
               );
             })}
@@ -80,22 +73,22 @@ export default function PortfolioWithFilters() {
             <div className="relative">
               <div className="absolute left-0 top-0 bottom-0 w-6 bg-gradient-to-r from-gray-50 to-transparent z-10 pointer-events-none" />
               <div className="absolute right-0 top-0 bottom-0 w-6 bg-gradient-to-l from-gray-50 to-transparent z-10 pointer-events-none" />
-              
+
               {/* Scrollable container */}
               <div className="overflow-x-auto scrollbar-hide pb-2" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-                <div className="flex gap-3 px-4 min-w-max">
+                <div className="flex gap-2 px-4 min-w-max">
                   {categories.map((category, index) => {
                     const isActive = category.name === filter.activeCategory;
-                    
+
                     return (
                       <button
                         key={`mobile-กันสาด${category.name}`}
                         onClick={() => handleCategoryChange(category.name)}
                         className={`
-                          group relative inline-flex items-center px-4 py-2.5 rounded-full font-medium text-sm
-                          transition-all duration-300 chip-filter whitespace-nowrap
-                          ${isActive 
-                            ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/25' 
+                          group relative inline-flex items-center px-4 py-2 rounded-full font-medium text-sm
+                          transition-all duration-200 chip-filter whitespace-nowrap
+                          ${isActive
+                            ? 'bg-blue-600 text-white shadow-sm'
                             : 'bg-white text-gray-700 border border-gray-200 active:scale-95'
                           }
                         `}
@@ -106,14 +99,14 @@ export default function PortfolioWithFilters() {
                         <span className="relative z-10 font-medium">
                           {category.name === 'ทั้งหมด' ? 'ทั้งหมด' : `กันสาด${category.name}`}
                         </span>
-                        
+
                         {/* Count badge - smaller on mobile */}
-                        <span 
+                        <span
                           className={`
                             ml-2 inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 text-xs font-bold rounded-full
                             transition-all duration-300
-                            ${isActive 
-                              ? 'bg-white/20 text-white' 
+                            ${isActive
+                              ? 'bg-white/20 text-white'
                               : 'bg-gray-100 text-gray-600'
                             }
                           `}
@@ -122,16 +115,13 @@ export default function PortfolioWithFilters() {
                         </span>
 
                         {/* Active glow effect */}
-                        {isActive && (
-                          <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-600 to-blue-700 opacity-90" />
-                        )}
                       </button>
                     );
                   })}
                 </div>
               </div>
             </div>
-            
+
             {/* Mobile scroll hint */}
             <div className="flex justify-center mt-3">
               <div className="flex items-center text-xs text-gray-400 bg-gray-50 px-3 py-1.5 rounded-full">
@@ -150,8 +140,8 @@ export default function PortfolioWithFilters() {
         {/* Quick Category Stats */}
         {/* <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-2xl mx-auto">
           {categories.slice(1, 5).map((category, index) => (
-            <div 
-              key={category.name} 
+            <div
+              key={category.name}
               className={`
                 text-center p-4 bg-white rounded-xl border border-gray-100 shadow-sm
                 transition-all duration-300 hover:shadow-md hover:border-blue-200
@@ -169,9 +159,9 @@ export default function PortfolioWithFilters() {
               <div className="text-sm text-gray-600 truncate font-medium">
                     {`กันสาด${category.name}`}
               </div>
-              
+
               <div className="mt-2 w-full bg-gray-100 rounded-full h-1">
-                <div 
+                <div
                   className="bg-gradient-to-r from-blue-500 to-blue-600 h-1 rounded-full transition-all duration-500"
                   style={{ width: `${(category.count / (categories.find(c => c.name === 'ทั้งหมด')?.count || 1)) * 100}%` }}
                 />
@@ -182,7 +172,7 @@ export default function PortfolioWithFilters() {
       </div>
 
       {/* Filtered Portfolio Grid */}
-      <div className="transition-all duration-500 ease-in-out" key={`portfolio-${filter.activeCategory}-${filteredProjects.length}`}>
+      <div className="transition-all duration-200 ease-in-out" key={`portfolio-${filter.activeCategory}-${filteredProjects.length}`}>
         <StaticPortfolioGrid projects={filteredProjects} />
       </div>
 
@@ -197,11 +187,11 @@ export default function PortfolioWithFilters() {
             transform: translateY(0) scale(1);
           }
         }
-        
+
         .chip-filter {
           animation: chip-fade-in 0.4s ease-out var(--delay, 0ms) both;
         }
-        
+
         .stats-card {
           animation: chip-fade-in 0.5s ease-out var(--delay, 0ms) both;
         }
@@ -212,7 +202,7 @@ export default function PortfolioWithFilters() {
 
         /* Enhance hover effects */
         .chip-filter:hover {
-          box-shadow: 0 8px 25px -8px rgba(59, 130, 246, 0.3);
+          box-shadow: 0 6px 16px -10px rgba(59, 130, 246, 0.35);
         }
 
         .stats-card:hover {
@@ -240,7 +230,7 @@ export default function PortfolioWithFilters() {
             transform: scale(0.92);
             transition-duration: 0.1s;
           }
-          
+
           .chip-filter {
             -webkit-tap-highlight-color: transparent;
             touch-action: manipulation;

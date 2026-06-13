@@ -104,7 +104,7 @@ function TrustedBy() {
       >
         {logos.map((logo, index) => (
           <SwiperSlide key={index}>
-            <div className="bg-transparent	my-5 px-10 overflow-hidden mx-auto h-full">
+            <div className="bg-transparent	my-2 px-10 overflow-hidden mx-auto h-full">
               <div className="mx-auto flex  justify-center items-center grid  grid-cols-4  gap-y-4 gap-x-1 lg:grid-cols-10  ">
                 {logos.map((logo, index) => (
                   <div

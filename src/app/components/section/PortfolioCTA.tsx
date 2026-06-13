@@ -1,6 +1,5 @@
 'use client';
 
-import { Button } from '@mui/material';
 import { trackLineClick, trackPhoneClick } from '@/lib/gtag';
 
 interface PortfolioCTAProps {
@@ -39,7 +38,7 @@ export default function PortfolioCTA({ className = '' }: PortfolioCTAProps) {
         <div className="text-center space-y-8 sm:space-y-12">
           {/* Main Headline */}
           <div className="space-y-4 sm:space-y-6">
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight">
+            <h2 className="heading-section text-white">
               <span className="block mb-2 sm:mb-3">ต้องการกันสาดพับเก็บได้</span>
               <span className="block text-blue-400">สำหรับโปรเจกต์ของคุณ?</span>
             </h2>
@@ -53,37 +52,31 @@ export default function PortfolioCTA({ className = '' }: PortfolioCTAProps) {
           {/* Call to Action Buttons */}
           <div className="space-y-6 sm:space-y-8">
             <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center max-w-lg mx-auto">
-              {/* Line Button - Simple version without icon */}
-              <Button
-                variant="contained"
-                size="large"
-                component="a"
+              {/* Line Button */}
+              <a
                 href="https://lin.ee/pPz1ZqN"
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={handleLineClick}
-                className="flex-1 sm:flex-none sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold rounded-xl shadow-lg transform hover:scale-105 transition-all duration-200"
+                className="flex-1 sm:flex-none sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold rounded-xl shadow-lg transform hover:scale-105 transition-all duration-200 text-center"
               >
                 <span className="flex items-center justify-center gap-2">
                   <span>ขอใบเสนอราคาฟรี</span>
                   <span className="text-xl">→</span>
                 </span>
-              </Button>
+              </a>
 
               {/* Phone Button */}
-              <Button
-                variant="outlined"
-                size="large"
+              <a
                 href="tel:0984542455"
-                component="a"
                 onClick={handlePhoneClick}
-                className="flex-1 sm:flex-none sm:px-8 py-3 sm:py-4 border-2 border-gray-400 hover:border-white text-gray-200 hover:text-white hover:bg-white/10 font-semibold rounded-xl transition-all duration-200"
+                className="flex-1 sm:flex-none sm:px-8 py-3 sm:py-4 border-2 border-gray-400 hover:border-white text-gray-200 hover:text-white hover:bg-white/10 font-semibold rounded-xl transition-all duration-200 text-center"
               >
                 <span className="flex items-center justify-center gap-2">
                   <span className="text-xl">📞</span>
                   <span>โทรปรึกษาทันที</span>
                 </span>
-              </Button>
+              </a>
             </div>
 
             {/* Additional Info */}

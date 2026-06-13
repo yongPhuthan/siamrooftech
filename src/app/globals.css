@@ -1,14 +1,28 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss" source(none);
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@source "../**/*.{js,ts,jsx,tsx,mdx}";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+  --font-sans: "Sukhumvit Set", Arial, sans-serif;
+  --font-heading: "Sukhumvit Bold", "Sukhumvit Set", Arial, sans-serif;
+
+  --color-primary-light: #027DFF;
+  --color-primary-base: #008AD7;
+  --color-primary-dark: #004589;
+
+  --background-image-gradient-radial: radial-gradient(var(--tw-gradient-stops));
+  --background-image-gradient-conic: conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops));
+}
 
 :root {
   --foreground-rgb: 0, 0, 0; /* black text */
   --background-start-rgb: 255, 255, 255; /* white background */
-  --background-end-rgb: 255, 255, 255; /* white background */
+  --background-end-rgb: 255, 255, 255; /* white background */ --background: oklch(1 0 0); --foreground: oklch(0.145 0 0); --card: oklch(1 0 0); --card-foreground: oklch(0.145 0 0); --popover: oklch(1 0 0); --popover-foreground: oklch(0.145 0 0); --primary: oklch(0.205 0 0); --primary-foreground: oklch(0.985 0 0); --secondary: oklch(0.97 0 0); --secondary-foreground: oklch(0.205 0 0); --muted: oklch(0.97 0 0); --muted-foreground: oklch(0.556 0 0); --accent: oklch(0.97 0 0); --accent-foreground: oklch(0.205 0 0); --destructive: oklch(0.577 0.245 27.325); --border: oklch(0.922 0 0); --input: oklch(0.922 0 0); --ring: oklch(0.708 0 0); --chart-1: oklch(0.87 0 0); --chart-2: oklch(0.556 0 0); --chart-3: oklch(0.439 0 0); --chart-4: oklch(0.371 0 0); --chart-5: oklch(0.269 0 0); --radius: 0.625rem; --sidebar: oklch(0.985 0 0); --sidebar-foreground: oklch(0.145 0 0); --sidebar-primary: oklch(0.205 0 0); --sidebar-primary-foreground: oklch(0.985 0 0); --sidebar-accent: oklch(0.97 0 0); --sidebar-accent-foreground: oklch(0.205 0 0); --sidebar-border: oklch(0.922 0 0); --sidebar-ring: oklch(0.708 0 0);
 }
-
-
 
 /* @media (prefers-color-scheme: dark) {
   :root {
@@ -20,26 +34,43 @@
 /* globals.css */
 @font-face {
   font-family: 'Sukhumvit Set';
-  src: url('/fonts/SukhumvitSet-Medium.ttf') format('truetype');
-  font-weight: normal;
+  src: url('/fonts/SukhumvitSet-Text.ttf') format('truetype');
+  font-weight: 400;
   font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'Sukhumvit Set';
-  src: url('/fonts/SukhumvitSet-Bold.ttf') format('truetype');
-  font-weight: bold;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'Sukhumvit Bold';
-  src: url('/fonts/SukhumvitSet-Medium.ttf') format('truetype');
-  font-weight: bold;
-  font-style: bold;
   font-display: swap;
 }
 
+@font-face {
+  font-family: 'Sukhumvit Set';
+  src: url('/fonts/SukhumvitSet-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Sukhumvit Set';
+  src: url('/fonts/SukhumvitSet-SemiBold.ttf') format('truetype');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Sukhumvit Set';
+  src: url('/fonts/SukhumvitSet-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Sukhumvit Bold';
+  src: url('/fonts/SukhumvitSet-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
 
 @font-face {
   font-family: 'Sarabun-Medium';
@@ -136,11 +167,8 @@
   opacity: 1 !important;
 }
 
-
-
 body {
-  color: rgb(var(--foreground-rgb)) !important;
-  /* font-family: 'Sukhumvit Set', 'sans-serif' !important; */
+  font-family: 'Sukhumvit Set', Arial, sans-serif !important;
   background: white !important;
   /* background: linear-gradient(
       to bottom,
@@ -149,9 +177,6 @@ body {
     )
     rgb(var(--background-start-rgb)); */
 }
-
-
-
 
 @layer components {
   /* .paper_p {
@@ -164,6 +189,78 @@ body {
   .font_bold {
     @apply text-[1.5rem] font-SukhumvitBold;
   } */
+
+  .font_page,
+  .font_bold {
+    font-family: 'Sukhumvit Bold', 'Sukhumvit Set', Arial, sans-serif;
+    font-weight: 700;
+    letter-spacing: 0;
+  }
+
+  .heading-display,
+  .heading-section,
+  .heading-card,
+  .heading-panel {
+    font-family: 'Sukhumvit Bold', 'Sukhumvit Set', Arial, sans-serif;
+    font-weight: 700;
+    letter-spacing: 0;
+  }
+
+  .heading-display {
+    font-size: 2rem;
+    line-height: 1.16;
+  }
+
+  .heading-section {
+    font-size: 1.75rem;
+    line-height: 1.22;
+  }
+
+  .heading-card {
+    font-size: 1.0625rem;
+    line-height: 1.35;
+  }
+
+  .heading-panel {
+    font-size: 1.25rem;
+    line-height: 1.35;
+  }
+
+  .eyebrow {
+    font-family: 'Sukhumvit Set', Arial, sans-serif;
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: 0;
+  }
+
+  .body-lead {
+    font-family: 'Sukhumvit Set', Arial, sans-serif;
+    font-size: 1.125rem;
+    font-weight: 400;
+    line-height: 1.75;
+  }
+
+  .body-copy {
+    font-family: 'Sukhumvit Set', Arial, sans-serif;
+    font-weight: 400;
+    line-height: 1.75;
+  }
+
+  @media (min-width: 640px) {
+    .heading-display {
+      font-size: 2.5rem;
+    }
+
+    .heading-section {
+      font-size: 2rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .heading-display {
+      font-size: 2.625rem;
+    }
+  }
 }
 
 /* Add this to your global styles or a CSS file */
@@ -179,7 +276,6 @@ body {
   opacity: 1;
   transform: scale(1.2);
 }
-
 
 .swiper-fraction {
 position: absolute !important;
@@ -203,7 +299,6 @@ position: absolute !important;
 
   color: white !important;
 
-  
 }
 .swiper-button-next::after {
   width: 10rem !important;
@@ -218,8 +313,6 @@ position: absolute !important;
   font-size: x-large !important;
   margin-left: 5rem;
 }
-
-
 
 .skeleton {
   background-image: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
@@ -244,5 +337,94 @@ position: absolute !important;
 
   .safe-area-inset-bottom {
     padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+@theme inline {
+  --font-heading: var(--font-sans);
+  --font-sans: var(--font-sans);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
   }
 }

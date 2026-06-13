@@ -15,12 +15,21 @@
 /.next/
 /out/
 .firebaserc
+
+# cloudflare/opennext local build artifacts
+/.open-next/
+/.wrangler/
+/.playwright-mcp/
 # production
 /build
 
 # misc
 .DS_Store
 *.pem
+service-account-key.json
+.codex/
+chrome-profile/
+build_error.log
 
 # debug
 npm-debug.log*

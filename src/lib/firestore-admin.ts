@@ -1,20 +1,8 @@
-import { adminDb } from './firebase-admin';
-import admin from './firebase-admin';
 import { Project, Article } from './firestore';
+import { fileProjectsService } from './file-projects';
 
-// Helper function to serialize Firestore documents for Client Components
-function serializeProject(projectData: any): Project {
-  const serialized = { ...projectData };
-  
-  // Convert Firestore timestamps to ISO strings
-  if (serialized.created_at && serialized.created_at._seconds) {
-    serialized.created_at = new Date(serialized.created_at._seconds * 1000).toISOString();
-  }
-  if (serialized.updated_at && serialized.updated_at._seconds) {
-    serialized.updated_at = new Date(serialized.updated_at._seconds * 1000).toISOString();
-  }
-  
-  return serialized as Project;
+async function getFirebaseAdmin() {
+  return await import('./firebase-admin');
 }
 
 function serializeArticle(articleData: any): Article {
@@ -34,217 +22,33 @@ function serializeArticle(articleData: any): Article {
   return serialized as Article;
 }
 
-// Fallback data for when Firebase Admin is not available
-const fallbackProjects: Project[] = [
-  {
-    id: 'fallback-1',
-    title: '3.5 x 2.0',
-    width: 3.5,
-    extension: 2.0,
-    description: ['กันสาดพับเก็บได้สำหรับร้านอาหาร ระบบมือหมุน ใช้งานง่าย ประหยัดพื้นที่'],
-    category: 'ร้านอาหาร',
-    location: 'กรุงเทพฯ',
-    year: '2024',
-    type: 'ระบบมือหมุน',
-    arms_count: '2',
-    canvas_material: 'ผ้าอะคริลิคสเปน',
-    fabric_edge: 'ตัดเรียบ',
-    featured_image: '/images/default-project.jpg',
-    images: [],
-    slug: '3-5x2-0-100001'
-  },
-  {
-    id: 'fallback-2',
-    title: '4.0 x 2.5',
-    width: 4.0,
-    extension: 2.5,
-    description: ['กันสาดพับเก็บได้สำหรับคาเฟ่ ระบบมอเตอร์ไฟฟ้า ควบคุมด้วยรีโมท'],
-    category: 'คาเฟ่',
-    location: 'ชลบุรี',
-    year: '2024',
-    type: 'มอเตอร์ไฟฟ้า',
-    arms_count: '3',
-    canvas_material: 'ผ้าอะคริลิค',
-    fabric_edge: 'โค้งลอน',
-    featured_image: '/images/default-project.jpg',
-    images: [],
-    slug: '4-0x2-5-100002'
-  },
-  {
-    id: 'fallback-3',
-    title: '3.0 x 1.5',
-    width: 3.0,
-    extension: 1.5,
-    description: ['กันสาดพับเก็บได้สำหรับบ้านพักอาศัย ติดตั้งระเบียง ป้องกันแสงแดดและฝน'],
-    category: 'บ้านพักอาศัย',
-    location: 'นนทบุรี',
-    year: '2024',
-    type: 'ระบบมือหมุน',
-    arms_count: '2',
-    canvas_material: 'ผ้าอะคริลิคสเปน',
-    fabric_edge: 'ตัดเรียบ',
-    featured_image: '/images/default-project.jpg',
-    images: [],
-    slug: '3-0x1-5-100003'
-  },
-  {
-    id: 'fallback-4',
-    title: '5.0 x 3.0',
-    width: 5.0,
-    extension: 3.0,
-    description: ['กันสาดพับเก็บได้สำหรับโรงแรม สองระบบ (มือหมุน + มอเตอร์ไฟฟ้า) ให้ความยืดหยุ่นในการใช้งาน'],
-    category: 'โรงแรม',
-    location: 'ภูเก็ต',
-    year: '2024',
-    type: 'สองระบบ (มือหมุน + มอเตอร์ไฟฟ้า)',
-    arms_count: '4',
-    canvas_material: 'ผ้าอะคริลิคสเปน',
-    fabric_edge: 'โค้งลอน',
-    featured_image: '/images/default-project.jpg',
-    images: [],
-    slug: '5-0x3-0-100004'
-  }
-];
-
-// Server-side Firestore service using Firebase Admin SDK with static fallback
+// Public project reads are intentionally file-based: the portfolio is small,
+// deploys are deterministic, and production does not need Firebase secrets.
 export const projectsAdminService = {
-  // Get all projects
   async getAll(): Promise<Project[]> {
-    try {
-      if (!adminDb) {
-        console.warn('⚠️ Firebase Admin not available, using static fallback data');
-        return fallbackProjects;
-      }
-
-      const projectsCol = adminDb.collection('projects');
-      const querySnapshot = await projectsCol.orderBy('created_at', 'desc').get();
-
-      if (querySnapshot.size === 0) {
-        return fallbackProjects;
-      }
-
-      const projectList: Project[] = [];
-      querySnapshot.forEach((doc) => {
-        const data = doc.data();
-        projectList.push(serializeProject({ id: doc.id, ...data }));
-      });
-
-      return projectList;
-    } catch (error) {
-      console.error('❌ Firebase Admin getAll error:', error);
-      console.warn('🔄 Using static fallback data due to Firebase error');
-      return fallbackProjects;
-    }
+    return fileProjectsService.getAll();
   },
 
-  // Get project by ID
   async getById(id: string): Promise<Project | null> {
-    try {
-      if (!adminDb) {
-        console.warn('Firebase Admin not available, using static fallback data');
-        return fallbackProjects.find(p => p.id === id) || null;
-      }
-
-      const projectDoc = adminDb.collection('projects').doc(id);
-      const doc = await projectDoc.get();
-      
-      if (!doc.exists) {
-        return null;
-      }
-      
-      return serializeProject({ id: doc.id, ...doc.data() });
-    } catch (error) {
-      console.error('Firebase Admin getById error:', error);
-      console.warn('Using static fallback data due to Firebase error');
-      return fallbackProjects.find(p => p.id === id) || null;
-    }
+    return fileProjectsService.getById(id);
   },
 
-  // Get projects by category
   async getByCategory(category: string): Promise<Project[]> {
-    try {
-      if (!adminDb) {
-        console.warn('Firebase Admin not available, using static fallback data');
-        return fallbackProjects.filter(p => p.category === category);
-      }
-
-      const projectsCol = adminDb.collection('projects');
-      const querySnapshot = await projectsCol
-        .where('category', '==', category)
-        .orderBy('created_at', 'desc')
-        .get();
-      
-      const projectList: Project[] = [];
-      querySnapshot.forEach((doc) => {
-        projectList.push(serializeProject({ id: doc.id, ...doc.data() }));
-      });
-      
-      return projectList;
-    } catch (error) {
-      console.error('Firebase Admin getByCategory error:', error);
-      console.warn('Using static fallback data due to Firebase error');
-      return fallbackProjects.filter(p => p.category === category);
-    }
+    return fileProjectsService.getByCategory(category);
   },
 
-  // Get project by slug
   async getBySlug(slug: string): Promise<Project | null> {
-    try {
-      if (!adminDb) {
-        console.warn('Firebase Admin not available, using static fallback data');
-        return fallbackProjects.find(p => p.slug === slug.toLowerCase()) || null;
-      }
-
-      // Normalize slug to lowercase
-      const normalizedSlug = slug.toLowerCase();
-
-      const projectsCol = adminDb.collection('projects');
-      const querySnapshot = await projectsCol.where('slug', '==', normalizedSlug).get();
-
-      if (querySnapshot.empty) {
-        return null;
-      }
-
-      const doc = querySnapshot.docs[0];
-      return serializeProject({ id: doc.id, ...doc.data() });
-    } catch (error) {
-      console.error('Firebase Admin getBySlug error:', error);
-      console.warn('Using static fallback data due to Firebase error');
-      return fallbackProjects.find(p => p.slug === slug.toLowerCase()) || null;
-    }
+    return fileProjectsService.getBySlug(slug);
   },
 
-  // Get related projects by IDs
   async getRelatedProjects(projectIds: string[]): Promise<Project[]> {
-    try {
-      if (!adminDb) {
-        console.warn('Firebase Admin not available, using static fallback data');
-        return fallbackProjects.filter(p => projectIds.includes(p.id));
-      }
-
-      if (projectIds.length === 0) return [];
-      
-      const projectsCol = adminDb.collection('projects');
-      const projectPromises = projectIds.map(id => 
-        projectsCol.doc(id).get()
-      );
-      
-      const projectSnapshots = await Promise.all(projectPromises);
-      const projects = projectSnapshots
-        .filter(snapshot => snapshot.exists)
-        .map(snapshot => serializeProject({ id: snapshot.id, ...snapshot.data() }));
-      
-      return projects;
-    } catch (error) {
-      console.error('Firebase Admin getRelatedProjects error:', error);
-      console.warn('Using static fallback data due to Firebase error');
-      return fallbackProjects.filter(p => projectIds.includes(p.id));
-    }
+    return fileProjectsService.getRelatedProjects(projectIds);
   },
 
   // Delete project by ID
   async deleteById(projectId: string): Promise<boolean> {
     try {
+      const { adminDb } = await getFirebaseAdmin();
       if (!adminDb) {
         console.warn('Firebase Admin not available, cannot delete project');
         return false;
@@ -263,12 +67,6 @@ export const projectsAdminService = {
   // Delete project by slug
   async deleteBySlug(slug: string): Promise<boolean> {
     try {
-      if (!adminDb) {
-        console.warn('Firebase Admin not available, cannot delete project');
-        return false;
-      }
-
-      // First find the project by slug
       const project = await this.getBySlug(slug);
       if (!project) {
         return false;
@@ -284,6 +82,7 @@ export const projectsAdminService = {
   // Increment view count for a project
   async incrementViewCount(projectId: string): Promise<boolean> {
     try {
+      const { default: admin, adminDb } = await getFirebaseAdmin();
       if (!adminDb) {
         console.warn('Firebase Admin not available, cannot increment view count');
         return false;
@@ -312,6 +111,7 @@ export const articlesAdminService = {
   // Get all articles (including drafts for admin)
   async getAll(): Promise<Article[]> {
     try {
+      const { adminDb } = await getFirebaseAdmin();
       if (!adminDb) {
         console.warn('Firebase Admin not available, returning empty articles array');
         return fallbackArticles;
@@ -339,6 +139,7 @@ export const articlesAdminService = {
   // Get article by slug
   async getBySlug(slug: string): Promise<Article | null> {
     try {
+      const { adminDb } = await getFirebaseAdmin();
       if (!adminDb) {
         console.warn('Firebase Admin not available, returning null for article');
         return null;

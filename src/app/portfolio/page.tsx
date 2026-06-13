@@ -74,7 +74,7 @@ export default async function PortfolioPage() {
   if (!projects || projects.length === 0) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center text-center px-4">
-        <h1 className="text-3xl font-bold text-gray-800">ไม่พบโปรเจค</h1>
+        <h1 className="heading-section text-gray-800">ไม่พบโปรเจค</h1>
         <p className="text-gray-500 mt-2">
           โปรดตรวจสอบอีกครั้ง หรือกลับไปที่{" "}
           <Link href="/" className="text-blue-600 underline">
@@ -156,10 +156,10 @@ export default async function PortfolioPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
 
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50">
+      <div className="min-h-screen bg-gray-50">
         {/* Breadcrumbs */}
         <div className="bg-white/80 backdrop-blur-sm border-b border-gray-200">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
             <Breadcrumbs
               items={[
                 { name: "หน้าแรก", href: "/" },
@@ -170,18 +170,17 @@ export default async function PortfolioPage() {
         </div>
 
         {/* Hero Section */}
-        <div className="relative bg-white overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-600/5 to-purple-600/5" />
-          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
-            <div className="text-center max-w-4xl mx-auto">
-              <div className="inline-flex items-center px-4 py-2 bg-blue-100 text-blue-800 rounded-full text-sm font-medium mb-6">
+        <div className="relative bg-white overflow-hidden border-b border-gray-100">
+          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-9">
+            <div className="text-center max-w-3xl mx-auto">
+              <div className="eyebrow inline-flex items-center px-3 py-1 bg-blue-50 text-blue-800 rounded-full mb-3">
                 ผลงานทั้งหมด
               </div>
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-6 leading-tight">
+              <h1 className="heading-display text-gray-900 mb-3">
                 ผลงานการติดตั้ง
                 <span className="block text-blue-600">กันสาดพับเก็บได้</span>
               </h1>
-              <p className="text-xl text-gray-600 mb-8 leading-relaxed">
+              <p className="body-lead text-gray-600">
                 ชมผลงานการติดตั้งกันสาดพับเก็บได้หลากหลายประเภท
                 <br />
                 ทั้งร้านอาหาร คาเฟ่ บ้านพักอาศัย และอาคารพาณิชย์
@@ -191,7 +190,7 @@ export default async function PortfolioPage() {
         </div>
 
         {/* Portfolio with Filters */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
           <PortfolioProvider projects={projects}>
             <PortfolioWithFilters />
           </PortfolioProvider>

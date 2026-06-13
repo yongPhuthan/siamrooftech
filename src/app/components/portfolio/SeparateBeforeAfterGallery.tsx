@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { Project, ProjectImage } from '@/lib/firestore';
-import { CheckCircleOutline, HourglassEmpty, RadioButtonUnchecked } from '@mui/icons-material';
 import ImageWatermark from '../ui/ImageWatermark';
 
 interface SeparateBeforeAfterGalleryProps {

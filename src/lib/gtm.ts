@@ -3,11 +3,106 @@
 import { sendGTMEvent } from '@next/third-parties/google';
 
 type GTMEventPayload = Record<string, unknown>;
+type StoredAttribution = Record<string, string>;
+
+const ATTRIBUTION_STORAGE_KEY = 'siamrooftech_attribution_v1';
+const TRACKED_QUERY_KEYS = [
+  'gclid',
+  'gbraid',
+  'wbraid',
+  'utm_source',
+  'utm_medium',
+  'utm_campaign',
+  'utm_term',
+  'utm_content',
+] as const;
+
+const readStoredAttribution = (): StoredAttribution => {
+  try {
+    const stored = window.localStorage.getItem(ATTRIBUTION_STORAGE_KEY);
+    if (!stored) {
+      return {};
+    }
+
+    const parsed = JSON.parse(stored);
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+      return {};
+    }
+
+    return parsed as StoredAttribution;
+  } catch {
+    return {};
+  }
+};
+
+const writeStoredAttribution = (data: StoredAttribution) => {
+  try {
+    window.localStorage.setItem(ATTRIBUTION_STORAGE_KEY, JSON.stringify(data));
+  } catch {
+    // localStorage can be unavailable in strict browser privacy modes.
+  }
+};
+
+const getCurrentPageContext = (): GTMEventPayload => {
+  if (typeof window === 'undefined') {
+    return {};
+  }
+
+  return {
+    page_location: window.location.href,
+    page_path: `${window.location.pathname}${window.location.search}`,
+    page_title: document.title,
+  };
+};
+
+const toEventAttributionParams = (data: StoredAttribution): GTMEventPayload => {
+  return Object.fromEntries(
+    Object.entries(data).map(([key, value]) => [`attribution_${key}`, value]),
+  );
+};
+
+export const captureAttribution = (): StoredAttribution => {
+  if (typeof window === 'undefined') {
+    return {};
+  }
+
+  const now = new Date().toISOString();
+  const url = new URL(window.location.href);
+  const stored = readStoredAttribution();
+  const next: StoredAttribution = {
+    ...stored,
+    first_landing_page: stored.first_landing_page || window.location.href,
+    first_landing_path: stored.first_landing_path || `${window.location.pathname}${window.location.search}`,
+    first_seen_at: stored.first_seen_at || now,
+    latest_landing_page: window.location.href,
+    latest_landing_path: `${window.location.pathname}${window.location.search}`,
+    latest_seen_at: now,
+  };
+
+  TRACKED_QUERY_KEYS.forEach((key) => {
+    const value = url.searchParams.get(key);
+    if (!value) {
+      return;
+    }
+
+    next[`first_${key}`] = next[`first_${key}`] || value;
+    next[`latest_${key}`] = value;
+  });
+
+  writeStoredAttribution(next);
+  return next;
+};
 
 const trackEvent = (payload: GTMEventPayload) => {
   if (typeof window === 'undefined') return;
 
-  sendGTMEvent(payload);
+  const attribution = captureAttribution();
+
+  sendGTMEvent({
+    ...getCurrentPageContext(),
+    ...toEventAttributionParams(attribution),
+    ...payload,
+  });
 };
 
 export const trackContactClick = (position: string = 'unknown') => {

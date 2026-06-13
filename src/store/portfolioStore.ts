@@ -132,6 +132,8 @@ export const usePortfolioStore = create<PortfolioStore>()(
           if (filter.sortBy === 'oldest') {
             // For oldest, we want ascending order by date
             return aValue - bValue;
+          } else if (aValue === bValue) {
+            return 0;
           } else if (filter.sortOrder === 'desc') {
             return bValue > aValue ? 1 : -1;
           } else {

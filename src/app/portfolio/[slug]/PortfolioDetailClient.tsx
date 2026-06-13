@@ -1,7 +1,6 @@
 'use client';
 
-import { ChevronLeft as ChevronLeftIcon, ChevronRight as ChevronRightIcon, Close as CloseIcon, ZoomIn as ZoomInIcon } from '@mui/icons-material';
-import { Button, Chip, Typography } from '@mui/material';
+import { ChevronLeft as ChevronLeftIcon, ChevronRight as ChevronRightIcon, X as CloseIcon, ZoomIn as ZoomInIcon } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
@@ -15,6 +14,7 @@ import { getBeforeImage, getAfterImages, getBeforeImages, shouldShowBeforeAfter 
 import { hasVideos, getVideos, sortVideos } from '@/lib/project-video-utils';
 import VideoPlayer from '@/components/ui/VideoPlayer';
 import VideoModal from '@/components/ui/VideoModal';
+import { trackLineClick, trackPhoneClick } from '@/lib/gtag';
 
 interface PortfolioDetailClientProps {
   project: Project;
@@ -307,14 +307,9 @@ return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Mobile-only heading: แสดงบนหน้าจอเล็กเท่านั้น (ซ่อนบน lg+) */}
       <div className="block lg:hidden mb-6">
-        <Typography
-          variant="h5"
-          component="h1"
-          gutterBottom
-          className="font-bold text-gray-900"
-        >
+        <h1 className="heading-panel text-gray-900 mb-2">
           กันสาดพับเก็บได้ {project.type} หน้ากว้าง {project.width} เมตร x ระยะแขนพับ {project.extension} เมตร
-        </Typography>
+        </h1>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
@@ -402,49 +397,40 @@ return (
           <div>
             <div className="flex items-start justify-between mb-4">
               <div className="flex flex-wrap gap-2">
-                <Chip label={`กันสาด${project.category}`} color="primary" variant="outlined" />
-                <Chip label={`กันสาด${project.type}`} color="secondary" variant="outlined" />
+                <span className="px-3 py-1 rounded-full text-xs font-semibold border border-blue-200 bg-blue-50 text-blue-700">กันสาด{project.category}</span>
+                <span className="px-3 py-1 rounded-full text-xs font-semibold border border-purple-200 bg-purple-50 text-purple-700">กันสาด{project.type}</span>
               </div>
             </div>
 
             {/* Desktop-only heading: ซ่อนบน mobile, แสดงบน lg+ */}
             <div className="hidden lg:block">
-              <Typography
-                variant="h3"
-                component="h1"
-                gutterBottom
-                className="font-bold text-gray-900"
-              >
+              <h1 className="heading-display text-gray-900 mb-2">
                 กันสาดพับเก็บได้ {project.type} หน้ากว้าง {project.width} เมตร x ระยะแขนพับ {project.extension} เมตร
-              </Typography>
+              </h1>
             </div>
 
             <div className="space-y-3 my-3">
               {Array.isArray(project.description) ? (
                 project.description.map((desc, index) => (
-                  <Typography
+                  <p
                     key={index}
-                    variant="body1"
-                    color="text.secondary"
-                    className="leading-relaxed"
+                    className="body-copy text-base text-gray-600"
                   >
                     {desc}
-                  </Typography>
+                  </p>
                 ))
               ) : (
-                <Typography
-                  variant="body1"
-                  color="text.secondary"
-                  className="leading-relaxed"
+                <p
+                  className="body-copy text-base text-gray-600"
                 >
                   {project.description}
-                </Typography>
+                </p>
               )}
             </div>
 
             {/* Project Details Section - Modern Style */}
             <div className="bg-gray-50 rounded-xl shadow-sm border border-gray-200 p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">
+              <h2 className="heading-panel text-gray-900 mb-4">
                 รายละเอียดโปรเจค
               </h2>
 
@@ -497,26 +483,22 @@ return (
 
           {/* CTA */}
           <div className="flex flex-col sm:flex-row gap-4 mt-6">
-            <Button
-              variant="contained"
-              size="large"
-              component="a"
+            <a
               href="https://lin.ee/pPz1ZqN"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex-1"
+              onClick={() => trackLineClick('portfolio_detail_cta')}
+              className="flex-1 px-8 py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-md text-center transform hover:scale-105 transition-all duration-200"
             >
               ขอใบเสนอราคาแบบนี้
-            </Button>
-            <Button
-              variant="outlined"
-              size="large"
+            </a>
+            <a
               href="tel:0984542455"
-              component="a"
-              className="flex-1"
+              onClick={() => trackPhoneClick('0984542455', 'portfolio_detail_cta')}
+              className="flex-1 px-8 py-3.5 border border-gray-300 hover:border-gray-400 text-gray-700 hover:bg-gray-50 font-semibold rounded-xl text-center transition-all"
             >
               โทรปรึกษาทันที
-            </Button>
+            </a>
           </div>
         </div>
       </div>
@@ -526,9 +508,9 @@ return (
     {project.timeline && project.timeline.length > 0 && (
       <section className="py-16 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <Typography variant="h4" component="h2" gutterBottom className="text-center font-bold mb-12">
+          <h2 className="heading-section text-center text-gray-900 mb-12">
             ขั้นตอนการดำเนินงาน
-          </Typography>
+          </h2>
           <div className="space-y-8">
             {project.timeline.map((phase, index) => (
               <div key={phase.id} className="flex flex-col md:flex-row gap-8 items-start">
@@ -537,17 +519,17 @@ return (
                     <div className="bg-blue-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">
                       {index + 1}
                     </div>
-                    <Typography variant="h6" className="font-semibold">
+                    <h3 className="heading-card text-gray-900">
                       {phase.phase}
-                    </Typography>
+                    </h3>
                   </div>
-                  <Typography variant="body2" color="text.secondary" className="mb-2">
+                  <p className="text-sm text-gray-500 mb-2">
                     {phase.description}
-                  </Typography>
+                  </p>
                   {phase.date && (
-                    <Typography variant="caption" color="text.secondary">
+                    <span className="text-xs text-gray-400">
                       {new Date(phase.date).toLocaleDateString('th-TH')}
-                    </Typography>
+                    </span>
                   )}
                 </div>
                 <div className="md:w-2/3 grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -599,13 +581,13 @@ return (
                   <path d="M8 5v14l11-7z" />
                 </svg>
               </div>
-              <Typography variant="h4" component="h2" className="font-bold text-gray-900">
+              <h2 className="heading-section text-gray-900">
                 วีดีโอผลงาน
-              </Typography>
+              </h2>
             </div>
-            <Typography variant="body1" color="text.secondary">
+            <p className="text-base text-gray-500">
               ชมวีดีโอเพิ่มเติมของโปรเจกต์นี้
-            </Typography>
+            </p>
           </div>
 
           {/* Video Grid */}
@@ -646,7 +628,7 @@ return (
           {/* Header */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-12 gap-4">
             <div>
-              <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">
+              <h2 className="heading-section text-gray-900">
                 โปรเจกต์ที่เกี่ยวข้อง
               </h2>
               <p className="text-gray-600 mt-1">
@@ -697,7 +679,7 @@ return (
                   </div>
 
                   {/* Title */}
-                  <h3 className="text-lg font-semibold text-gray-900 mb-1 line-clamp-2">
+                  <h3 className="heading-card text-gray-900 mb-1 line-clamp-2">
                             กันสาดพับเก็บได้ ขนาดหน้ากว้าง {project.width} เมตร x ระยะแขนพับ {project.extension} เมตร
 
                   </h3>
@@ -774,7 +756,7 @@ return (
               className="bg-white/20 hover:bg-white/30 text-white p-2 rounded-full transition-all flex-shrink-0"
               aria-label="ปิด"
             >
-              <CloseIcon fontSize="small" />
+              <CloseIcon className="w-5 h-5" />
             </button>
           </div>
         </div>
@@ -787,7 +769,7 @@ return (
             className="absolute top-4 right-4 z-50 bg-white/10 hover:bg-white/20 text-white p-3 rounded-full transition-all"
             aria-label="ปิด"
           >
-            <CloseIcon fontSize="large" />
+            <CloseIcon className="w-8 h-8" />
           </button>
 
           {/* Image Counter & Type Indicator */}
@@ -818,16 +800,15 @@ return (
                 e.stopPropagation();
                 handleZoom(0.2);
               }}
-              className="text-white hover:text-blue-400 transition-colors px-2"
+              className="text-white hover:text-blue-400 transition-colors px-2 flex items-center justify-center"
               aria-label="ซูมเข้า"
             >
-              <ZoomInIcon />
+              <ZoomInIcon className="w-5 h-5" />
             </button>
           </div>
         </div>
 
         {/* Desktop Navigation Buttons */}
-        {lightboxImages.length > 1 && (
           <div className="hidden md:block">
             {/* Previous Button */}
             <button
@@ -838,7 +819,7 @@ return (
               className="absolute left-4 z-50 bg-white/10 hover:bg-white/20 text-white p-3 rounded-full transition-all"
               aria-label="รูปก่อนหน้า"
             >
-              <ChevronLeftIcon fontSize="large" />
+              <ChevronLeftIcon className="w-8 h-8" />
             </button>
 
             {/* Next Button */}
@@ -850,10 +831,9 @@ return (
               className="absolute right-4 z-50 bg-white/10 hover:bg-white/20 text-white p-3 rounded-full transition-all"
               aria-label="รูปถัดไป"
             >
-              <ChevronRightIcon fontSize="large" />
+              <ChevronRightIcon className="w-8 h-8" />
             </button>
           </div>
-        )}
 
         {/* Mobile Navigation Buttons - Bottom Clean Design */}
         {lightboxImages.length > 1 && (
@@ -866,7 +846,7 @@ return (
               className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white p-3 rounded-full transition-all shadow-lg"
               aria-label="รูปก่อนหน้า"
             >
-              <ChevronLeftIcon fontSize="medium" />
+              <ChevronLeftIcon className="w-6 h-6" />
             </button>
 
             <div className="bg-white/20 backdrop-blur-sm text-white px-3 py-1.5 rounded-full text-xs font-medium">
@@ -881,7 +861,7 @@ return (
               className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white p-3 rounded-full transition-all shadow-lg"
               aria-label="รูปถัดไป"
             >
-              <ChevronRightIcon fontSize="medium" />
+              <ChevronRightIcon className="w-6 h-6" />
             </button>
           </div>
         )}

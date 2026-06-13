@@ -6,6 +6,7 @@ import Link from 'next/link';
 import Breadcrumbs from '../../components/ui/Breadcrumbs';
 import { Project } from '../../../lib/firestore';
 import FinalCTASection from '../../components/FinalCTASection';
+import { trackPhoneClick } from '@/lib/gtag';
 
 interface ProjectPageClientProps {
   project: Project;
@@ -224,7 +225,8 @@ export default function ProjectPageClient({ project, relatedProjects }: ProjectP
                   ขอใบเสนอราคา
                 </Link>
                 <a
-                  href="tel:02-xxx-xxxx"
+                  href="tel:0984542455"
+                  onClick={() => trackPhoneClick('0984542455', 'works_detail_cta')}
                   className="flex-1 border-2 border-gray-300 text-gray-700 px-6 py-3.5 rounded-lg font-medium hover:border-gray-400 hover:bg-gray-100 transition-colors text-center"
                 >
                   โทรปรึกษาทันที
