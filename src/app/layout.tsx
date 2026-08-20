@@ -92,9 +92,9 @@ export default function RootLayout({
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
       </head>
-      {process.env.NODE_ENV === "production" ? (
+      {process.env.NODE_ENV === "production" && process.env.NEXT_PUBLIC_GTM_ID ? (
         <>
-          <GoogleTagManager gtmId={process.env.NEXT_PUBLIC_GTM_ID || "GTM-TDXKN9MG"} />
+          <GoogleTagManager gtmId={process.env.NEXT_PUBLIC_GTM_ID} />
         </>
       ) : null}
       <body className={`bg-white`}>
