@@ -1,7 +1,22 @@
 import React from 'react'
 import FinalCTASection from '../components/FinalCTASection';
+import type { Metadata } from 'next';
+import { canonicalUrl } from '@/lib/seo-config';
 
 type Props = {}
+
+export const metadata: Metadata = {
+  title: 'ผลงานกันสาดพับเก็บได้ทั้งหมด | Siamrooftech',
+  description: 'รวมผลงานกันสาดพับเก็บได้จากสยามรูฟเทค สำหรับบ้าน ร้านอาหาร คาเฟ่ บริษัท และสำนักงาน ในกรุงเทพและปริมณฑลใกล้เคียง',
+  alternates: {
+    canonical: canonicalUrl('/allawning'),
+  },
+  openGraph: {
+    title: 'ผลงานกันสาดพับเก็บได้ทั้งหมด | Siamrooftech',
+    description: 'รวมผลงานกันสาดพับเก็บได้จากสยามรูฟเทค สำหรับบ้าน ร้านอาหาร คาเฟ่ บริษัท และสำนักงาน',
+    url: canonicalUrl('/allawning'),
+  },
+};
 
 function Page({}: Props) {
   return (

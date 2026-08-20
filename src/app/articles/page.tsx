@@ -7,16 +7,20 @@ import { Article } from '../../lib/firestore';
 import { articlesAdminService } from '../../lib/firestore-admin';
 import FinalCTASection from '../components/FinalCTASection';
 import { getArticleRouteSlug } from '../../lib/articles/slug-generator';
+import { canonicalUrl } from '@/lib/seo-config';
 
 export const metadata: Metadata = {
   title: 'บทความกันสาดพับได้ - เทคนิค คำแนะนำ การดูแล | Siamrooftech',
   description: 'อ่านบทความเกี่ยวกับกันสาดพับได้ เทคนิคการเลือก การติดตั้ง การดูแลรักษา และคำแนะนำจากผู้เชี่ยวชาญมากกว่า 10 ปี',
   keywords: 'กันสาดพับได้, บทความกันสาด, เทคนิค, การติดตั้ง, การดูแล, กันสาดพับเก็บได้',
+  alternates: {
+    canonical: canonicalUrl('/articles'),
+  },
   openGraph: {
     title: 'บทความกันสาดพับได้ - เทคนิคและคำแนะนำ | Siamrooftech',
     description: 'ความรู้และเทคนิคจากผู้เชี่ยวชาญด้านกันสาดพับได้ เรื่องการเลือก การติดตั้ง และการดูแลรักษา',
     type: 'website',
-    url: 'https://www.siamrooftech.com/articles',
+    url: canonicalUrl('/articles'),
   },
 };
 

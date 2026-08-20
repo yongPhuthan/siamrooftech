@@ -1,6 +1,14 @@
 import Main from './components/Main';
 import { projectsAdminService } from '@/lib/firestore-admin';
 import { Project } from '@/lib/firestore';
+import type { Metadata } from 'next';
+import { canonicalUrl, SERVICE_AREAS_TH } from '@/lib/seo-config';
+
+export const metadata: Metadata = {
+  alternates: {
+    canonical: canonicalUrl('/'),
+  },
+};
 
 const jsonLd = {
   '@context': 'https://schema.org',
@@ -20,10 +28,10 @@ const jsonLd = {
   },
   openingHours: 'Mo-Sa 08:00-18:00',
   priceRange: '฿฿',
-  serviceArea: {
-    '@type': 'Country',
-    name: 'Thailand',
-  },
+  areaServed: SERVICE_AREAS_TH.map((area) => ({
+    '@type': 'AdministrativeArea',
+    name: area,
+  })),
   makesOffer: [
     {
       '@type': 'Offer',
@@ -42,27 +50,6 @@ const jsonLd = {
         description: 'ติดตั้งกันสาดพับเก็บได้ระบบมอเตอร์ไฟฟ้า พร้อมรีโมทคอนโทรล เหมาะสำหรับอาคารสูง โรงแรม อาคารสำนักงาน',
         category: 'กันสาดพับได้',
       },
-    },
-  ],
-  aggregateRating: {
-    '@type': 'AggregateRating',
-    ratingValue: '4.8',
-    reviewCount: '127',
-    bestRating: '5',
-  },
-  review: [
-    {
-      '@type': 'Review',
-      reviewRating: {
-        '@type': 'Rating',
-        ratingValue: '5',
-        bestRating: '5',
-      },
-      author: {
-        '@type': 'Person',
-        name: 'คุณสมชาย',
-      },
-      reviewBody: 'บริการกันสาดพับได้ดีมาก ช่างมีความเชี่ยวชาญ งานเสร็จตรงเวลา คุณภาพดีเยี่ยม แนะนำเลย',
     },
   ],
   foundingDate: '2014',

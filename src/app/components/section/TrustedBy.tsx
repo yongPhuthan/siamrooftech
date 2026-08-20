@@ -1,12 +1,5 @@
-'use client';
-
-import { Autoplay, Pagination } from 'swiper/modules';
-import { Swiper, SwiperSlide } from 'swiper/react';
 import Image from 'next/image';
-import 'swiper/css';
-import 'swiper/css/autoplay';
-import 'swiper/css/pagination';
-import 'swiper/swiper-bundle.css';
+
 const logos = [
   {
     src:'/images/logo1.webp',
@@ -89,41 +82,23 @@ const logos = [
 
 function TrustedBy() {
   return (
-    <div className="bg-transparent	 px-4 overflow-hidden mx-auto h-full  ">
-      <Swiper
-        freeMode={true}
-        slidesPerView={'auto'}
-        // autoplay={{
-        //   delay: 0,
-        //   disableOnInteraction: false,
-        // }}
-        speed={20000}
-        loop={true}
-        modules={[Pagination, Autoplay]}
-        className="mx-auto w-full"
-      >
-        {logos.map((logo, index) => (
-          <SwiperSlide key={index}>
-            <div className="bg-transparent	my-2 px-10 overflow-hidden mx-auto h-full">
-              <div className="mx-auto flex  justify-center items-center grid  grid-cols-4  gap-y-4 gap-x-1 lg:grid-cols-10  ">
-                {logos.map((logo, index) => (
-                  <div
-                    key={index}
-                    className="col-span-1 flex justify-center grayscale"
-                  >
-                    {/* <Image className="max-h-24 md:max-h-16 lg:max-h-20"  */}
-                    <Image
-                    width={100} height={50}
-                    loading='lazy'
-                    src={logo.src} alt={logo.alt} />
-                  </div>
-                ))}
-              </div>
-            </div>
-          </SwiperSlide>
+    <section className="mx-auto w-full bg-transparent px-4 py-4">
+      <div className="mx-auto grid max-w-6xl grid-cols-4 items-center justify-items-center gap-x-3 gap-y-4 lg:grid-cols-10">
+        {logos.map((logo) => (
+          <div key={logo.src} className="flex justify-center grayscale">
+            <Image
+              width={100}
+              height={50}
+              loading="lazy"
+              src={logo.src}
+              alt={logo.alt}
+              sizes="(max-width: 1024px) 25vw, 10vw"
+              className="h-auto max-h-16 w-auto object-contain"
+            />
+          </div>
         ))}
-      </Swiper>
-    </div>
+      </div>
+    </section>
   );
 }
 

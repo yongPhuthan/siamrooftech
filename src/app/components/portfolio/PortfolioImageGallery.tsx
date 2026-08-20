@@ -205,9 +205,12 @@ export default function PortfolioImageGallery({ images, projectTitle }: Portfoli
             className="relative max-w-[90vw] max-h-[90vh] mx-4"
             onClick={(e) => e.stopPropagation()}
           >
-            <img
+            <Image
               src={images[lightboxIndex].original_size}
               alt={images[lightboxIndex].alt_text || `${projectTitle} - รูปที่ ${lightboxIndex + 1}`}
+              width={1600}
+              height={1200}
+              sizes="90vw"
               className="max-w-full max-h-[90vh] object-contain"
             />
           </div>

@@ -6,6 +6,7 @@ import PortfolioDetailClient from "./PortfolioDetailClient";
 // จะใช้ local function fetchProjectsData
 import PortfolioProvider from "../../components/portfolio/PortfolioProvider";
 import { unstable_cache } from "next/cache";
+import { canonicalUrl } from "@/lib/seo-config";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -62,8 +63,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     };
   }
 
-  const seoTitle = `กันสาดพับได้ ${project.type} ${project.width}x${project.extension}ม. | ${project.location} | Siamrooftech`;
-  const seoDescription = `ดูผลงานกันสาดพับได้ระบบ${project.type} ขนาด ${project.width}x${project.extension} เมตร ${project.arms_count} แขน วัสดุ${project.canvas_material} ชายผ้า${project.fabric_edge} ที่ ${project.location} ปี ${project.year}`;
+  const location = project.client || project.location;
+  const seoTitle = `กันสาดพับเก็บได้ ${location} | Siamrooftech`;
+  const seoDescription = `ดูผลงานกันสาดพับเก็บได้ระบบ${project.type} ขนาด ${project.width}x${project.extension} เมตร วัสดุ${project.canvas_material} ที่ ${project.location}`;
 
   return {
     title: seoTitle,
@@ -81,13 +83,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       'Siamrooftech'
     ],
     alternates: {
-      canonical: `https://www.siamrooftech.com/portfolio/${project.slug || project.id}`,
+      canonical: canonicalUrl(`/portfolio/${project.slug || project.id}`),
     },
     openGraph: {
       title: seoTitle,
       description: seoDescription,
       type: 'article',
-      url: `https://www.siamrooftech.com/portfolio/${project.slug || project.id}`,
+      url: canonicalUrl(`/portfolio/${project.slug || project.id}`),
       images: project.featured_image ? [
         {
           url: project.featured_image,

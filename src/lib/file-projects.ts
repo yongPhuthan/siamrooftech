@@ -1,6 +1,23 @@
 import { fileProjects } from "../data/projects";
 import { Project } from "./firestore";
 
+const supportedProofAreas = new Set([
+  "กรุงเทพ",
+  "นครปฐม",
+  "นนทบุรี",
+  "ปทุมธานี",
+  "สมุทรปราการ",
+  "อยุธยา",
+  "อยุทธยา",
+  "สมุทรสาคร",
+]);
+
+const strictLocationAliases: Record<string, string[]> = {
+  กรุงเทพ: ["กรุงเทพ", "กรุงเทพมหานคร", "bangkok"],
+  นนทบุรี: ["นนทบุรี", "nonthaburi", "ปัญญาพิวัฒน์"],
+  ปทุมธานี: ["ปทุมธานี", "pathum"],
+};
+
 function projectDate(project: Project): number {
   if (project.completionDate) {
     return new Date(project.completionDate).getTime();
@@ -40,6 +57,34 @@ export function validateFileProjects(projects: Project[] = fileProjects): void {
     if (!project.featured_image) errors.push(`${project.id}: missing featured_image`);
     if (project.featured_image?.includes("default-project.jpg")) {
       errors.push(`${project.id}: default-project.jpg is not allowed`);
+    }
+
+    if (project.proof) {
+      if (!project.proof.problem?.trim()) errors.push(`${project.id}: proof missing problem`);
+      if (!project.proof.solution?.trim()) errors.push(`${project.id}: proof missing solution`);
+      if (!project.proof.outcome?.trim()) errors.push(`${project.id}: proof missing outcome`);
+      if (
+        project.proof.serviceArea &&
+        !supportedProofAreas.has(project.proof.serviceArea)
+      ) {
+        errors.push(`${project.id}: unsupported proof serviceArea ${project.proof.serviceArea}`);
+      }
+      const aliases = project.proof.serviceArea
+        ? strictLocationAliases[project.proof.serviceArea]
+        : undefined;
+      if (
+        aliases &&
+        !aliases.some((alias) =>
+          project.location.toLowerCase().includes(alias.toLowerCase())
+        )
+      ) {
+        errors.push(
+          `${project.id}: proof serviceArea ${project.proof.serviceArea} does not match location ${project.location}`
+        );
+      }
+      project.proof.proofNotes?.forEach((note, index) => {
+        if (!note.trim()) errors.push(`${project.id}: proofNotes[${index}] is empty`);
+      });
     }
 
     const projectImages = new Set<string>();

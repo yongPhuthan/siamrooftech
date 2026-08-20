@@ -5,6 +5,7 @@ import Breadcrumbs from '../components/ui/Breadcrumbs';
 import { Project } from '../../lib/firestore';
 import { projectsAdminService } from '../../lib/firestore-admin';
 import FinalCTASection from '../components/FinalCTASection';
+import { canonicalUrl } from '@/lib/seo-config';
 
 // Enable ISR with 60 seconds revalidation
 export const revalidate = 60;
@@ -13,9 +14,13 @@ export const metadata: Metadata = {
   title: 'ผลงานทั้งหมด - กันสาดพับเก็บได้ | สยามรูฟเทค',
   description: 'ชมผลงานการติดตั้งกันสาดพับเก็บได้ระบบมือหมุนและมอเตอร์ไฟฟ้าจากสยามรูฟเทค บริการติดตั้งมืออาชีพ คุณภาพสูง',
   keywords: 'ผลงาน กันสาด พับเก็บได้ ติดตั้ง สยามรูฟเทค',
+  alternates: {
+    canonical: canonicalUrl('/works'),
+  },
   openGraph: {
     title: 'ผลงานทั้งหมด - กันสาดพับเก็บได้ | สยามรูฟเทค',
     description: 'ชมผลงานการติดตั้งกันสาดพับเก็บได้ระบบมือหมุนและมอเตอร์ไฟฟ้าจากสยามรูฟเทค',
+    url: canonicalUrl('/works'),
     images: ['/images/works/project-showcase.jpg'],
   },
 };

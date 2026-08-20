@@ -1,7 +1,4 @@
-'use client';
-
 import Link from 'next/link';
-import { trackPortfolioButtonClick } from '@/lib/gtag';
 
 interface PortfolioButtonProps {
   className?: string;
@@ -10,15 +7,13 @@ interface PortfolioButtonProps {
 }
 
 const PortfolioButton = ({ className, children, position = 'unknown' }: PortfolioButtonProps) => {
-  const handleClick = () => {
-    trackPortfolioButtonClick(position);
-  };
-
   return (
-    <Link href="/portfolio" className="inline-block" onClick={handleClick}>
-      <button className={className}>
-        {children}
-      </button>
+    <Link
+      href="/portfolio"
+      className={`inline-flex items-center justify-center ${className || ''}`}
+      data-analytics-position={position}
+    >
+      {children}
     </Link>
   );
 };

@@ -1,5 +1,6 @@
 import React from 'react';
 import Card from '../ui/Card';
+import Link from 'next/link';
 type ProductTypeProps = {
     keyword: string;
     };
@@ -13,8 +14,9 @@ function ProductType(props: ProductTypeProps) {
       title: `กันสาดพับได้ ร้านอาหาร-คาเฟ่`,
       description: 'This is the first project',
       image:
-      "/images/กันสาดพับเก็บได้ร้านอาหาร-คาเฟ่.webp"
+      "/images/กันสาดพับเก็บได้ร้านอาหาร-คาเฟ่.webp",
         // 'https://pub-99f8d7bf688c4c79afcc2d91f37141f2.r2.dev/siamrooftech/original/34660',
+      href: '/services/retractable-awning',
     },
     {
       id: 2,
@@ -22,6 +24,7 @@ function ProductType(props: ProductTypeProps) {
       description: 'This is the second project',
       image: '/images/กันสาดพับเก็บได้สำหรับอาคาร-โรงแรม.webp',
         // 'https://pub-99f8d7bf688c4c79afcc2d91f37141f2.r2.dev/siamrooftech/original/17201',
+      href: '/services/retractable-awning/bangkok',
     },
     {
       id: 3,
@@ -30,6 +33,7 @@ function ProductType(props: ProductTypeProps) {
       image:
       '/images/กันสาดพับเก็บได้อาคาร-โรงแรม.webp',
         // 'https://pub-99f8d7bf688c4c79afcc2d91f37141f2.r2.dev/siamrooftech/original/28177',
+      href: '/services/electric-retractable-awning',
     },
   ];
   return (
@@ -45,7 +49,9 @@ function ProductType(props: ProductTypeProps) {
         <div className="grid grid-cols-1 container mt-5  mx-auto gap-4 md:gap-5 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
           {projects.map((project:any) => (
             <div key={project.id} className="h-auto">
-              <Card project={project} />
+              <Link href={project.href} className="block">
+                <Card project={project} />
+              </Link>
             </div>
           ))}
         </div>

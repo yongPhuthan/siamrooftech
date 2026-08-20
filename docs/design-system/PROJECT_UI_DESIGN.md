@@ -74,13 +74,21 @@ background: linear-gradient(to bottom, #111827, #1f2937, #111827)
 
 ### Font Family
 ```typescript
-// MUI Theme (src/theme.ts)
-fontFamily: '"Sukhumvit Set", Arial, sans-serif'
+// Global CSS / Tailwind utility usage
+font-family: "Sukhumvit Set", Arial, sans-serif;
 
 // Headings
 h1-h5: '"Sukhumvit Bold"'
 h6: '"Sukhumvit Set"' with bold weight
 ```
+
+### UI Stack
+
+- Tailwind CSS utility classes are the source of truth for layout, spacing, color, and responsive behavior.
+- shadcn-style components live under `src/components/ui` and are configured by `components.json`.
+- DaisyUI button classes such as `btn`, `btn-primary`, and `btn-outline` exist in legacy/current UI. Prefer project-consistent Tailwind/shadcn-style composition for new reusable components.
+- Use `lucide-react` for icons.
+- Do not use MUI or Emotion for new UI. Those packages are not part of the current dependency set.
 
 ### Font Sizes & Weights
 
@@ -873,7 +881,8 @@ src/app/portfolio/page.tsx - Portfolio listing page
 src/app/components/ui/BeforeAfterSlider.tsx - 🆕 Before/After slider component
 src/app/components/portfolio/BeforeAfterGallery.tsx - 🆕 Gallery with Before/After
 src/lib/project-image-utils.ts - 🆕 Image utility functions
-src/theme.ts - MUI theme configuration
+components.json - shadcn-style component configuration
+src/app/globals.css - global CSS and Tailwind entry point
 ```
 
 ---

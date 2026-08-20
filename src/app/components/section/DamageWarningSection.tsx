@@ -1,4 +1,4 @@
-'use client';
+import Image from 'next/image';
 
 const warningCards = [
   {
@@ -56,14 +56,13 @@ function DamageWarningSection() {
                 className="rounded-2xl border border-gray-200 bg-white/80 shadow-sm transition hover:shadow-lg"
               >
                 <div className={`flex flex-col gap-6 px-6 py-6 lg:flex-row ${reverse ? 'lg:flex-row-reverse' : ''}`}>
-                  <div
-                    className="relative flex-1 overflow-hidden rounded-xl border border-gray-200 bg-black aspect-[4/3] md:aspect-[3/2] lg:aspect-[4/3] max-h-[360px]"
-                    onContextMenu={(event) => event.preventDefault()}
-                  >
-                    <img
+                  <div className="relative flex-1 overflow-hidden rounded-xl border border-gray-200 bg-black aspect-[4/3] md:aspect-[3/2] lg:aspect-[4/3] max-h-[360px]">
+                    <Image
                       src={card.src}
                       alt={card.alt}
-                      className="object-cover filter grayscale contrast-90 opacity-90 w-full h-full"
+                      fill
+                      sizes="(max-width: 1024px) 100vw, 50vw"
+                      className="object-cover filter grayscale contrast-90 opacity-90"
                       loading="lazy"
                     />
                     <span className="absolute inset-x-0 bottom-0 text-center text-xs uppercase tracking-widest text-white/80 bg-black/40 py-1">

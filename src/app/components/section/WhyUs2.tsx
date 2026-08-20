@@ -1,18 +1,11 @@
-'use client';
-
 import { Shield, Layers, Heart } from 'lucide-react';
 import Image from 'next/image';
-import { trackLineClick } from '@/lib/gtag';
 
 type Props = {
   keyword: string;
 };
 
 const WhyUs2 = ({ keyword }: Props) => {
-  const trackWhyUsClick = (position: string) => {
-    trackLineClick(`why_us_${position}`);
-  };
-
   return (
     <>
       {/* Desktop Version - Visible on MD screens and above */}
@@ -43,7 +36,7 @@ const WhyUs2 = ({ keyword }: Props) => {
                   {keyword}ที่ไม่มีคุณภาพ ดังนั้นงานติดตั้ง{keyword}
                   ทุกงานของเราคำนึงถึงความปลอดภัยในเคสการใช้งานกับพื้นผิวและวัสดุของพื้นที่หน้างานต่างๆ
                 </p>
-                <a href="https://lin.ee/pPz1ZqN" target="_blank" rel="noopener noreferrer" onClick={() => trackWhyUsClick('desktop_safety')}>
+                <a href="https://lin.ee/pPz1ZqN" target="_blank" rel="noopener noreferrer" data-analytics-type="line" data-analytics-position="why_us_desktop_safety">
                   <button className="btn btn-outline btn-primary">
                     ประเมินราคาฟรี
                   </button>
@@ -86,7 +79,7 @@ const WhyUs2 = ({ keyword }: Props) => {
                   {keyword}
                   จะต้องเข้ากันได้ดีกับโทนบานของลูกค้าเช่นกัน
                 </p>
-                <a href="https://lin.ee/pPz1ZqN" target="_blank" rel="noopener noreferrer" onClick={() => trackWhyUsClick('desktop_design')}>
+                <a href="https://lin.ee/pPz1ZqN" target="_blank" rel="noopener noreferrer" data-analytics-type="line" data-analytics-position="why_us_desktop_design">
                   <button className="btn btn-outline btn-primary">
                     ประเมินราคาฟรี
                   </button>
@@ -110,7 +103,7 @@ const WhyUs2 = ({ keyword }: Props) => {
                   2-7 วันหลังรับเรื่องจากลูกค้า และเราเข้าใจว่า{keyword}
                   เป็นงานที่มีความเชี่ยวชาญและวัสดุอุปกรณ์เฉพาะทางที่ต้องมีประสบการณ์ในการติดตั้งดังนั้นในกรณีที่มีปัญหาเล็กๆน้อยๆหลังการใช้งานเป็นเรื่องยุ่งยากที่ลูกค้าจะต้องหาซื้อวัสดุอุปกรณ์มาแก้ไขเอง
                 </p>
-                <a href="https://lin.ee/pPz1ZqN" target="_blank" rel="noopener noreferrer" onClick={() => trackWhyUsClick('desktop_after_sales')}>
+                <a href="https://lin.ee/pPz1ZqN" target="_blank" rel="noopener noreferrer" data-analytics-type="line" data-analytics-position="why_us_desktop_after_sales">
                   <button className="btn btn-outline btn-primary">
                     ประเมินราคาฟรี
                   </button>
@@ -133,12 +126,12 @@ const WhyUs2 = ({ keyword }: Props) => {
       {/* Mobile Version - Visible below MD screens */}
       <div className="block md:hidden px-4 py-8">
         <div className="mb-6 mt-2">
-          <h1 className="text-2xl text-blue-600 font-bold text-center mb-1">
+          <h2 className="text-2xl text-blue-600 font-bold text-center mb-1">
             ทำไม{keyword}
-          </h1>
-          <h1 className="text-2xl font-bold text-center">
+          </h2>
+          <h2 className="text-2xl font-bold text-center">
             ต้องเลือกสยามรูฟเทค
-          </h1>
+          </h2>
         </div>
 
         <div className="flex flex-col gap-6">
@@ -171,7 +164,7 @@ const WhyUs2 = ({ keyword }: Props) => {
               </p>
             </div>
             <div className="p-4 border-t border-gray-50 bg-gray-50/50">
-              <a href="https://lin.ee/pPz1ZqN" target="_blank" rel="noopener noreferrer" className="w-full block" onClick={() => trackWhyUsClick('mobile_safety')}>
+              <a href="https://lin.ee/pPz1ZqN" target="_blank" rel="noopener noreferrer" className="w-full block" data-analytics-type="line" data-analytics-position="why_us_mobile_safety">
                 <button className="btn btn-outline btn-primary w-full">
                   ประเมินราคาฟรี
                 </button>
@@ -207,7 +200,7 @@ const WhyUs2 = ({ keyword }: Props) => {
               </p>
             </div>
             <div className="p-4 border-t border-gray-50 bg-gray-50/50">
-              <a href="https://lin.ee/pPz1ZqN" target="_blank" rel="noopener noreferrer" className="w-full block" onClick={() => trackWhyUsClick('mobile_design')}>
+              <a href="https://lin.ee/pPz1ZqN" target="_blank" rel="noopener noreferrer" className="w-full block" data-analytics-type="line" data-analytics-position="why_us_mobile_design">
                 <button className="btn btn-outline btn-primary w-full">
                   ประเมินราคาฟรี
                 </button>
@@ -244,7 +237,7 @@ const WhyUs2 = ({ keyword }: Props) => {
               </p>
             </div>
             <div className="p-4 border-t border-gray-50 bg-gray-50/50">
-              <a href="https://lin.ee/pPz1ZqN" target="_blank" rel="noopener noreferrer" className="w-full block" onClick={() => trackWhyUsClick('mobile_after_sales')}>
+              <a href="https://lin.ee/pPz1ZqN" target="_blank" rel="noopener noreferrer" className="w-full block" data-analytics-type="line" data-analytics-position="why_us_mobile_after_sales">
                 <button className="btn btn-outline btn-primary w-full">
                   ประเมินราคาฟรี
                 </button>

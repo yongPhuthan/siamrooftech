@@ -33,23 +33,23 @@ export default function ProjectPageClient({ project, relatedProjects }: ProjectP
     setIsModalOpen(true);
   };
 
-  const closeModal = () => {
+  const closeModal = useCallback(() => {
     setIsModalOpen(false);
     setImageLoaded(false);
     setIsZoomed(false);
-  };
+  }, []);
 
-  const nextImage = () => {
+  const nextImage = useCallback(() => {
     setImageLoaded(false);
     setIsZoomed(false);
     setModalImageIndex((prev) => (prev + 1) % displayImages.length);
-  };
+  }, [displayImages.length]);
 
-  const prevImage = () => {
+  const prevImage = useCallback(() => {
     setImageLoaded(false);
     setIsZoomed(false);
     setModalImageIndex((prev) => (prev - 1 + displayImages.length) % displayImages.length);
-  };
+  }, [displayImages.length]);
 
   const handleKeyPress = useCallback((e: KeyboardEvent) => {
     if (!isModalOpen) return;
@@ -61,7 +61,7 @@ export default function ProjectPageClient({ project, relatedProjects }: ProjectP
     } else if (e.key === 'ArrowRight') {
       nextImage();
     }
-  }, [isModalOpen]);
+  }, [closeModal, isModalOpen, nextImage, prevImage]);
 
   // Add keyboard event listeners
   React.useEffect(() => {
@@ -399,9 +399,12 @@ export default function ProjectPageClient({ project, relatedProjects }: ProjectP
               </div>
             )}
             
-            <img
+            <Image
               src={displayImages[modalImageIndex]?.original_size || '/images/default-project.jpg'}
               alt={displayImages[modalImageIndex]?.alt_text || `${project.title} - รูปที่ ${modalImageIndex + 1}`}
+              width={1600}
+              height={1200}
+              sizes="100vw"
               className={`transition-all duration-300 cursor-zoom-in ${
                 imageLoaded ? 'opacity-100' : 'opacity-0'
               } ${

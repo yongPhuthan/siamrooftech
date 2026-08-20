@@ -1,6 +1,6 @@
 // Example: Portfolio animations with React Spring v9.7
 import { useSpring, animated, useInView } from '@react-spring/web';
-import { Box, Typography } from '@mui/material';
+import Image from 'next/image';
 
 interface AnimatedPortfolioCardProps {
   title: string;
@@ -30,26 +30,21 @@ export default function AnimatedPortfolioCard({
 
   return (
     <animated.div ref={ref} style={cardAnimation}>
-      <Box sx={{ overflow: 'hidden', borderRadius: 2 }}>
-        <animated.img
-          src={image}
-          alt={title}
-          style={{
-            width: '100%',
-            height: 300,
-            objectFit: 'cover',
-            ...imageAnimation,
-          }}
-        />
-        <Box sx={{ p: 3 }}>
-          <Typography variant="h5" component="h3" gutterBottom>
-            {title}
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            {description}
-          </Typography>
-        </Box>
-      </Box>
+      <article className="overflow-hidden rounded-2xl bg-white shadow-sm transition-shadow hover:shadow-xl">
+        <animated.div className="relative h-[300px] w-full" style={imageAnimation}>
+          <Image
+            src={image}
+            alt={title}
+            fill
+            sizes="(max-width: 768px) 100vw, 33vw"
+            className="object-cover"
+          />
+        </animated.div>
+        <div className="space-y-2 p-6">
+          <h3 className="text-xl font-semibold text-gray-900">{title}</h3>
+          <p className="text-sm leading-relaxed text-gray-600">{description}</p>
+        </div>
+      </article>
     </animated.div>
   );
 }

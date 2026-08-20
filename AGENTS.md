@@ -1,7 +1,7 @@
-# Canvas Tent Sales Website - AGENTS.md
+# Siamrooftech SEO Website - AGENTS.md
 
 ## Project Overview
-A modern canvas tent sales website focusing on showcasing company portfolio and SEO-optimized articles. Built with TypeScript + Next.js 15 (App Router) + Firebase + Yarn in a monorepo structure.
+A modern Siamrooftech website for retractable awning services, portfolio showcases, and SEO-optimized articles. Built with TypeScript + Next.js 15 App Router + Firebase. The current application code lives primarily under `src/`, with supporting packages and legacy workspace folders also present.
 
 **CRITICAL: This is an SEO-focused website. NEVER use 'use client' or client-side rendering except for admin pages. Always prioritize SSG/ISR for public pages.**
 
@@ -10,21 +10,21 @@ A modern canvas tent sales website focusing on showcasing company portfolio and 
 ### Dependencies (Current Versions)
 ```json
 {
- "@emotion/cache": "^11.11.0",
- "@emotion/react": "^11.11.4",
- "@emotion/styled": "^11.11.0",
- "@mui/icons-material": "^5.15.12",
- "@mui/material": "^5.15.12",
- "@mui/material-nextjs": "^5.15.11",
- "@next/third-parties": "^15.0.1",
+ "@base-ui/react": "^1.5.0",
+ "@next/third-parties": "^15.5.9",
  "@react-spring/web": "^9.7.3",
  "@fortawesome/react-fontawesome": "^0.2.0",
+ "class-variance-authority": "^0.7.1",
+ "clsx": "^2.1.1",
  "firebase": "^12.0.0",
  "firebase-admin": "^13.4.0",
- "next": "^15.0.1",
+ "lucide-react": "^1.17.0",
+ "next": "^15.5.9",
  "react": "^18",
  "react-dom": "^18",
+ "shadcn": "^4.11.0",
  "swiper": "^11.0.6",
+ "tailwind-merge": "^3.6.0",
  "uuid": "^11.1.0"
 }
 ```
@@ -62,13 +62,13 @@ yarn firebase:functions  # Deploy only functions
 ### Monorepo Structure
 ```
 /
-├── apps/
-│   └── web/                 # Main Next.js application
-├── packages/
-│   ├── ui/                  # Shared UI components (MUI/Tailwind)
-│   ├── firebase-config/     # Firebase configuration
-│   └── types/               # Shared TypeScript types
-├── functions/               # Firebase Cloud Functions
+├── src/                     # Main Next.js application
+│   ├── app/                 # App Router pages, layouts, and public UI
+│   ├── components/          # Shared/admin components including shadcn-style UI
+│   └── lib/                 # Firebase, SEO, project, and upload utilities
+├── public/                  # Static assets
+├── packages/                # Supporting workspace packages
+├── apps/                    # Legacy/supporting workspace folders
 └── docs/                    # Documentation
 ```
 
@@ -90,11 +90,12 @@ yarn firebase:functions  # Deploy only functions
 - Use semantic HTML structure
 
 ### Styling & UI
-- **MUI v5.15.12**: Primary component library with Emotion styling
-- **@mui/material-nextjs**: Next.js optimized MUI integration
-- **@emotion/react & @emotion/styled**: CSS-in-JS styling solution
-- **@mui/icons-material**: Material Design icons
-- **@fortawesome/react-fontawesome**: FontAwesome icons for additional icons
+- **Tailwind CSS utility classes** are the primary styling approach for public pages and admin UI.
+- **shadcn-style components** are configured through `components.json` with `rsc: true`, `tsx: true`, `baseColor: neutral`, and aliases such as `@/components/ui` and `@/lib/utils`.
+- **@base-ui/react** is available for accessible low-level primitives when a custom component needs robust interaction behavior.
+- **lucide-react** is the primary icon library for UI controls and navigation icons.
+- **DaisyUI classes** are still used in parts of the existing UI, especially button classes such as `btn`, `btn-primary`, and `btn-outline`.
+- **Do not introduce MUI or Emotion** for new UI. The project no longer depends on `@mui/material`, `@mui/material-nextjs`, or Emotion packages.
 
 ### Design System
 **IMPORTANT: Before making UI changes to project-related components, ALWAYS consult:**
@@ -117,7 +118,7 @@ This design system ensures consistency across:
 
 ### Animations & Interactions
 - **@react-spring/web v9.7.3**: Spring-physics based animations
-- **Swiper v11.0.6**: Touch slider component for portfolio galleries
+- **Swiper v11.0.6**: Legacy/modal gallery usage only. Avoid adding Swiper to static public sections because it increases client JavaScript.
 
 ### Firebase Integration
 - **firebase v12.0.0**: Client-side Firebase SDK

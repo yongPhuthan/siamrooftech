@@ -22,13 +22,23 @@ echo "🔥 Downloading Firebase v12 docs..."
 curl -s "https://raw.githubusercontent.com/firebase/firebase-js-sdk/v12.0.0/docs/firestore.md" \
   -o "$DOCS_DIR/firebase-v12-firestore.md" 2>/dev/null || echo "⚠️  Firebase v12 doc not found, using latest"
 
-# MUI v5.15.12 documentation
-echo "🎨 Downloading MUI v5.15 docs..."
-curl -s "https://raw.githubusercontent.com/mui/material-ui/v5.15.12/docs/data/material/getting-started/overview/overview.md" \
-  -o "$DOCS_DIR/mui-v5-overview.md" 2>/dev/null || echo "⚠️  MUI v5.15 doc not found, using latest"
+# UI stack notes
+echo "🎨 Writing Tailwind + shadcn-style UI notes..."
+cat > "$DOCS_DIR/ui-stack.md" << 'EOF'
+# UI Stack
 
-curl -s "https://raw.githubusercontent.com/mui/material-ui/v5.15.12/docs/data/material/components/app-bar/app-bar.md" \
-  -o "$DOCS_DIR/mui-v5-components.md" 2>/dev/null || echo "⚠️  MUI components doc not found, using latest"
+This project uses Tailwind utility classes, shadcn-style component structure, Base UI primitives, lucide-react icons, and some existing DaisyUI classes.
+
+Do not introduce MUI or Emotion for new UI work. The current dependency set does not include `@mui/material`, `@mui/material-nextjs`, or Emotion packages.
+
+## Project Conventions
+
+- Public SEO pages should stay server-rendered by default.
+- Add `'use client'` only for real browser state, event handling, browser APIs, or interactive widgets.
+- Prefer `src/components/ui` for reusable shadcn-style primitives.
+- Prefer `lucide-react` for icons.
+- Use `next/image` for public images and provide useful `alt` text and `sizes`.
+EOF
 
 # React Spring v9.7 documentation
 echo "🌸 Downloading React Spring v9.7 docs..."
@@ -43,40 +53,36 @@ curl -s "https://raw.githubusercontent.com/nolimits4web/swiper/v11.0.6/README.md
 # Create common implementation examples
 echo "📋 Creating implementation examples..."
 
-# MUI + Next.js example
-cat > "$EXAMPLES_DIR/mui-nextjs-setup.tsx" << 'EOF'
-// Example: MUI + Next.js 15 + Emotion setup
-import { AppRouterCacheProvider } from '@mui/material-nextjs/v14-appRouter';
-import { ThemeProvider } from '@mui/material/styles';
-import CssBaseline from '@mui/material/CssBaseline';
-import theme from './theme';
+# Tailwind + shadcn-style component example
+cat > "$EXAMPLES_DIR/ui-button-link.tsx" << 'EOF'
+import Link from 'next/link';
+import { ArrowRight } from 'lucide-react';
 
-export default function RootLayout({
-  children,
-}: {
+type ButtonLinkProps = {
+  href: string;
   children: React.ReactNode;
-}) {
+};
+
+export function ButtonLink({ href, children }: ButtonLinkProps) {
   return (
-    <html lang="th">
-      <body>
-        <AppRouterCacheProvider>
-          <ThemeProvider theme={theme}>
-            <CssBaseline />
-            {children}
-          </ThemeProvider>
-        </AppRouterCacheProvider>
-      </body>
-    </html>
+    <Link
+      href={href}
+      className="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-700"
+    >
+      {children}
+      <ArrowRight className="h-4 w-4" aria-hidden="true" />
+    </Link>
   );
 }
 EOF
 
 # Portfolio gallery with Swiper
 cat > "$EXAMPLES_DIR/portfolio-gallery.tsx" << 'EOF'
-// Example: Portfolio gallery with Swiper v11 + MUI
+// Example: Swiper v11 for an interactive modal/gallery only.
+// Do not use Swiper for static public sections such as logo strips.
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination, EffectFade } from 'swiper/modules';
-import { Box, Card, CardMedia } from '@mui/material';
+import Image from 'next/image';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
@@ -89,7 +95,7 @@ interface PortfolioGalleryProps {
 
 export default function PortfolioGallery({ images, title }: PortfolioGalleryProps) {
   return (
-    <Box sx={{ width: '100%', height: 400 }}>
+    <div className="h-[400px] w-full overflow-hidden rounded-xl bg-gray-100">
       <Swiper
         modules={[Navigation, Pagination, EffectFade]}
         spaceBetween={30}
@@ -101,18 +107,19 @@ export default function PortfolioGallery({ images, title }: PortfolioGalleryProp
       >
         {images.map((image, index) => (
           <SwiperSlide key={index}>
-            <Card>
-              <CardMedia
-                component="img"
-                height="400"
-                image={image}
+            <div className="relative h-[400px] w-full">
+              <Image
+                src={image}
                 alt={`${title} - รูปที่ ${index + 1}`}
+                fill
+                sizes="100vw"
+                className="object-cover"
               />
-            </Card>
+            </div>
           </SwiperSlide>
         ))}
       </Swiper>
-    </Box>
+    </div>
   );
 }
 EOF
@@ -159,7 +166,7 @@ EOF
 cat > "$EXAMPLES_DIR/portfolio-animations.tsx" << 'EOF'
 // Example: Portfolio animations with React Spring v9.7
 import { useSpring, animated, useInView } from '@react-spring/web';
-import { Box, Typography } from '@mui/material';
+import Image from 'next/image';
 
 interface AnimatedPortfolioCardProps {
   title: string;
@@ -190,26 +197,21 @@ export default function AnimatedPortfolioCard({
 
   return (
     <animated.div ref={ref} style={cardAnimation}>
-      <Box sx={{ overflow: 'hidden', borderRadius: 2 }}>
-        <animated.img
-          src={image}
-          alt={title}
-          style={{
-            width: '100%',
-            height: 300,
-            objectFit: 'cover',
-            ...imageAnimation,
-          }}
-        />
-        <Box sx={{ p: 3 }}>
-          <Typography variant="h5" component="h3" gutterBottom>
-            {title}
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            {description}
-          </Typography>
-        </Box>
-      </Box>
+      <article className="overflow-hidden rounded-2xl bg-white shadow-sm transition-shadow hover:shadow-xl">
+        <animated.div className="relative h-[300px] w-full" style={imageAnimation}>
+          <Image
+            src={image}
+            alt={title}
+            fill
+            sizes="(max-width: 768px) 100vw, 33vw"
+            className="object-cover"
+          />
+        </animated.div>
+        <div className="space-y-2 p-6">
+          <h3 className="text-xl font-semibold text-gray-900">{title}</h3>
+          <p className="text-sm leading-relaxed text-gray-600">{description}</p>
+        </div>
+      </article>
     </animated.div>
   );
 }
@@ -218,21 +220,20 @@ EOF
 # Create index file
 echo "📋 Creating documentation index..."
 cat > "$DOCS_DIR/README.md" << EOF
-# API Documentation for Canvas Tent Website
+# API Documentation for Siamrooftech SEO Website
 
 Last updated: $(date)
 
 ## Current Dependencies Documentation
-- [Next.js 15.0.1 Routing](./nextjs-15-routing.md)
-- [Next.js 15.0.1 Data Fetching](./nextjs-15-data-fetching.md) 
+- [Next.js 15 Routing](./nextjs-15-routing.md)
+- [Next.js 15 Data Fetching](./nextjs-15-data-fetching.md)
 - [Firebase v12 Firestore](./firebase-v12-firestore.md)
-- [MUI v5.15.12 Overview](./mui-v5-overview.md)
-- [MUI v5.15.12 Components](./mui-v5-components.md)
+- [Tailwind + shadcn-style UI Stack](./ui-stack.md)
 - [React Spring v9.7](./react-spring-v9.md)
 - [Swiper v11](./swiper-v11.md)
 
 ## Implementation Examples
-- [MUI + Next.js Setup](../examples/mui-nextjs-setup.tsx)
+- [Tailwind/shadcn-style Button Link](../examples/ui-button-link.tsx)
 - [Portfolio Gallery with Swiper](../examples/portfolio-gallery.tsx)
 - [Firebase v12 Setup](../examples/firebase-v12-setup.ts)
 - [Portfolio Animations](../examples/portfolio-animations.tsx)
@@ -242,13 +243,13 @@ Tell Claude to check these files for implementation patterns:
 \`\`\`
 Check docs/apis/firebase-v12-firestore.md for v12 query examples
 Look at docs/examples/portfolio-gallery.tsx for Swiper v11 implementation
-Check docs/apis/mui-v5-components.md for MUI v5.15 patterns
+Check docs/apis/ui-stack.md for Tailwind/shadcn-style UI patterns
 \`\`\`
 
 ## Key Integration Patterns
-1. **MUI + Next.js 15**: Use AppRouterCacheProvider with Emotion
+1. **Tailwind + shadcn-style components**: Use server components by default on public SEO pages
 2. **Firebase v12**: New modular imports and query syntax
-3. **Swiper v11**: Updated modules import system
+3. **Swiper v11**: Use only for interactive galleries/modals, not static public sections
 4. **React Spring v9.7**: useInView hook for scroll animations
 5. **SEO Focus**: Always SSG/ISR for public pages
 EOF

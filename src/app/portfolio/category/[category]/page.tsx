@@ -7,6 +7,7 @@ import Breadcrumbs from '../../../components/ui/Breadcrumbs';
 import PortfolioGrid from '../../../components/portfolio/PortfolioGrid';
 import PortfolioFilters from '../../../components/portfolio/PortfolioFilters';
 import FinalCTASection from '../../../components/FinalCTASection';
+import { canonicalUrl } from '@/lib/seo-config';
 
 export const revalidate = 300;
 
@@ -61,7 +62,7 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
     "@type": "CollectionPage",
     "name": title,
     "description": description,
-    "url": `https://siamrooftech.com/portfolio/category/${category}`,
+    "url": canonicalUrl(`/portfolio/category/${category}`),
     "about": {
       "@type": "Thing",
       "name": decodedCategory
@@ -69,7 +70,7 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
     "publisher": {
       "@type": "Organization",
       "name": "สยามรูฟเทค",
-      "url": "https://siamrooftech.com"
+      "url": canonicalUrl('/')
     },
     "mainEntity": {
       "@type": "ItemList",
@@ -80,7 +81,7 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
         "name": project.title,
         "description": Array.isArray(project.description) ? project.description.join(' ') : project.description,
         "image": project.featured_image || project.images?.[0]?.original_size,
-        "url": `https://siamrooftech.com/portfolio/${project.slug || project.id}`,
+        "url": canonicalUrl(`/portfolio/${project.slug || project.id}`),
         "category": project.category
       }))
     }
@@ -90,10 +91,14 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
     title,
     description,
     keywords,
+    alternates: {
+      canonical: canonicalUrl(`/portfolio/category/${category}`),
+    },
     openGraph: {
       title,
       description,
       type: 'website',
+      url: canonicalUrl(`/portfolio/category/${category}`),
     },
     other: {
       'application/ld+json': JSON.stringify(structuredData),

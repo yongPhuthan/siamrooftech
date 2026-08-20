@@ -51,9 +51,6 @@ export const metadata: Metadata = {
       "max-snippet": -1,
     },
   },
-  alternates: {
-    canonical: "https://www.siamrooftech.com/",
-  },
   openGraph: {
     title: "กันสาดพับได้ ระบบมือหมุน-มอเตอร์ไฟฟ้า คุณภาพยุโรป | Siamrooftech",
     description:

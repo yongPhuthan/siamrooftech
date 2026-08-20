@@ -1,4 +1,5 @@
 import { MetadataRoute } from 'next'
+import { SITE_URL } from '@/lib/seo-config'
 
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -10,32 +11,10 @@ export default function robots(): MetadataRoute.Robots {
           '/private/',
           '/admin/',
           '/api/',
-          '/_next/',
-          '/static/',
         ],
       },
-      {
-        userAgent: 'GPTBot',
-        disallow: '/',
-      },
-      {
-        userAgent: 'ChatGPT-User',
-        disallow: '/',
-      },
-      {
-        userAgent: 'CCBot',
-        disallow: '/',
-      },
-      {
-        userAgent: 'anthropic-ai',
-        disallow: '/',
-      },
-      {
-        userAgent: 'Claude-Web',
-        disallow: '/',
-      },
     ],
-    sitemap: 'https://www.siamrooftech.com/sitemap.xml',
-    host: 'https://www.siamrooftech.com',
+    sitemap: `${SITE_URL}/sitemap.xml`,
+    host: SITE_URL,
   }
 }

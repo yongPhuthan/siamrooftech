@@ -2,14 +2,19 @@ import { Metadata } from 'next';
 import Breadcrumbs from '../components/ui/Breadcrumbs';
 import FinalCTASection from '../components/FinalCTASection';
 import TrackedContactLink from '../components/TrackedContactLink';
+import { canonicalUrl, SERVICE_AREAS_TH } from '@/lib/seo-config';
 
 export const metadata: Metadata = {
   title: 'ติดต่อเรา - กันสาดพับเก็บได้ | สยามรูฟเทค',
-  description: 'ติดต่อสยามรูฟเทคเพื่อปรึกษาและขอใบเสนอราคากันสาดพับเก็บได้ ฟรี! บริการมืออาชีพ ติดตั้งทั่วประเทศ',
+  description: 'ติดต่อสยามรูฟเทคเพื่อปรึกษาและขอใบเสนอราคากันสาดพับเก็บได้ บริการกรุงเทพ นครปฐม นนทบุรี ปทุมธานี สมุทรปราการ อยุธยา สมุทรสาคร',
   keywords: 'ติดต่อ, สยามรูฟเทค, กันสาดพับเก็บได้, ใบเสนอราคา, ปรึกษา',
+  alternates: {
+    canonical: canonicalUrl('/contact'),
+  },
   openGraph: {
     title: 'ติดต่อเรา - กันสาดพับเก็บได้ | สยามรูฟเทค',
-    description: 'ติดต่อสยามรูฟเทคเพื่อปรึกษาและขอใบเสนอราคากันสาดพับเก็บได้ ฟรี!',
+    description: 'ติดต่อสยามรูฟเทคเพื่อปรึกษาและขอใบเสนอราคากันสาดพับเก็บได้ ในกรุงเทพและปริมณฑลใกล้เคียง',
+    url: canonicalUrl('/contact'),
     images: ['/images/contact-hero.jpg'],
   },
 };
@@ -178,30 +183,14 @@ export default function ContactPage() {
             <div className="bg-white rounded-2xl shadow-lg p-8">
               <h3 className="heading-panel text-gray-900 mb-6">พื้นที่บริการ</h3>
               <div className="space-y-4">
-                <div className="flex items-center space-x-3">
-                  <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                  <span className="text-gray-700">กรุงเทพมหานคร</span>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                  <span className="text-gray-700">ปริมณฑล</span>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                  <span className="text-gray-700">ภาคกลาง</span>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <span className="text-gray-700">ต่างจังหวัด (สอบถาม)</span>
-                </div>
+                {SERVICE_AREAS_TH.map((area) => (
+                  <div key={area} className="flex items-center space-x-3">
+                    <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span className="text-gray-700">{area}</span>
+                  </div>
+                ))}
               </div>
             </div>
 

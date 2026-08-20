@@ -1,18 +1,17 @@
-# API Documentation for Canvas Tent Website
+# API Documentation for Siamrooftech SEO Website
 
-Last updated: Sun Aug  3 17:29:44 +07 2025
+Last updated: Fri Jul 24 2026
 
 ## Current Dependencies Documentation
-- [Next.js 15.0.1 Routing](./nextjs-15-routing.md)
-- [Next.js 15.0.1 Data Fetching](./nextjs-15-data-fetching.md) 
+- [Next.js 15 Routing](./nextjs-15-routing.md)
+- [Next.js 15 Data Fetching](./nextjs-15-data-fetching.md)
 - [Firebase v12 Firestore](./firebase-v12-firestore.md)
-- [MUI v5.15.12 Overview](./mui-v5-overview.md)
-- [MUI v5.15.12 Components](./mui-v5-components.md)
+- [Tailwind + shadcn-style UI Stack](./ui-stack.md)
 - [React Spring v9.7](./react-spring-v9.md)
 - [Swiper v11](./swiper-v11.md)
 
 ## Implementation Examples
-- [MUI + Next.js Setup](../examples/mui-nextjs-setup.tsx)
+- [Tailwind/shadcn-style Button Link](../examples/ui-button-link.tsx)
 - [Portfolio Gallery with Swiper](../examples/portfolio-gallery.tsx)
 - [Firebase v12 Setup](../examples/firebase-v12-setup.ts)
 - [Portfolio Animations](../examples/portfolio-animations.tsx)
@@ -22,12 +21,12 @@ Tell Claude to check these files for implementation patterns:
 ```
 Check docs/apis/firebase-v12-firestore.md for v12 query examples
 Look at docs/examples/portfolio-gallery.tsx for Swiper v11 implementation
-Check docs/apis/mui-v5-components.md for MUI v5.15 patterns
+Check docs/apis/ui-stack.md for Tailwind/shadcn-style UI patterns
 ```
 
 ## Key Integration Patterns
-1. **MUI + Next.js 15**: Use AppRouterCacheProvider with Emotion
+1. **Tailwind + shadcn-style components**: Use server components by default on public SEO pages
 2. **Firebase v12**: New modular imports and query syntax
-3. **Swiper v11**: Updated modules import system
+3. **Swiper v11**: Use only for interactive galleries/modals, not static public sections
 4. **React Spring v9.7**: useInView hook for scroll animations
 5. **SEO Focus**: Always SSG/ISR for public pages

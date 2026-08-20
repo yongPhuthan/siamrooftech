@@ -1,5 +1,3 @@
-'use client';
-
 import ProjectShow from './section/ProjectShow';
 import { ProjectShowData } from '@/lib/project-utils';
 

@@ -15,6 +15,8 @@ import { hasVideos, getVideos, sortVideos } from '@/lib/project-video-utils';
 import VideoPlayer from '@/components/ui/VideoPlayer';
 import VideoModal from '@/components/ui/VideoModal';
 import { trackLineClick, trackPhoneClick } from '@/lib/gtag';
+import { getServiceLinksForProject } from '@/lib/service-linking';
+import { getProjectProof, hasManualProjectProof } from '@/lib/project-proof';
 
 interface PortfolioDetailClientProps {
   project: Project;
@@ -23,6 +25,9 @@ interface PortfolioDetailClientProps {
 export default function PortfolioDetailClient({ project }: PortfolioDetailClientProps) {
   const { getRelatedProjects } = usePortfolioStore();
   const relatedProjects = getRelatedProjects(project, 3);
+  const serviceLinks = getServiceLinksForProject(project);
+  const projectProof = getProjectProof(project);
+  const hasManualProof = hasManualProjectProof(project);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [lightboxImageIndex, setLightboxImageIndex] = useState(0);
   const [lightboxImageType, setLightboxImageType] = useState<'before' | 'after' | 'regular'>('regular');
@@ -307,9 +312,9 @@ return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Mobile-only heading: แสดงบนหน้าจอเล็กเท่านั้น (ซ่อนบน lg+) */}
       <div className="block lg:hidden mb-6">
-        <h1 className="heading-panel text-gray-900 mb-2">
+        <p className="heading-panel text-gray-900 mb-2">
           กันสาดพับเก็บได้ {project.type} หน้ากว้าง {project.width} เมตร x ระยะแขนพับ {project.extension} เมตร
-        </h1>
+        </p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
@@ -478,6 +483,61 @@ return (
                   </div>
                 )}
               </div>
+            </div>
+          </div>
+
+          {/* Portfolio Proof */}
+          <section className="rounded-xl border border-emerald-100 bg-emerald-50 p-5">
+            <div className="flex flex-wrap items-center gap-2">
+              <h2 className="text-base font-semibold text-gray-950">
+                หลักฐานจากหน้างานนี้
+              </h2>
+              {hasManualProof && (
+                <span className="rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-emerald-800">
+                  ข้อมูลกรอกจริง
+                </span>
+              )}
+            </div>
+            <dl className="mt-4 grid gap-4 text-sm leading-relaxed text-gray-700">
+              <div>
+                <dt className="font-semibold text-gray-950">โจทย์ก่อนติดตั้ง</dt>
+                <dd className="mt-1">{projectProof.problem}</dd>
+              </div>
+              <div>
+                <dt className="font-semibold text-gray-950">วิธีแก้/สิ่งที่ติดตั้ง</dt>
+                <dd className="mt-1">{projectProof.solution}</dd>
+              </div>
+              <div>
+                <dt className="font-semibold text-gray-950">ผลลัพธ์หลังติดตั้ง</dt>
+                <dd className="mt-1">{projectProof.outcome}</dd>
+              </div>
+              {projectProof.notes.length > 0 && (
+                <div>
+                  <dt className="font-semibold text-gray-950">หลักฐานเสริม</dt>
+                  <dd className="mt-1">{projectProof.notes.join(', ')}</dd>
+                </div>
+              )}
+            </dl>
+          </section>
+
+          {/* Service Internal Links */}
+          <div className="rounded-xl border border-blue-100 bg-blue-50 p-5">
+            <h2 className="text-base font-semibold text-gray-950">
+              บริการที่เกี่ยวข้องกับผลงานนี้
+            </h2>
+            <p className="mt-2 text-sm leading-relaxed text-gray-600">
+              ลิงก์ส่วนนี้ช่วยให้ผู้ใช้และ crawler เชื่อมโยงผลงานจริงกับหน้าบริการหลักและพื้นที่ให้บริการที่เกี่ยวข้อง
+            </p>
+            <div className="mt-4 flex flex-wrap gap-2">
+              {serviceLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="rounded-full border border-blue-200 bg-white px-3 py-1.5 text-sm font-medium text-blue-800 transition-colors hover:bg-blue-100"
+                >
+                  {link.label}
+                </Link>
+              ))}
             </div>
           </div>
 
@@ -654,14 +714,16 @@ return (
               >
                 {/* Image */}
                 <div className="relative h-48 sm:h-56 lg:h-56 overflow-hidden">
-                  <img
+                  <Image
                     src={
                       relatedProject.featured_image ||
                       relatedProject.images?.[0]?.original_size ||
                       "/images/default-project.jpg"
                     }
                     alt={relatedProject.title}
-                    className="w-full h-full object-cover"
+                    fill
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                    className="object-cover"
                     loading="lazy"
                   />
                 </div>

@@ -26,6 +26,7 @@ export interface Project {
   timeline?: ProjectTimeline[];
   testimonial?: ProjectTestimonial;
   technicalSpecs?: ProjectTechnicalSpecs;
+  proof?: ProjectProof;
   relatedProjects?: string[]; // Array of project IDs
   client?: string;
   completionDate?: string;
@@ -34,6 +35,16 @@ export interface Project {
   seoKeywords?: string[];
   viewCount?: number; // Track number of views
   lastViewedAt?: string; // Last view timestamp
+}
+
+export interface ProjectProof {
+  serviceType?: 'กันสาดพับเก็บได้' | 'กันสาดพับไฟฟ้า' | 'กันสาดพับเก็บได้สองระบบ';
+  customerType?: string;
+  serviceArea?: string;
+  problem?: string;
+  solution?: string;
+  outcome?: string;
+  proofNotes?: string[];
 }
 
 export interface ProjectTimeline {

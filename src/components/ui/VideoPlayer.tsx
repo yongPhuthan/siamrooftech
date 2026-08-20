@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { ProjectVideo } from '../../lib/firestore';
 import { getVideoTypeBadge } from '../../lib/project-video-utils';
 import { formatVideoDuration } from '../../lib/cloudflare/uploadVideo';
@@ -37,7 +37,7 @@ export default function VideoPlayer({
   const typeBadge = getVideoTypeBadge(video.type);
 
   // Handle play/pause
-  const togglePlay = () => {
+  const togglePlay = useCallback(() => {
     if (!videoRef.current) return;
 
     if (isPlaying) {
@@ -48,17 +48,17 @@ export default function VideoPlayer({
       onPlay?.();
     }
     setIsPlaying(!isPlaying);
-  };
+  }, [isPlaying, onPause, onPlay]);
 
   // Handle mute/unmute
-  const toggleMute = () => {
+  const toggleMute = useCallback(() => {
     if (!videoRef.current) return;
     videoRef.current.muted = !isMuted;
     setIsMuted(!isMuted);
-  };
+  }, [isMuted]);
 
   // Handle fullscreen
-  const toggleFullscreen = () => {
+  const toggleFullscreen = useCallback(() => {
     if (!videoRef.current) return;
 
     if (!isFullscreen) {
@@ -71,7 +71,7 @@ export default function VideoPlayer({
       }
     }
     setIsFullscreen(!isFullscreen);
-  };
+  }, [isFullscreen]);
 
   // Update time
   const handleTimeUpdate = () => {
@@ -119,7 +119,7 @@ export default function VideoPlayer({
 
     document.addEventListener('keydown', handleKeyPress);
     return () => document.removeEventListener('keydown', handleKeyPress);
-  }, [isPlaying, duration]);
+  }, [duration, toggleFullscreen, toggleMute, togglePlay]);
 
   // Auto-hide controls on desktop
   useEffect(() => {

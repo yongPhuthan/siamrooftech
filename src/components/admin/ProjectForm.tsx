@@ -5,7 +5,7 @@ import { collection, addDoc, doc, updateDoc } from "firebase/firestore";
 import { db } from "../../lib/firebase";
 import { UploadResult, uploadImageToCloudflare } from "../../app/lib/cloudflare/uploadImage";
 import MediaUploadTabs, { LocalImageFile, LocalVideoFile } from "./MediaUploadTabs";
-import { Project, ProjectImage, ProjectVideo } from "../../lib/firestore";
+import { Project, ProjectImage, ProjectProof, ProjectVideo } from "../../lib/firestore";
 import { getAfterImages, getBeforeImages } from "../../lib/project-image-utils";
 import { uploadVideoToCloudflare } from "../../lib/cloudflare/uploadVideo";
 import PDFAutofillComponent from "./PDFAutofillComponent";
@@ -25,6 +25,7 @@ interface ProjectFormData {
   slug?: string; // จะถูกสร้างอัตโนมัติจากขนาด
   images: ProjectImage[];
   videos?: ProjectVideo[]; // Optional videos array
+  proof: ProjectProof;
 }
 
 const categories = [
@@ -42,6 +43,22 @@ const categories = [
 
 const currentYear = new Date().getFullYear();
 const years = Array.from({ length: 10 }, (_, i) => currentYear - i);
+
+const serviceTypes: NonNullable<ProjectProof["serviceType"]>[] = [
+  "กันสาดพับเก็บได้",
+  "กันสาดพับไฟฟ้า",
+  "กันสาดพับเก็บได้สองระบบ",
+];
+
+const serviceAreas = [
+  "กรุงเทพ",
+  "นนทบุรี",
+  "ปทุมธานี",
+  "นครปฐม",
+  "สมุทรปราการ",
+  "อยุธยา",
+  "สมุทรสาคร",
+];
 
 // ฟังก์ชันสร้าง slug จากขนาดและเวลา เพื่อป้องกันการซ้ำ
 const generateSlug = (width: number, extension: number): string => {
@@ -73,6 +90,7 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
     canvas_material: "ผ้าอะคริลิคสเปน",
     fabric_edge: "ตัดเรียบ",
     images: [],
+    proof: {},
   });
 
   const [submitting, setSubmitting] = useState(false);
@@ -327,7 +345,8 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
         fabric_edge: project.fabric_edge || "ตัดเรียบ",
         featured_image: project.featured_image,
         slug: project.slug,
-        images: project.images || []
+        images: project.images || [],
+        proof: project.proof || {},
       });
     }
   }, [project]);
@@ -350,6 +369,29 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
       description: prev.description.map((desc, i) =>
         i === index ? value : desc
       ),
+    }));
+  };
+
+  const handleProofChange = (field: keyof ProjectProof, value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      proof: {
+        ...prev.proof,
+        [field]: value,
+      },
+    }));
+  };
+
+  const handleProofNotesChange = (value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      proof: {
+        ...prev.proof,
+        proofNotes: value
+          .split("\n")
+          .map((note) => note.trim())
+          .filter(Boolean),
+      },
     }));
   };
 
@@ -501,6 +543,9 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
     if (formData.description.every((desc) => !desc.trim())) {
       errors.push("กรุณากรอกรายละเอียดอย่างน้อย 1 รายการ");
     }
+    if (!formData.proof.problem?.trim()) errors.push("กรุณากรอกโจทย์ก่อนติดตั้ง");
+    if (!formData.proof.solution?.trim()) errors.push("กรุณากรอกวิธีแก้หรือสิ่งที่ติดตั้ง");
+    if (!formData.proof.outcome?.trim()) errors.push("กรุณากรอกผลลัพธ์หลังติดตั้ง");
 
     // Check for images (uploaded + local preview files)
     const hasUploadedImages = afterImages.length > 0 || beforeImages.length > 0;
@@ -657,6 +702,10 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
         description: finalFormData.description.filter(
           (desc) => desc.trim() !== ""
         ),
+        proof: {
+          ...finalFormData.proof,
+          proofNotes: finalFormData.proof.proofNotes?.filter((note) => note.trim()),
+        },
         updated_at: new Date(),
         ...(project ? {} : { created_at: new Date() }), // Only add created_at for new projects
       };
@@ -774,6 +823,7 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
           canvas_material: "ผ้าอะคริลิคสเปน",
           fabric_edge: "ตัดเรียบ",
           images: [],
+          proof: {},
         });
 
         // Reset Before/After images state
@@ -1113,6 +1163,153 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
                 <option value="ตัดเรียบ + พิมพ์ Logo">ตัดเรียบ + พิมพ์ Logo</option>
                 <option value="โค้งลอน + พิมพ์ Logo">โค้งลอน + พิมพ์ Logo</option>
               </select>
+            </div>
+          </div>
+
+          {/* SEO Proof */}
+          <div className="rounded-lg border border-emerald-100 bg-emerald-50 p-5">
+            <div className="mb-5">
+              <h2 className="text-base font-semibold text-gray-900">
+                ข้อมูลหลักฐาน SEO สำหรับผลงาน *
+              </h2>
+              <p className="mt-1 text-sm text-gray-600">
+                ข้อมูลนี้จะแสดงบนหน้า portfolio และถูกดึงไปใช้เป็น proof บนหน้า service/local page
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
+              <div>
+                <label
+                  htmlFor="proof-serviceType"
+                  className="mb-2 block text-sm font-semibold text-gray-900"
+                >
+                  ประเภทบริการ
+                </label>
+                <select
+                  id="proof-serviceType"
+                  value={formData.proof.serviceType || ""}
+                  onChange={(e) => handleProofChange("serviceType", e.target.value)}
+                  className={inputClass}
+                >
+                  <option value="">ให้ระบบอนุมานจากประเภทระบบ</option>
+                  {serviceTypes.map((type) => (
+                    <option key={type} value={type}>
+                      {type}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label
+                  htmlFor="proof-customerType"
+                  className="mb-2 block text-sm font-semibold text-gray-900"
+                >
+                  ประเภทลูกค้า
+                </label>
+                <input
+                  id="proof-customerType"
+                  value={formData.proof.customerType || ""}
+                  onChange={(e) => handleProofChange("customerType", e.target.value)}
+                  className={inputClass}
+                  placeholder="เช่น บ้านพักอาศัย, ร้านอาหาร, สำนักงาน"
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="proof-serviceArea"
+                  className="mb-2 block text-sm font-semibold text-gray-900"
+                >
+                  พื้นที่ SEO
+                </label>
+                <select
+                  id="proof-serviceArea"
+                  value={formData.proof.serviceArea || ""}
+                  onChange={(e) => handleProofChange("serviceArea", e.target.value)}
+                  className={inputClass}
+                >
+                  <option value="">ให้ระบบอนุมานจากสถานที่</option>
+                  {serviceAreas.map((area) => (
+                    <option key={area} value={area}>
+                      {area}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div className="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-3">
+              <div>
+                <label
+                  htmlFor="proof-problem"
+                  className="mb-2 block text-sm font-semibold text-gray-900"
+                >
+                  โจทย์ก่อนติดตั้ง *
+                </label>
+                <textarea
+                  id="proof-problem"
+                  value={formData.proof.problem || ""}
+                  onChange={(e) => handleProofChange("problem", e.target.value)}
+                  rows={5}
+                  required
+                  className={textareaClass}
+                  placeholder="เช่น แดดบ่ายส่องหน้าร้าน ลูกค้านั่งไม่ได้ และไม่ต้องการหลังคาถาวร"
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="proof-solution"
+                  className="mb-2 block text-sm font-semibold text-gray-900"
+                >
+                  วิธีแก้/สิ่งที่ติดตั้ง *
+                </label>
+                <textarea
+                  id="proof-solution"
+                  value={formData.proof.solution || ""}
+                  onChange={(e) => handleProofChange("solution", e.target.value)}
+                  rows={5}
+                  required
+                  className={textareaClass}
+                  placeholder="เช่น ติดตั้งกันสาดพับไฟฟ้า กว้าง 5 เมตร ยื่น 2 เมตร ใช้ผ้าอะคริลิคสเปน"
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="proof-outcome"
+                  className="mb-2 block text-sm font-semibold text-gray-900"
+                >
+                  ผลลัพธ์หลังติดตั้ง *
+                </label>
+                <textarea
+                  id="proof-outcome"
+                  value={formData.proof.outcome || ""}
+                  onChange={(e) => handleProofChange("outcome", e.target.value)}
+                  rows={5}
+                  required
+                  className={textareaClass}
+                  placeholder="เช่น ใช้พื้นที่หน้าร้านได้มากขึ้น กางพับสะดวก และภาพหน้าร้านดูเรียบร้อย"
+                />
+              </div>
+            </div>
+
+            <div className="mt-5">
+              <label
+                htmlFor="proof-notes"
+                className="mb-2 block text-sm font-semibold text-gray-900"
+              >
+                หลักฐานเสริม
+              </label>
+              <textarea
+                id="proof-notes"
+                value={formData.proof.proofNotes?.join("\n") || ""}
+                onChange={(e) => handleProofNotesChange(e.target.value)}
+                rows={3}
+                className={textareaClass}
+                placeholder={"หนึ่งบรรทัดต่อหนึ่งหลักฐาน เช่น\nมีรูป before/after\nติดตั้งโดยทีมช่างเอง\nลูกค้าใช้งานเป็นพื้นที่หน้าร้าน"}
+              />
             </div>
           </div>
 

@@ -6,12 +6,12 @@ function WhyUs({keyword}: {keyword: string}) {
     <>
 <div className="mt-2 md:px-12 lg:px-24 mx-auto">
     <div className="md:flex md:justify-center md:items-center mb-2 md:space-x-4">
-        <h1 className="text-3xl text-[#427ed2ff] md:text-4xl font_page font-bold text-center">
+        <h2 className="text-3xl text-[#427ed2ff] md:text-4xl font_page font-bold text-center">
             {keyword}
-        </h1>
-        <h1 className="text-3xl md:text-4xl font_page font-bold text-center ">
+        </h2>
+        <h2 className="text-3xl md:text-4xl font_page font-bold text-center ">
             ไว้ใจสยามรูฟเทค
-        </h1>
+        </h2>
     </div>
     {/* description */}
     <div className=" md:px-24 rounded-lg ">

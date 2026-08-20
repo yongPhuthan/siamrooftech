@@ -1,13 +1,5 @@
-'use client';
-
 import Image from 'next/image';
-import {
-  trackLineClickHero,
-  trackLineClickMiddle,
-  trackLineClickBottom,
-  trackLineClickMobile,
-  trackLineClickDesktop
-} from '@/lib/gtag';
+import type { ReactNode } from 'react';
 
 type TrackingType = 'hero' | 'middle' | 'bottom' | 'mobile' | 'desktop';
 
@@ -18,7 +10,7 @@ interface LineButtonProps {
   width: number;
   height: number;
   imageClassName?: string;
-  children?: React.ReactNode;
+  children?: ReactNode;
   trackingType?: TrackingType;
 }
 
@@ -32,47 +24,23 @@ const LineButton = ({
   children,
   trackingType = 'hero' // default fallback
 }: LineButtonProps) => {
-  const handleClick = () => {
-    // New tracking system based on button position
-    switch (trackingType) {
-      case 'hero':
-        trackLineClickHero();
-        break;
-      case 'middle':
-        trackLineClickMiddle();
-        break;
-      case 'bottom':
-        trackLineClickBottom();
-        break;
-      case 'mobile':
-        trackLineClickMobile();
-        break;
-      case 'desktop':
-        trackLineClickDesktop();
-        break;
-      default:
-        trackLineClickHero(); // fallback
-    }
-  };
-
   return (
     <a
       href="https://lin.ee/pPz1ZqN"
       target="_blank"
       rel="noopener noreferrer"
-      className="block w-full"
-      onClick={handleClick}
+      className={className || 'block w-full'}
+      data-analytics-type="line"
+      data-analytics-position={trackingType}
     >
-      <button type="button" className={className}>
-        {children}
-        <Image
-          alt={imageAlt}
-          src={imageSrc}
-          width={width}
-          height={height}
-          className={`h-auto max-w-full ${imageClassName || ''}`}
-        />
-      </button>
+      {children}
+      <Image
+        alt={imageAlt}
+        src={imageSrc}
+        width={width}
+        height={height}
+        className={`h-auto max-w-full ${imageClassName || ''}`}
+      />
     </a>
   );
 };
