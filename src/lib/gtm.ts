@@ -6,6 +6,15 @@ type GTMEventPayload = Record<string, unknown>;
 type StoredAttribution = Record<string, string>;
 
 const ATTRIBUTION_STORAGE_KEY = 'siamrooftech_attribution_v1';
+const PAID_LEAD_COOKIE_NAME = 'srt_paid';
+
+export type LeadPersona = 'homeowner' | 'procurement' | 'contractor';
+
+export const LEAD_PERSONAS: Record<LeadPersona, { score: 0 | 1; value: 0 | 1 }> = {
+  homeowner: { score: 1, value: 1 },
+  procurement: { score: 1, value: 1 },
+  contractor: { score: 0, value: 0 },
+};
 const TRACKED_QUERY_KEYS = [
   'gclid',
   'gbraid',
@@ -108,6 +117,39 @@ export const captureAttribution = (): StoredAttribution => {
   return next;
 };
 
+export const isPaidLeadSession = (): boolean => {
+  if (typeof document === 'undefined') {
+    return false;
+  }
+
+  return document.cookie
+    .split('; ')
+    .some((entry) => entry === `${PAID_LEAD_COOKIE_NAME}=1`);
+};
+
+export const getStoredPersona = (): LeadPersona | null => {
+  const stored = readStoredAttribution();
+  const persona = stored.lead_persona;
+
+  if (persona === 'homeowner' || persona === 'procurement' || persona === 'contractor') {
+    return persona;
+  }
+
+  return null;
+};
+
+export const setStoredPersona = (persona: LeadPersona): void => {
+  const stored = readStoredAttribution();
+  const { score } = LEAD_PERSONAS[persona];
+
+  writeStoredAttribution({
+    ...stored,
+    lead_persona: persona,
+    lead_quality_score: String(score),
+    lead_survey_answered_at: new Date().toISOString(),
+  });
+};
+
 const trackEvent = (payload: GTMEventPayload) => {
   if (typeof window === 'undefined') return;
 
@@ -136,9 +178,34 @@ export const trackLineClick = (position: string = 'unknown') => {
     event_category: 'engagement',
     event_label: 'line_button',
     lead_type: 'line',
+    conversion_priority: 'secondary',
+    position,
+  });
+};
+
+export const trackLineSurveyStart = (position: string = 'unknown') => {
+  trackEvent({
+    event: 'line_survey_start',
+    event_category: 'engagement',
+    event_label: 'line_survey',
+    position,
+  });
+};
+
+export const trackLineSurveyComplete = (persona: LeadPersona, position: string = 'unknown') => {
+  const { score, value } = LEAD_PERSONAS[persona];
+
+  trackEvent({
+    event: 'line_survey_complete',
+    event_category: 'conversion',
+    event_label: 'line_survey',
+    lead_type: 'line',
+    lead_persona: persona,
+    lead_quality_score: score,
     conversion_priority: 'primary',
     position,
-    value: 1,
+    value,
+    currency: 'THB',
   });
 };
 

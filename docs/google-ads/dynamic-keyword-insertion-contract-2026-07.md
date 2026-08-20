@@ -72,6 +72,28 @@ Tracking parameters remain separate:
 
 Do not use `srt_keyword` as rendered page copy. It is an attribution field only.
 
+## Survey Gate
+
+Every paid click is followed by a mandatory 1-question persona survey before the LINE button opens LINE. This exists to send a lead-quality signal back to Google, not to route leads to sales -- every persona still reaches LINE, the survey only labels the click.
+
+**Gate condition: `gclid`, `gbraid`, or `wbraid` presence only. Never `utm_*`, `srt_*`, or `ad_*`.**
+
+Rationale:
+
+- `utm_*` and `ad_*` params can be copied into any shared link, bookmarked, or crawled -- gating on them would show the survey to organic visitors and pollute the persona data with non-paid traffic.
+- `gclid`/`gbraid`/`wbraid` are appended only by Google Ads auto-tagging and cannot appear on organic or shared links in practice.
+- `gclid` is also the join key for any future offline conversion adjustment (via Data Manager API, see below), so gating on the same identifier keeps the signal consistent end to end.
+
+Mechanism:
+
+1. `src/middleware.ts` sets cookie `srt_paid=1` (`Max-Age=1800`, i.e. 30 minutes, `path=/`, `sameSite=lax`) whenever the request URL contains `gclid`, `gbraid`, or `wbraid`. This applies site-wide, not only on the five `/services/*` paths eligible for the `/lp/google-ads/*` rewrite, because the floating LINE buttons (`LineButtonsLayout`) render on every route and a paid visitor commonly browses `/portfolio` before messaging.
+2. A capture-phase click listener in `src/app/components/AttributionCapture.tsx` intercepts any click on an `a[href*="lin.ee"], a[href*="line.me"]` link. If `srt_paid=1` is present and no persona has been recorded yet this session, it blocks navigation and shows `LeadSurveyModal` (single mandatory question, no skip).
+3. The answer is stored in the existing `siamrooftech_attribution_v1` localStorage object as `lead_persona`, `lead_quality_score`, `lead_survey_answered_at` -- reusing the attribution store means every event tracked afterward (via `attribution_*` passthrough) automatically carries `attribution_lead_persona`.
+4. `line_survey_complete` fires with `lead_persona`, `lead_quality_score` (0 or 1), and `value` (0 or 1, same as score), then LINE opens via `window.open` in the same click-handler call stack (required to avoid popup blockers).
+5. The 30-minute window intentionally does not persist across days: a visitor who clicked an ad and returns to message LINE the next day will not see the survey. This is treated as missing data, not wrong data, and does not pollute the signal sent to Google.
+
+Do not widen the gate condition to `ad_*` or `utm_*` parameters, and do not extend the cookie lifetime without an explicit decision to do so -- both were deliberately rejected to keep organic traffic friction-free.
+
 ## Approved Tokens
 
 ### `ad_kw`

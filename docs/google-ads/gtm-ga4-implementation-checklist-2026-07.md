@@ -52,7 +52,9 @@ Create GA4 event tags for these website/data-layer events.
 
 | Data layer event | GA4 event tag name | Trigger | Include parameters | Bidding role |
 | --- | --- | --- | --- | --- |
-| `line_click` | `GA4 Event - line_click` | Custom Event equals `line_click` | Yes | Primary |
+| `line_click` | `GA4 Event - line_click` | Custom Event equals `line_click` | Yes | Secondary (denominator for survey completion rate) |
+| `line_survey_start` | `GA4 Event - line_survey_start` | Custom Event equals `line_survey_start` | Yes | Analytics only |
+| `line_survey_complete` | `GA4 Event - line_survey_complete` | Custom Event equals `line_survey_complete` | Yes | Primary, value-based (Phase 2 bidding only, see pilot-launch-plan) |
 | `phone_click` | `GA4 Event - phone_click` | Custom Event equals `phone_click` | Yes | Primary |
 | `contact_click` | `GA4 Event - contact_click` | Custom Event equals `contact_click` | Yes | Analytics only |
 
@@ -98,6 +100,9 @@ Create data layer variables or equivalent parameter mappings for these P0 parame
 | `attribution_latest_ad_audience` | Ads events | DKI audience |
 | `attribution_latest_ad_area` | Ads events | DKI area |
 | `attribution_latest_ad_intent` | Ads events | DKI intent |
+| `lead_persona` | `line_survey_complete`, and every subsequent event same session | homeowner / procurement / contractor; also map to a GA4 User Property |
+| `lead_quality_score` | `line_survey_complete` | 0 for contractor, 1 for homeowner/procurement |
+| `value` | `line_survey_complete` | 0 or 1, drives conversion value in Google Ads |
 
 ### 5. GA4 custom dimensions
 
@@ -120,7 +125,8 @@ Mark these as key events after DebugView confirms they fire correctly:
 
 | GA4 event | Key event? | Reason |
 | --- | --- | --- |
-| `line_click` | Yes | Strong current lead intent |
+| `line_click` | No | Superseded by `line_survey_complete`; kept as analytics denominator |
+| `line_survey_complete` | Yes | Value-based primary lead signal; see pilot-launch-plan for Phase 1/2 bidding rule |
 | `phone_click` | Yes | Strong current lead intent |
 | `contact_click` | No | Too generic |
 | `portfolio_view_click` | No | Diagnostic only |
@@ -134,7 +140,8 @@ After GA4 key events are visible and GA4 is linked to Google Ads:
 
 | Google Ads conversion | Source | Include in bidding | Status |
 | --- | --- | --- | --- |
-| `line_click` | Import from GA4 key event or Google Ads conversion tag | Yes | Pending |
+| `line_click` | Import from GA4 key event or Google Ads conversion tag | No | Pending |
+| `line_survey_complete` | Import from GA4 key event (value-based) | Phase 2 only (>=30 conv/month sustained) | Pending; blocked on code deploy |
 | `phone_click` | Import from GA4 key event or Google Ads conversion tag | Yes | Pending |
 
 Use this conversion-action build sheet:
@@ -153,10 +160,11 @@ Notes:
 
 This implementation is ready for paid launch QA when:
 
-- GTM Preview shows `line_click` and `phone_click` firing once per click.
-- GA4 DebugView shows both events with required parameters.
-- GA4 key events are configured for `line_click` and `phone_click`.
-- Google Ads can see/import the primary conversion actions.
+- GTM Preview shows `line_click`, `line_survey_start`, `line_survey_complete`, and `phone_click` each firing once per click/answer.
+- GA4 DebugView shows all events with required parameters, including `lead_persona`/`lead_quality_score`/`value` on `line_survey_complete`.
+- GA4 key events are configured for `line_survey_complete` and `phone_click` (not `line_click`).
+- Google Ads can see/import `line_survey_complete` (value-based) and `phone_click`.
+- The mandatory LINE survey gate is verified end-to-end: paid session shows the modal, organic session does not, UTM-only session does not (see `docs/google-ads/dynamic-keyword-insertion-contract-2026-07.md` Survey gate section).
 - `yarn seo:qa` and `yarn ads:qa` pass on the deployed environment.
 
 ## Explicit Non-Goals
@@ -165,3 +173,5 @@ This implementation is ready for paid launch QA when:
 - Do not enable Ads bidding against `contact_click`.
 - Do not render raw `srt_keyword`, `utm_term`, or `{keyword}` on landing pages.
 - Do not create new indexable Google Ads-only landing pages.
+- Do not enable Ads bidding on `line_survey_complete` before it sustains 30 conversions/month (Phase 1 uses Maximize Clicks; see `docs/google-ads/pilot-launch-plan-2026-07.md`).
+- Do not configure `line_survey_complete` bidding as Maximize Conversions (count-based) at any phase -- it must be value-based, since contractor-persona conversions carry value 0.

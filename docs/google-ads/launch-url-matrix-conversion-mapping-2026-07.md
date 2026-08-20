@@ -73,8 +73,8 @@ Do not launch until these are true:
 | GTM container installed on production | Pending | Analytics/dev | Existing website has GTM helper code, production config must be confirmed |
 | Auto-tagging enabled in Google Ads | Pending | Ads owner | Required for `gclid`/Google attribution |
 | GA4 linked to Google Ads | Pending | Ads/analytics owner | Required before importing GA4 conversions |
-| `line_click` and `phone_click` visible in GA4 DebugView | Pending | Analytics/dev | Must pass before import |
-| Key events/conversions imported into Google Ads | Pending | Ads owner | Primary conversions only |
+| `line_survey_complete` and `phone_click` visible in GA4 DebugView | Pending | Analytics/dev | Must pass before import; `line_click` kept as secondary/diagnostic only |
+| Key events/conversions imported into Google Ads | Pending | Ads owner | `phone_click` at launch; `line_survey_complete` value-based, bidding only after Phase 2 threshold (30 conv/month) |
 
 ## Parameter Standard
 
@@ -174,7 +174,9 @@ All contact events should include:
 
 | Website action | Data layer event | GA4 event name | Ads optimization role | Trigger source |
 | --- | --- | --- | --- | --- |
-| Click LINE CTA | `line_click` | `line_click` | Primary conversion | Existing tracked LINE buttons |
+| Click LINE CTA | `line_click` | `line_click` | Secondary (denominator for survey drop-off) | Existing tracked LINE buttons |
+| LINE survey shown (paid session) | `line_survey_start` | `line_survey_start` | Analytics only | Mandatory persona survey gate, `src/app/components/AttributionCapture.tsx` |
+| LINE survey answered | `line_survey_complete` | `line_survey_complete` | Primary conversion, value-based (Phase 2 bidding only, see pilot-launch-plan) | 1-question mandatory persona survey before LINE opens |
 | Click phone CTA | `phone_click` | `phone_click` | Primary conversion | Existing tracked phone links |
 | Generic contact click | `contact_click` | `contact_click` | Analytics only | Generic contact CTA |
 | Successful contact form submit | `contact_form_submit_success` | `contact_form_submit_success` | Primary only when form is reliable | Future form |
@@ -214,6 +216,9 @@ Send these parameters with every lead-relevant event:
 | `attribution_latest_ad_audience` | `home` | Ads traffic | DKI segment |
 | `attribution_latest_ad_area` | `bangkok` | Ads traffic | DKI segment |
 | `attribution_latest_ad_intent` | `quote` | Ads traffic | DKI segment |
+| `lead_persona` | `homeowner`, `procurement`, `contractor` | `line_survey_complete`, and every subsequent event same session | Declared persona from the mandatory survey; also mapped to a GA4 User Property |
+| `lead_quality_score` | `0` or `1` | `line_survey_complete` | 0 for contractor, 1 for homeowner/procurement |
+| `value` | `0` or `1` | `line_survey_complete` | Same as `lead_quality_score`; drives conversion value in Google Ads |
 
 ## GA4 Custom Dimensions
 
@@ -235,6 +240,9 @@ Register these event-scoped custom dimensions in GA4 before launch:
 | DKI audience | `attribution_latest_ad_audience` |
 | DKI area | `attribution_latest_ad_area` |
 | DKI intent | `attribution_latest_ad_intent` |
+| Lead persona (event) | `lead_persona` |
+| Lead quality score | `lead_quality_score` |
+| Lead persona (user) | `lead_persona`, mapped as a GA4 User Property so a contractor-persona exclusion audience can be built |
 
 ## Google Ads Conversion Mapping
 
@@ -242,7 +250,8 @@ Register these event-scoped custom dimensions in GA4 before launch:
 
 | Conversion action | Source | Primary/Secondary | Include in bidding | Reason |
 | --- | --- | --- | --- | --- |
-| `line_click` | GA4 import or Google Ads tag | Primary | Yes | Strongest current lead intent |
+| `line_click` | GA4 import or Google Ads tag | Secondary | No | Superseded by `line_survey_complete`; kept as the denominator for survey completion rate |
+| `line_survey_complete` | GA4 import (value-based) | Primary | Phase 2 only (>=30 conv/month sustained); Phase 1 bid strategy is Maximize Clicks | Value-based lead-quality signal: 0 for contractor persona, 1 for homeowner/procurement. Must use Conversion Value bidding, never Maximize Conversions (count-based) |
 | `phone_click` | GA4 import or Google Ads tag | Primary | Yes | Strong current lead intent |
 | `contact_click` | GA4 | Secondary or analytics only | No | Too generic for bidding |
 | `portfolio_view_click` | GA4 | Secondary | No | Diagnostic, not a lead |
@@ -282,7 +291,9 @@ Do not send exact price promises unless pricing logic and business approval are 
 
 1. Create or confirm GA4 Configuration tag.
 2. Create GA4 Event tags for:
-   - `line_click`
+   - `line_click` (secondary, analytics only)
+   - `line_survey_start`
+   - `line_survey_complete` (primary, value-based; map `lead_persona` to a GA4 User Property)
    - `phone_click`
    - `contact_click`
    - future `calculator_*`
@@ -317,7 +328,10 @@ Manual browser checks:
 | Local page with conflicting `ad_area` | Path area wins |
 | Canonical on query URL | Clean `/services/...` canonical |
 | Sitemap | No query URL and no `/lp/google-ads/...` |
-| LINE click | `line_click` in GTM Preview and GA4 DebugView |
+| LINE click (organic session) | `line_click` fires, no survey modal appears |
+| LINE click (paid session, `gclid` present) | `line_survey_start` fires, mandatory survey modal appears, blocks navigation |
+| LINE click (paid session, UTM-only, no `gclid`) | No survey modal appears -- gate must key on `gclid`/`gbraid`/`wbraid` only |
+| LINE survey answered | `line_survey_complete` fires with `lead_persona`, `lead_quality_score`, `value` in GTM Preview and GA4 DebugView, then LINE opens |
 | Phone click | `phone_click` in GTM Preview and GA4 DebugView |
 
 ## Launch Decision

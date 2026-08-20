@@ -32,8 +32,8 @@ Do:
 - Use the approved Final URLs from `docs/google-ads/launch-url-matrix-2026-07.csv`.
 - Use exact and phrase match only.
 - Apply shared negative keywords before launch.
-- Optimize only for `line_click` and `phone_click`.
-- Review search terms and lead quality every 2-3 days for the first 14 days.
+- Bid on Maximize Clicks only until `line_survey_complete` reaches 30 conversions/month sustained; `line_click` and `phone_click` are diagnostic during this phase, not bidding conversions (see "Bid Strategy" below).
+- Review search terms and lead quality (by `lead_persona`, via GA4) every 2-3 days for the first 14 days.
 
 Do not:
 
@@ -41,7 +41,7 @@ Do not:
 - Use broad match at launch.
 - Use Performance Max, Display, Demand Gen, or Search Partners at launch.
 - Optimize for `contact_click`, page views, scroll, or generic clicks.
-- Switch to Maximize Conversions until clean primary lead events are stable.
+- Switch bidding away from Maximize Clicks before `line_survey_complete` sustains 30 conversions/month, and never switch to a count-based strategy (Maximize Conversions) afterward -- only value-based (Maximize Conversion Value / tROAS), since `line_survey_complete` carries a 0/1 value and a count-based strategy would treat contractor leads (value 0) the same as real leads.
 
 ## Pre-Launch Gate
 
@@ -53,8 +53,9 @@ The pilot can start only when all P0 gates are true.
 | Landing DKI QA passed | `yarn ads:qa --base=<production>` | PASS |
 | SEO QA passed | `yarn seo:qa --base=<production>` | PASS |
 | GTM Preview passed | `docs/google-ads/production-qa-runbook-2026-07.md` | PASS |
-| GA4 DebugView shows primary events | `line_click`, `phone_click` with attribution params | PASS |
-| Google Ads can import/see conversions | `line_click`, `phone_click` | PASS |
+| GA4 DebugView shows primary events | `line_survey_complete`, `phone_click` with attribution params, plus `lead_persona`/`lead_quality_score`/`value` on `line_survey_complete` | PASS |
+| Google Ads can import/see conversions | `phone_click` (Yes); `line_survey_complete` visible but not yet in bidding until Phase 2 threshold | PASS |
+| Mandatory LINE survey gate verified | See `docs/google-ads/dynamic-keyword-insertion-contract-2026-07.md` Survey gate section | PASS |
 | Shared negatives applied | Negative list below | Applied |
 
 ## Campaign Scope
@@ -96,8 +97,10 @@ Starting bid strategy:
 
 | Phase | Bid strategy | Reason |
 | --- | --- | --- |
-| Day 1-14 | Maximize Clicks with CPC cap | New clean account has no reliable conversion history |
-| After stable clean lead events | Consider Maximize Conversions | Only after enough primary events and clean search terms |
+| Phase 1: < 30 `line_survey_complete`/month | Maximize Clicks with CPC cap | Does not require conversion data; avoids the cold-start problem of bidding on a low-volume, quality-filtered conversion. Meanwhile use manual levers (negative keywords from `lead_persona=contractor` search terms, ad copy filtering) to steer away from contractor traffic. |
+| Phase 2: >= 30 `line_survey_complete`/month sustained | Maximize Conversion Value / tROAS on `line_survey_complete` | Value-based only, never Maximize Conversions (count-based) -- `line_survey_complete` carries value 0 (contractor) or 1 (homeowner/procurement), and a count-based strategy cannot distinguish them |
+
+`line_click` and `phone_click` stay diagnostic/secondary in both phases -- `line_click` fires on every LINE button press regardless of persona, so bidding on it directly would optimize for contractor volume too.
 
 Starting CPC cap:
 
@@ -158,11 +161,13 @@ Rules:
 
 Primary:
 
-- `line_click`
+- `line_survey_complete` (value-based; enters bidding only in Phase 2, see "Bid Strategy")
 - `phone_click`
 
 Secondary or analytics-only:
 
+- `line_click` (denominator for survey completion rate)
+- `line_survey_start`
 - `contact_click`
 - `portfolio_view_click`
 - `service_internal_link_click`
@@ -184,12 +189,13 @@ At day 7, answer:
 | Which ad groups produced LINE/phone actions? | GA4/Google Ads by campaign/ad group |
 | Which search terms wasted spend? | Search terms report |
 | Did any retailer/DIY terms slip through? | Search terms report |
+| Which search terms/keywords produced contractor-persona leads? | GA4: `line_survey_complete` by `attribution_latest_srt_keyword` and `lead_persona` |
 | Does mobile produce useful lead actions? | Device segment |
 | Are Bangkok/Nonthaburi/Pathum Thani leads serviceable? | Lead quality notes |
 
 Day-7 allowed actions:
 
-- Add negatives.
+- Add negatives, including keywords whose `line_survey_complete` leads are predominantly `lead_persona=contractor`.
 - Pause clearly wasteful keywords.
 - Adjust CPC cap modestly if high-intent terms cannot serve.
 - Keep budget steady unless tracking and lead quality are both clean.
@@ -211,9 +217,10 @@ At day 14, decide:
 
 Pause campaigns if:
 
-- `line_click` or `phone_click` stops firing.
+- `line_click`, `line_survey_complete`, or `phone_click` stops firing.
 - Events fire more than once per click.
 - Google Ads optimizes for `contact_click` or any non-lead event.
+- `line_click` minus `line_survey_complete` (survey drop-off) exceeds roughly 15% -- the mandatory survey is creating too much friction and needs review.
 - Search terms are dominated by retailer/DIY/how-to intent.
 - Leads are outside real service areas.
 - Siamrooftech cannot respond to LINE/phone inquiries quickly enough.
