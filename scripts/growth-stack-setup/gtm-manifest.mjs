@@ -54,7 +54,3 @@ function loadTagSpecs() {
 export const variables = loadVariables();
 export const triggers = loadTriggers();
 export const tagSpecs = loadTagSpecs();
-
-// The first tag spec is the one you create by hand in the GTM UI once, as a
-// schema template for the rest -- see gtm-setup.mjs and README.md for why.
-export const templateTagSpec = tagSpecs.find((t) => t.name === 'GA4 Event - line_click');

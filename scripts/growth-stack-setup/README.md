@@ -21,7 +21,7 @@ policy, not a gap in these scripts):
 | Invite the service account into GTM / GA4 | No | The very first grant of access has to come from whoever already has admin rights — i.e. you, logged in |
 | GCP project, APIs, service account, key | **Yes** | `gcloud`, see `gcp-bootstrap.sh` |
 | GTM: variables, triggers, versions | **Yes** | Tag Manager API, fully documented |
-| GTM: tags | **Mostly** | see "Why GTM tags need one manual step first" below |
+| GTM: tags (`googtag` / `gaawe`) | **Yes** | Not documented by Google, but confirmed empirically against a live container — see "How the GTM tag schema was found" below |
 | GA4: property, data stream, custom dimensions, key events | **Yes** | Analytics Admin API, fully documented |
 
 We looked at using your own `gcloud` login (via `gcloud auth
@@ -82,22 +82,23 @@ export GA4_ACCOUNT_ID=444555666
 ```
 
 `ga4-setup.mjs` creates the property and web data stream on first run and
-prints a `GA4_PROPERTY_ID` to export for subsequent runs (so it doesn't
-create a duplicate property every time). Once you have it:
+prints a `GA4_PROPERTY_ID` and `Measurement ID` to export for subsequent
+runs (so it doesn't create a duplicate property every time, and so
+`gtm-setup.mjs` — which requires `GA4_MEASUREMENT_ID` — knows what to use):
 
 ```bash
-export GA4_PROPERTY_ID=111222333   # numeric, not the G-XXXXXXX
+export GA4_PROPERTY_ID=111222333       # numeric, not the G-XXXXXXX
+export GA4_MEASUREMENT_ID=G-XXXXXXXXXX
 ```
 
 ## 4. Run
 
 ```bash
 # GA4: property + data stream (first run only), custom dimensions, key
-# events. Fully automated, no manual bootstrap needed.
+# events.
 yarn ga4:setup --wipe
 
-# GTM: variables, triggers, and (after one manual bootstrap step -- see
-# below) tags. Creates a draft version but does NOT publish it.
+# GTM: variables, triggers, tags, draft version. Does NOT publish.
 yarn gtm:setup --wipe
 ```
 
@@ -106,32 +107,41 @@ first. Safe to run without it on a brand-new container/property — there's
 nothing to wipe, and re-running either script is idempotent (skips anything
 that already exists by name).
 
-### Why GTM tags need one manual step first
+Tag Manager's default per-minute write quota is easy to trip on a full
+rebuild (30+ variables plus triggers plus tags) — `gtm-setup.mjs` sleeps
+1s between writes to stay under it. If you still hit `429 RESOURCE_EXHAUSTED`,
+just wait ~60s and re-run the same command; it resumes from wherever it
+left off.
+
+### How the GTM tag schema was found
 
 Google's Tag Manager API reference documents the `Tag` resource shape
 (`name`, `type`, `parameter`, ...) but does **not** publish the concrete
 `type` string or parameter schema for built-in tag types like "Google tag"
 or "GA4 Event" — those are part of GTM's internal template system, not the
-public API surface. Guessing that schema risks creating a tag that looks
-right but silently fires wrong on the live site, with no way to verify it
-without a live container to test against.
+public API surface.
 
-Instead, `gtm-setup.mjs` asks you to create exactly two tags by hand in the
-GTM UI the first time you run it (it will print the exact steps and pause,
-including the Measurement ID `ga4-setup.mjs` already created for you):
-
-1. The GA4 Configuration tag ("Google tag"), pointed at your Measurement ID,
-   with the `lead_persona` User Property mapping.
-2. One GA4 Event tag (`GA4 Event - line_click`), as a template.
-
-The script then reads that template tag's real JSON back via the API and
-clones it for every other event (`line_survey_start`, `line_survey_complete`,
-`phone_click`, `contact_click`), swapping only the name, event name, trigger,
-and parameter list. This guarantees the schema matches what GTM's own UI
-produces, rather than a guess.
+`gtm-setup.mjs` hardcodes the schema directly (`type: 'googtag'` for the
+base config tag, `type: 'gaawe'` for GA4 Event tags, with an
+`eventSettingsTable` LIST parameter for event parameters). This was found
+by creating tags against a real container via the API and reading back
+what Google's server actually accepted and normalized the request into —
+in particular, `eventSettingsTable` is not a name we chose; it's what the
+API renamed our request's parameter key to in its response, which is the
+only way to have learned it. If Google changes this internal schema in the
+future, tag creation will fail with a 400 from `tags.create` naming the
+bad field, the same way `measurementIdOverride` was discovered — the error
+messages are specific enough to fix from.
 
 ## 5. After running
 
+- **GTM**: `gtm-setup.mjs` does **not** map `lead_persona` as a GA4 User
+  Property on the base config tag (the parameter schema for that specific
+  field wasn't worth reverse-engineering on the first pass — it only
+  matters for the future contractor-exclusion audience, not for the P0
+  events themselves). Add it by hand once: open the "Google tag / GA4 base
+  tag", expand Configuration Settings, add a User Property row
+  `lead_persona` → `{{DLV - lead_persona}}`, save.
 - **GTM**: open the container, use Preview mode against a staging/production
   URL, confirm each event fires once per action with the right parameters
   (see the Verification checklist in `docs/google-ads/dynamic-keyword-insertion-contract-2026-07.md`

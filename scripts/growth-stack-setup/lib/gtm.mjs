@@ -3,6 +3,7 @@ import { authedFetch } from './auth.mjs';
 const BASE = 'https://www.googleapis.com/tagmanager/v2';
 const SCOPES = [
   'https://www.googleapis.com/auth/tagmanager.edit.containers',
+  'https://www.googleapis.com/auth/tagmanager.edit.containerversions',
   'https://www.googleapis.com/auth/tagmanager.publish',
 ];
 

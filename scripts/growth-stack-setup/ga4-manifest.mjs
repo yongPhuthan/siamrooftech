@@ -10,10 +10,16 @@ const rows = parseCsv(
   readFileSync(join(DOCS_DIR, 'ga4-custom-dimensions-2026-07.csv'), 'utf8'),
 );
 
+// GA4's customDimensions.displayName only accepts alphanumeric, underscore,
+// or space -- the docs/google-ads CSV is prose-first and uses things like
+// "Lead persona (user)" for human readers, so sanitize at this boundary
+// rather than constraining how the doc is written.
+const sanitizeDisplayName = (name) => name.replace(/[^A-Za-z0-9_ ]/g, '').replace(/\s+/g, ' ').trim();
+
 export const customDimensions = rows
   .filter((r) => r.priority === 'P0')
   .map((r) => ({
-    displayName: r.ga4_dimension_name,
+    displayName: sanitizeDisplayName(r.ga4_dimension_name),
     parameterName: r.event_parameter,
     scope: r.scope.toUpperCase(),
     description: r.purpose.slice(0, 150),

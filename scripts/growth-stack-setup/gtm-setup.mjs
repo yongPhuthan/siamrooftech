@@ -3,9 +3,11 @@
 // docs/google-ads/gtm-container-build-sheet-2026-07.csv and
 // docs/google-ads/gtm-ga4-conversion-mapping-2026-07.csv.
 //
-// See scripts/growth-stack-setup/README.md for required env vars, the
-// one-time manual bootstrap steps, and why GA4 tags are cloned from a
-// template instead of created from a hardcoded schema.
+// See scripts/growth-stack-setup/README.md for required env vars and how
+// the "Google tag" / "GA4 Event" tag schema below was confirmed (built by
+// creating real tags against a live container and reading back what the
+// API actually accepted -- Google doesn't publish these `type` strings or
+// their parameter shapes in the Tag Manager API reference).
 
 import {
   workspacePath,
@@ -17,15 +19,19 @@ import {
   createTrigger,
   deleteTrigger,
   listTags,
-  getTag,
   createTag,
   deleteTag,
   createVersion,
 } from './lib/gtm.mjs';
-import { variables, triggers, tagSpecs, templateTagSpec } from './gtm-manifest.mjs';
+import { variables, triggers, tagSpecs } from './gtm-manifest.mjs';
 
 const args = new Set(process.argv.slice(2));
 const WIPE = args.has('--wipe');
+
+// GTM's implicit, always-present "All Pages" trigger. Not returned by
+// triggers.list (it's not a real trigger resource) -- this numeric ID is a
+// fixed constant Google Tag Manager uses across every container.
+const ALL_PAGES_TRIGGER_ID = '2147479553';
 
 function requireEnv(name) {
   const value = process.env[name];
@@ -33,19 +39,27 @@ function requireEnv(name) {
   return value;
 }
 
+// Tag Manager API has a modest default per-minute query quota, easy to trip
+// during a bulk wipe/rebuild (30+ variables plus triggers plus tags). A
+// small delay between writes keeps a full run under it.
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
 async function wipeExisting(ws) {
   console.log('--wipe: deleting existing tags, triggers, variables (in that order)...');
   for (const tag of await listTags(ws)) {
     console.log(`  delete tag:      ${tag.name}`);
     await deleteTag(tag.path);
+    await sleep(1000);
   }
   for (const trigger of await listTriggers(ws)) {
     console.log(`  delete trigger:  ${trigger.name}`);
     await deleteTrigger(trigger.path);
+    await sleep(1000);
   }
   for (const variable of await listVariables(ws)) {
     console.log(`  delete variable: ${variable.name}`);
     await deleteVariable(variable.path);
+    await sleep(1000);
   }
 }
 
@@ -60,6 +74,7 @@ async function ensureVariables(ws) {
     console.log(`  create variable: ${v.name} (data layer key: ${v.dataLayerKey})`);
     const created = await createVariable(ws, v.name, v.dataLayerKey);
     idByName.set(v.name, created.variableId);
+    await sleep(1000);
   }
   return idByName;
 }
@@ -75,92 +90,49 @@ async function ensureTriggers(ws) {
     console.log(`  create trigger:  ${t.name} (event: ${t.eventName})`);
     const created = await createTrigger(ws, t.name, t.eventName);
     idByName.set(t.name, created.triggerId);
+    await sleep(1000);
   }
   return idByName;
 }
 
-// GA4 tag `type` (e.g. "gaawe") and its parameter schema are not published
-// in Google's Tag Manager API reference. Rather than guess and risk a
-// silently-wrong tag on a container that fires on the live site, this finds
-// a real GA4 event tag you create once by hand in the GTM UI and clones its
-// exact JSON for every other event -- see README.md "Manual bootstrap".
-function cloneTagForSpec(template, spec, triggerId) {
-  const clone = JSON.parse(JSON.stringify(template));
-  delete clone.tagId;
-  delete clone.fingerprint;
-  delete clone.path;
-  delete clone.workspaceId;
-  delete clone.accountId;
-  delete clone.containerId;
-  delete clone.tagManagerUrl;
-  clone.name = spec.name;
-  clone.firingTriggerId = [String(triggerId)];
-
-  clone.parameter = (clone.parameter || []).map((p) => {
-    if (p.key === 'eventName' || p.key === 'event') {
-      return { ...p, value: spec.eventName };
-    }
-    return p;
-  });
-
-  const listParam = (clone.parameter || []).find((p) => p.type === 'LIST');
-  if (listParam && Array.isArray(listParam.list) && listParam.list[0]) {
-    const templateEntry = listParam.list[0];
-    const nameKey = templateEntry.map.find((m) => /param(eter)?$/i.test(m.key))?.key;
-    const valueKey = templateEntry.map.find((m) => /value$/i.test(m.key))?.key;
-
-    if (nameKey && valueKey) {
-      listParam.list = spec.parameterKeys.map((paramKey) => ({
-        type: 'MAP',
-        map: [
-          { type: 'template', key: nameKey, value: paramKey },
-          { type: 'template', key: valueKey, value: `{{DLV - ${paramKey}}}` },
-        ],
-      }));
-    } else {
-      console.warn(
-        `  ! could not detect parameter/value map keys on template list for ${spec.name}; ` +
-          'copying template parameters unchanged -- check this tag by hand in GTM.',
-      );
-    }
-  }
-
-  return clone;
+function buildGa4EventTag(spec, measurementId, triggerId) {
+  return {
+    name: spec.name,
+    type: 'gaawe',
+    parameter: [
+      { type: 'template', key: 'eventName', value: spec.eventName },
+      { type: 'template', key: 'measurementIdOverride', value: measurementId },
+      {
+        type: 'list',
+        key: 'eventSettingsTable',
+        list: spec.parameterKeys.map((paramKey) => ({
+          type: 'map',
+          map: [
+            { type: 'template', key: 'parameter', value: paramKey },
+            { type: 'template', key: 'parameterValue', value: `{{DLV - ${paramKey}}}` },
+          ],
+        })),
+      },
+    ],
+    firingTriggerId: [String(triggerId)],
+  };
 }
 
 async function ensureTags(ws, triggerIds) {
-  const existingTags = await listTags(ws);
-  const existingByName = new Map(existingTags.map((t) => [t.name, t]));
+  const measurementId = requireEnv('GA4_MEASUREMENT_ID');
+  const existingByName = new Map((await listTags(ws)).map((t) => [t.name, t]));
+  const CONFIG_TAG_NAME = 'Google tag / GA4 base tag';
 
-  const configTag = existingTags.find((t) =>
-    ['googtag', 'gaawc'].includes(t.type),
-  );
-  if (!configTag) {
-    console.log('\nManual step required before tags can be built:');
-    console.log('  1. Open the GTM workspace in the browser.');
-    console.log('  2. Tags > New > "Google tag" (or "GA4 Configuration").');
-    console.log(`  3. Measurement ID: ${process.env.GA4_MEASUREMENT_ID || '<paste your G-XXXXXXX>'}`);
-    console.log('  4. Under "Fields to Set" / "User Properties", add: lead_persona -> {{DLV - lead_persona}}');
-    console.log('     (this is what makes the contractor-persona exclusion audience possible later)');
-    console.log('  5. Trigger: All Pages. Name it "Google tag / GA4 base tag". Save.');
-    console.log('  Then re-run: yarn gtm:setup');
-    return;
+  if (!existingByName.has(CONFIG_TAG_NAME)) {
+    console.log(`  create tag:      ${CONFIG_TAG_NAME} (Measurement ID: ${measurementId})`);
+    await createTag(ws, {
+      name: CONFIG_TAG_NAME,
+      type: 'googtag',
+      parameter: [{ type: 'template', key: 'tagId', value: measurementId }],
+      firingTriggerId: [ALL_PAGES_TRIGGER_ID],
+    });
+    await sleep(1000);
   }
-
-  const templateExisting = existingByName.get(templateTagSpec.name);
-  if (!templateExisting) {
-    console.log('\nManual step required before the remaining tags can be cloned:');
-    console.log(`  1. Tags > New > "Google Analytics: GA4 Event".`);
-    console.log(`  2. Configuration Tag: "${configTag.name}".`);
-    console.log(`  3. Event Name: ${templateTagSpec.eventName}`);
-    console.log(`  4. Event Parameters: add one row, e.g. parameter "position" -> {{DLV - position}}`);
-    console.log(`  5. Triggering: "${templateTagSpec.triggerName}". Name it "${templateTagSpec.name}". Save.`);
-    console.log('  This one tag becomes the schema template the rest are cloned from.');
-    console.log('  Then re-run: yarn gtm:setup');
-    return;
-  }
-
-  const template = await getTag(templateExisting.path);
 
   for (const spec of tagSpecs) {
     if (existingByName.has(spec.name)) {
@@ -172,9 +144,9 @@ async function ensureTags(ws, triggerIds) {
       console.warn(`  ! no trigger id for ${spec.triggerName}, skipping ${spec.name}`);
       continue;
     }
-    const body = cloneTagForSpec(template, spec, triggerId);
-    console.log(`  create tag:      ${spec.name} (cloned from ${template.name})`);
-    await createTag(ws, body);
+    console.log(`  create tag:      ${spec.name} (event: ${spec.eventName})`);
+    await createTag(ws, buildGa4EventTag(spec, measurementId, triggerId));
+    await sleep(1000);
   }
 }
 
@@ -198,13 +170,6 @@ async function main() {
 
   console.log('\nTags:');
   await ensureTags(ws, triggerIds);
-
-  const currentTagNames = new Set((await listTags(ws)).map((t) => t.name));
-  const missingTags = tagSpecs.filter((s) => !currentTagNames.has(s.name));
-  if (missingTags.length > 0) {
-    console.log(`\n${missingTags.length} tag(s) still pending manual bootstrap -- see messages above.`);
-    return;
-  }
 
   console.log('\nCreating a draft version (NOT publishing -- review in GTM Preview mode first)...');
   const version = await createVersion(
