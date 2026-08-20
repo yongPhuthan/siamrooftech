@@ -6,67 +6,105 @@ CSVs that drive `docs/google-ads/*-qa*` — `gtm-container-build-sheet-2026-07.c
 The scripts parse those files directly instead of duplicating their values,
 so there is only one place to edit when the tracking contract changes.
 
-This does **not** create the Google account, the GTM account, or the GA4
-account/property themselves. Google requires those to go through the normal
-web onboarding at least once per account — there is no API for it, and it
-would be inappropriate to script account creation on your behalf. Everything
-after that first onboarding screen is scriptable.
+## What's actually CLI-able, and what isn't
 
-## What this does not touch
+Google requires a live browser session for exactly three things, all
+first-time account/consent gates that have no API bypass by design (anti-abuse
+policy, not a gap in these scripts):
 
-Google Ads is out of scope here. Creating a Google Ads account, conversion
-actions, and campaigns is a separate, larger effort (Ads API access requires
-a developer token that Google has to approve, which can take days) and isn't
-part of this GTM/GA4 rebuild.
+| Step | CLI-able? | Why |
+| --- | --- | --- |
+| Sign up the Google account | No | Google requires a human for new-account creation |
+| `gcloud auth login` | No | Authenticating a brand-new identity needs a real login |
+| GTM: create the Account (bundles the first Container) | No | No `accounts.create` in the Tag Manager API; Google's onboarding UI bundles account + first container into one step |
+| GA4: create the Account | No | No `accounts.create` in the Analytics Admin API either |
+| Invite the service account into GTM / GA4 | No | The very first grant of access has to come from whoever already has admin rights — i.e. you, logged in |
+| GCP project, APIs, service account, key | **Yes** | `gcloud`, see `gcp-bootstrap.sh` |
+| GTM: variables, triggers, versions | **Yes** | Tag Manager API, fully documented |
+| GTM: tags | **Mostly** | see "Why GTM tags need one manual step first" below |
+| GA4: property, data stream, custom dimensions, key events | **Yes** | Analytics Admin API, fully documented |
 
-## 1. One-time manual setup (you do this, ~10 minutes)
+We looked at using your own `gcloud` login (via `gcloud auth
+application-default login --scopes=...`) to skip the service-account
+invite step entirely. Google's own docs for that command say scopes for
+APIs outside Google Cloud Platform itself — Tag Manager and Analytics
+Admin both count — need a separate custom OAuth Client ID
+(`--client-id-file`), not just a `--scopes` flag. That trades one
+well-supported manual step (inviting a service account through GTM/GA4's
+own "add user" screen, which is designed for exactly this) for a flakier
+one (configuring an OAuth consent screen + client by hand). We kept the
+service account.
 
-1. Sign up the new Google account.
-2. Go to `tagmanager.google.com` → create a GTM account → create your first
-   web container for `siamrooftech.com`. Note the **Container ID**
-   (`GTM-XXXXXXX`) and **Account ID** (numeric, in the URL or Admin panel).
-3. Go to `analytics.google.com` → create a GA4 account → property → web data
-   stream for `siamrooftech.com`. Note the **Measurement ID** (`G-XXXXXXX`)
-   and the **Property ID** (numeric, Admin > Property Settings).
-4. Go to `console.cloud.google.com` → create a new project (any name) →
-   enable "**Tag Manager API**" and "**Google Analytics Admin API**" under
-   APIs & Services.
-5. IAM & Admin > Service Accounts > Create service account (no roles needed
-   at the GCP-project level — GTM/GA4 permissions are granted separately in
-   step 6). Create a JSON key and download it.
-6. Grant that service account access in both products, using the email
-   address shown on the service account (looks like
-   `name@project-id.iam.gserviceaccount.com`):
-   - GTM: Admin (top-left gear) > User Management > add the service account
-     email as a User on the **account**, with **Edit** permission on the
-     container.
-   - GA4: Admin > Property Access Management > add the service account
-     email with the **Editor** role.
+Google Ads is out of scope here entirely — a separate, larger effort (Ads
+API access requires a developer token Google has to approve, which can take
+days) and isn't part of this GTM/GA4 rebuild.
 
-## 2. Environment variables
+## 1. GCP (fully scripted)
 
 ```bash
-export GOOGLE_SERVICE_ACCOUNT_KEY_FILE=/path/to/service-account.json
+PROJECT_ID=siamrooftech-growth ./scripts/growth-stack-setup/gcp-bootstrap.sh
+```
+
+Run this yourself, not through me — it opens a browser for `gcloud auth
+login` and needs to run as `admin.siamrooftech@gmail.com`, not whatever
+account your `gcloud` is currently logged into. It creates a GCP project,
+enables the Tag Manager API and Analytics Admin API, creates a service
+account, and writes its JSON key to
+`~/.config/siamrooftech/growth-stack-setup-key.json`. Prints the service
+account email at the end — you'll need it in step 2.
+
+Needs a billing account linked to the project (GCP requires this to enable
+most APIs, even free-tier ones); the script pauses and tells you the
+command if none is linked yet.
+
+## 2. GTM and GA4 accounts (the parts that need a browser)
+
+1. `tagmanager.google.com` → create account → create your first web
+   container for `siamrooftech.com`. Note the **Account ID** and
+   **Container ID** from Admin > Container Settings.
+2. Admin (gear icon) > User Management > add the service account email
+   (from step 1's output) as a User on the **account**, **Edit** permission
+   on the container.
+3. `analytics.google.com` → create account only (property + data stream get
+   created by `ga4-setup.mjs` in step 4). Note the **Account ID** from
+   Admin > Account Settings.
+4. Admin > Account Access Management > add the service account email,
+   **Editor** role, at the **account** level (not property — the property
+   doesn't exist yet).
+
+## 3. Environment variables
+
+```bash
+export GOOGLE_SERVICE_ACCOUNT_KEY_FILE=~/.config/siamrooftech/growth-stack-setup-key.json
 export GTM_ACCOUNT_ID=123456789
 export GTM_CONTAINER_ID=987654321
-export GA4_PROPERTY_ID=111222333        # numeric, not the G-XXXXXXX
-export GA4_MEASUREMENT_ID=G-XXXXXXXXXX   # only used for a console reminder, not the API
+export GA4_ACCOUNT_ID=444555666
 ```
 
-## 3. Run
+`ga4-setup.mjs` creates the property and web data stream on first run and
+prints a `GA4_PROPERTY_ID` to export for subsequent runs (so it doesn't
+create a duplicate property every time). Once you have it:
 
 ```bash
+export GA4_PROPERTY_ID=111222333   # numeric, not the G-XXXXXXX
+```
+
+## 4. Run
+
+```bash
+# GA4: property + data stream (first run only), custom dimensions, key
+# events. Fully automated, no manual bootstrap needed.
+yarn ga4:setup --wipe
+
 # GTM: variables, triggers, and (after one manual bootstrap step -- see
 # below) tags. Creates a draft version but does NOT publish it.
-yarn gtm:setup
-
-# Add --wipe to delete everything currently in the workspace/property first.
-# Safe to run without --wipe on a brand-new container/property -- there's
-# nothing to wipe, and re-running is idempotent (skips anything that
-# already exists by name).
 yarn gtm:setup --wipe
-yarn ga4:setup --wipe
 ```
+
+`--wipe` deletes/archives everything currently in the workspace/property
+first. Safe to run without it on a brand-new container/property — there's
+nothing to wipe, and re-running either script is idempotent (skips anything
+that already exists by name).
 
 ### Why GTM tags need one manual step first
 
@@ -79,7 +117,8 @@ right but silently fires wrong on the live site, with no way to verify it
 without a live container to test against.
 
 Instead, `gtm-setup.mjs` asks you to create exactly two tags by hand in the
-GTM UI the first time you run it (it will print the exact steps and pause):
+GTM UI the first time you run it (it will print the exact steps and pause,
+including the Measurement ID `ga4-setup.mjs` already created for you):
 
 1. The GA4 Configuration tag ("Google tag"), pointed at your Measurement ID,
    with the `lead_persona` User Property mapping.
@@ -91,7 +130,7 @@ clones it for every other event (`line_survey_start`, `line_survey_complete`,
 and parameter list. This guarantees the schema matches what GTM's own UI
 produces, rather than a guess.
 
-## 4. After running
+## 5. After running
 
 - **GTM**: open the container, use Preview mode against a staging/production
   URL, confirm each event fires once per action with the right parameters
@@ -108,6 +147,8 @@ produces, rather than a guess.
 
 ## Files
 
+- `gcp-bootstrap.sh` — one-time `gcloud` setup: project, APIs, service
+  account, key. Run this one yourself; see step 1.
 - `lib/auth.mjs` — service-account JWT auth, shared by both APIs.
 - `lib/csv.mjs` — tiny CSV parser (quoted fields, no external dependency).
 - `lib/gtm.mjs` / `lib/ga4.mjs` — thin REST wrappers, one function per API

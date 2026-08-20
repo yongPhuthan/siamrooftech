@@ -6,6 +6,10 @@
 // See scripts/growth-stack-setup/README.md for required env vars.
 
 import {
+  listProperties,
+  createProperty,
+  listDataStreams,
+  createWebDataStream,
   listCustomDimensions,
   createCustomDimension,
   archiveCustomDimension,
@@ -22,6 +26,51 @@ function requireEnv(name) {
   const value = process.env[name];
   if (!value) throw new Error(`Missing required env var ${name}`);
   return value;
+}
+
+const SITE_URL = process.env.SITE_URL || 'https://www.siamrooftech.com';
+const PROPERTY_DISPLAY_NAME = process.env.GA4_PROPERTY_NAME || 'Siamrooftech';
+
+// Resolves (and, if GA4_PROPERTY_ID is not set, creates) the GA4 property and
+// its web data stream. Property/data-stream creation IS documented in the
+// GA4 Admin API (unlike GTM's tag schema), so this is scripted directly --
+// no manual-bootstrap step needed here, only the Account itself (see
+// README.md for why the Account can't be created via API).
+async function resolveProperty() {
+  if (process.env.GA4_PROPERTY_ID) {
+    return `properties/${process.env.GA4_PROPERTY_ID}`;
+  }
+
+  const accountId = requireEnv('GA4_ACCOUNT_ID');
+  const account = `accounts/${accountId}`;
+
+  const existing = (await listProperties(account)).find(
+    (p) => p.displayName === PROPERTY_DISPLAY_NAME,
+  );
+  let property = existing;
+  if (!property) {
+    console.log(`Creating GA4 property "${PROPERTY_DISPLAY_NAME}" under ${account}...`);
+    property = await createProperty(account, {
+      displayName: PROPERTY_DISPLAY_NAME,
+      timeZone: process.env.GA4_TIME_ZONE || 'Asia/Bangkok',
+      currencyCode: process.env.GA4_CURRENCY || 'THB',
+    });
+  }
+  console.log(`Property: ${property.name}  (export GA4_PROPERTY_ID=${property.name.split('/')[1]} to skip this next time)`);
+
+  const streams = await listDataStreams(property.name);
+  let stream = streams.find((s) => s.webStreamData?.defaultUri === SITE_URL);
+  if (!stream) {
+    console.log(`Creating web data stream for ${SITE_URL}...`);
+    stream = await createWebDataStream(property.name, {
+      displayName: PROPERTY_DISPLAY_NAME,
+      uri: SITE_URL,
+    });
+  }
+  console.log(`Measurement ID: ${stream.webStreamData?.measurementId}`);
+  console.log('  -> set this as NEXT_PUBLIC_GA4_MEASUREMENT_ID / the GTM Google tag config in the UI bootstrap step.');
+
+  return property.name;
 }
 
 async function wipeExisting(property) {
@@ -68,8 +117,7 @@ async function ensureKeyEvents(property) {
 }
 
 async function main() {
-  const propertyId = requireEnv('GA4_PROPERTY_ID'); // numeric id, e.g. "123456789"
-  const property = `properties/${propertyId}`;
+  const property = await resolveProperty();
 
   if (WIPE) {
     await wipeExisting(property);

@@ -5,7 +5,29 @@ const SCOPES = ['https://www.googleapis.com/auth/analytics.edit'];
 
 const call = (path, options) => authedFetch(`${BASE}/${path}`, SCOPES, options);
 
-// property = "properties/123456789"
+// account = "accounts/123456789", property = "properties/123456789"
+
+export const listProperties = (account) =>
+  call(`properties?filter=parent:${encodeURIComponent(account)}`).then((r) => r.properties || []);
+
+export const createProperty = (account, { displayName, timeZone, currencyCode }) =>
+  call('properties', {
+    method: 'POST',
+    body: JSON.stringify({ parent: account, displayName, timeZone, currencyCode }),
+  });
+
+export const listDataStreams = (property) =>
+  call(`${property}/dataStreams`).then((r) => r.dataStreams || []);
+
+export const createWebDataStream = (property, { displayName, uri }) =>
+  call(`${property}/dataStreams`, {
+    method: 'POST',
+    body: JSON.stringify({
+      type: 'WEB_DATA_STREAM',
+      displayName,
+      webStreamData: { defaultUri: uri },
+    }),
+  });
 
 export const listCustomDimensions = (property) =>
   call(`${property}/customDimensions`).then((r) => r.customDimensions || []);
