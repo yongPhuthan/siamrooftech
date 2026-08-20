@@ -67,8 +67,7 @@ yarn firebase:functions  # Deploy only functions
 │   ├── components/          # Shared/admin components including shadcn-style UI
 │   └── lib/                 # Firebase, SEO, project, and upload utilities
 ├── public/                  # Static assets
-├── packages/                # Supporting workspace packages
-├── apps/                    # Legacy/supporting workspace folders
+├── scripts/                 # QA, SEO, and maintenance scripts
 └── docs/                    # Documentation
 ```
 
