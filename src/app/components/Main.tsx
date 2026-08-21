@@ -1,5 +1,4 @@
 import HeroSection from "./section/HeroSection";
-import ProductType from "./section/ProductType";
 import TrustedBy from "./section/TrustedBy";
 import WhyUs from "./section/WhyUs";
 import HowItWorks from "./section/HowItWorks";
@@ -34,7 +33,6 @@ const Main = (props: Props) => {
       <div className="bg-white ">
         <HeroSection keyword={keyword} />
         <TrustedBy />
-        <ProductType keyword={keyword} />
         <WhyUs keyword={keyword} />
       </div>
       {/* Hero CTA - Full Width Line Button */}

@@ -192,6 +192,15 @@ export const trackLineSurveyStart = (position: string = 'unknown') => {
   });
 };
 
+export const trackLineSurveyDecline = (position: string = 'unknown') => {
+  trackEvent({
+    event: 'line_survey_decline',
+    event_category: 'engagement',
+    event_label: 'line_survey',
+    position,
+  });
+};
+
 export const trackLineSurveyComplete = (persona: LeadPersona, position: string = 'unknown') => {
   const { score, value } = LEAD_PERSONAS[persona];
 

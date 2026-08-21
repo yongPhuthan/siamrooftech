@@ -10,6 +10,7 @@ import {
   trackContactClick,
   trackLineClick,
   trackLineSurveyComplete,
+  trackLineSurveyDecline,
   trackLineSurveyStart,
   trackPhoneClick,
   type LeadPersona,
@@ -107,5 +108,20 @@ export default function AttributionCapture() {
     [pendingHref, surveyPosition],
   );
 
-  return <LeadSurveyModal isOpen={pendingHref !== null} onAnswer={handleSurveyAnswer} />;
+  const handleSurveyDecline = useCallback(() => {
+    // Deliberately does not call setStoredPersona: nothing is persisted, so
+    // the gate asks again next time within this paid session (including
+    // after a refresh) instead of being permanently skipped like a real
+    // answer would be. Declining also never opens LINE.
+    trackLineSurveyDecline(surveyPosition);
+    setPendingHref(null);
+  }, [surveyPosition]);
+
+  return (
+    <LeadSurveyModal
+      isOpen={pendingHref !== null}
+      onAnswer={handleSurveyAnswer}
+      onDecline={handleSurveyDecline}
+    />
+  );
 }

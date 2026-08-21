@@ -6,15 +6,16 @@ import type { LeadPersona } from '@/lib/gtag';
 interface LeadSurveyModalProps {
   isOpen: boolean;
   onAnswer: (persona: LeadPersona) => void;
+  onDecline: () => void;
 }
 
 const OPTIONS: { persona: LeadPersona; label: string }[] = [
-  { persona: 'homeowner', label: 'เจ้าของบ้าน / เจ้าของอาคาร' },
-  { persona: 'procurement', label: 'ฝ่ายจัดซื้อ / บริษัท' },
-  { persona: 'contractor', label: 'ผู้รับเหมา / ร้านติดตั้ง (รับราคาช่าง)' },
+  { persona: 'homeowner', label: 'ฉันเป็นเจ้าของบ้าน / เจ้าของอาคาร' },
+  { persona: 'procurement', label: 'ฉันดูแลฝ่ายจัดซื้อ / บริษัท' },
+  { persona: 'contractor', label: 'ฉันเป็นผู้รับเหมา / ร้านติดตั้ง (รับราคาช่าง)' },
 ];
 
-export default function LeadSurveyModal({ isOpen, onAnswer }: LeadSurveyModalProps) {
+export default function LeadSurveyModal({ isOpen, onAnswer, onDecline }: LeadSurveyModalProps) {
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
@@ -40,9 +41,7 @@ export default function LeadSurveyModal({ isOpen, onAnswer }: LeadSurveyModalPro
     >
       <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl sm:p-8">
         <h2 id="lead-survey-title" className="text-lg font-bold text-gray-900 sm:text-xl">
-          เพื่อเตรียมข้อมูลและใบเสนอราคาให้ตรงประเภท
-          <br />
-          คุณติดต่อในนามไหน?
+          เพื่อเตรียมราคาและคำแนะนำให้ตรงกับคุณที่สุด
         </h2>
 
         <div className="mt-6 flex flex-col gap-3">
@@ -57,6 +56,14 @@ export default function LeadSurveyModal({ isOpen, onAnswer }: LeadSurveyModalPro
             </button>
           ))}
         </div>
+
+        <button
+          type="button"
+          onClick={onDecline}
+          className="mt-4 w-full text-center text-sm text-gray-400 underline-offset-2 hover:text-gray-600 hover:underline"
+        >
+          ไม่สะดวกตอบตอนนี้
+        </button>
       </div>
     </div>
   );
