@@ -18,38 +18,6 @@ import LeadSurveyModal from './LeadSurveyModal';
 
 const LINE_LINK_SELECTOR = 'a[href*="lin.ee"], a[href*="line.me"]';
 
-const persistLeadSurvey = (persona: LeadPersona, position: string) => {
-  if (typeof window === 'undefined' || !navigator.sendBeacon) return;
-
-  try {
-    const url = new URL(window.location.href);
-    const payload = {
-      persona,
-      score: persona === 'contractor' ? 0 : 1,
-      position,
-      gclid: url.searchParams.get('gclid') || undefined,
-      gbraid: url.searchParams.get('gbraid') || undefined,
-      wbraid: url.searchParams.get('wbraid') || undefined,
-      utm_campaign: url.searchParams.get('utm_campaign') || undefined,
-      utm_source: url.searchParams.get('utm_source') || undefined,
-      utm_medium: url.searchParams.get('utm_medium') || undefined,
-      srt_campaignid: url.searchParams.get('srt_campaignid') || undefined,
-      srt_adgroupid: url.searchParams.get('srt_adgroupid') || undefined,
-      srt_keyword: url.searchParams.get('srt_keyword') || undefined,
-      ad_kw: url.searchParams.get('ad_kw') || undefined,
-      ad_audience: url.searchParams.get('ad_audience') || undefined,
-      ad_area: url.searchParams.get('ad_area') || undefined,
-      ad_intent: url.searchParams.get('ad_intent') || undefined,
-      landing_path: `${window.location.pathname}${window.location.search}`,
-    };
-
-    const blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
-    navigator.sendBeacon('/api/lead-survey', blob);
-  } catch {
-    // Statistics must never block the lead from reaching LINE.
-  }
-};
-
 export default function AttributionCapture() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -129,7 +97,6 @@ export default function AttributionCapture() {
     (persona: LeadPersona) => {
       setStoredPersona(persona);
       trackLineSurveyComplete(persona, surveyPosition);
-      persistLeadSurvey(persona, surveyPosition);
 
       if (pendingHref) {
         window.open(pendingHref, '_blank', 'noopener,noreferrer');

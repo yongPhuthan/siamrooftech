@@ -128,7 +128,22 @@ async function ensureTags(ws, triggerIds) {
     await createTag(ws, {
       name: CONFIG_TAG_NAME,
       type: 'googtag',
-      parameter: [{ type: 'template', key: 'tagId', value: measurementId }],
+      parameter: [
+        { type: 'template', key: 'tagId', value: measurementId },
+        {
+          type: 'list',
+          key: 'userProperties',
+          list: [
+            {
+              type: 'map',
+              map: [
+                { type: 'template', key: 'name', value: 'lead_persona' },
+                { type: 'template', key: 'value', value: '{{DLV - lead_persona}}' },
+              ],
+            },
+          ],
+        },
+      ],
       firingTriggerId: [ALL_PAGES_TRIGGER_ID],
     });
     await sleep(1000);

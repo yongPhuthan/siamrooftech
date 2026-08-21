@@ -10,7 +10,7 @@
     "binding": "ASSETS"
   },
   "vars": {
-    "NEXT_PUBLIC_GTM_ID": "GTM-TDXKN9MG"
+    "NEXT_PUBLIC_GTM_ID": "GTM-WVZ3KQ6F"
   },
   "observability": {
     "enabled": true,

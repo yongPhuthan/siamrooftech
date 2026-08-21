@@ -83,6 +83,7 @@ export const listTags = (ws) => call(`${ws}/tags`).then((r) => r.tag || []);
 export const getTag = (path) => call(path);
 export const createTag = (ws, body) =>
   call(`${ws}/tags`, { method: 'POST', body: JSON.stringify(body) });
+export const updateTag = (path, body) => call(path, { method: 'PUT', body: JSON.stringify(body) });
 export const deleteTag = (path) => call(path, { method: 'DELETE' });
 
 // --- Versions ------------------------------------------------------------------
