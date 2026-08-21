@@ -2,6 +2,15 @@
 
 Date: 2026-07-24
 
+> **Superseded (2026-08-21).** The hybrid service-page strategy below was
+> replaced with a simpler decision: all P0 campaigns land on the homepage,
+> with no DKI query params at all (`ad_kw`/`ad_audience`/`ad_area`/`ad_intent`
+> do nothing there). See `launch-url-matrix-2026-07.csv` for the current
+> URLs and `dynamic-keyword-insertion-contract-2026-07.md` for why the DKI
+> capability described here is kept but currently unused. This document is
+> preserved as the record of the original reasoning, not as current
+> instructions.
+
 ## Decision
 
 Use a hybrid Google Ads landing strategy:

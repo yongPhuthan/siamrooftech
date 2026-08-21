@@ -4,7 +4,7 @@ Date: 2026-07-25
 
 ## Purpose
 
-Verify that Google Ads landing URLs, DKI, GTM, GA4, and Google Ads conversion readiness work together before paid traffic launches.
+Verify that the Google Ads landing URL, the mandatory LINE survey gate, GTM, GA4, and Google Ads conversion readiness work together before paid traffic launches. (DKI dynamic content is not part of the current pilot -- see `dynamic-keyword-insertion-contract-2026-07.md` status note.)
 
 The expected decision at the end is one of:
 
@@ -59,32 +59,30 @@ Blocking failures:
 
 ## Browser QA Flow
 
-Use these P0 URLs:
+All P0 campaigns land on the homepage with no DKI query params (see
+`launch-url-matrix-2026-07.csv`); campaign/ad-group attribution comes from
+the Google Ads tracking template, not the Final URL. Use this P0 URL:
 
 ```text
-https://www.siamrooftech.com/services/retractable-awning?ad_kw=retractable_awning&ad_intent=quote&utm_source=google_paid&utm_medium=paid&utm_campaign=TH_Search_NonBrand_Core&utm_term=test_keyword&utm_content=test_ad&srt_platform=google&srt_campaignid=111&srt_adgroupid=222&srt_adid=333&srt_keyword=test_keyword&srt_matchtype=e&srt_device=c&srt_network=g&srt_location=1012728
+https://www.siamrooftech.com/?gclid=qa-live-gclid-<date>
 ```
 
-```text
-https://www.siamrooftech.com/services/electric-retractable-awning?ad_kw=electric_awning&ad_intent=consult&utm_source=google_paid&utm_medium=paid&utm_campaign=TH_Search_Electric&utm_term=test_keyword&utm_content=test_ad&srt_platform=google&srt_campaignid=111&srt_adgroupid=223&srt_adid=334&srt_keyword=test_keyword&srt_matchtype=e&srt_device=c&srt_network=g&srt_location=1012728
-```
+For this URL:
 
-```text
-https://www.siamrooftech.com/services/retractable-awning/bangkok?ad_kw=retractable_awning&ad_area=bangkok&ad_intent=quote&utm_source=google_paid&utm_medium=paid&utm_campaign=TH_Search_Local_Bangkok&utm_term=test_keyword&utm_content=test_ad&srt_platform=google&srt_campaignid=111&srt_adgroupid=224&srt_adid=335&srt_keyword=test_keyword&srt_matchtype=e&srt_device=c&srt_network=g&srt_location=1012728
-```
+1. Open the URL in a real browser (GTM Preview does not show cookies -- check DevTools > Application > Cookies directly).
+2. Confirm the page loads normally, with no visible content differences from a plain organic visit (homepage does not use DKI).
+3. Confirm cookie `srt_paid=1` is set with `Max-Age=1800`.
+4. Click any LINE CTA. Confirm navigation is blocked and the LeadSurveyModal opens instead of LINE.
+5. Confirm GTM Preview / GA4 DebugView records `line_survey_start`.
+6. Answer any persona option. Confirm LINE opens in a new tab.
+7. Confirm GTM Preview / GA4 DebugView records `line_survey_complete` with `lead_persona`, `lead_quality_score`, `value`, `attribution_latest_gclid`.
+8. Click a LINE CTA again without reloading. Confirm LINE opens immediately (persona already stored this session, no second modal).
+9. Click the phone CTA. Confirm `phone_click` fires with `attribution_lead_persona` present (attribution auto-attaches to every event once the survey is answered).
 
-For each URL:
+Then confirm the gate stays closed for non-paid traffic:
 
-1. Open the URL in GTM Preview.
-2. Confirm the page loads normally.
-3. Confirm approved DKI copy appears in the hero.
-4. Confirm raw `srt_keyword` does not appear as visible page copy.
-5. Confirm canonical points to the clean `/services/...` URL.
-6. Click the hero LINE CTA once.
-7. Return to the page and click the phone CTA once.
-8. Confirm GTM Preview records one `line_click` and one `phone_click`.
-9. Confirm GA4 DebugView shows the events.
-10. Confirm required parameters are present.
+10. Open `https://www.siamrooftech.com/` with no query params in a fresh/incognito session. Click any LINE CTA. Confirm LINE opens immediately, no modal, no `srt_paid` cookie.
+11. Open `https://www.siamrooftech.com/?utm_source=google_paid&utm_medium=paid` (UTM only, no `gclid`) in a fresh session. Click any LINE CTA. Confirm LINE opens immediately, no modal, no `srt_paid` cookie -- the gate must key on `gclid`/`gbraid`/`wbraid` only, never `utm_*`.
 
 Local browser smoke check:
 
@@ -92,55 +90,55 @@ Local browser smoke check:
 yarn ads:browser-qa --base=https://www.siamrooftech.com
 ```
 
-This confirms the website can capture attribution in browser storage and emit `line_click` / `phone_click` into `window.dataLayer`. It does not replace GTM Preview or GA4 DebugView because those external tools still need to map and receive the events.
+This confirms the website can capture attribution in browser storage and emit events into `window.dataLayer`. It does not replace GTM Preview or GA4 DebugView because those external tools still need to map and receive the events.
 
 ## Required Event Parameters To Spot Check
 
-For `line_click` and `phone_click`, verify:
+For `line_survey_complete`, verify (in addition to everything `line_click` already carries):
 
 | Parameter | Expected example |
 | --- | --- |
 | `page_location` | Full URL with query |
 | `page_path` | Path plus query |
-| `position` | CTA position such as `กันสาดพับเก็บได้_hero` |
-| `attribution_latest_utm_campaign` | `TH_Search_NonBrand_Core` or matching campaign |
-| `attribution_latest_srt_campaignid` | `111` |
-| `attribution_latest_srt_adgroupid` | `222`, `223`, or `224` |
-| `attribution_latest_srt_keyword` | `test_keyword` |
-| `attribution_latest_srt_matchtype` | `e` |
-| `attribution_latest_srt_device` | `c` |
-| `attribution_latest_srt_network` | `g` |
-| `attribution_latest_ad_kw` | `retractable_awning` or `electric_awning` |
-| `attribution_latest_ad_area` | `bangkok` for Bangkok test |
-| `attribution_latest_ad_intent` | `quote` or `consult` |
+| `position` | CTA position such as `bottom` or `final_cta` |
+| `lead_persona` | `homeowner`, `procurement`, or `contractor` |
+| `lead_quality_score` | `0` (contractor) or `1` (homeowner/procurement) |
+| `value` | Same as `lead_quality_score` |
+| `attribution_latest_gclid` | The click ID from the test URL |
+| `attribution_latest_utm_campaign` | Matching campaign, if a tracking template was used |
+| `attribution_latest_srt_campaignid` | Matching campaign ID, if a tracking template was used |
+| `attribution_latest_srt_keyword` | Matching keyword, if a tracking template was used |
+
+For `phone_click` fired after a survey answer, confirm `attribution_lead_persona` is present -- it should auto-attach from the stored answer without any extra code path.
 
 ## Negative QA Tests
 
-| Test URL pattern | Expected result |
+| Test | Expected result |
 | --- | --- |
-| `/services/retractable-awning?ad_kw=cheap_unknown_keyword&srt_keyword=กันสาดพับเก็บได้ราคาถูกที่สุด` | Raw/invalid keyword does not render as visible copy |
-| `/services/retractable-awning/bangkok?ad_kw=retractable_awning&ad_area=nonthaburi` | Bangkok path wins; Nonthaburi does not render as hero area |
-| `/services/electric-retractable-awning?ad_kw=retractable_awning` | Electric page controls service identity; conflicting keyword is ignored |
+| `https://www.siamrooftech.com/?utm_source=google_paid&utm_medium=paid` (no `gclid`) | No `srt_paid` cookie, no survey modal on LINE click |
+| `https://www.siamrooftech.com/` with `lead_persona` already answered this session | LINE opens immediately, no second modal |
 | `/sitemap.xml` | No `ad_kw=`, `srt_keyword=`, or `/lp/google-ads/` |
+
+The DKI-specific negative tests (invalid `ad_kw` token, conflicting `ad_area`, conflicting service token on `/services/*` pages) are Future -- see `docs/google-ads/production-qa-test-cases-2026-07.csv` ADS-QA-020 through ADS-QA-023 and the status note in `dynamic-keyword-insertion-contract-2026-07.md`. They only matter again if dedicated service-page campaigns are launched.
 
 ## GA4 Key Event QA
 
 1. Open GA4 DebugView.
 2. Confirm test device appears.
-3. Trigger `line_click`.
+3. Trigger `line_survey_complete` (via the full survey flow, not just `line_click`).
 4. Trigger `phone_click`.
 5. Confirm both events show required parameters.
-6. Mark `line_click` and `phone_click` as key events only after parameters are confirmed.
+6. Mark `line_survey_complete` and `phone_click` as key events only after parameters are confirmed. Do not mark `line_click` as a key event -- it is analytics-only, the denominator for survey completion rate.
 7. Wait for GA4/Google Ads propagation if the events do not immediately appear for import.
 
 ## Google Ads Conversion QA
 
 1. Confirm GA4 and Google Ads are linked.
-2. Confirm auto-tagging is enabled.
+2. Confirm auto-tagging is enabled -- this is what appends `gclid` to the Final URL, which is what opens the survey gate. Without it, no paid visitor ever sees the survey and no `line_survey_complete` conversions exist.
 3. Import or create conversion actions:
-   - `line_click`
-   - `phone_click`
-4. Set both as primary only after successful QA.
+   - `phone_click` (Primary, count-based, include in bidding from launch)
+   - `line_survey_complete` (Primary, value-based; only add to bidding once Phase 2 threshold is reached, see `pilot-launch-plan-2026-07.md`)
+4. Confirm `line_click` is NOT set as a conversion action for bidding.
 5. Confirm `contact_click` is not included in bidding.
 6. Do not import calculator events until the calculator exists and passes its own QA.
 
@@ -148,16 +146,18 @@ For `line_click` and `phone_click`, verify:
 
 | Decision | Condition |
 | --- | --- |
-| `PASS` | All automated QA passes, GTM Preview passes, GA4 DebugView receives primary events with parameters, Google Ads conversions are ready |
-| `PASS_WITH_FIXES` | Non-blocking documentation or naming cleanup remains, but primary events and attribution are reliable |
-| `BLOCK` | Primary event missing, attribution missing, canonical/sitemap broken, raw keyword renders, or Google Ads cannot see conversions |
+| `PASS` | All automated QA passes, the survey gate behaves correctly (opens for paid sessions, stays closed for organic/UTM-only), GA4 DebugView receives `line_survey_complete` and `phone_click` with parameters, Google Ads conversions are ready |
+| `PASS_WITH_FIXES` | Non-blocking documentation or naming cleanup remains, but primary events, the survey gate, and attribution are reliable |
+| `BLOCK` | Primary event missing, survey gate opens for organic/UTM-only traffic, survey gate fails to open for paid traffic, attribution missing, canonical/sitemap broken, or Google Ads cannot see conversions |
 
 ## Rollback Triggers
 
 Stop or pause launch if:
 
-- `line_click` or `phone_click` disappears from GA4.
+- `line_survey_complete` or `phone_click` disappears from GA4.
 - Events fire multiple times per click.
-- Ads URL renders unsafe keyword text.
+- The survey gate opens for organic or UTM-only traffic (no `gclid`).
+- The survey gate stops opening for paid traffic (`gclid` present).
+- `line_click` minus `line_survey_complete` (survey drop-off) exceeds roughly 15%.
 - Canonical points to a query URL or `/lp/google-ads/...`.
 - Google Ads starts optimizing for a non-lead event.

@@ -50,7 +50,7 @@ The pilot can start only when all P0 gates are true.
 | Gate | Evidence | Required decision |
 | --- | --- | --- |
 | URL matrix approved | `docs/google-ads/launch-url-matrix-2026-07.csv` | Approved by owner |
-| Landing DKI QA passed | `yarn ads:qa --base=<production>` | PASS |
+| Landing QA passed (sitemap safety; DKI checks are Future, not part of this pilot) | `yarn ads:qa --base=<production>` | PASS |
 | SEO QA passed | `yarn seo:qa --base=<production>` | PASS |
 | GTM Preview passed | `docs/google-ads/production-qa-runbook-2026-07.md` | PASS |
 | GA4 DebugView shows primary events | `line_survey_complete`, `phone_click` with attribution params, plus `lead_persona`/`lead_quality_score`/`value` on `line_survey_complete` | PASS |
@@ -69,6 +69,8 @@ Launch only these P0 campaigns first:
 | `TH_Search_Local_Bangkok` | กันสาดพับเก็บได้ กรุงเทพ | `launch-url-matrix-2026-07.csv` | P0 |
 | `TH_Search_Local_Nonthaburi` | กันสาดพับเก็บได้ นนทบุรี | `launch-url-matrix-2026-07.csv` | P0 |
 | `TH_Search_Local_PathumThani` | กันสาดพับเก็บได้ ปทุมธานี | `launch-url-matrix-2026-07.csv` | P0 |
+
+All five Final URLs are the same bare homepage (`https://www.siamrooftech.com/`) -- campaign/ad-group differentiation for reporting comes from the tracking template (`utm_campaign`/`srt_campaignid`), not the Final URL. See `launch-url-matrix-2026-07.csv`.
 
 Hold:
 

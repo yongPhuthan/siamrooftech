@@ -2,6 +2,18 @@
 
 Date: 2026-07-24
 
+> **Status (2026-08-21): not used by the current P0 pilot.** Ads traffic
+> lands on the homepage with no `ad_kw`/`ad_audience`/`ad_area`/`ad_intent`
+> query params -- see `launch-url-matrix-2026-07.csv`. The homepage does not
+> consume these params and renders identically for paid and organic
+> visitors. The capability described below (approved tokens, the
+> `/services/*` rendering rules, the `/lp/google-ads/*` middleware rewrite)
+> still exists in the code and is exercised by
+> `src/lib/google-ads-dynamic-content.ts` and `src/middleware.ts` -- kept
+> for if/when dedicated service-page campaigns are launched again. Until
+> then, the Survey Gate section below is the only part of this document
+> that's actually live.
+
 ## Decision
 
 Siamrooftech can support dynamic keyword insertion for Google Ads, but only through approved tokens.

@@ -2,6 +2,26 @@
 
 Date: 2026-07-25
 
+> **Status (2026-08-21): partially superseded.** This document's Launch URL
+> Matrix section, and every `/services/*?ad_kw=...` URL example below, describe
+> the earlier service-page + DKI strategy. That was replaced with a simpler
+> decision: all P0 campaigns land on the homepage with no DKI query params.
+> For the current, authoritative reference, use these instead:
+>
+> - URLs: `docs/google-ads/launch-url-matrix-2026-07.csv`
+> - Conversion mapping (event roles, bidding): `docs/google-ads/gtm-ga4-conversion-mapping-2026-07.csv`
+> - GTM build (variables/triggers/tags): `docs/google-ads/gtm-container-build-sheet-2026-07.csv`
+> - GA4 custom dimensions: `docs/google-ads/ga4-custom-dimensions-2026-07.csv`
+> - Ads conversion actions: `docs/google-ads/google-ads-conversion-actions-2026-07.csv`
+> - QA: `docs/google-ads/production-qa-runbook-2026-07.md` and `production-qa-test-cases-2026-07.csv`
+>
+> The GTM/GA4 event-mapping and attribution-parameter sections below (survey
+> gate aside, which postdates this doc entirely -- see
+> `dynamic-keyword-insertion-contract-2026-07.md` Survey gate section) are
+> still broadly accurate for how attribution flows; only the URL strategy
+> changed. The `/services/*` DKI capability itself is unused but intact in
+> code, kept for possible future dedicated landing-page campaigns.
+
 ## Decision
 
 Create the launch matrix before building the conversion calculator.
