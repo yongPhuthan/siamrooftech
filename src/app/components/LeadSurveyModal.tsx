@@ -11,7 +11,7 @@ interface LeadSurveyModalProps {
 const OPTIONS: { persona: LeadPersona; label: string }[] = [
   { persona: 'homeowner', label: 'เจ้าของบ้าน / เจ้าของอาคาร' },
   { persona: 'procurement', label: 'ฝ่ายจัดซื้อ / บริษัท' },
-  { persona: 'contractor', label: 'ผู้รับเหมา / ร้านติดตั้ง' },
+  { persona: 'contractor', label: 'ผู้รับเหมา / ช่าง' },
 ];
 
 export default function LeadSurveyModal({ isOpen, onAnswer }: LeadSurveyModalProps) {
