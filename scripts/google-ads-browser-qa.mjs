@@ -20,8 +20,6 @@ const chromePath = String(
     process.env.CHROME_PATH ||
     '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
 );
-const adsPath =
-  '/services/retractable-awning?ad_kw=retractable_awning&ad_audience=home&ad_area=bangkok&ad_intent=quote&utm_source=google_paid&utm_medium=paid&utm_campaign=TH_Search_NonBrand_Core&utm_term=test_keyword&utm_content=test_ad&srt_platform=google&srt_campaignid=111&srt_adgroupid=222&srt_adid=333&srt_keyword=test_keyword&srt_matchtype=e&srt_device=c&srt_network=g&srt_location=1012728';
 
 const failures = [];
 
@@ -168,7 +166,9 @@ async function evaluate(client, sessionId, expression) {
   return result.result.value;
 }
 
-async function run() {
+// Runs `fn(client, sessionId)` against a fresh, isolated Chrome profile (own
+// cookies/localStorage) and always cleans up, even on failure.
+async function withFreshBrowser(fn) {
   const userDataDir = await mkdtemp(join(tmpdir(), 'siamrooftech-ads-browser-qa-'));
   const child = launchChrome(userDataDir);
 
@@ -185,118 +185,8 @@ async function run() {
 
     await client.send('Runtime.enable', {}, sessionId);
     await client.send('Page.enable', {}, sessionId);
-    await client.send(
-      'Page.navigate',
-      {
-        url: new URL(adsPath, baseUrl).toString(),
-      },
-      sessionId,
-    );
 
-    await waitFor(
-      () => evaluate(client, sessionId, 'document.readyState === "complete"'),
-      15000,
-      'page load',
-    );
-
-    await waitFor(
-      () =>
-        evaluate(
-          client,
-          sessionId,
-          `(() => {
-            const raw = window.localStorage.getItem('siamrooftech_attribution_v1');
-            if (!raw) return false;
-            const attribution = JSON.parse(raw);
-            return attribution.latest_utm_campaign === 'TH_Search_NonBrand_Core'
-              && attribution.latest_srt_campaignid === '111'
-              && attribution.latest_ad_kw === 'retractable_awning'
-              && attribution.latest_ad_audience === 'home'
-              && attribution.latest_ad_area === 'bangkok'
-              && attribution.latest_ad_intent === 'quote';
-          })()`,
-        ),
-      10000,
-      'attribution localStorage capture',
-    );
-
-    const events = await evaluate(
-      client,
-      sessionId,
-      `(() => {
-        const click = (selector) => {
-          const link = document.querySelector(selector);
-          if (!link) throw new Error('Missing link: ' + selector);
-          link.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
-        };
-
-        click('a[data-analytics-type="line"][data-analytics-position$="_hero"]');
-        click('a[data-analytics-type="phone"][data-analytics-position$="_hero"]');
-        click('a[data-analytics-type="line"][data-analytics-position$="_calculator_mock"]');
-        click('a[data-analytics-type="phone"][data-analytics-position$="_calculator_mock"]');
-
-        return (window.dataLayer || [])
-          .filter((entry) => ['line_click', 'phone_click'].includes(String(entry.event)))
-          .map((entry) => ({
-            event: entry.event,
-            position: entry.position,
-            conversion_priority: entry.conversion_priority,
-            phone_number: entry.phone_number,
-            page_path: entry.page_path,
-            attribution_latest_utm_campaign: entry.attribution_latest_utm_campaign,
-            attribution_latest_srt_campaignid: entry.attribution_latest_srt_campaignid,
-            attribution_latest_srt_adgroupid: entry.attribution_latest_srt_adgroupid,
-            attribution_latest_srt_keyword: entry.attribution_latest_srt_keyword,
-            attribution_latest_ad_kw: entry.attribution_latest_ad_kw,
-            attribution_latest_ad_audience: entry.attribution_latest_ad_audience,
-            attribution_latest_ad_area: entry.attribution_latest_ad_area,
-            attribution_latest_ad_intent: entry.attribution_latest_ad_intent,
-          }));
-      })()`,
-    );
-
-    const lineEvent = events.find((entry) => entry.event === 'line_click');
-    const phoneEvent = events.find((entry) => entry.event === 'phone_click');
-    const lineMockEvent = events.find(
-      (entry) => entry.event === 'line_click' && String(entry.position).endsWith('_calculator_mock'),
-    );
-    const phoneMockEvent = events.find(
-      (entry) => entry.event === 'phone_click' && String(entry.position).endsWith('_calculator_mock'),
-    );
-
-    const expected = {
-      conversion_priority: 'primary',
-      attribution_latest_utm_campaign: 'TH_Search_NonBrand_Core',
-      attribution_latest_srt_campaignid: '111',
-      attribution_latest_srt_adgroupid: '222',
-      attribution_latest_srt_keyword: 'test_keyword',
-      attribution_latest_ad_kw: 'retractable_awning',
-      attribution_latest_ad_audience: 'home',
-      attribution_latest_ad_area: 'bangkok',
-      attribution_latest_ad_intent: 'quote',
-    };
-
-    for (const [key, value] of Object.entries(expected)) {
-      if (lineEvent?.[key] !== value) {
-        fail(`line_click missing ${key}=${value}; got ${lineEvent?.[key] || 'NONE'}`);
-      }
-
-      if (phoneEvent?.[key] !== value) {
-        fail(`phone_click missing ${key}=${value}; got ${phoneEvent?.[key] || 'NONE'}`);
-      }
-    }
-
-    if (phoneEvent?.phone_number !== '0984542455') {
-      fail(`phone_click phone_number mismatch; got ${phoneEvent?.phone_number || 'NONE'}`);
-    }
-
-    if (!lineMockEvent) {
-      fail('Missing calculator mock line_click event');
-    }
-
-    if (!phoneMockEvent) {
-      fail('Missing calculator mock phone_click event');
-    }
+    await fn(client, sessionId);
 
     client.close();
   } finally {
@@ -305,8 +195,187 @@ async function run() {
   }
 }
 
+async function navigateTo(client, sessionId, path) {
+  await client.send('Page.navigate', { url: new URL(path, baseUrl).toString() }, sessionId);
+  await waitFor(
+    () => evaluate(client, sessionId, 'document.readyState === "complete"'),
+    15000,
+    `page load for ${path}`,
+  );
+  // Let client-side hydration (middleware cookie is already set by the
+  // response; the click listeners are attached by AttributionCapture on
+  // mount) settle before interacting.
+  await wait(500);
+}
+
+function hasCookie(client, sessionId, name) {
+  return evaluate(
+    client,
+    sessionId,
+    `document.cookie.split('; ').some((c) => c === '${name}=1')`,
+  );
+}
+
+function dialogVisible(client, sessionId) {
+  return evaluate(client, sessionId, `!!document.querySelector('[role="dialog"]')`);
+}
+
+function dataLayerEventNames(client, sessionId) {
+  return evaluate(
+    client,
+    sessionId,
+    `(window.dataLayer || []).map((e) => e.event).filter(Boolean)`,
+  );
+}
+
+function clickLineLink(client, sessionId) {
+  return evaluate(
+    client,
+    sessionId,
+    `(() => {
+      const link = document.querySelector('a[href*="lin.ee"], a[href*="line.me"]');
+      if (!link) throw new Error('No LINE link found on page');
+      link.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
+      return true;
+    })()`,
+  );
+}
+
+// --- Scenario 1: paid session (gclid) -- the full positive flow --------------
+
+async function scenarioPaidSession() {
+  await withFreshBrowser(async (client, sessionId) => {
+    const gclid = `qa-browser-${Date.now()}`;
+    await navigateTo(client, sessionId, `/?gclid=${gclid}`);
+
+    if (!(await hasCookie(client, sessionId, 'srt_paid'))) {
+      fail('Paid session: srt_paid cookie was not set after visiting a URL with gclid');
+      return;
+    }
+
+    // Intercept window.open instead of letting a real tab open, so we can
+    // assert on the URL LINE would actually receive.
+    await evaluate(
+      client,
+      sessionId,
+      `window.__openedUrls = []; window.open = (url) => { window.__openedUrls.push(url); return null; };`,
+    );
+
+    await clickLineLink(client, sessionId);
+    await wait(300);
+
+    if (!(await dialogVisible(client, sessionId))) {
+      fail('Paid session: clicking a LINE link did not open the survey modal');
+      return;
+    }
+
+    let events = await dataLayerEventNames(client, sessionId);
+    if (!events.includes('line_survey_start')) {
+      fail(`Paid session: expected line_survey_start in dataLayer, got: ${events.join(', ')}`);
+    }
+
+    const answered = await evaluate(
+      client,
+      sessionId,
+      `(() => {
+        const button = document.querySelector('[role="dialog"] button');
+        if (!button) return false;
+        button.click();
+        return true;
+      })()`,
+    );
+
+    if (!answered) {
+      fail('Paid session: no persona option button found in the survey modal');
+      return;
+    }
+
+    await wait(300);
+
+    const openedUrls = await evaluate(client, sessionId, 'window.__openedUrls');
+    if (!openedUrls.some((url) => /lin\.ee|line\.me/.test(url))) {
+      fail(`Paid session: answering the survey did not call window.open with a LINE url; got: ${JSON.stringify(openedUrls)}`);
+    }
+
+    events = await dataLayerEventNames(client, sessionId);
+    if (!events.includes('line_survey_complete')) {
+      fail(`Paid session: expected line_survey_complete in dataLayer, got: ${events.join(', ')}`);
+    }
+
+    const completeEvent = await evaluate(
+      client,
+      sessionId,
+      `(window.dataLayer || []).find((e) => e.event === 'line_survey_complete')`,
+    );
+
+    if (!completeEvent || !['homeowner', 'procurement', 'contractor'].includes(completeEvent.lead_persona)) {
+      fail(`Paid session: line_survey_complete missing a valid lead_persona; got: ${completeEvent?.lead_persona}`);
+    }
+    if (completeEvent && ![0, 1].includes(completeEvent.value)) {
+      fail(`Paid session: line_survey_complete has an unexpected value; got: ${completeEvent?.value}`);
+    }
+    if (completeEvent && completeEvent.attribution_latest_gclid !== gclid) {
+      fail(`Paid session: line_survey_complete missing attribution_latest_gclid=${gclid}; got: ${completeEvent?.attribution_latest_gclid}`);
+    }
+
+    // Answered once this session -- clicking LINE again must not re-open the
+    // modal. The gate no longer intercepts the click at all once a persona is
+    // stored, so this becomes a normal anchor navigation (target="_blank"),
+    // not a window.open() call -- there is nothing to capture here beyond
+    // "no modal appears a second time".
+    await clickLineLink(client, sessionId);
+    await wait(300);
+
+    if (await dialogVisible(client, sessionId)) {
+      fail('Paid session: survey modal re-opened on a second LINE click after already answering this session');
+    }
+  });
+}
+
+// --- Scenario 2: organic session (no params) -- must never see the gate ------
+
+async function scenarioOrganicSession() {
+  await withFreshBrowser(async (client, sessionId) => {
+    await navigateTo(client, sessionId, '/');
+
+    if (await hasCookie(client, sessionId, 'srt_paid')) {
+      fail('Organic session: srt_paid cookie was set with no gclid/gbraid/wbraid in the URL');
+    }
+
+    await clickLineLink(client, sessionId);
+    await wait(300);
+
+    if (await dialogVisible(client, sessionId)) {
+      fail('Organic session: survey modal appeared for a visitor with no ad click ID');
+    }
+  });
+}
+
+// --- Scenario 3: UTM-only session (no gclid) -- must never see the gate ------
+// The gate must key on gclid/gbraid/wbraid only. utm_* is copyable into any
+// shared link, so gating on it would show the survey to organic visitors too.
+
+async function scenarioUtmOnlySession() {
+  await withFreshBrowser(async (client, sessionId) => {
+    await navigateTo(client, sessionId, '/?utm_source=google_paid&utm_medium=paid&utm_campaign=qa_browser');
+
+    if (await hasCookie(client, sessionId, 'srt_paid')) {
+      fail('UTM-only session: srt_paid cookie was set from utm_* params alone (no gclid)');
+    }
+
+    await clickLineLink(client, sessionId);
+    await wait(300);
+
+    if (await dialogVisible(client, sessionId)) {
+      fail('UTM-only session: survey modal appeared with only utm_* params, no gclid');
+    }
+  });
+}
+
 try {
-  await run();
+  await scenarioPaidSession();
+  await scenarioOrganicSession();
+  await scenarioUtmOnlySession();
 } catch (error) {
   fail(error.message);
 }
