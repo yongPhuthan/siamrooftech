@@ -20,6 +20,8 @@
 # cloudflare/opennext local build artifacts
 /.open-next/
 /.wrangler/
+workers/**/.wrangler
+workers/**/.dev.vars
 /.playwright-mcp/
 # production
 /build

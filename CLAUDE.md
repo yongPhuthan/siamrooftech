@@ -68,6 +68,8 @@ yarn firebase:functions  # Deploy only functions
 │   └── lib/                 # Firebase, SEO, project, and upload utilities
 ├── public/                  # Static assets
 ├── scripts/                 # QA, SEO, and maintenance scripts
+├── workers/                 # Standalone Cloudflare Workers deployed separately from the main site
+│   └── line-chat-history/   # LINE OA webhook ingestion + chat history Read API (own wrangler.jsonc)
 └── docs/                    # Documentation
 ```
 

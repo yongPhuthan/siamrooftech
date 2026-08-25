@@ -1,0 +1,51 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "siamrooftech-line-chat-history",
+  "account_id": "a61f30bb027ef64c9577c73f5981f073",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-06-06",
+  "compatibility_flags": ["nodejs_compat"],
+  "vars": {
+    "MEDIA_MAX_BYTES": "26214400"
+  },
+  "d1_databases": [
+    {
+      "binding": "CHAT_DB",
+      "database_name": "siamrooftech-line-chat",
+      "database_id": "7e5bdc15-53e4-4b87-b074-04b06308ff3b"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "CHAT_MEDIA",
+      "bucket_name": "siamrooftech-line-chat-media"
+    }
+  ],
+  "queues": {
+    "producers": [
+      {
+        "binding": "MEDIA_QUEUE",
+        "queue": "line-media-fetch"
+      }
+    ],
+    "consumers": [
+      {
+        "queue": "line-media-fetch",
+        "max_batch_size": 5,
+        "max_batch_timeout": 10,
+        "max_retries": 5,
+        "max_concurrency": 2,
+        "dead_letter_queue": "line-media-fetch-dlq"
+      }
+    ]
+  },
+  "observability": {
+    "enabled": true,
+    "logs": {
+      "enabled": true,
+      "head_sampling_rate": 1,
+      "persist": true,
+      "invocation_logs": true
+    }
+  }
+}

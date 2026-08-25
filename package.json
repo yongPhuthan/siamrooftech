@@ -32,7 +32,15 @@
     "cf:build": "opennextjs-cloudflare build",
     "cf:preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
     "cf:deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
-    "cf:check": "npm run type-check && npm run build && npm run cf:build"
+    "cf:check": "npm run type-check && npm run build && npm run cf:build",
+    "line:dev": "wrangler dev --config workers/line-chat-history/wrangler.jsonc --port 8788",
+    "line:deploy": "wrangler deploy --config workers/line-chat-history/wrangler.jsonc",
+    "line:migrate": "wrangler d1 migrations apply siamrooftech-line-chat --remote --config workers/line-chat-history/wrangler.jsonc",
+    "line:migrate:local": "wrangler d1 migrations apply siamrooftech-line-chat --local --config workers/line-chat-history/wrangler.jsonc",
+    "line:types": "wrangler types --config workers/line-chat-history/wrangler.jsonc --env-interface CloudflareEnv workers/line-chat-history/src/worker-configuration.d.ts",
+    "line:type-check": "tsc -p workers/line-chat-history/tsconfig.json --noEmit",
+    "line:history": "node scripts/line-chat-history.mjs",
+    "line:qa": "node scripts/line-chat-history-qa.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.5.0",
@@ -68,6 +76,7 @@
     "zustand": "^5.0.7"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260702.1",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
