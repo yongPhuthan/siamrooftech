@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { revalidateTag } from "next/cache";
 import { projectsAdminService } from "@/lib/firestore-admin";
 import { Project } from "@/lib/firestore";
+import { verifyAdminRequest, unauthorizedResponse } from "@/lib/api-auth";
 
 // GET: ดึงข้อมูลโปรเจกต์
 export async function GET(
@@ -77,6 +78,10 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ slug: string }> }
 ): Promise<NextResponse<{ success: boolean; message: string } | { error: string }>> {
+  if (!(await verifyAdminRequest(request))) {
+    return unauthorizedResponse();
+  }
+
   try {
     const { slug } = await params;
 

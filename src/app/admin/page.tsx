@@ -1,9 +1,9 @@
 'use client';
 
-import ProtectedRoute from '../../components/admin/ProtectedRoute';
-import AdminLayout from '../../components/admin/AdminLayout';
-import { AuthProvider } from '../../contexts/AuthContext';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
+
+const AdminAuthGate = dynamic(() => import('../../components/admin/AdminAuthGate'), { ssr: false });
 
 export default function AdminPage() {
   const primaryCards = [
@@ -34,8 +34,7 @@ export default function AdminPage() {
   ];
 
   return (
-    <AuthProvider>
-      <ProtectedRoute>
+    <AdminAuthGate>
           <div className="mx-auto max-w-5xl space-y-12">
             <header className="text-center space-y-4">
               <span className="inline-flex items-center gap-2 rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-blue-700">
@@ -121,7 +120,6 @@ export default function AdminPage() {
               </div>
             </section>
           </div>
-      </ProtectedRoute>
-    </AuthProvider>
+    </AdminAuthGate>
   );
 }

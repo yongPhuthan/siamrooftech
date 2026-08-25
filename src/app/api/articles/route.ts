@@ -5,6 +5,7 @@ import { Article } from "@/lib/firestore";
 import { adminDb } from "@/lib/firebase-admin";
 import { ensureKeywordInSlug, normalizeSlug, truncateSlug } from "@/lib/articles/slug-generator";
 import { PRIMARY_KEYWORD, SEO_LIMITS } from "@/types/article";
+import { verifyAdminRequest, unauthorizedResponse } from "@/lib/api-auth";
 
 // GET: ดึงข้อมูลบทความทั้งหมด (รวม draft สำหรับ admin)
 export async function GET(
@@ -64,6 +65,10 @@ export async function GET(
 export async function POST(request: NextRequest) {
   const startTime = Date.now();
   const requestId = Math.random().toString(36).substring(7);
+
+  if (!(await verifyAdminRequest(request))) {
+    return unauthorizedResponse();
+  }
 
   try {
     if (!adminDb) {

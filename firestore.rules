@@ -1,0 +1,45 @@
+rules_version = '2';
+
+// This app's auth is Firebase Authentication (email/password) only - see
+// src/contexts/AuthContext.tsx. Any signed-in user is treated as an admin
+// (self-signup has been disabled in the admin UI), so these rules simply
+// gate writes on request.auth != null.
+//
+// Server-side code (src/lib/firestore-admin.ts, API routes under src/app/api)
+// uses the Firebase Admin SDK, which bypasses these rules entirely. This file
+// only governs direct access from the browser (Firebase client SDK).
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // Portfolio projects - public read (SSG/ISR pages), admin-only write.
+    match /projects/{projectId} {
+      allow read: if true;
+      allow create, update, delete: if isSignedIn();
+    }
+
+    // Articles - public read only for published posts, admin-only write.
+    // (In practice all public article reads go through the Admin SDK via
+    // API routes / server components, so this mainly protects drafts from
+    // being read directly by an unauthenticated client.)
+    match /articles/{articleId} {
+      allow read: if resource.data.isPublished == true || isSignedIn();
+      allow create, update, delete: if isSignedIn();
+    }
+
+    // Contact form submissions - anyone can submit (public contact form),
+    // but only signed-in admins can read/manage submissions from the client.
+    match /contact_submissions/{submissionId} {
+      allow create: if true;
+      allow read, update, delete: if isSignedIn();
+    }
+
+    // Deny everything else by default.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

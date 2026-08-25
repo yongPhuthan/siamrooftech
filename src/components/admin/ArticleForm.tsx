@@ -5,6 +5,7 @@ import { Article, ArticleBlock } from "../../lib/firestore";
 import ArticleBlockEditor, { BlockData as BlockEditorBlock } from "./ArticleBlockEditor";
 import ArticlePreviewModal from "./ArticlePreviewModal";
 import { PRIMARY_KEYWORD } from "../../types/article";
+import { adminFetch } from "../../lib/admin-fetch";
 
 interface ArticleFormProps {
   article?: Article | null;
@@ -283,7 +284,7 @@ export default function ArticleForm({ article, onSuccess }: ArticleFormProps) {
       const url = article ? `/api/articles/${article.slug}` : "/api/articles";
       const method = article ? "PUT" : "POST";
 
-      const response = await fetch(url, {
+      const response = await adminFetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(articleData),

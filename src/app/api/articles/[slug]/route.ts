@@ -4,6 +4,7 @@ import { articlesAdminService } from "@/lib/firestore-admin";
 import { Article } from "@/lib/firestore";
 import { adminDb } from "@/lib/firebase-admin";
 import { getArticleRouteSlug } from "@/lib/articles/slug-generator";
+import { verifyAdminRequest, unauthorizedResponse } from "@/lib/api-auth";
 
 interface RouteContext {
   params: Promise<{ slug: string }>;
@@ -70,6 +71,10 @@ export async function PUT(
 ) {
   const startTime = Date.now();
   const requestId = Math.random().toString(36).substring(7);
+
+  if (!(await verifyAdminRequest(request))) {
+    return unauthorizedResponse();
+  }
 
   try {
     if (!adminDb) {
@@ -146,6 +151,10 @@ export async function DELETE(
   const startTime = Date.now();
   const requestId = Math.random().toString(36).substring(7);
 
+  if (!(await verifyAdminRequest(request))) {
+    return unauthorizedResponse();
+  }
+
   try {
     if (!adminDb) {
       return NextResponse.json(
@@ -211,6 +220,10 @@ export async function PATCH(
 ) {
   const startTime = Date.now();
   const requestId = Math.random().toString(36).substring(7);
+
+  if (!(await verifyAdminRequest(request))) {
+    return unauthorizedResponse();
+  }
 
   try {
     if (!adminDb) {
