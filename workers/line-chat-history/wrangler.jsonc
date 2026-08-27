@@ -6,7 +6,11 @@
   "compatibility_date": "2026-06-06",
   "compatibility_flags": ["nodejs_compat"],
   "vars": {
-    "MEDIA_MAX_BYTES": "26214400"
+    "MEDIA_MAX_BYTES": "26214400",
+    "ADS_SYNC_MODE": "dry_run",
+    "ADS_CUSTOMER_ID": "",
+    "ADS_CONVERSION_ACTION_ID": "",
+    "GOOGLE_SA_CLIENT_EMAIL": ""
   },
   "d1_databases": [
     {
@@ -26,6 +30,10 @@
       {
         "binding": "MEDIA_QUEUE",
         "queue": "line-media-fetch"
+      },
+      {
+        "binding": "ADS_QUEUE",
+        "queue": "line-ads-sync"
       }
     ],
     "consumers": [
@@ -36,6 +44,14 @@
         "max_retries": 5,
         "max_concurrency": 2,
         "dead_letter_queue": "line-media-fetch-dlq"
+      },
+      {
+        "queue": "line-ads-sync",
+        "max_batch_size": 5,
+        "max_batch_timeout": 10,
+        "max_retries": 5,
+        "max_concurrency": 1,
+        "dead_letter_queue": "line-ads-sync-dlq"
       }
     ]
   },

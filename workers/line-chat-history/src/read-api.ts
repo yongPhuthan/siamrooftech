@@ -1,44 +1,11 @@
 import { resolveTimeRange, utcMsToIso, utcMsToLocalIso } from './timezone';
+import { errorResponse, jsonResponse, requireBearer } from './http';
 import type { AttachmentRow, ConversationRow, Env, MessageRow } from './types';
 
 const DEFAULT_LIMIT = 100;
 const MAX_LIMIT = 500;
 
-function jsonResponse(body: unknown, status = 200): Response {
-  return new Response(JSON.stringify(body, null, 2), {
-    status,
-    headers: { 'content-type': 'application/json; charset=utf-8' },
-  });
-}
-
-function errorResponse(message: string, status: number): Response {
-  return jsonResponse({ error: message }, status);
-}
-
-async function timingSafeEqual(a: string, b: string): Promise<boolean> {
-  const enc = new TextEncoder();
-  const aBytes = enc.encode(a);
-  const bBytes = enc.encode(b);
-  if (aBytes.length !== bBytes.length) {
-    // Still run a comparison of equal length to avoid a length-based timing signal.
-    await crypto.subtle.digest('SHA-256', aBytes);
-    return false;
-  }
-  let diff = 0;
-  for (let i = 0; i < aBytes.length; i++) diff |= aBytes[i] ^ bBytes[i];
-  return diff === 0;
-}
-
-async function requireBearer(request: Request, expectedToken: string): Promise<Response | null> {
-  const header = request.headers.get('authorization') || '';
-  const [scheme, token] = header.split(' ');
-  if (scheme !== 'Bearer' || !token || !(await timingSafeEqual(token, expectedToken))) {
-    return errorResponse('Unauthorized', 401);
-  }
-  return null;
-}
-
-interface Cursor {
+export interface Cursor {
   occurredAt: number;
   messageId: string;
 }
@@ -47,7 +14,7 @@ function encodeCursor(cursor: Cursor): string {
   return btoa(JSON.stringify(cursor));
 }
 
-function decodeCursor(raw: string): Cursor | null {
+export function decodeCursor(raw: string): Cursor | null {
   try {
     const parsed = JSON.parse(atob(raw));
     if (typeof parsed.occurredAt === 'number' && typeof parsed.messageId === 'string') {
@@ -59,7 +26,7 @@ function decodeCursor(raw: string): Cursor | null {
   }
 }
 
-function serializeMessage(row: MessageRow, attachment: AttachmentRow | null, timezone: string) {
+export function serializeMessage(row: MessageRow, attachment: AttachmentRow | null, timezone: string) {
   return {
     message_id: row.message_id,
     conversation_id: row.conversation_id,
@@ -126,30 +93,73 @@ async function handleListMessages(request: Request, env: Env, url: URL): Promise
     return errorResponse('invalid cursor', 400);
   }
 
-  const conditions = ['occurred_at >= ?', 'occurred_at < ?'];
-  const binds: (string | number)[] = [range.fromMs, range.toMs];
+  const includeRaw = url.searchParams.get('include') === 'raw';
+  const page = await fetchMessagesPage(env, {
+    fromMs: range.fromMs,
+    toMs: range.toMs,
+    conversationId,
+    direction,
+    cursor,
+    limit,
+    timezone: range.timezone,
+    includeRaw,
+  });
 
-  if (conversationId) {
+  return jsonResponse({
+    query: {
+      from: utcMsToIso(range.fromMs),
+      to: utcMsToIso(range.toMs),
+      timezone: range.timezone,
+      limit,
+    },
+    coverage: COVERAGE,
+    pagination: page.pagination,
+    messages: page.messages,
+  });
+}
+
+/**
+ * Core message-page query, shared by GET /chat-history and the leads
+ * transcript endpoint (leads-api.ts) so both paginate and serialize
+ * messages identically.
+ */
+export async function fetchMessagesPage(
+  env: Env,
+  params: {
+    fromMs: number;
+    toMs: number;
+    conversationId?: string | null;
+    direction?: string | null;
+    cursor?: Cursor | null;
+    limit: number;
+    timezone: string;
+    includeRaw?: boolean;
+  },
+): Promise<{ messages: unknown[]; pagination: { has_more: boolean; next_cursor: string | null } }> {
+  const conditions = ['occurred_at >= ?', 'occurred_at < ?'];
+  const binds: (string | number)[] = [params.fromMs, params.toMs];
+
+  if (params.conversationId) {
     conditions.push('conversation_id = ?');
-    binds.push(conversationId);
+    binds.push(params.conversationId);
   }
-  if (direction) {
+  if (params.direction) {
     conditions.push('direction = ?');
-    binds.push(direction);
+    binds.push(params.direction);
   }
-  if (cursor) {
+  if (params.cursor) {
     conditions.push('(occurred_at > ? OR (occurred_at = ? AND message_id > ?))');
-    binds.push(cursor.occurredAt, cursor.occurredAt, cursor.messageId);
+    binds.push(params.cursor.occurredAt, params.cursor.occurredAt, params.cursor.messageId);
   }
 
   const sql = `SELECT * FROM messages WHERE ${conditions.join(' AND ')} ORDER BY occurred_at ASC, message_id ASC LIMIT ?`;
   const rows = await env.CHAT_DB.prepare(sql)
-    .bind(...binds, limit + 1)
+    .bind(...binds, params.limit + 1)
     .all<MessageRow>();
 
   const results = rows.results ?? [];
-  const hasMore = results.length > limit;
-  const page = hasMore ? results.slice(0, limit) : results;
+  const hasMore = results.length > params.limit;
+  const page = hasMore ? results.slice(0, params.limit) : results;
 
   const messageIds = page.filter((r) => r.media_status !== null).map((r) => r.message_id);
   const attachmentsByMessageId = new Map<string, AttachmentRow>();
@@ -173,25 +183,16 @@ async function handleListMessages(request: Request, env: Env, url: URL): Promise
         })
       : null;
 
-  const includeRaw = url.searchParams.get('include') === 'raw';
-
-  return jsonResponse({
-    query: {
-      from: utcMsToIso(range.fromMs),
-      to: utcMsToIso(range.toMs),
-      timezone: range.timezone,
-      limit,
-    },
-    coverage: COVERAGE,
+  return {
     pagination: { has_more: hasMore, next_cursor: nextCursor },
     messages: page.map((row) => {
-      const serialized = serializeMessage(row, attachmentsByMessageId.get(row.message_id) ?? null, range.timezone);
-      if (includeRaw) {
+      const serialized = serializeMessage(row, attachmentsByMessageId.get(row.message_id) ?? null, params.timezone);
+      if (params.includeRaw) {
         return { ...serialized, raw: JSON.parse(row.payload) };
       }
       return serialized;
     }),
-  });
+  };
 }
 
 async function handleListConversations(request: Request, env: Env, url: URL): Promise<Response> {

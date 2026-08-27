@@ -10,7 +10,8 @@
     "binding": "ASSETS"
   },
   "vars": {
-    "NEXT_PUBLIC_GTM_ID": "GTM-WVZ3KQ6F"
+    "NEXT_PUBLIC_GTM_ID": "GTM-WVZ3KQ6F",
+    "LINE_CHAT_HISTORY_WORKER_URL": "https://siamrooftech-line-chat-history.phuthan-dev.workers.dev"
   },
   "observability": {
     "enabled": true,

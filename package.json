@@ -40,7 +40,16 @@
     "line:types": "wrangler types --config workers/line-chat-history/wrangler.jsonc --env-interface CloudflareEnv workers/line-chat-history/src/worker-configuration.d.ts",
     "line:type-check": "tsc -p workers/line-chat-history/tsconfig.json --noEmit",
     "line:history": "node scripts/line-chat-history.mjs",
-    "line:qa": "node scripts/line-chat-history-qa.mjs"
+    "line:qa": "node scripts/line-chat-history-qa.mjs",
+    "leads:list": "node scripts/leads.mjs list",
+    "leads:show": "node scripts/leads.mjs show",
+    "leads:transcript": "node scripts/leads.mjs transcript",
+    "leads:unmatched": "node scripts/leads.mjs unmatched",
+    "leads:status": "node scripts/leads.mjs status",
+    "leads:value": "node scripts/leads.mjs value",
+    "leads:match": "node scripts/leads.mjs match",
+    "leads:ads-jobs": "node scripts/leads.mjs ads-jobs",
+    "leads:qa": "node scripts/leads-qa.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.5.0",
