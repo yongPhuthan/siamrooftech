@@ -29,6 +29,7 @@ These are outside the SEO foundation stop condition but connect to the same page
 | Google Ads controlled pilot and operating loop | Drafted | `docs/google-ads/pilot-launch-plan-2026-07.md`, `docs/google-ads/post-launch-operating-loop-2026-07.md`, `docs/google-ads/readiness-tracker-2026-07.csv`, `docs/google-ads/readiness-status-2026-07.md` |
 | Google Ads local landing-page polish | In progress | `docs/google-ads/local-ads-landing-page-polish-2026-07.md`, `src/app/components/services/ServiceLandingPage.tsx`, `src/lib/google-ads-dynamic-content.ts` |
 | Google Ads production QA evidence | Blocked | `docs/google-ads/production-qa-evidence-2026-07-25.md`, `docs/google-ads/readiness-status-2026-07.md` |
+| Keyword pivot survey (กันสาดไฟฟ้า vs กันสาดพับเก็บได้) | Survey complete, decision pending | `docs/seo-system/keyword-pivot-survey-2026-08.md` |
 
 ## Verification
 
