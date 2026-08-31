@@ -1,10 +1,14 @@
+import LineContactButton from './LineContactButton';
+
 interface FinalCTASectionProps {
+  compactLineButton?: boolean;
   title?: string;
   subtitle?: string;
   projectTitle?: string;
 }
 
 export default function FinalCTASection({
+  compactLineButton = false,
   title = "ต้องการกันสาดพับเก็บได้",
   subtitle = "สำหรับโปรเจกต์ของคุณ?",
   projectTitle = ""
@@ -39,26 +43,30 @@ export default function FinalCTASection({
           {/* Call to Action Buttons */}
           <div className="space-y-6 sm:space-y-8">
             <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center max-w-lg mx-auto">
-              <a
-                href="https://lin.ee/pPz1ZqN"
-                target="_blank"
-                rel="noopener noreferrer"
-                data-analytics-type="line"
-                data-analytics-position="final_cta"
-                className="flex-1 sm:flex-none sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold rounded-xl shadow-lg transform hover:scale-105 transition-all duration-200 text-center animate-pulse"
-                style={{ animationDuration: '3s' }}
-              >
-                <span className="flex items-center justify-center gap-2">
-                  <span>ขอใบเสนอราคาฟรี</span>
-                  <span className="text-xl">→</span>
-                </span>
-              </a>
+              {compactLineButton ? (
+                <LineContactButton analyticsPosition="final_cta" />
+              ) : (
+                <a
+                  href="https://lin.ee/pPz1ZqN"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  data-analytics-type="line"
+                  data-analytics-position="final_cta"
+                  className="flex-1 sm:flex-none sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold rounded-xl shadow-lg transform hover:scale-105 transition-all duration-200 text-center animate-pulse"
+                  style={{ animationDuration: '3s' }}
+                >
+                  <span className="flex items-center justify-center gap-2">
+                    <span>ขอใบเสนอราคาฟรี</span>
+                    <span className="text-xl">→</span>
+                  </span>
+                </a>
+              )}
 
               <a
                 href="tel:0984542455"
                 data-analytics-type="phone"
                 data-analytics-position="final_cta"
-                className="flex-1 sm:flex-none sm:px-8 py-3 sm:py-4 border-2 border-gray-400 hover:border-white text-gray-200 hover:text-white hover:bg-white/10 font-semibold rounded-xl transition-all duration-200 text-center"
+                className={`flex-1 sm:flex-none sm:px-8 py-3 sm:py-4 border-2 border-gray-400 hover:border-white text-gray-200 hover:text-white hover:bg-white/10 font-semibold ${compactLineButton ? 'rounded-[4px]' : 'rounded-xl'} transition-all duration-200 text-center`}
               >
                 <span className="flex items-center justify-center gap-2">
                   <span className="text-xl">📞</span>

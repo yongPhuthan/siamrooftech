@@ -15,6 +15,8 @@ const args = new Map(
 const baseUrl = String(
   args.get('base') || process.env.ADS_BROWSER_QA_BASE_URL || 'http://localhost:3000',
 );
+// Development servers may need to compile a route on its first request.
+const pageLoadTimeoutMs = Number(args.get('page-load-timeout') || 15000);
 const chromePath = String(
   args.get('chrome') ||
     process.env.CHROME_PATH ||
@@ -67,12 +69,22 @@ function launchChrome(userDataDir) {
   return child;
 }
 
+async function stopChrome(child) {
+  if (child.exitCode !== null) return;
+
+  child.kill('SIGTERM');
+  await Promise.race([
+    new Promise((resolve) => child.once('exit', resolve)),
+    wait(5000),
+  ]);
+}
+
 function waitForWebSocketUrl(child) {
   return new Promise((resolve, reject) => {
     let output = '';
     const timeout = setTimeout(() => {
       reject(new Error(`Chrome did not expose DevTools URL. Output: ${output}`));
-    }, 10000);
+    }, 30000);
 
     const handleData = (data) => {
       output += data.toString();
@@ -190,8 +202,13 @@ async function withFreshBrowser(fn) {
 
     client.close();
   } finally {
-    child.kill('SIGTERM');
-    await rm(userDataDir, { recursive: true, force: true });
+    await stopChrome(child);
+    await rm(userDataDir, {
+      recursive: true,
+      force: true,
+      maxRetries: 5,
+      retryDelay: 100,
+    });
   }
 }
 
@@ -199,7 +216,7 @@ async function navigateTo(client, sessionId, path) {
   await client.send('Page.navigate', { url: new URL(path, baseUrl).toString() }, sessionId);
   await waitFor(
     () => evaluate(client, sessionId, 'document.readyState === "complete"'),
-    15000,
+    pageLoadTimeoutMs,
     `page load for ${path}`,
   );
   // Let client-side hydration (middleware cookie is already set by the
@@ -228,13 +245,26 @@ function dataLayerEventNames(client, sessionId) {
   );
 }
 
-function clickLineLink(client, sessionId) {
+function clickLineLink(client, sessionId, selector = 'a[href*="lin.ee"], a[href*="line.me"]') {
   return evaluate(
     client,
     sessionId,
     `(() => {
-      const link = document.querySelector('a[href*="lin.ee"], a[href*="line.me"]');
+      const link = document.querySelector(${JSON.stringify(selector)});
       if (!link) throw new Error('No LINE link found on page');
+      link.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
+      return true;
+    })()`,
+  );
+}
+
+function clickPhoneLink(client, sessionId) {
+  return evaluate(
+    client,
+    sessionId,
+    `(() => {
+      const link = document.querySelector('a[href^="tel:"]');
+      if (!link) throw new Error('No phone link found on page');
       link.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
       return true;
     })()`,
@@ -243,10 +273,81 @@ function clickLineLink(client, sessionId) {
 
 // --- Scenario 1: paid session (gclid) -- the full positive flow --------------
 
-async function scenarioPaidSession() {
+async function scenarioPaidSession(position = 'electric_awning_ads_header') {
   await withFreshBrowser(async (client, sessionId) => {
     const gclid = `qa-browser-${Date.now()}`;
-    await navigateTo(client, sessionId, `/?gclid=${gclid}`);
+    await navigateTo(client, sessionId, `/lp/google-ads/electric-awning?gclid=${gclid}&utm_source=google&utm_medium=cpc&utm_campaign=qa_monochrome`);
+
+    if (position === 'electric_awning_ads_sticky_desktop') {
+      for (const width of [1440, 768, 390, 320]) {
+        await client.send('Emulation.setDeviceMetricsOverride', { width, height: 900, deviceScaleFactor: 1, mobile: false }, sessionId);
+        const riskLayout = await evaluate(client, sessionId, `(() => {
+          const section = document.querySelector('#installation-risks');
+          const list = section.querySelector('ul');
+          const rect = list.getBoundingClientRect();
+          const rows = Array.from(list.querySelectorAll('li'));
+          return {
+            background: getComputedStyle(section).backgroundColor,
+            width: rect.width,
+            centered: Math.abs(rect.left + rect.width / 2 - document.documentElement.clientWidth / 2) < 2,
+            stacked: rows.every(row => {
+              const heading = row.querySelector('h3').getBoundingClientRect();
+              const copy = row.querySelector('p').getBoundingClientRect();
+              return copy.top >= heading.bottom && Math.abs(copy.left - heading.left) < 2;
+            }),
+            rows: rows.length,
+            images: section.querySelectorAll('img').length,
+          };
+        })()`);
+        if (riskLayout.background !== 'rgb(255, 255, 255)' || riskLayout.width > 768 ||
+            !riskLayout.centered || !riskLayout.stacked || riskLayout.rows !== 6 || riskLayout.images) {
+          fail(`Risk text must be a centered, narrow reading column on white at ${width}px: ${JSON.stringify(riskLayout)}`);
+        }
+        const sticky = await evaluate(client, sessionId, `(() => {
+          const desktop = document.querySelector('[data-analytics-position="electric_awning_ads_sticky_desktop"]');
+          const mobile = document.querySelector('[data-analytics-position="electric_awning_ads_sticky_mobile"]');
+          const rect = desktop?.getBoundingClientRect();
+          const visibleRect = (${width} >= 768 ? desktop : mobile)?.getBoundingClientRect();
+          return {
+            desktopVisible: !!rect?.width,
+            mobileVisible: !!mobile?.getBoundingClientRect().width,
+            fixed: desktop && getComputedStyle(desktop.parentElement).position === 'fixed',
+            bottomGap: rect && innerHeight - rect.bottom,
+            rightGap: rect && document.documentElement.clientWidth - rect.right,
+            overflow: document.documentElement.scrollWidth > innerWidth,
+            safelyInside: visibleRect && visibleRect.left >= 20 && visibleRect.right <= document.documentElement.clientWidth - 20 && visibleRect.bottom <= innerHeight - 20,
+          };
+        })()`);
+        if (sticky.overflow || sticky.desktopVisible !== (width >= 768) || sticky.mobileVisible !== (width < 768) ||
+            !sticky.safelyInside || (width >= 768 && (!sticky.fixed || sticky.bottomGap < 32 || sticky.rightGap < 32))) {
+          fail(`Sticky LINE CTA must switch between desktop bottom-right and mobile bar at ${width}px: ${JSON.stringify(sticky)}`);
+        }
+      }
+      await client.send('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false }, sessionId);
+      if (!(await evaluate(client, sessionId, `!!document.querySelector('[data-analytics-position="electric_awning_ads_sticky_desktop"]')`))) return;
+    }
+
+    const appearance = await evaluate(client, sessionId, `(() => {
+      const main = document.querySelector('[data-landing-page="google-ads-electric-awning"]');
+      const hero = main.querySelector('section');
+      const cta = main.querySelector('[data-analytics-type="line"][data-analytics-position="electric_awning_ads_header"]');
+      const surfaces = Array.from(main.querySelectorAll('section, article, figure, a, summary, img'));
+      return {
+        heroBackground: getComputedStyle(hero).backgroundColor,
+        ctaBackground: getComputedStyle(cta).backgroundColor,
+        ctaRadius: parseFloat(getComputedStyle(cta).borderTopLeftRadius),
+        incorrectLineLabels: Array.from(main.querySelectorAll('[data-analytics-type="line"]'))
+          .filter(el => el.textContent.trim() !== 'สอบถาม-ประเมินราคาฟรี').length,
+        excessiveCorners: surfaces.filter(el => parseFloat(getComputedStyle(el).borderTopLeftRadius) > 4).length,
+        shadows: surfaces.filter(el => getComputedStyle(el).boxShadow !== 'none').length,
+        sectionCtas: main.querySelectorAll('section [data-analytics-type]').length,
+      };
+    })()`);
+    if (appearance.heroBackground !== 'rgb(255, 255, 255)' ||
+        appearance.ctaBackground !== 'rgb(0, 128, 43)' ||
+        appearance.sectionCtas || appearance.incorrectLineLabels || appearance.ctaRadius > 4 || appearance.excessiveCorners || appearance.shadows) {
+      fail(`Ads appearance: expected white hero, green LINE CTA with approved label, low radii and no decorative shadows; got ${JSON.stringify(appearance)}`);
+    }
 
     if (!(await hasCookie(client, sessionId, 'srt_paid'))) {
       fail('Paid session: srt_paid cookie was not set after visiting a URL with gclid');
@@ -261,7 +362,27 @@ async function scenarioPaidSession() {
       `window.__openedUrls = []; window.open = (url) => { window.__openedUrls.push(url); return null; };`,
     );
 
-    await clickLineLink(client, sessionId);
+    await clickPhoneLink(client, sessionId);
+    let events = await dataLayerEventNames(client, sessionId);
+    if (!events.includes('phone_click')) {
+      fail(`Paid session: expected phone_click in dataLayer, got: ${events.join(', ')}`);
+    }
+
+    const ctaExists = await evaluate(
+      client,
+      sessionId,
+      `!!document.querySelector('[data-analytics-type="line"][data-analytics-position="${position}"]')`,
+    );
+    if (!ctaExists) {
+      fail(`Paid session: ${position} LINE CTA is missing`);
+      return;
+    }
+
+    await clickLineLink(
+      client,
+      sessionId,
+      `[data-analytics-type="line"][data-analytics-position="${position}"]`,
+    );
     await wait(300);
 
     if (!(await dialogVisible(client, sessionId))) {
@@ -269,9 +390,51 @@ async function scenarioPaidSession() {
       return;
     }
 
-    let events = await dataLayerEventNames(client, sessionId);
+    const surveyAppearance = await evaluate(client, sessionId, `(() => {
+      const panel = document.querySelector('[role="dialog"] > div');
+      const button = panel.querySelector('button');
+      return {
+        panelRadius: parseFloat(getComputedStyle(panel).borderTopLeftRadius),
+        buttonRadius: parseFloat(getComputedStyle(button).borderTopLeftRadius),
+        shadow: getComputedStyle(panel).boxShadow,
+      };
+    })()`);
+    if (surveyAppearance.panelRadius !== 0 || surveyAppearance.buttonRadius > 4 || surveyAppearance.shadow !== 'none') {
+      fail(`Ads survey: expected square panel, low-radius buttons and no decorative shadow; got ${JSON.stringify(surveyAppearance)}`);
+    }
+
+    const firstOptionFocused = await evaluate(client, sessionId,
+      `document.activeElement === document.querySelector('[role="dialog"] button')`);
+    if (!firstOptionFocused) fail('Ads survey: opening should focus the first persona option');
+    // Exercise the public keyboard handler deterministically in headless Chrome.
+    // Native Shift+Tab is also verified in the interactive browser QA pass.
+    await evaluate(client, sessionId, `document.activeElement.dispatchEvent(new KeyboardEvent('keydown', {
+      key: 'Tab', shiftKey: true, bubbles: true, cancelable: true,
+    }))`);
+    const focusWrapped = await waitFor(() => evaluate(client, sessionId, `(() => {
+      const options = document.querySelectorAll('[role="dialog"] button');
+      return document.activeElement === options[options.length - 1];
+    })()`), 3000, 'survey keyboard focus wrap');
+    if (!focusWrapped) {
+      const active = await evaluate(client, sessionId, `document.activeElement?.outerHTML`);
+      fail(`Ads survey: Shift+Tab should keep focus inside the dialog; active element: ${active}`);
+    }
+
+    events = await dataLayerEventNames(client, sessionId);
+    if (!events.includes('line_click')) {
+      fail(`Paid session: expected line_click in dataLayer, got: ${events.join(', ')}`);
+    }
     if (!events.includes('line_survey_start')) {
       fail(`Paid session: expected line_survey_start in dataLayer, got: ${events.join(', ')}`);
+    }
+
+    const startEvent = await evaluate(
+      client,
+      sessionId,
+      `(window.dataLayer || []).find((e) => e.event === 'line_survey_start')`,
+    );
+    if (startEvent?.position !== position) {
+      fail(`Paid session: LINE survey position mismatch; got: ${startEvent?.position}`);
     }
 
     const answered = await evaluate(
@@ -316,6 +479,14 @@ async function scenarioPaidSession() {
     }
     if (completeEvent && completeEvent.attribution_latest_gclid !== gclid) {
       fail(`Paid session: line_survey_complete missing attribution_latest_gclid=${gclid}; got: ${completeEvent?.attribution_latest_gclid}`);
+    }
+    if (completeEvent?.attribution_latest_utm_source !== 'google' ||
+        completeEvent?.attribution_latest_utm_medium !== 'cpc' ||
+        completeEvent?.attribution_latest_utm_campaign !== 'qa_monochrome') {
+      fail('Paid session: survey completion must preserve UTM attribution');
+    }
+    if (completeEvent && completeEvent.position !== position) {
+      fail(`Paid session: line_survey_complete position mismatch; got: ${completeEvent.position}`);
     }
 
     // Answered once this session -- clicking LINE again must not re-open the
@@ -372,10 +543,41 @@ async function scenarioUtmOnlySession() {
   });
 }
 
+// The monochrome survey is exclusive to this landing page.
+async function scenarioHomepageSurveyAppearance() {
+  await withFreshBrowser(async (client, sessionId) => {
+    await navigateTo(client, sessionId, '/?gclid=qa-home-survey');
+    const lineButtons = await evaluate(client, sessionId, `Array.from(document.querySelectorAll('a[href*="lin.ee"]')).map(el => ({
+      label: el.textContent.trim(),
+      radius: parseFloat(getComputedStyle(el).borderTopLeftRadius),
+      background: getComputedStyle(el).backgroundColor,
+      nestedButton: !!el.querySelector('button'),
+    }))`);
+    if (!lineButtons.length || lineButtons.some(button => button.label !== 'สอบถาม-ประเมินราคาฟรี' ||
+      button.radius > 4 || button.background !== 'rgb(0, 128, 43)' || button.nestedButton)) {
+      fail(`Homepage LINE buttons should share green low-radius styling and the approved label: ${JSON.stringify(lineButtons)}`);
+    }
+    await clickLineLink(client, sessionId);
+    await waitFor(() => dialogVisible(client, sessionId), 3000, 'homepage survey');
+    const radius = await evaluate(client, sessionId,
+      `parseFloat(getComputedStyle(document.querySelector('[role="dialog"] > div')).borderTopLeftRadius)`);
+    if (radius <= 4) fail('Homepage survey: original rounded appearance must be preserved');
+    const clicks = await evaluate(client, sessionId,
+      `(window.dataLayer || []).filter(e => e.event === 'line_click')`);
+    if (clicks.length !== 1 || clicks[0].position !== 'navigation_desktop') {
+      fail(`Homepage navigation must track one LINE click with its existing position: ${JSON.stringify(clicks.map(e => e.position))}`);
+    }
+  });
+}
+
 try {
   await scenarioPaidSession();
-  await scenarioOrganicSession();
-  await scenarioUtmOnlySession();
+  await scenarioPaidSession('electric_awning_ads_sticky_desktop');
+  if (!args.has('landing-only')) {
+    await scenarioOrganicSession();
+    await scenarioUtmOnlySession();
+    await scenarioHomepageSurveyAppearance();
+  }
 } catch (error) {
   fail(error.message);
 }

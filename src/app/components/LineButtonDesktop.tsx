@@ -1,9 +1,11 @@
 'use client';
 
 import Image from 'next/image';
+import LineContactButton from './LineContactButton';
 import { trackLineClickDesktop } from '@/lib/gtag';
 
 interface LineButtonDesktopProps {
+  compactCorners?: boolean;
   imageSrc?: string;
   imageAlt?: string;
   imageWidth?: number;
@@ -23,6 +25,7 @@ interface LineButtonDesktopProps {
  * - Hidden on mobile
  */
 export default function LineButtonDesktop({
+  compactCorners = false,
   imageSrc = '/images/line.png',
   imageAlt = 'Line Official',
   imageWidth = 32,
@@ -41,26 +44,30 @@ export default function LineButtonDesktop({
 
   return (
     <div className={`hidden md:block fixed ${positionClasses[position]} z-40`}>
-      <a
-        href="https://lin.ee/pPz1ZqN"
-        target="_blank"
-        rel="noopener noreferrer"
-        onClick={handleClick}
-        className="group flex items-center gap-3 px-6 py-3 bg-[#01b202] hover:bg-[#01bd00ff] active:bg-[#019001] rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 active:scale-95"
-      >
-        {imageSrc && (
-          <Image
-            src={imageSrc}
-            alt={imageAlt}
-            width={imageWidth}
-            height={imageHeight}
-            className="flex-shrink-0 group-hover:scale-110 transition-transform duration-300"
-          />
-        )}
-        <span className="text-white text-base font-bold whitespace-nowrap">
-          {children}
-        </span>
-      </a>
+      {compactCorners ? (
+        <LineContactButton analyticsPosition="desktop" />
+      ) : (
+        <a
+          href="https://lin.ee/pPz1ZqN"
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={handleClick}
+          className="group flex items-center gap-3 px-6 py-3 bg-[#01b202] hover:bg-[#01bd00ff] active:bg-[#019001] rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 active:scale-95"
+        >
+          {imageSrc && (
+            <Image
+              src={imageSrc}
+              alt={imageAlt}
+              width={imageWidth}
+              height={imageHeight}
+              className="flex-shrink-0 group-hover:scale-110 transition-transform duration-300"
+            />
+          )}
+          <span className="text-white text-base font-bold whitespace-nowrap">
+            {children}
+          </span>
+        </a>
+      )}
     </div>
   );
 }

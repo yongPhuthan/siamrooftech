@@ -10,7 +10,7 @@ import DamageWarningSection from "./section/DamageWarningSection";
 import { Project } from "@/lib/firestore";
 import { transformFirestoreProjectsToProjectShow } from "@/lib/project-utils";
 import ProjectGalleryClient from "./ProjectGalleryClient";
-import LineButton from "./LineButton";
+import LineContactButton from "./LineContactButton";
 import PortfolioButton from "./PortfolioButton";
 
 type Props = {
@@ -35,18 +35,6 @@ const Main = (props: Props) => {
         <TrustedBy />
         <WhyUs keyword={keyword} />
       </div>
-      {/* Hero CTA - Full Width Line Button */}
-        {/* <div className="flex items-center justify-center">
-          <LineButton
-            className="btn btn-link w-1000 mx-auto"
-            imageSrc="/images/Add Line.png"
-            imageAlt="Add Line ขอใบเสนอราคา"
-            width={1200}
-            height={200}
-            imageClassName="rounded-2xl"
-            trackingType="bottom"
-          />
-        </div> */}
 
       <div className="bg-[#fafafaff] pt-10 mt-10 ">
         <ProjectGalleryClient projects={projects} />
@@ -56,7 +44,7 @@ const Main = (props: Props) => {
           <div className="flex justify-center py-8">
             <PortfolioButton
               position="homepage_project_gallery_more"
-              className="btn btn-primary px-8 py-3 text-lg font-semibold hover:shadow-lg transition-all duration-300 bg-blue-600 hover:bg-blue-700 text-white border-none rounded-lg"
+              className="btn btn-primary px-8 py-3 text-lg font-semibold hover:shadow-lg transition-all duration-300 bg-blue-600 hover:bg-blue-700 text-white border-none rounded-[4px]"
             >
               <span>ดูผลงานทั้งหมด →</span>
             </PortfolioButton>
@@ -69,22 +57,14 @@ const Main = (props: Props) => {
         <HowItWorks keyword={keyword} />
 
         <div className="flex w-full items-center justify-center px-4">
-          <LineButton
-            className="mx-auto block w-full max-w-5xl border-0 bg-transparent p-0"
-            imageSrc="/images/Add Line.png"
-            imageAlt="Add Line ขอใบเสนอราคา"
-            width={1200}
-            height={200}
-            imageClassName="w-full rounded-2xl"
-            trackingType="bottom"
-          />
+          <LineContactButton analyticsPosition="bottom" />
         </div>
       </div>
 
       <div className="bg-gradient-to-br pt-20 mx-auto  from-gray-100 to-gray-200">
 
 
-        <FinalCTASection />
+        <FinalCTASection compactLineButton />
         <EndSection />
         <Footer />
       </div>

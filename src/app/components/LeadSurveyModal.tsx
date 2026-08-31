@@ -1,11 +1,12 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import type { LeadPersona } from '@/lib/gtag';
 
 interface LeadSurveyModalProps {
   isOpen: boolean;
   onAnswer: (persona: LeadPersona) => void;
+  tone?: 'brand' | 'monochrome';
 }
 
 const OPTIONS: { persona: LeadPersona; label: string }[] = [
@@ -14,7 +15,17 @@ const OPTIONS: { persona: LeadPersona; label: string }[] = [
   { persona: 'contractor', label: 'ผู้รับเหมา / ช่าง' },
 ];
 
-export default function LeadSurveyModal({ isOpen, onAnswer }: LeadSurveyModalProps) {
+export default function LeadSurveyModal({ isOpen, onAnswer, tone = 'brand' }: LeadSurveyModalProps) {
+  const panelRef = useRef<HTMLDivElement>(null);
+  const monochrome = tone === 'monochrome';
+
+  useEffect(() => {
+    if (!isOpen || !monochrome) return;
+    const previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    panelRef.current?.querySelector('button')?.focus();
+    return () => previousFocus?.focus();
+  }, [isOpen, monochrome]);
+
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
@@ -38,8 +49,25 @@ export default function LeadSurveyModal({ isOpen, onAnswer }: LeadSurveyModalPro
       aria-modal="true"
       aria-labelledby="lead-survey-title"
     >
-      <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl sm:p-8">
-        <h2 id="lead-survey-title" className="text-lg font-bold text-gray-900 sm:text-xl">
+      <div
+        ref={panelRef}
+        className={`w-full max-w-md bg-white p-6 sm:p-8 ${monochrome ? 'border border-neutral-300 text-neutral-900' : 'rounded-2xl shadow-2xl'}`}
+        onKeyDown={monochrome ? (event) => {
+          if (event.key !== 'Tab') return;
+          const buttons = panelRef.current?.querySelectorAll('button');
+          if (!buttons?.length) return;
+          const first = buttons[0];
+          const last = buttons[buttons.length - 1];
+          if (event.shiftKey && document.activeElement === first) {
+            event.preventDefault();
+            last.focus();
+          } else if (!event.shiftKey && document.activeElement === last) {
+            event.preventDefault();
+            first.focus();
+          }
+        } : undefined}
+      >
+        <h2 id="lead-survey-title" className={`text-lg font-bold sm:text-xl ${monochrome ? 'text-neutral-900' : 'text-gray-900'}`}>
           เลือกประเภทของผู้ติดต่อ
         </h2>
 
@@ -49,7 +77,9 @@ export default function LeadSurveyModal({ isOpen, onAnswer }: LeadSurveyModalPro
               key={persona}
               type="button"
               onClick={() => onAnswer(persona)}
-              className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-left font-medium text-gray-800 transition-colors duration-200 hover:border-[#027DFF] hover:bg-blue-50 hover:text-[#027DFF]"
+              className={`w-full border px-4 py-3 text-left font-medium transition-colors duration-200 ${monochrome
+                ? 'min-h-12 rounded-[4px] border-neutral-300 bg-white text-neutral-900 hover:border-neutral-900 hover:bg-neutral-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#004589] focus-visible:ring-offset-2'
+                : 'rounded-xl border-gray-200 bg-gray-50 text-gray-800 hover:border-[#027DFF] hover:bg-blue-50 hover:text-[#027DFF]'}`}
             >
               {label}
             </button>

@@ -10,18 +10,18 @@ import LineButtonDesktop from './LineButtonDesktop';
 export default function LineButtonsLayout() {
   const pathname = usePathname();
 
-  // Don't show on admin pages
-  if (pathname?.startsWith('/admin')) {
+  // Dedicated ad pages own their single-purpose sticky CTA.
+  if (pathname?.startsWith('/admin') || pathname === '/lp/google-ads/electric-awning') {
     return null;
   }
 
   return (
     <>
       {/* Mobile Sticky Line Button */}
-      <LineButtonMobile />
+      <LineButtonMobile compactCorners={pathname === '/'} />
 
       {/* Desktop Floating Line Button */}
-      <LineButtonDesktop />
+      <LineButtonDesktop compactCorners={pathname === '/'} />
     </>
   );
 }

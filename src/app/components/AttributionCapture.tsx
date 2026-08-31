@@ -132,6 +132,9 @@ export default function AttributionCapture() {
       const position = anchor.dataset.analyticsPosition || 'unknown';
       setSurveyPosition(position);
       setIsSurveyOpen(true);
+      // The capture-phase gate stops this click before it reaches the
+      // bubble-phase analytics listener, so record the CTA click here.
+      trackLineClick(position);
       trackLineSurveyStart(position);
     };
 
@@ -159,5 +162,11 @@ export default function AttributionCapture() {
     [surveyPosition],
   );
 
-  return <LeadSurveyModal isOpen={isSurveyOpen} onAnswer={handleSurveyAnswer} />;
+  return (
+    <LeadSurveyModal
+      isOpen={isSurveyOpen}
+      onAnswer={handleSurveyAnswer}
+      tone={pathname === '/lp/google-ads/electric-awning' ? 'monochrome' : 'brand'}
+    />
+  );
 }

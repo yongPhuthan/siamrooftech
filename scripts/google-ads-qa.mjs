@@ -60,8 +60,10 @@ function getCookie(response, name) {
 async function checkPage({
   path,
   canonical,
+  robots,
   shouldInclude = [],
   shouldNotInclude = [],
+  imageFreeSections = [],
 }) {
   const response = await fetchPath(path);
   if (response.status !== 200) {
@@ -81,6 +83,18 @@ async function checkPage({
     fail(`${path}: canonical mismatch. expected ${canonical}, got ${canonicalValue || 'NONE'}`);
   }
 
+  if (robots) {
+    const robotsValue = getAttr(html, [
+      /<meta\s+name=["']robots["']\s+content=["']([^"']*)["']/i,
+      /<meta\s+content=["']([^"']*)["']\s+name=["']robots["']/i,
+    ]);
+    const normalizeRobots = (value) => value.toLowerCase().split(',').map((item) => item.trim()).sort().join(',');
+
+    if (normalizeRobots(robotsValue) !== normalizeRobots(robots)) {
+      fail(`${path}: robots mismatch. expected ${robots}, got ${robotsValue || 'NONE'}`);
+    }
+  }
+
   if (h1Count !== 1) {
     fail(`${path}: expected exactly one H1, got ${h1Count}`);
   }
@@ -96,9 +110,105 @@ async function checkPage({
       fail(`${path}: raw or invalid text leaked into rendered HTML: "${text}"`);
     }
   }
+
+  for (const heading of imageFreeSections) {
+    const section = [...renderedHtml.matchAll(/<section\b[^>]*>[\s\S]*?<\/section>/gi)]
+      .map(([markup]) => markup)
+      .find((markup) => markup.includes(heading));
+    // A contact-channel icon inside a CTA is not an installation/case illustration.
+    const educationalContent = section?.replace(/<a\b(?=[^>]*data-analytics-type="line")[^>]*>[\s\S]*?<\/a>/gi, '');
+    if (!educationalContent || /<(?:img|picture|figure)\b/i.test(educationalContent)) {
+      fail(`${path}: "${heading}" must be an image-free educational section`);
+    }
+    if (section?.includes('id="installation-risks"')) {
+      if (section.includes('สิ่งที่ควรตรวจ') || (section.match(/\blucide-x\b/g) || []).length !== 6) {
+        fail(`${path}: risks must use six X icons and omit the inspection column`);
+      }
+    }
+  }
 }
 
+// --- Electric-awning Google Ads landing page --------------------------------
+
+await checkPage({
+  path: '/lp/google-ads/electric-awning?gclid=qa-electric-awning&srt_keyword=raw-query-must-not-render',
+  canonical: `${canonicalOrigin}/services/electric-retractable-awning`,
+  robots: 'noindex, follow',
+  imageFreeSections: [
+    'ระบบไฟฟ้าที่ดี ไม่ใช่แค่ใส่มอเตอร์',
+    'ติดตั้งกันสาดไฟฟ้าไม่ถูกต้อง เสี่ยงอะไรบ้าง',
+  ],
+  shouldInclude: [
+    'data-landing-page="google-ads-electric-awning"',
+    'กันสาดไฟฟ้า ใช้ง่ายด้วยรีโมท มั่นใจตั้งแต่มอเตอร์จนถึงระบบไฟ',
+    'ขนาดเท่ากัน อาจใช้ระบบไม่เหมือนกัน',
+    'ต้องการใช้งานสำรองเมื่อไฟดับหรือไม่',
+    'ระบบไฟฟ้าที่ดี ไม่ใช่แค่ใส่มอเตอร์',
+    'ระบบไฟฟ้าพร้อมรีโมท',
+    'ระบบไฟฟ้า–มือหมุน',
+    'ใช้มือหมุนได้เฉพาะระบบที่ออกแบบมารองรับ',
+    'รับประกัน 5 ปี',
+    'ครอบคลุมระบบและงานติดตั้ง ตามเงื่อนไขบริษัท',
+    'electric_awning_ads_header',
+    'electric_awning_ads_sticky_desktop',
+    'electric_awning_ads_sticky_mobile',
+    'จุดยึดไม่สัมพันธ์กับโครงสร้าง',
+    'มอเตอร์ไม่สัมพันธ์กับระบบ',
+    'ตั้งระยะกาง–พับไม่เหมาะสม',
+    'ระบบไฟไม่เหมาะกับพื้นที่ภายนอก',
+    'โครง แขนพับ และผ้าไม่อยู่ในแนวเดียวกัน',
+    'ส่งมอบโดยไม่ทดสอบครบวงจร',
+    'ข้อควรระวังทั่วไป ไม่ใช่รายงานปัญหาจากผลงานที่แสดงในหน้านี้',
+    'ใช้งานให้เหมาะกับสภาพแวดล้อม',
+    'ก่อนเลือกผู้ติดตั้งกันสาดไฟฟ้า ควรถามอะไรบ้าง',
+    'ผลงานกันสาดไฟฟ้าจริง',
+    'คำถามที่พบบ่อย',
+    'ระบบไฟฟ้า ระบบไฟฟ้า–มือหมุน และระบบมือหมุนต่างกันอย่างไร?',
+    'Siamrooftech รับประกันกันสาดไฟฟ้ากี่ปี?',
+    'สอบถาม-ประเมินราคาฟรี',
+    'ภาพประกอบเพื่ออธิบายระบบ',
+  ],
+  shouldNotInclude: [
+    'electric_awning_ads_hero',
+    'electric_awning_ads_site_assessment',
+    'electric_awning_ads_control_choice',
+    'electric_awning_ads_risk_proof',
+    'electric_awning_ads_final',
+    'system-overview-v1',
+    'risk-structure-motor-v1',
+    'risk-limit-alignment-v1',
+    'risk-electrical-handover-v1',
+    'raw-query-must-not-render',
+    'ราคาเริ่มต้น',
+    'รับประกัน 1 ปี',
+    'รับประกัน 2 ปี',
+    'รับประกัน 3 ปี',
+    'Dooya',
+    'DOOYA',
+    'DM45',
+    'DM59',
+    '50 Nm',
+    '80 Nm',
+    'IP44',
+    'ขอใบเสนอราคาฟรี',
+    'ประหยัดพลังงานมากกว่า 50%',
+    'IPX4',
+    'ระยะรีโมท 30 เมตร',
+    'แพงกว่า 20-30%',
+    'ลมระดับ 8',
+  ],
+});
+
 // --- P0: current pilot -- homepage + survey gate cookie ----------------------
+if (args.has('landing-only')) {
+  if (failures.length) {
+    console.error(failures.join('\n'));
+    process.exit(1);
+  }
+  console.log(`Electric awning landing QA passed at ${baseUrl}`);
+  process.exit(0);
+}
+
 // All P0 campaigns land on the homepage with no DKI params (see
 // docs/google-ads/launch-url-matrix-2026-07.csv). The thing that actually
 // gates the lead-persona survey is the srt_paid cookie set by middleware.ts,

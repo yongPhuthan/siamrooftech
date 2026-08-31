@@ -3,12 +3,15 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
+import LineContactButton from '../LineContactButton';
 import { trackLineClick, trackPhoneClick, trackContactClick } from '@/lib/gtag';
 
 export default function Navigation() {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const pathname = usePathname();
+  const isHomepage = pathname === '/';
+  const isDedicatedAdsLandingPage = pathname === '/lp/google-ads/electric-awning';
 
   const navItems = [
     { name: 'หน้าแรก', href: '/' },
@@ -17,7 +20,7 @@ export default function Navigation() {
   ];
 
   useEffect(() => {
-    if (pathname?.startsWith('/admin')) {
+    if (pathname?.startsWith('/admin') || isDedicatedAdsLandingPage) {
       setIsScrolled(false);
       return;
     }
@@ -29,13 +32,13 @@ export default function Navigation() {
     handleScroll();
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [pathname]);
+  }, [isDedicatedAdsLandingPage, pathname]);
 
   useEffect(() => {
     setIsOpen(false);
   }, [pathname]);
 
-  if (pathname?.startsWith('/admin')) {
+  if (pathname?.startsWith('/admin') || isDedicatedAdsLandingPage) {
     return null;
   }
 
@@ -90,7 +93,7 @@ export default function Navigation() {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                className={`px-4 py-2 ${isHomepage ? 'rounded-[4px]' : 'rounded-lg'} text-sm font-medium transition-all duration-200 ${
                   isActive(item.href)
                     ? 'bg-blue-600 text-white shadow-md'
                     : 'text-gray-700 hover:text-blue-600 hover:bg-blue-50'
@@ -102,36 +105,44 @@ export default function Navigation() {
             
             {/* CTA Button */}
             <div className="ml-4 pl-4 border-l border-gray-200">
-              <a
-                href="https://lin.ee/pPz1ZqN"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-2 rounded-full text-sm font-semibold hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105"
-                onClick={() => {
-                  trackLineClick('navigation_desktop');
-                }}
-              >
-                ขอใบเสนอราคาฟรี
-              </a>
+              {isHomepage ? (
+                <LineContactButton analyticsPosition="navigation_desktop" />
+              ) : (
+                <a
+                  href="https://lin.ee/pPz1ZqN"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-2 rounded-full text-sm font-semibold hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105"
+                  onClick={() => {
+                    trackLineClick('navigation_desktop');
+                  }}
+                >
+                  ขอใบเสนอราคาฟรี
+                </a>
+              )}
             </div>
           </div>
 
           {/* Mobile Menu Button */}
           <div className="lg:hidden flex items-center space-x-2">
-            <a
-              href="https://lin.ee/pPz1ZqN"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="bg-blue-600 text-white px-3 py-1.5 rounded-full text-xs font-semibold hover:bg-blue-700 transition-colors"
-              onClick={() => {
-                trackLineClick('navigation_mobile_header');
-              }}
-            >
-              ใบเสนอราคา
-            </a>
+            {isHomepage ? (
+                <LineContactButton analyticsPosition="navigation_mobile_header" compact />
+              ) : (
+                <a
+                  href="https://lin.ee/pPz1ZqN"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-blue-600 text-white px-3 py-1.5 rounded-full text-xs font-semibold hover:bg-blue-700 transition-colors"
+                  onClick={() => {
+                    trackLineClick('navigation_mobile_header');
+                  }}
+                >
+                  ใบเสนอราคา
+                </a>
+              )}
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="text-gray-700 hover:text-blue-600 p-2 rounded-lg hover:bg-gray-100 transition-colors"
+              className={`text-gray-700 hover:text-blue-600 p-2 ${isHomepage ? 'rounded-[4px]' : 'rounded-lg'} hover:bg-gray-100 transition-colors`}
               aria-label="เปิด/ปิดเมนู"
             >
               <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -153,7 +164,7 @@ export default function Navigation() {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`block px-3 py-2 rounded-lg text-base font-medium transition-colors ${
+                  className={`block px-3 py-2 ${isHomepage ? 'rounded-[4px]' : 'rounded-lg'} text-base font-medium transition-colors ${
                     isActive(item.href)
                       ? 'bg-blue-600 text-white'
                       : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50'
@@ -178,7 +189,10 @@ export default function Navigation() {
                     </svg>
                     <span>098-454-2455</span>
                   </a>
-                  <a 
+                  {isHomepage ? (
+                <LineContactButton analyticsPosition="navigation_mobile_menu" />
+              ) : (
+                <a
                     href="https://lin.ee/pPz1ZqN" 
                     target="_blank"
                     rel="noopener noreferrer"
@@ -197,6 +211,7 @@ export default function Navigation() {
                     </div>
                     <span>ขอใบเสนอราคา LINE</span>
                   </a>
+              )}
                 </div>
               </div>
             </div>

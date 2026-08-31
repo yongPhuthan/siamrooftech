@@ -1,3 +1,4 @@
+import LineContactButton from '../LineContactButton';
 import { Shield, Layers, Heart } from 'lucide-react';
 import Image from 'next/image';
 
@@ -36,11 +37,7 @@ const WhyUs2 = ({ keyword }: Props) => {
                   {keyword}ที่ไม่มีคุณภาพ ดังนั้นงานติดตั้ง{keyword}
                   ทุกงานของเราคำนึงถึงความปลอดภัยในเคสการใช้งานกับพื้นผิวและวัสดุของพื้นที่หน้างานต่างๆ
                 </p>
-                <a href="https://lin.ee/pPz1ZqN" target="_blank" rel="noopener noreferrer" data-analytics-type="line" data-analytics-position="why_us_desktop_safety">
-                  <button className="btn btn-outline btn-primary">
-                    ประเมินราคาฟรี
-                  </button>
-                </a>
+                <LineContactButton analyticsPosition="why_us_desktop_safety" />
               </div>
               <div className="col-span-1 relative h-[400px]">
                 <Image
@@ -79,11 +76,7 @@ const WhyUs2 = ({ keyword }: Props) => {
                   {keyword}
                   จะต้องเข้ากันได้ดีกับโทนบานของลูกค้าเช่นกัน
                 </p>
-                <a href="https://lin.ee/pPz1ZqN" target="_blank" rel="noopener noreferrer" data-analytics-type="line" data-analytics-position="why_us_desktop_design">
-                  <button className="btn btn-outline btn-primary">
-                    ประเมินราคาฟรี
-                  </button>
-                </a>
+                <LineContactButton analyticsPosition="why_us_desktop_design" />
               </div>
             </div>
           </div>
@@ -103,11 +96,7 @@ const WhyUs2 = ({ keyword }: Props) => {
                   2-7 วันหลังรับเรื่องจากลูกค้า และเราเข้าใจว่า{keyword}
                   เป็นงานที่มีความเชี่ยวชาญและวัสดุอุปกรณ์เฉพาะทางที่ต้องมีประสบการณ์ในการติดตั้งดังนั้นในกรณีที่มีปัญหาเล็กๆน้อยๆหลังการใช้งานเป็นเรื่องยุ่งยากที่ลูกค้าจะต้องหาซื้อวัสดุอุปกรณ์มาแก้ไขเอง
                 </p>
-                <a href="https://lin.ee/pPz1ZqN" target="_blank" rel="noopener noreferrer" data-analytics-type="line" data-analytics-position="why_us_desktop_after_sales">
-                  <button className="btn btn-outline btn-primary">
-                    ประเมินราคาฟรี
-                  </button>
-                </a>
+                <LineContactButton analyticsPosition="why_us_desktop_after_sales" />
               </div>
               <div className="col-span-1 relative h-[400px]">
                 <Image
@@ -164,11 +153,7 @@ const WhyUs2 = ({ keyword }: Props) => {
               </p>
             </div>
             <div className="p-4 border-t border-gray-50 bg-gray-50/50">
-              <a href="https://lin.ee/pPz1ZqN" target="_blank" rel="noopener noreferrer" className="w-full block" data-analytics-type="line" data-analytics-position="why_us_mobile_safety">
-                <button className="btn btn-outline btn-primary w-full">
-                  ประเมินราคาฟรี
-                </button>
-              </a>
+              <LineContactButton analyticsPosition="why_us_mobile_safety" fullWidth />
             </div>
           </div>
 
@@ -200,11 +185,7 @@ const WhyUs2 = ({ keyword }: Props) => {
               </p>
             </div>
             <div className="p-4 border-t border-gray-50 bg-gray-50/50">
-              <a href="https://lin.ee/pPz1ZqN" target="_blank" rel="noopener noreferrer" className="w-full block" data-analytics-type="line" data-analytics-position="why_us_mobile_design">
-                <button className="btn btn-outline btn-primary w-full">
-                  ประเมินราคาฟรี
-                </button>
-              </a>
+              <LineContactButton analyticsPosition="why_us_mobile_design" fullWidth />
             </div>
           </div>
 
@@ -237,11 +218,7 @@ const WhyUs2 = ({ keyword }: Props) => {
               </p>
             </div>
             <div className="p-4 border-t border-gray-50 bg-gray-50/50">
-              <a href="https://lin.ee/pPz1ZqN" target="_blank" rel="noopener noreferrer" className="w-full block" data-analytics-type="line" data-analytics-position="why_us_mobile_after_sales">
-                <button className="btn btn-outline btn-primary w-full">
-                  ประเมินราคาฟรี
-                </button>
-              </a>
+              <LineContactButton analyticsPosition="why_us_mobile_after_sales" fullWidth />
             </div>
           </div>
         </div>
