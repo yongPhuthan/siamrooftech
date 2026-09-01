@@ -121,7 +121,7 @@ async function checkPage({
       fail(`${path}: "${heading}" must be an image-free educational section`);
     }
     if (section?.includes('id="installation-risks"')) {
-      if (section.includes('สิ่งที่ควรตรวจ') || (section.match(/\blucide-x\b/g) || []).length !== 6) {
+      if (section.includes('สิ่งที่ควรตรวจ') || (section.match(/data-risk-icon="x"/g) || []).length !== 6) {
         fail(`${path}: risks must use six X icons and omit the inspection column`);
       }
     }
@@ -144,14 +144,17 @@ await checkPage({
     'ขนาดเท่ากัน อาจใช้ระบบไม่เหมือนกัน',
     'ต้องการใช้งานสำรองเมื่อไฟดับหรือไม่',
     'ระบบไฟฟ้าที่ดี ไม่ใช่แค่ใส่มอเตอร์',
-    'ระบบไฟฟ้าพร้อมรีโมท',
+    'มีมือหมุนสำรองไว้เมื่อไฟฟ้าขัดข้อง',
     'ระบบไฟฟ้า–มือหมุน',
     'ใช้มือหมุนได้เฉพาะระบบที่ออกแบบมารองรับ',
-    'รับประกัน 5 ปี',
-    'ครอบคลุมระบบและงานติดตั้ง ตามเงื่อนไขบริษัท',
     'electric_awning_ads_header',
     'electric_awning_ads_sticky_desktop',
     'electric_awning_ads_sticky_mobile',
+    // Three approved in-body conversion points; the browser QA whitelist must
+    // stay in sync with these names.
+    'electric_awning_ads_why_us',
+    'electric_awning_ads_testimonial',
+    'electric_awning_ads_steps',
     'จุดยึดไม่สัมพันธ์กับโครงสร้าง',
     'มอเตอร์ไม่สัมพันธ์กับระบบ',
     'ตั้งระยะกาง–พับไม่เหมาะสม',
@@ -161,12 +164,27 @@ await checkPage({
     'ข้อควรระวังทั่วไป ไม่ใช่รายงานปัญหาจากผลงานที่แสดงในหน้านี้',
     'ใช้งานให้เหมาะกับสภาพแวดล้อม',
     'ก่อนเลือกผู้ติดตั้งกันสาดไฟฟ้า ควรถามอะไรบ้าง',
+    // Credibility sections. The damage photos are cases customers sent in for
+    // assessment, so the disclaimer disowning them is part of the contract.
+    'ลูกค้าที่ให้ Siamrooftech ติดตั้งจริง',
+    'ความเสี่ยงจากกันสาดไฟฟ้าคุณภาพต่ำและการติดตั้งที่ไม่ได้มาตรฐาน',
+    'ทั้งหมดเป็นงานที่ติดตั้งมาจากที่อื่น ไม่ใช่ผลงานของ Siamrooftech',
+    'นัดลงพื้นที่สำรวจ',
+    // WhyUs (solution step, right after damage evidence + the six-point risk
+    // checklist). Four cards, intentionally overlapping earlier sections for
+    // emphasis -- see plan notes for why that repetition is deliberate.
+    'ความมั่นใจที่มาพร้อมกันสาดไฟฟ้าทุกชุด',
+    'โครงสร้างที่ผ่านการยึดอย่างถูกวิธี',
+    'เดินระบบไฟฟ้าให้ปลอดภัยตั้งแต่จุดจ่ายไฟ',
+    'ออกแบบและติดตั้งมาแล้วหลากหลายรูปแบบหน้างาน',
+    'รับประกันมอเตอร์ 2 ปี เสีย เปลี่ยนใหม่ ไม่ซ่อม',
     'ผลงานกันสาดไฟฟ้าจริง',
     'คำถามที่พบบ่อย',
     'ระบบไฟฟ้า ระบบไฟฟ้า–มือหมุน และระบบมือหมุนต่างกันอย่างไร?',
     'Siamrooftech รับประกันกันสาดไฟฟ้ากี่ปี?',
     'สอบถาม-ประเมินราคาฟรี',
     'ภาพประกอบเพื่ออธิบายระบบ',
+    'ผลงานติดตั้งจริง',
   ],
   shouldNotInclude: [
     'electric_awning_ads_hero',
@@ -181,8 +199,8 @@ await checkPage({
     'raw-query-must-not-render',
     'ราคาเริ่มต้น',
     'รับประกัน 1 ปี',
-    'รับประกัน 2 ปี',
     'รับประกัน 3 ปี',
+    'รับประกัน 5 ปี',
     'Dooya',
     'DOOYA',
     'DM45',

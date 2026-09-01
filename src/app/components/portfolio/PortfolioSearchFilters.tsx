@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Search, X, ArrowUpDown, Filter, SlidersHorizontal, Trash2 } from 'lucide-react';
+import { MagnifyingGlass, X, ArrowsDownUp, Funnel, SlidersHorizontal, Trash } from '@phosphor-icons/react/dist/ssr';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -46,7 +46,7 @@ export default function PortfolioSearchFilters() {
       {/* Search Bar */}
       <div className="flex flex-col sm:flex-row gap-3 items-center">
         <div className="relative flex-1 w-full">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+          <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
           <Input
             type="text"
             placeholder="ค้นหาโปรเจกต์ (ชื่อ, สถานที่, ประเภท, ลูกค้า...)"
@@ -72,7 +72,7 @@ export default function PortfolioSearchFilters() {
             disabled={localSearchQuery === filter.searchQuery}
             className="flex-1 sm:flex-none bg-blue-600 hover:bg-blue-700 text-white font-medium gap-2"
           >
-            <Search className="w-4 h-4" />
+            <MagnifyingGlass className="w-4 h-4" />
             ค้นหา
           </Button>
 
@@ -101,7 +101,7 @@ export default function PortfolioSearchFilters() {
               <Select value={filter.sortBy} onValueChange={(val) => handleSortChange(val as any)}>
                 <SelectTrigger className="w-full bg-white border-gray-200">
                   <div className="flex items-center gap-2">
-                    <ArrowUpDown className="w-4 h-4 text-gray-400" />
+                    <ArrowsDownUp className="w-4 h-4 text-gray-400" />
                     <SelectValue placeholder="เรียงลำดับ" />
                   </div>
                 </SelectTrigger>
@@ -126,7 +126,7 @@ export default function PortfolioSearchFilters() {
                   })}
                   disabled={filter.searchQuery.includes('ร้านอาหาร OR คาเฟ่')}
                 >
-                  <Filter className="w-3.5 h-3.5" />
+                  <Funnel className="w-3.5 h-3.5" />
                   ร้านค้า/คาเฟ่
                 </Button>
 
@@ -139,7 +139,7 @@ export default function PortfolioSearchFilters() {
                   })}
                   disabled={filter.searchQuery.includes('บ้าน OR พักอาศัย')}
                 >
-                  <Filter className="w-3.5 h-3.5" />
+                  <Funnel className="w-3.5 h-3.5" />
                   บ้านพักอาศัย
                 </Button>
               </div>
@@ -154,7 +154,7 @@ export default function PortfolioSearchFilters() {
                 disabled={!isFiltered}
                 className="w-full md:w-auto border-gray-300 hover:border-red-500 hover:text-red-500 hover:bg-red-50 text-gray-600 transition-colors gap-1.5 font-medium"
               >
-                <Trash2 className="w-4 h-4" />
+                <Trash className="w-4 h-4" />
                 รีเซ็ตตัวกรองทั้งหมด
               </Button>
             </div>

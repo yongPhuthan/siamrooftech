@@ -1,9 +1,9 @@
 import { AdsSectionHeading } from './AdsLandingPrimitives';
-import { Cable, ClipboardCheck, Cog, X } from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
+import { PlugsConnected, Checks, Gear, X } from '@phosphor-icons/react/dist/ssr';
+import type { Icon as PhosphorIcon } from '@phosphor-icons/react';
 
 type InstallationStage = {
-  icon: LucideIcon;
+  icon: PhosphorIcon;
   phase: string;
   title: string;
   copy: string;
@@ -11,19 +11,19 @@ type InstallationStage = {
 
 const installationStages: InstallationStage[] = [
   {
-    icon: Cog,
+    icon: Gear,
     phase: 'ก่อนเลือก',
     title: 'เลือกมอเตอร์ให้เข้ากับงาน',
     copy: 'ดูขนาด น้ำหนัก และความถี่ในการกาง–พับร่วมกัน ไม่เลือกจากหน้ากว้างเพียงอย่างเดียว',
   },
   {
-    icon: Cable,
+    icon: PlugsConnected,
     phase: 'ระหว่างติดตั้ง',
     title: 'ดูทั้งจุดยึดและทางเดินไฟ',
     copy: 'ตำแหน่งยึดต้องเหมาะกับโครงสร้าง ส่วนจุดจ่ายไฟและจุดเชื่อมต่อต้องคำนึงถึงสภาพภายนอกอาคาร',
   },
   {
-    icon: ClipboardCheck,
+    icon: Checks,
     phase: 'ก่อนส่งมอบ',
     title: 'กางให้สุด พับให้ครบ ลองใช้ด้วยกัน',
     copy: 'ทดสอบรีโมท ระยะหยุด และจังหวะการเคลื่อนที่ พร้อมอธิบายวิธีใช้งานและอาการที่ควรติดต่อทีม',
@@ -81,7 +81,7 @@ export function ElectricAwningInstallationQuality() {
           {installationStages.map(({ icon: Icon, phase, title, copy }) => (
             <li key={phase} className="grid gap-3 py-6 sm:grid-cols-[6rem_1fr] sm:gap-5 lg:py-7">
               <div className="flex items-center gap-3 pt-1 sm:flex-col sm:items-start">
-                <Icon aria-hidden="true" className="h-6 w-6 shrink-0 text-neutral-700" strokeWidth={1.8} />
+                <Icon aria-hidden="true" className="h-6 w-6 shrink-0 text-neutral-700" />
                 <p className="text-sm text-neutral-600">{phase}</p>
               </div>
               <div>
@@ -119,7 +119,7 @@ export function ElectricAwningInstallationRisks() {
         <ul className="mt-10 divide-y divide-neutral-200 border-y border-neutral-200 text-left">
           {installationRisks.map(({ title, consequence }) => (
             <li key={title} className="flex items-start gap-3 py-6 sm:gap-4">
-              <X aria-hidden="true" className="mt-1 h-5 w-5 shrink-0 text-neutral-700" strokeWidth={2} />
+              <X aria-hidden="true" data-risk-icon="x" className="mt-1 h-5 w-5 shrink-0 text-neutral-700" />
               <div className="min-w-0">
                 <h3 className="text-lg font-bold leading-7 text-neutral-900">{title}</h3>
                 <p className="mt-2 text-base leading-7 text-neutral-700">{consequence}</p>

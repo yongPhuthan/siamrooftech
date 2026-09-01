@@ -18,7 +18,7 @@ A modern Siamrooftech website for retractable awning services, portfolio showcas
  "clsx": "^2.1.1",
  "firebase": "^12.0.0",
  "firebase-admin": "^13.4.0",
- "lucide-react": "^1.17.0",
+ "@phosphor-icons/react": "^2.1.10",
  "next": "^15.5.9",
  "react": "^18",
  "react-dom": "^18",
@@ -94,7 +94,7 @@ yarn firebase:functions  # Deploy only functions
 - **Tailwind CSS utility classes** are the primary styling approach for public pages and admin UI.
 - **shadcn-style components** are configured through `components.json` with `rsc: true`, `tsx: true`, `baseColor: neutral`, and aliases such as `@/components/ui` and `@/lib/utils`.
 - **@base-ui/react** is available for accessible low-level primitives when a custom component needs robust interaction behavior.
-- **lucide-react** is the primary icon library for UI controls and navigation icons.
+- **@phosphor-icons/react** is the primary icon library for UI controls and navigation icons. Import icons from `@phosphor-icons/react/dist/ssr` (a stateless variant safe in server components) rather than the package root, which requires an `IconContext` provider. Use the `regular` weight (the default) unless a specific screen calls for another weight.
 - **DaisyUI classes** are still used in parts of the existing UI, especially button classes such as `btn`, `btn-primary`, and `btn-outline`.
 - **Do not introduce MUI or Emotion** for new UI. The project no longer depends on `@mui/material`, `@mui/material-nextjs`, or Emotion packages.
 

@@ -1,35 +1,37 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import {
-  BrickWall,
-  Building2,
   Camera,
+  ChatCircleText,
   Check,
-  CheckCircle2,
-  ClipboardCheck,
-  ClipboardList,
-  Clock3,
-  CircleAlert,
+  Checks,
+  CheckCircle,
+  Clock,
   CloudSun,
   Eye,
-  House,
+  GearSix,
   Images,
   MapPin,
-  MessagesSquare,
+  Medal,
+  Path,
   Phone,
-  PlugZap,
-  PowerOff,
-  Radio,
-  Route,
+  PlugCharging,
+  Power,
   Ruler,
-  Settings2,
   ShieldCheck,
-  Store,
+  ClipboardText,
+  Wall,
+  Buildings,
+  WarningCircle,
   Wind,
   Wrench,
-} from 'lucide-react';
+} from '@phosphor-icons/react/dist/ssr';
 import { AdsLineCta, AdsSectionHeading } from '@/app/components/google-ads/AdsLandingPrimitives';
+import { ElectricAwningDamageEvidence } from '@/app/components/google-ads/ElectricAwningDamageEvidence';
+import { ElectricAwningWhyUs } from '@/app/components/google-ads/ElectricAwningWhyUs';
 import { ElectricAwningInstallationQuality, ElectricAwningInstallationRisks } from '@/app/components/google-ads/ElectricAwningInstallationSections';
+import { ElectricAwningTestimonials } from '@/app/components/google-ads/ElectricAwningTestimonials';
+import TrustedBy from '@/app/components/section/TrustedBy';
 import { fileProjects } from '@/data/projects';
 import { getProjectProof } from '@/lib/project-proof';
 import { canonicalUrl } from '@/lib/seo-config';
@@ -76,27 +78,9 @@ const projects = selectedProjectIds.flatMap((id) => {
   return project ? [{ project, proof: getProjectProof(project) }] : [];
 });
 
-const useCases = [
-  {
-    icon: House,
-    title: 'บ้านพักอาศัย',
-    copy: 'กางรับแดดเมื่อต้องการใช้งาน และพับคืนพื้นที่ให้ดูโปร่งได้ง่ายด้วยรีโมท',
-  },
-  {
-    icon: Store,
-    title: 'ร้านอาหารและคาเฟ่',
-    copy: 'ปรับพื้นที่หน้าร้านได้รวดเร็ว ลดภาระการหมุนด้วยมือในช่วงที่ต้องเปิด–ปิดบ่อย',
-  },
-  {
-    icon: Building2,
-    title: 'สำนักงานและธุรกิจ',
-    copy: 'เหมาะกับพื้นที่ใช้งานประจำที่ต้องการระบบควบคุมสะดวกและภาพรวมที่เรียบร้อย',
-  },
-];
-
 const siteAssessmentChecks = [
   {
-    icon: BrickWall,
+    icon: Wall,
     title: 'โครงสร้างที่รองรับการยึด',
     copy: 'ดูสภาพผนัง คาน และพื้นที่เหนือช่องเปิดก่อนกำหนดตำแหน่งระบบ',
   },
@@ -106,32 +90,19 @@ const siteAssessmentChecks = [
     copy: 'ขนาดเป็นจุดเริ่มต้นในการประเมินน้ำหนักและลักษณะการทำงานของกันสาด',
   },
   {
-    icon: PlugZap,
+    icon: PlugCharging,
     title: 'จุดจ่ายไฟและสภาพแวดล้อม',
     copy: 'ตรวจตำแหน่งแหล่งจ่ายไฟและบริเวณภายนอกที่ระบบต้องทำงานอยู่จริง',
   },
   {
-    icon: Clock3,
+    icon: Clock,
     title: 'ความถี่และรูปแบบการใช้งาน',
     copy: 'บ้านที่เปิดเป็นครั้งคราวกับร้านค้าที่ปรับพื้นที่หลายช่วงเวลา อาจต้องพิจารณาต่างกัน',
   },
   {
-    icon: PowerOff,
+    icon: Power,
     title: 'ต้องการใช้งานสำรองเมื่อไฟดับหรือไม่',
     copy: 'หากต้องการพับเก็บด้วยมือเมื่อไฟฟ้าขัดข้อง ต้องเลือกระบบที่รองรับไว้ตั้งแต่ต้น',
-  },
-];
-
-const controlChoices = [
-  {
-    icon: Radio,
-    title: 'ระบบไฟฟ้าพร้อมรีโมท',
-    copy: 'กาง–พับได้สะดวก เหมาะกับบ้าน ร้านค้า และพื้นที่ที่ต้องปรับการใช้งานเป็นประจำ',
-  },
-  {
-    icon: Settings2,
-    title: 'ระบบไฟฟ้า–มือหมุน',
-    copy: 'ควบคุมด้วยรีโมทตามปกติ และมีมือหมุนเป็นทางเลือกสำรองเมื่อไฟฟ้าขัดข้อง',
   },
 ];
 
@@ -164,7 +135,7 @@ const checklist = [
   'ตรวจตำแหน่งติดตั้งและแนวทางเชื่อมต่อระบบไฟ',
   'ตั้งระยะกาง–พับให้สัมพันธ์กับหน้างาน',
   'ทดสอบรีโมทและการทำงานก่อนส่งมอบ',
-  'รับประกันระบบและงานติดตั้ง 5 ปี ตามเงื่อนไขบริษัท',
+  'รับประกันมอเตอร์ 2 ปี เสีย เปลี่ยนใหม่ ไม่ซ่อม ตามเงื่อนไขบริษัท',
   'อธิบายวิธีใช้งานและช่องทางติดต่อหลังติดตั้ง',
 ];
 
@@ -217,7 +188,7 @@ const faqs: FaqItem[] = [
   {
     question: 'Siamrooftech รับประกันกันสาดไฟฟ้ากี่ปี?',
     answer:
-      'Siamrooftech รับประกันระบบและงานติดตั้ง 5 ปี ตามเงื่อนไขบริษัท พร้อมช่องทางติดต่อทีมหลังการติดตั้ง',
+      'Siamrooftech รับประกันมอเตอร์ 2 ปี หากมอเตอร์เสียจะเปลี่ยนตัวใหม่ให้ ไม่ใช่การซ่อม ตามเงื่อนไขบริษัท พร้อมช่องทางติดต่อทีมหลังการติดตั้ง',
   },
 ];
 
@@ -258,7 +229,7 @@ export default function ElectricAwningGoogleAdsLandingPage() {
               เลือกมอเตอร์ให้เหมาะกับขนาดและความถี่การใช้งาน ติดตั้งเข้ากับระบบไฟบ้านอย่างเรียบร้อย พร้อมตั้งค่าและทดสอบก่อนส่งมอบ
             </p>
             <p className="mt-5 flex items-center gap-2 text-sm text-neutral-600">
-              <CheckCircle2 aria-hidden="true" className="h-5 w-5 text-neutral-900" />
+              <CheckCircle aria-hidden="true" className="h-5 w-5 text-neutral-900" />
               ส่งรูปพื้นที่ จังหวัด หน้ากว้าง และระยะยื่นโดยประมาณ
             </p>
           </div>
@@ -284,33 +255,23 @@ export default function ElectricAwningGoogleAdsLandingPage() {
       <section aria-label="ข้อมูลบริการ" className="border-y border-neutral-300 bg-white">
         <div className="mx-auto grid max-w-7xl grid-cols-2 gap-px bg-neutral-200 lg:grid-cols-4">
           {[
-            ['10+ ปี', 'ประสบการณ์งานกันสาด'],
-            ['บ้าน · ร้าน · สำนักงาน', 'หน้างานหลากหลายรูปแบบ'],
-            ['กรุงเทพฯ และพื้นที่บริการ', 'ประเมินตามพื้นที่หน้างานจริง'],
-            ['รับประกัน 5 ปี', 'ครอบคลุมระบบและงานติดตั้ง ตามเงื่อนไขบริษัท'],
-          ].map(([value, label]) => (
+            { icon: Medal, value: '10+ ปี', label: 'ประสบการณ์งานกันสาด' },
+            { icon: Buildings, value: 'บ้าน · ร้าน · สำนักงาน', label: 'หน้างานหลากหลายรูปแบบ' },
+            { icon: MapPin, value: 'กรุงเทพฯ และพื้นที่บริการ', label: 'ประเมินตามพื้นที่หน้างานจริง' },
+            { icon: ShieldCheck, value: 'รับประกันมอเตอร์ 2 ปี', label: 'เสีย เปลี่ยนใหม่ ไม่ซ่อม ตามเงื่อนไขบริษัท' },
+          ].map(({ icon: Icon, value, label }) => (
             <div key={value} className="bg-white px-4 py-6 text-center">
-              <p className="text-lg font-black text-neutral-900">{value}</p>
+              <Icon aria-hidden="true" className="mx-auto h-6 w-6 text-neutral-700" />
+              <p className="mt-2 text-lg font-black text-neutral-900">{value}</p>
               <p className="mt-1 text-sm text-neutral-600">{label}</p>
             </div>
           ))}
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8 lg:py-24">
-        <AdsSectionHeading
-          tone="monochrome"
-          title="กางเมื่อต้องการร่มเงา พับเมื่ออยากได้พื้นที่โล่ง"
-          copy="กันสาดไฟฟ้าช่วยให้การปรับพื้นที่ในแต่ละวันทำได้ง่ายขึ้น โดยระบบต้องถูกเลือกให้เหมาะกับรูปแบบการใช้งานของสถานที่นั้น ๆ"
-        />
-        <div className="mt-12 grid gap-6 md:grid-cols-3">
-          {useCases.map(({ icon: Icon, title, copy }) => (
-            <article key={title} className="border-t border-neutral-300 pt-6">
-              <Icon aria-hidden="true" className="h-7 w-7 text-neutral-700" strokeWidth={1.8} />
-              <h3 className="mt-5 text-xl font-bold text-neutral-900">{title}</h3>
-              <p className="mt-3 leading-7 text-neutral-600">{copy}</p>
-            </article>
-          ))}
+      <section className="border-b border-neutral-300 bg-white">
+        <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 lg:py-14">
+          <TrustedBy animated />
         </div>
       </section>
 
@@ -341,7 +302,7 @@ export default function ElectricAwningGoogleAdsLandingPage() {
               {siteAssessmentChecks.map(({ icon: Icon, title, copy }) => (
                 <li key={title} className="border-t border-neutral-300 pt-4 last:sm:col-span-2">
                   <h3 className="mt-1 flex items-start gap-3 font-bold text-neutral-900">
-                    <Icon aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0 text-neutral-700" strokeWidth={1.8} />
+                    <Icon aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0 text-neutral-700" />
                     <span>{title}</span>
                   </h3>
                   <p className="mt-2 text-sm leading-6 text-neutral-600">{copy}</p>
@@ -358,24 +319,22 @@ export default function ElectricAwningGoogleAdsLandingPage() {
         <div className="mx-auto grid max-w-7xl gap-10 px-4 py-16 sm:px-6 lg:grid-cols-[0.76fr_1.24fr] lg:items-start lg:gap-16 lg:px-8 lg:py-20">
           <AdsSectionHeading
             tone="monochrome"
-            eyebrow="ความสะดวกและทางเลือกเมื่อไฟดับ"
-            title="เลือกระบบให้พร้อมกับวิธีใช้งานจริง"
-            copy="ทั้งสองแบบใช้มอเตอร์ไฟฟ้า แต่ความสามารถในการพับเก็บเมื่อไฟฟ้าขัดข้องต้องถูกกำหนดตั้งแต่ขั้นเลือกระบบ"
+            eyebrow="ทางเลือกเมื่อไฟดับ"
+            title="มีมือหมุนสำรองไว้เมื่อไฟฟ้าขัดข้อง"
+            copy="ระบบไฟฟ้า–มือหมุนควบคุมด้วยรีโมทตามปกติ แต่เพิ่มมือหมุนเป็นทางเลือกสำรอง ให้พับเก็บกันสาดได้แม้ไฟฟ้าขัดข้อง"
           />
           <div>
-            <div className="grid gap-4 sm:grid-cols-2">
-              {controlChoices.map(({ icon: Icon, title, copy }) => (
-                <article key={title} className="border-t border-neutral-300 pt-6">
-                  <div className="text-neutral-900">
-                    <Icon aria-hidden="true" className="h-5 w-5" strokeWidth={1.8} />
-                  </div>
-                  <h3 className="mt-5 text-xl font-bold text-neutral-900">{title}</h3>
-                  <p className="mt-3 leading-7 text-neutral-600">{copy}</p>
-                </article>
-              ))}
-            </div>
+            <article className="border-t border-neutral-300 pt-6">
+              <div className="text-neutral-900">
+                <GearSix aria-hidden="true" className="h-5 w-5" />
+              </div>
+              <h3 className="mt-5 text-xl font-bold text-neutral-900">ระบบไฟฟ้า–มือหมุน</h3>
+              <p className="mt-3 leading-7 text-neutral-600">
+                ควบคุมด้วยรีโมทตามปกติ และมีมือหมุนเป็นทางเลือกสำรองเมื่อไฟฟ้าขัดข้อง
+              </p>
+            </article>
             <p className="mt-5 flex gap-3 rounded-none border border-neutral-300 bg-neutral-100 p-4 text-sm leading-6 text-neutral-900">
-              <CircleAlert aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0 text-neutral-600" strokeWidth={1.8} />
+              <WarningCircle aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0 text-neutral-600" />
               <span>
                 ใช้มือหมุนได้เฉพาะระบบที่ออกแบบมารองรับ ไม่ควรฝืนหมุนระบบไฟฟ้าปกติหรือดัดแปลงอุปกรณ์เอง
               </span>
@@ -384,7 +343,11 @@ export default function ElectricAwningGoogleAdsLandingPage() {
         </div>
       </section>
 
+      <ElectricAwningDamageEvidence />
+
       <ElectricAwningInstallationRisks />
+
+      <ElectricAwningWhyUs />
 
       <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8 lg:py-24">
         <div className="grid gap-12 lg:grid-cols-[0.72fr_1.28fr] lg:gap-20">
@@ -397,7 +360,7 @@ export default function ElectricAwningGoogleAdsLandingPage() {
           <div className="grid gap-6 sm:grid-cols-2">
             {environmentGuidance.map(({ icon: Icon, title, copy }) => (
               <article key={title} className="border-t border-neutral-300 pt-5">
-                <Icon aria-hidden="true" className="h-6 w-6 text-neutral-900" strokeWidth={1.8} />
+                <Icon aria-hidden="true" className="h-6 w-6 text-neutral-900" />
                 <h3 className="mt-4 text-lg font-bold text-neutral-900">{title}</h3>
                 <p className="mt-2 leading-7 text-neutral-600">{copy}</p>
               </article>
@@ -412,7 +375,7 @@ export default function ElectricAwningGoogleAdsLandingPage() {
             <AdsSectionHeading
               tone="monochrome"
               title="ก่อนเลือกผู้ติดตั้งกันสาดไฟฟ้า ควรถามอะไรบ้าง"
-              icon={ClipboardCheck}
+              icon={Checks}
               copy="การซื้อเฉพาะสินค้าอาจตอบได้เพียงรุ่นและสเปก แต่ระบบพร้อมประเมินและติดตั้งควรตอบได้ว่าทำไมอุปกรณ์แต่ละส่วนจึงเหมาะกับหน้างานของคุณ"
             />
             <div className="border-l border-neutral-300 pl-6 sm:pl-8">
@@ -421,7 +384,7 @@ export default function ElectricAwningGoogleAdsLandingPage() {
                 {checklist.map((item) => (
                   <li key={item} className="flex gap-3 text-neutral-700">
                     <span className="mt-1 flex h-5 w-5 shrink-0 items-center justify-center text-neutral-900">
-                      <Check aria-hidden="true" className="h-4 w-4" strokeWidth={2.5} />
+                      <Check aria-hidden="true" className="h-4 w-4" />
                     </span>
                     <span className="leading-7">{item}</span>
                   </li>
@@ -476,24 +439,34 @@ export default function ElectricAwningGoogleAdsLandingPage() {
         </div>
       </section>
 
+      <ElectricAwningTestimonials />
+
       <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8 lg:py-24">
-        <AdsSectionHeading tone="monochrome" icon={Route} eyebrow="เริ่มต้นได้ใน 3 ขั้นตอน" title="จากรูปหน้างาน สู่ระบบที่พร้อมใช้งาน" />
+        <AdsSectionHeading tone="monochrome" icon={Path} eyebrow="เริ่มต้นได้ใน 3 ขั้นตอน" title="จากรูปหน้างาน สู่ระบบที่พร้อมใช้งาน" />
         <ol className="mt-12 grid gap-8 md:grid-cols-3">
           {[
             { icon: Camera, number: '01', title: 'ส่งรูปและขนาดคร่าว ๆ', copy: 'ส่งรูปพื้นที่ จังหวัด หน้ากว้าง และระยะยื่นโดยประมาณทาง LINE' },
-            { icon: ClipboardList, number: '02', title: 'ประเมินและแนะนำระบบ', copy: 'ทีมดูข้อจำกัดของพื้นที่และรูปแบบการใช้งาน ก่อนแนะนำระบบที่เหมาะ' },
+            { icon: ClipboardText, number: '02', title: 'นัดลงพื้นที่สำรวจ', copy: 'ทีมลงดูข้อจำกัดของหน้างานจริง พร้อมนำตัวอย่างวัสดุไปให้เปรียบเทียบ ก่อนแนะนำระบบที่เหมาะ' },
             { icon: Wrench, number: '03', title: 'ติดตั้ง ตั้งค่า และทดสอบ', copy: 'ติดตั้งระบบ ตั้งระยะ ทดสอบรีโมท และอธิบายการใช้งานก่อนส่งมอบ' },
           ].map(({ icon: Icon, number, title, copy }) => (
             <li key={number} className="relative border-t border-neutral-300 pt-6">
               <div className="flex items-center justify-between gap-3">
                 <p className="text-sm font-black text-neutral-900">{number}</p>
-                <Icon aria-hidden="true" className="h-6 w-6 text-neutral-700" strokeWidth={1.8} />
+                <Icon aria-hidden="true" className="h-6 w-6 text-neutral-700" />
               </div>
               <h3 className="mt-3 text-xl font-bold">{title}</h3>
               <p className="mt-3 leading-7 text-neutral-600">{copy}</p>
             </li>
           ))}
         </ol>
+
+        <div className="mt-10 flex justify-center">
+          <AdsLineCta
+            tone="monochrome"
+            analyticsPosition="electric_awning_ads_steps"
+            label="สอบถาม-ประเมินราคาฟรี"
+          />
+        </div>
       </section>
 
       <section className="bg-neutral-100">
@@ -503,21 +476,21 @@ export default function ElectricAwningGoogleAdsLandingPage() {
               <AdsSectionHeading
                 tone="monochrome"
                 title="คำถามที่พบบ่อย"
-                icon={MessagesSquare}
+                icon={ChatCircleText}
                 copy="คำตอบเบื้องต้นช่วยให้เตรียมข้อมูลได้ง่ายขึ้น ส่วนรายละเอียดของมอเตอร์ โครงสร้าง และระบบไฟต้องประเมินจากหน้างานจริง"
               />
               <figure className="mt-8">
                 <div className="overflow-hidden rounded-none bg-neutral-200">
                   <Image
-                    src="/images/landing/electric-awning/faq-guide-v1.png"
-                    alt="ภาพประกอบเจ้าของบ้านทดลองใช้รีโมทกันสาดไฟฟ้ากับทีมบริการ"
-                    width={1536}
-                    height={1024}
+                    src="/images/landing/electric-awning/1658991397830.jpg"
+                    alt="ระบบไฟฟ้าและกันสาดไฟฟ้าที่ติดตั้งจริงบริเวณโรงจอดรถ"
+                    width={1280}
+                    height={1280}
                     sizes="(max-width: 1024px) 100vw, 40vw"
                     className="aspect-[3/2] w-full object-cover"
                   />
                 </div>
-                <figcaption className="mt-3 text-xs text-neutral-600">ภาพประกอบเพื่ออธิบายระบบ</figcaption>
+                <figcaption className="mt-3 text-xs text-neutral-600">ผลงานติดตั้งจริง</figcaption>
               </figure>
             </div>
             <div className="divide-y divide-neutral-300 border-y border-neutral-300">

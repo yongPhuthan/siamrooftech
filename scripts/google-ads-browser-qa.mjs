@@ -340,12 +340,17 @@ async function scenarioPaidSession(position = 'electric_awning_ads_header') {
           .filter(el => el.textContent.trim() !== 'สอบถาม-ประเมินราคาฟรี').length,
         excessiveCorners: surfaces.filter(el => parseFloat(getComputedStyle(el).borderTopLeftRadius) > 4).length,
         shadows: surfaces.filter(el => getComputedStyle(el).boxShadow !== 'none').length,
-        sectionCtas: main.querySelectorAll('section [data-analytics-type]').length,
+        // In-body CTAs are allowed only at the three approved conversion
+        // points; anything else sprouting inside a section still fails.
+        unapprovedSectionCtas: Array.from(main.querySelectorAll('section [data-analytics-type]'))
+          .filter(el => !['electric_awning_ads_why_us',
+                          'electric_awning_ads_testimonial',
+                          'electric_awning_ads_steps'].includes(el.dataset.analyticsPosition)).length,
       };
     })()`);
     if (appearance.heroBackground !== 'rgb(255, 255, 255)' ||
         appearance.ctaBackground !== 'rgb(0, 128, 43)' ||
-        appearance.sectionCtas || appearance.incorrectLineLabels || appearance.ctaRadius > 4 || appearance.excessiveCorners || appearance.shadows) {
+        appearance.unapprovedSectionCtas || appearance.incorrectLineLabels || appearance.ctaRadius > 4 || appearance.excessiveCorners || appearance.shadows) {
       fail(`Ads appearance: expected white hero, green LINE CTA with approved label, low radii and no decorative shadows; got ${JSON.stringify(appearance)}`);
     }
 

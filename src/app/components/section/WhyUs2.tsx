@@ -1,5 +1,5 @@
 import LineContactButton from '../LineContactButton';
-import { Shield, Layers, Heart } from 'lucide-react';
+import { Shield, Stack, Heart } from '@phosphor-icons/react/dist/ssr';
 import Image from 'next/image';
 
 type Props = {
@@ -65,7 +65,7 @@ const WhyUs2 = ({ keyword }: Props) => {
               </div>
               <div className="col-span-2 p-8 flex flex-col items-center justify-center">
                 <div className="w-18 h-18 rounded-full bg-blue-50 flex items-center justify-center mb-6">
-                  <Layers className="text-blue-600 w-10 h-10" />
+                  <Stack className="text-blue-600 w-10 h-10" />
                 </div>
                 <h3 className="text-xl font-bold text-center mb-4">
                   การออกแบบที่เข้ากับหน้างาน
@@ -161,7 +161,7 @@ const WhyUs2 = ({ keyword }: Props) => {
           <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden flex flex-col">
             <div className="p-4 flex items-center gap-3 border-b border-gray-100">
               <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center flex-shrink-0">
-                <Layers className="text-blue-600 w-6 h-6" />
+                <Stack className="text-blue-600 w-6 h-6" />
               </div>
               <h3 className="font-bold text-gray-900 text-base">
                 การออกแบบที่เข้ากับหน้างาน

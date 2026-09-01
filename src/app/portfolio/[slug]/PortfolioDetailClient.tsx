@@ -1,6 +1,6 @@
 'use client';
 
-import { ChevronLeft as ChevronLeftIcon, ChevronRight as ChevronRightIcon, X as CloseIcon, ZoomIn as ZoomInIcon } from 'lucide-react';
+import { CaretLeft as ChevronLeftIcon, CaretRight as ChevronRightIcon, X as CloseIcon, MagnifyingGlassPlus as ZoomInIcon } from '@phosphor-icons/react/dist/ssr';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';

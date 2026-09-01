@@ -1,5 +1,5 @@
-import { ArrowRight, MessageCircle } from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
+import { ArrowRight, ChatCircle } from '@phosphor-icons/react/dist/ssr';
+import type { Icon as PhosphorIcon } from '@phosphor-icons/react';
 import LineContactButton from '../LineContactButton';
 
 const DEFAULT_LINE_URL = 'https://lin.ee/pPz1ZqN';
@@ -40,7 +40,7 @@ export function AdsLineCta({
           : 'rounded-md bg-[#027DFF] text-white shadow-lg shadow-blue-600/20 hover:bg-[#006ee5] focus-visible:ring-[#027DFF]'
       }`}
     >
-      <MessageCircle aria-hidden="true" className="h-5 w-5 shrink-0" />
+      <ChatCircle aria-hidden="true" className="h-5 w-5 shrink-0" />
       {label}
       <ArrowRight aria-hidden="true" className="h-4 w-4 shrink-0" />
     </a>
@@ -48,7 +48,7 @@ export function AdsLineCta({
 }
 
 export type AdsSectionHeadingProps = {
-  icon?: LucideIcon;
+  icon?: PhosphorIcon;
   eyebrow?: string;
   title: string;
   copy?: string;
@@ -66,7 +66,7 @@ export function AdsSectionHeading({
 }: AdsSectionHeadingProps) {
   return (
     <div className="max-w-3xl">
-      {Icon ? <Icon aria-hidden="true" className={`mb-4 h-7 w-7 ${tone === 'monochrome' ? 'text-neutral-700' : inverted ? 'text-white' : 'text-[#004589]'}`} strokeWidth={1.8} /> : null}
+      {Icon ? <Icon aria-hidden="true" className={`mb-4 h-7 w-7 ${tone === 'monochrome' ? 'text-neutral-700' : inverted ? 'text-white' : 'text-[#004589]'}`} /> : null}
       {eyebrow ? <p className={`text-sm tracking-wide ${tone === 'monochrome' ? 'font-semibold text-neutral-600' : inverted ? 'font-bold text-sky-300' : 'font-bold text-[#027DFF]'}`}>
         {eyebrow}
       </p> : null}

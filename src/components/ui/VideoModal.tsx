@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useCallback } from 'react';
-import { X as CloseIcon, ChevronLeft as ChevronLeftIcon, ChevronRight as ChevronRightIcon } from 'lucide-react';
+import { X as CloseIcon, CaretLeft as ChevronLeftIcon, CaretRight as ChevronRightIcon } from '@phosphor-icons/react/dist/ssr';
 import { ProjectVideo } from '../../lib/firestore';
 import VideoPlayer from './VideoPlayer';
 import { getVideoTypeBadge } from '../../lib/project-video-utils';
