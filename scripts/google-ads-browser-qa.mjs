@@ -278,7 +278,7 @@ async function scenarioPaidSession(position = 'electric_awning_ads_header') {
     const gclid = `qa-browser-${Date.now()}`;
     await navigateTo(client, sessionId, `/lp/google-ads/electric-awning?gclid=${gclid}&utm_source=google&utm_medium=cpc&utm_campaign=qa_monochrome`);
 
-    if (position === 'electric_awning_ads_sticky_desktop') {
+    if (position === 'electric_awning_ads_sticky_mobile') {
       for (const width of [1440, 768, 390, 320]) {
         await client.send('Emulation.setDeviceMetricsOverride', { width, height: 900, deviceScaleFactor: 1, mobile: false }, sessionId);
         const riskLayout = await evaluate(client, sessionId, `(() => {
@@ -303,40 +303,53 @@ async function scenarioPaidSession(position = 'electric_awning_ads_header') {
             !riskLayout.centered || !riskLayout.stacked || riskLayout.rows !== 6 || riskLayout.images) {
           fail(`Risk text must be a centered, narrow reading column on white at ${width}px: ${JSON.stringify(riskLayout)}`);
         }
+        // There is exactly one persistent LINE CTA at any width: the sticky
+        // navbar's header CTA at >=768px (the floating corner button was
+        // removed as redundant with it), and the bottom sticky bar below
+        // that -- where the navbar itself is hidden entirely, so the bar
+        // never competes with a second CTA.
         const sticky = await evaluate(client, sessionId, `(() => {
-          const desktop = document.querySelector('[data-analytics-position="electric_awning_ads_sticky_desktop"]');
-          const mobile = document.querySelector('[data-analytics-position="electric_awning_ads_sticky_mobile"]');
-          const rect = desktop?.getBoundingClientRect();
-          const visibleRect = (${width} >= 768 ? desktop : mobile)?.getBoundingClientRect();
+          // Two elements share the electric_awning_ads_header position (the
+          // desktop-menu CTA and the lg:hidden "mobile header" CTA slot, only
+          // one of which is ever on-screen at once), so this checks whether
+          // *any* of them is visible rather than picking an arbitrary match.
+          const headerEls = Array.from(document.querySelectorAll('[data-analytics-position="electric_awning_ads_header"]'));
+          const visibleHeader = headerEls.map(el => el.getBoundingClientRect()).find(r => r.width > 0);
+          const mobileBar = document.querySelector('[data-analytics-position="electric_awning_ads_sticky_mobile"]');
+          const floatingDesktop = document.querySelector('[data-analytics-position="electric_awning_ads_sticky_desktop"]');
+          const mobileRect = mobileBar?.getBoundingClientRect();
+          const mobileVisible = !!mobileRect?.width;
           return {
-            desktopVisible: !!rect?.width,
-            mobileVisible: !!mobile?.getBoundingClientRect().width,
-            fixed: desktop && getComputedStyle(desktop.parentElement).position === 'fixed',
-            bottomGap: rect && innerHeight - rect.bottom,
-            rightGap: rect && document.documentElement.clientWidth - rect.right,
+            headerVisible: !!visibleHeader,
+            mobileVisible,
+            floatingDesktopExists: !!floatingDesktop,
             overflow: document.documentElement.scrollWidth > innerWidth,
-            safelyInside: visibleRect && visibleRect.left >= 20 && visibleRect.right <= document.documentElement.clientWidth - 20 && visibleRect.bottom <= innerHeight - 20,
+            headerInsideViewport: !visibleHeader || (visibleHeader.left >= 0 && visibleHeader.right <= document.documentElement.clientWidth),
+            mobileSafelyInside: !mobileVisible || (mobileRect.left >= 20 && mobileRect.right <= document.documentElement.clientWidth - 20 && mobileRect.bottom <= innerHeight - 20),
           };
         })()`);
-        if (sticky.overflow || sticky.desktopVisible !== (width >= 768) || sticky.mobileVisible !== (width < 768) ||
-            !sticky.safelyInside || (width >= 768 && (!sticky.fixed || sticky.bottomGap < 32 || sticky.rightGap < 32))) {
-          fail(`Sticky LINE CTA must switch between desktop bottom-right and mobile bar at ${width}px: ${JSON.stringify(sticky)}`);
+        if (sticky.overflow || sticky.floatingDesktopExists || sticky.headerVisible !== (width >= 768) ||
+            sticky.mobileVisible !== (width < 768) || !sticky.headerInsideViewport || !sticky.mobileSafelyInside) {
+          fail(`Nav header CTA and mobile sticky bar must swap at the 768px breakpoint with no floating desktop button at ${width}px: ${JSON.stringify(sticky)}`);
         }
       }
-      await client.send('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false }, sessionId);
-      if (!(await evaluate(client, sessionId, `!!document.querySelector('[data-analytics-position="electric_awning_ads_sticky_desktop"]')`))) return;
+      await client.send('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 1, mobile: false }, sessionId);
     }
 
     const appearance = await evaluate(client, sessionId, `(() => {
       const main = document.querySelector('[data-landing-page="google-ads-electric-awning"]');
       const hero = main.querySelector('section');
-      const cta = main.querySelector('[data-analytics-type="line"][data-analytics-position="electric_awning_ads_header"]');
+      // The header CTA and the sticky buttons live in the shared Navigation /
+      // LineButtonsLayout chrome, outside <main>, so they are looked up (and
+      // label-checked) document-wide. The surface rules below stay scoped to
+      // <main>: they govern the landing page's own content, not the chrome.
+      const cta = document.querySelector('[data-analytics-type="line"][data-analytics-position="electric_awning_ads_header"]');
       const surfaces = Array.from(main.querySelectorAll('section, article, figure, a, summary, img'));
       return {
         heroBackground: getComputedStyle(hero).backgroundColor,
         ctaBackground: getComputedStyle(cta).backgroundColor,
         ctaRadius: parseFloat(getComputedStyle(cta).borderTopLeftRadius),
-        incorrectLineLabels: Array.from(main.querySelectorAll('[data-analytics-type="line"]'))
+        incorrectLineLabels: Array.from(document.querySelectorAll('[data-analytics-type="line"]'))
           .filter(el => el.textContent.trim() !== 'สอบถาม-ประเมินราคาฟรี').length,
         excessiveCorners: surfaces.filter(el => parseFloat(getComputedStyle(el).borderTopLeftRadius) > 4).length,
         shadows: surfaces.filter(el => getComputedStyle(el).boxShadow !== 'none').length,
@@ -577,7 +590,7 @@ async function scenarioHomepageSurveyAppearance() {
 
 try {
   await scenarioPaidSession();
-  await scenarioPaidSession('electric_awning_ads_sticky_desktop');
+  await scenarioPaidSession('electric_awning_ads_sticky_mobile');
   if (!args.has('landing-only')) {
     await scenarioOrganicSession();
     await scenarioUtmOnlySession();

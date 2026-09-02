@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import { ShieldCheck } from '@phosphor-icons/react/dist/ssr';
-import { AdsLineCta, AdsSectionHeading } from './AdsLandingPrimitives';
+import { AdsLineCta } from './AdsLandingPrimitives';
 
 type WhyUsPoint = {
   title: string;
@@ -22,16 +22,6 @@ const whyUsPoints: WhyUsPoint[] = [
     title: 'โครงสร้างที่ผ่านการยึดอย่างถูกวิธี',
     copy: 'จุดยึดคือสาเหตุอันดับต้น ๆ ที่ทำให้กันสาดพัง ทีมจึงประเมินสภาพผนังและจุดรับแรงจริงก่อนกำหนดตำแหน่งยึดทุกงาน ไม่ใช้แบบเดียวกับทุกหน้างาน',
     image: {
-      src: '/images/landing/electric-awning/1688117779665.jpg',
-      alt: 'จุดยึดกันสาดไฟฟ้ากับโครงหลังคาเหล็กหน้างานจริง',
-      width: 1477,
-      height: 1108,
-    },
-  },
-  {
-    title: 'เดินระบบไฟฟ้าให้ปลอดภัยตั้งแต่จุดจ่ายไฟ',
-    copy: 'มอเตอร์กันสาดไฟฟ้าทำงานอยู่กลางแจ้งตลอดอายุการใช้งาน จุดเชื่อมต่อและสายไฟจึงต้องเดินให้พ้นความชื้นและสภาพอากาศ ทีมตรวจตำแหน่งจ่ายไฟและแนวเดินสายให้เหมาะกับหน้างานก่อนติดตั้งทุกครั้ง',
-    image: {
       src: '/images/landing/electric-awning/1655271694295.jpg',
       alt: 'ทีมช่างเดินระบบไฟฟ้าที่จุดควบคุมกันสาดไฟฟ้าหน้างานจริง',
       width: 1280,
@@ -39,13 +29,23 @@ const whyUsPoints: WhyUsPoint[] = [
     },
   },
   {
+    title: 'เดินระบบไฟฟ้าอร่วมกับแหล่งจ่ายไฟบ้านอย่างปลอดภัย',
+    copy: 'ทีมช่างไฟฟ้าตรวจสอบระบบไฟบ้านที่มีอยู่จริงก่อนติดตั้งกันสาดไฟฟ้า เพื่อให้มั่นใจว่าการเดินสายและจุดควบคุมกันสาดไฟฟ้าไม่สร้างความเสี่ยงต่อระบบไฟบ้านของเดิม',
+    image: {
+      src: '/images/landing/electric-awning/1658991397830.jpg',
+      alt: 'กันสาดไฟฟ้าที่ติดตั้งเสร็จสมบูรณ์ที่บ้านพักอาศัย',
+      width: 1706,
+      height: 960,
+    },
+  },
+  {
     title: 'ออกแบบและติดตั้งมาแล้วหลากหลายรูปแบบหน้างาน',
     copy: 'จากบ้านพักอาศัย ร้านอาหารและคาเฟ่ ไปจนถึงสำนักงาน แต่ละพื้นที่มีข้อจำกัดเรื่องโครงสร้างและรูปแบบการใช้งานต่างกัน ทีมจึงเลือกระบบและอุปกรณ์เสริมจากหน้างานจริง ไม่ใช้สเปกเดียวกับทุกที่',
     image: {
-      src: '/images/landing/electric-awning/1655271700225.jpg',
-      alt: 'กันสาดไฟฟ้าติดตั้งหน้าร้านค้าในย่านชุมชน',
-      width: 750,
-      height: 750,
+      src: '/images/landing/electric-awning/1688117779665.jpg',
+      alt: 'กันสาดไฟฟ้าติดตั้งเหนือที่จอดรถพร้อมจุดชาร์จ EV ที่บ้านพักอาศัย',
+      width: 1280,
+      height: 1280,
     },
   },
   {
@@ -53,24 +53,22 @@ const whyUsPoints: WhyUsPoint[] = [
     copy: 'หากมอเตอร์เสียภายในระยะประกัน ทีมเปลี่ยนตัวใหม่ให้ทันที ไม่ใช่การซ่อม ตามเงื่อนไขบริษัท',
     image: {
       src: '/images/landing/electric-awning/line_oa_chat_230511_152401.jpg',
-      alt: 'กันสาดไฟฟ้าที่ติดตั้งเสร็จสมบูรณ์ที่บ้านพักอาศัย',
-      width: 1706,
-      height: 960,
+      alt: 'จุดยึดกันสาดไฟฟ้ากับโครงหลังคาเหล็กหน้างานจริง',
+      width: 1477,
+      height: 1108,
     },
   },
 ];
 
 export function ElectricAwningWhyUs() {
   return (
-    <section className="border-b border-neutral-300 bg-white">
+    <section className=" bg-white">
       <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8 lg:py-20">
-        <div className="mx-auto max-w-3xl text-center">
-          <AdsSectionHeading
-            tone="monochrome"
-            eyebrow="ทำไมต้องสยามรูฟเทค"
-            title="ความมั่นใจที่มาพร้อมกันสาดไฟฟ้าทุกชุด"
-            icon={ShieldCheck}
-          />
+        <div className="mx-auto flex max-w-3xl items-center justify-center gap-3 text-center">
+          <ShieldCheck aria-hidden="true" className="h-7 w-7 shrink-0 text-neutral-700" />
+          <h2 className="text-3xl font-bold leading-tight text-neutral-900 sm:text-4xl">
+            ความมั่นใจที่มาพร้อมกันสาดไฟฟ้าทุกชุด
+          </h2>
         </div>
 
         <ul className="mt-12 divide-y divide-neutral-300 border-y border-neutral-300">
@@ -98,14 +96,6 @@ export function ElectricAwningWhyUs() {
             </li>
           ))}
         </ul>
-
-        <div className="mt-10 flex justify-center">
-          <AdsLineCta
-            tone="monochrome"
-            analyticsPosition="electric_awning_ads_why_us"
-            label="สอบถาม-ประเมินราคาฟรี"
-          />
-        </div>
       </div>
     </section>
   );

@@ -70,7 +70,7 @@ export function ElectricAwningInstallationQuality() {
           <AdsSectionHeading
             tone="monochrome"
             eyebrow="หัวใจของงานติดตั้ง"
-            title="ระบบไฟฟ้าที่ดี ไม่ใช่แค่ใส่มอเตอร์"
+            title="กันสาดไฟฟ้าที่ดีต้องเลือกให้ถูกและติดตั้งให้เหมาะกับหน้างาน"
           />
           <p className="mt-6 max-w-md text-base leading-8 text-neutral-600 sm:text-lg">
             ความสะดวกตอนกดรีโมท เริ่มจากการเลือกและติดตั้งให้เหมาะกับพื้นที่
@@ -106,15 +106,6 @@ export function ElectricAwningInstallationRisks() {
             eyebrow="เรื่องที่ควรเช็กก่อนติดตั้ง"
             title="ติดตั้งกันสาดไฟฟ้าไม่ถูกต้อง เสี่ยงอะไรบ้าง"
           />
-          <div className="mx-auto mt-5 max-w-xl text-base leading-7 text-neutral-700">
-            <p>
-              กันสาดที่กาง–พับได้ อาจยังมีรายละเอียดที่ต้องตรวจ
-              ลองใช้ประเด็นเหล่านี้คุยกับผู้ติดตั้งก่อนตัดสินใจ
-            </p>
-            <p className="mt-3 text-sm leading-6 text-neutral-600">
-              ข้อควรระวังทั่วไป ไม่ใช่รายงานปัญหาจากผลงานที่แสดงในหน้านี้
-            </p>
-          </div>
         </div>
         <ul className="mt-10 divide-y divide-neutral-200 border-y border-neutral-200 text-left">
           {installationRisks.map(({ title, consequence }) => (

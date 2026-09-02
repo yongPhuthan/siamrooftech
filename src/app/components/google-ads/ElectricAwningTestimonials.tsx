@@ -1,6 +1,5 @@
 import Image from 'next/image';
 import { Users } from '@phosphor-icons/react/dist/ssr';
-import { AdsLineCta, AdsSectionHeading } from './AdsLandingPrimitives';
 
 type CustomerPhotoBoard = {
   src: string;
@@ -35,13 +34,18 @@ export function ElectricAwningTestimonials() {
   return (
     <section className="border-y border-neutral-300 bg-white">
       <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8 lg:py-20">
-        <AdsSectionHeading
-          tone="monochrome"
-          eyebrow="ภาพจากวันส่งมอบ"
-          title="ลูกค้าที่ให้ Siamrooftech ติดตั้งจริง"
-          icon={Users}
-          copy="ภาพถ่ายร่วมกับเจ้าของบ้านและเจ้าของร้านหลังติดตั้งและทดสอบระบบเสร็จ ครอบคลุมงานกันสาดพับเก็บได้ทั้งระบบมือหมุนและระบบไฟฟ้า"
-        />
+        <div className="mx-auto max-w-3xl text-center">
+          <h2 className="text-3xl font-bold leading-tight text-neutral-900 sm:text-4xl">
+            กันสาดไฟฟ้า
+            <br />
+            ไว้ใจสยามรูฟเทค
+          </h2>
+          <p className="mt-4 text-base leading-8 text-neutral-600 sm:text-lg">
+            เราผ่านประสบการณ์ติดตั้งกันสาดไฟฟ้า กันสาดพับได้มาหลายรูปแบบ
+            ทำให้เราเข้าใจถึงปัญหาและมีประสบการณ์ในการติดตั้งกันสาดไฟฟ้าในพื้นผิวหน้างานรูปแบบต่างๆ
+            งานติดตั้งทุกงานของเราจึงคำนึงถึงความปลอดภัยและปิดทุกความเสี่ยงที่อาจเกิดขึ้นจากการติดตั้งกันสาดไฟฟ้าในพื้นที่ของคุณ
+          </p>
+        </div>
         <div className="mt-12 grid gap-6">
           {photoBoards.map(({ src, alt, width, height }) => (
             <figure key={src} className="bg-neutral-100">
@@ -55,14 +59,6 @@ export function ElectricAwningTestimonials() {
               />
             </figure>
           ))}
-        </div>
-
-        <div className="mt-10 flex justify-center">
-          <AdsLineCta
-            tone="monochrome"
-            analyticsPosition="electric_awning_ads_testimonial"
-            label="สอบถาม-ประเมินราคาฟรี"
-          />
         </div>
       </div>
     </section>
