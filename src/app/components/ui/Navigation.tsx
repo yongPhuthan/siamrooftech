@@ -4,14 +4,17 @@ import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import LineContactButton from '../LineContactButton';
-import { trackLineClick, trackPhoneClick, trackContactClick } from '@/lib/gtag';
+import { trackPhoneClick } from '@/lib/gtag';
+import { getLineCtaPositions, hidesSiteChrome, isAdLandingPage } from '@/lib/layout-config';
 
 export default function Navigation() {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const pathname = usePathname();
-  const isHomepage = pathname === '/';
-  const isDedicatedAdsLandingPage = pathname === '/lp/google-ads/electric-awning';
+  // Ad landing pages keep the shared chrome but drop the nav links, so a paid
+  // visitor has no cheap exit away from the single conversion path.
+  const showNavLinks = !isAdLandingPage(pathname);
+  const positions = getLineCtaPositions(pathname);
 
   const navItems = [
     { name: 'หน้าแรก', href: '/' },
@@ -20,7 +23,7 @@ export default function Navigation() {
   ];
 
   useEffect(() => {
-    if (pathname?.startsWith('/admin') || isDedicatedAdsLandingPage) {
+    if (hidesSiteChrome(pathname)) {
       setIsScrolled(false);
       return;
     }
@@ -32,13 +35,13 @@ export default function Navigation() {
     handleScroll();
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [isDedicatedAdsLandingPage, pathname]);
+  }, [pathname]);
 
   useEffect(() => {
     setIsOpen(false);
   }, [pathname]);
 
-  if (pathname?.startsWith('/admin') || isDedicatedAdsLandingPage) {
+  if (hidesSiteChrome(pathname)) {
     return null;
   }
 
@@ -57,8 +60,11 @@ export default function Navigation() {
 
   return (
     <nav className={`sticky top-0 z-50 transition-all duration-300 ${
-      isScrolled ? 'bg-white/95 backdrop-blur-md shadow-lg' : 'bg-white shadow-md'
-    }`}>
+      // Ad landing pages drop the navbar on mobile entirely -- the sticky
+      // bottom LINE bar is the sole mobile CTA there, so a second bar at the
+      // top would only compete with it. Desktop keeps the bar for its CTA.
+      !showNavLinks ? 'hidden md:block ' : ''
+    }${isScrolled ? 'bg-white/95 backdrop-blur-md shadow-lg' : 'bg-white shadow-md'}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20 lg:h-24">
           {/* Logo */}
@@ -71,8 +77,8 @@ export default function Navigation() {
                   width={80}
                   height={80}
                   className="object-contain rounded-lg"
-                  style={{ 
-                    width: 'clamp(64px, 5vw, 80px)', 
+                  style={{
+                    width: 'clamp(64px, 5vw, 80px)',
                     height: 'clamp(64px, 5vw, 80px)',
                     minWidth: '100px',
                     minHeight: '100px'
@@ -89,11 +95,11 @@ export default function Navigation() {
 
           {/* Desktop Menu */}
           <div className="hidden lg:flex items-center space-x-1">
-            {navItems.map((item) => (
+            {showNavLinks && navItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
-                className={`px-4 py-2 ${isHomepage ? 'rounded-[4px]' : 'rounded-lg'} text-sm font-medium transition-all duration-200 ${
+                className={`px-4 py-2 rounded-[4px] text-sm font-medium transition-all duration-200 ${
                   isActive(item.href)
                     ? 'bg-blue-600 text-white shadow-md'
                     : 'text-gray-700 hover:text-blue-600 hover:bg-blue-50'
@@ -102,69 +108,43 @@ export default function Navigation() {
                 {item.name}
               </Link>
             ))}
-            
+
             {/* CTA Button */}
-            <div className="ml-4 pl-4 border-l border-gray-200">
-              {isHomepage ? (
-                <LineContactButton analyticsPosition="navigation_desktop" />
-              ) : (
-                <a
-                  href="https://lin.ee/pPz1ZqN"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-2 rounded-full text-sm font-semibold hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105"
-                  onClick={() => {
-                    trackLineClick('navigation_desktop');
-                  }}
-                >
-                  ขอใบเสนอราคาฟรี
-                </a>
-              )}
+            <div className={showNavLinks ? 'ml-4 pl-4 border-l border-gray-200' : ''}>
+              <LineContactButton analyticsPosition={positions.navigationDesktop} />
             </div>
           </div>
 
           {/* Mobile Menu Button */}
           <div className="lg:hidden flex items-center space-x-2">
-            {isHomepage ? (
-                <LineContactButton analyticsPosition="navigation_mobile_header" compact />
-              ) : (
-                <a
-                  href="https://lin.ee/pPz1ZqN"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="bg-blue-600 text-white px-3 py-1.5 rounded-full text-xs font-semibold hover:bg-blue-700 transition-colors"
-                  onClick={() => {
-                    trackLineClick('navigation_mobile_header');
-                  }}
-                >
-                  ใบเสนอราคา
-                </a>
-              )}
-            <button
-              onClick={() => setIsOpen(!isOpen)}
-              className={`text-gray-700 hover:text-blue-600 p-2 ${isHomepage ? 'rounded-[4px]' : 'rounded-lg'} hover:bg-gray-100 transition-colors`}
-              aria-label="เปิด/ปิดเมนู"
-            >
-              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                {isOpen ? (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                ) : (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                )}
-              </svg>
-            </button>
+            <LineContactButton analyticsPosition={positions.navigationMobileHeader} compact />
+            {showNavLinks && (
+              <button
+                onClick={() => setIsOpen(!isOpen)}
+                className="text-gray-700 hover:text-blue-600 p-2 rounded-[4px] hover:bg-gray-100 transition-colors"
+                aria-label="เปิด/ปิดเมนู"
+              >
+                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  {isOpen ? (
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  ) : (
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                  )}
+                </svg>
+              </button>
+            )}
           </div>
         </div>
 
         {/* Mobile Menu */}
-        {isOpen && (
+        {showNavLinks && isOpen && (
           <div className="lg:hidden border-t border-gray-200">
             <div className="px-2 pt-2 pb-3 space-y-1 bg-white">
               {navItems.map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`block px-3 py-2 ${isHomepage ? 'rounded-[4px]' : 'rounded-lg'} text-base font-medium transition-colors ${
+                  className={`block px-3 py-2 rounded-[4px] text-base font-medium transition-colors ${
                     isActive(item.href)
                       ? 'bg-blue-600 text-white'
                       : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50'
@@ -174,13 +154,13 @@ export default function Navigation() {
                   {item.name}
                 </Link>
               ))}
-              
+
               {/* Mobile Contact Info */}
               <div className="pt-4 mt-4 border-t border-gray-200">
                 <div className="px-3 space-y-2">
                   <p className="text-sm font-semibold text-gray-900">ติดต่อเรา</p>
-                  <a 
-                    href="tel:0984542455" 
+                  <a
+                    href="tel:0984542455"
                     className="flex items-center space-x-2 text-sm text-gray-600 hover:text-blue-600"
                     onClick={() => trackPhoneClick('0984542455', 'navigation_mobile_menu')}
                   >
@@ -189,29 +169,7 @@ export default function Navigation() {
                     </svg>
                     <span>098-454-2455</span>
                   </a>
-                  {isHomepage ? (
-                <LineContactButton analyticsPosition="navigation_mobile_menu" />
-              ) : (
-                <a
-                    href="https://lin.ee/pPz1ZqN" 
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center space-x-2 text-sm text-gray-600 hover:text-green-600"
-                    onClick={() => {
-                      trackLineClick('navigation_mobile_menu');
-                    }}
-                  >
-                    <div className="w-4 h-4 relative">
-                      <Image
-                        src="/images/line.png"
-                        alt="Line"
-                        fill
-                        className="object-contain"
-                      />
-                    </div>
-                    <span>ขอใบเสนอราคา LINE</span>
-                  </a>
-              )}
+                  <LineContactButton analyticsPosition={positions.navigationMobileMenu} />
                 </div>
               </div>
             </div>

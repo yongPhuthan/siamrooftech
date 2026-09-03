@@ -4,7 +4,6 @@ import WhyUs from "./section/WhyUs";
 import HowItWorks from "./section/HowItWorks";
 import EndSection from "./section/EndSection";
 import FinalCTASection from "./FinalCTASection";
-import Footer from "./ui/Footer";
 import Whyus2 from "./section/WhyUs2";
 import DamageWarningSection from "./section/DamageWarningSection";
 import { Project } from "@/lib/firestore";
@@ -66,7 +65,6 @@ const Main = (props: Props) => {
 
         <FinalCTASection compactLineButton />
         <EndSection />
-        <Footer />
       </div>
     </>
   );

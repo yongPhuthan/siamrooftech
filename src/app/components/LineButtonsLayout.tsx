@@ -3,25 +3,25 @@
 import { usePathname } from 'next/navigation';
 import LineButtonMobile from './LineButtonMobile';
 import LineButtonDesktop from './LineButtonDesktop';
+import { getLineCtaPositions, hidesSiteChrome, isAdLandingPage } from '@/lib/layout-config';
 
-/**
- * Component to display Line buttons on all pages except admin pages
- */
+/** Sticky LINE buttons on every public page; admin screens opt out. */
 export default function LineButtonsLayout() {
   const pathname = usePathname();
 
-  // Dedicated ad pages own their single-purpose sticky CTA.
-  if (pathname?.startsWith('/admin') || pathname === '/lp/google-ads/electric-awning') {
+  if (hidesSiteChrome(pathname)) {
     return null;
   }
 
+  const positions = getLineCtaPositions(pathname);
+  // Ad landing pages already show a persistent LINE CTA in the sticky navbar
+  // on desktop; a second floating button there would just compete with it.
+  const showFloatingDesktopButton = !isAdLandingPage(pathname);
+
   return (
     <>
-      {/* Mobile Sticky Line Button */}
-      <LineButtonMobile compactCorners={pathname === '/'} />
-
-      {/* Desktop Floating Line Button */}
-      <LineButtonDesktop compactCorners={pathname === '/'} />
+      <LineButtonMobile analyticsPosition={positions.stickyMobile} />
+      {showFloatingDesktopButton && <LineButtonDesktop analyticsPosition={positions.stickyDesktop} />}
     </>
   );
 }

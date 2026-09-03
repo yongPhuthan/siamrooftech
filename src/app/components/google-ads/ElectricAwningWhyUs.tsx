@@ -1,6 +1,5 @@
 import Image from 'next/image';
 import { ShieldCheck } from '@phosphor-icons/react/dist/ssr';
-import { AdsLineCta } from './AdsLandingPrimitives';
 
 type WhyUsPoint = {
   title: string;

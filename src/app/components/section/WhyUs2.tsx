@@ -10,7 +10,7 @@ const WhyUs2 = ({ keyword }: Props) => {
   return (
     <>
       {/* Desktop Version - Visible on MD screens and above */}
-      <div className="hidden md:block max-w-6xl mx-auto px-6 py-12">
+      <div className="hidden md:block max-w-6xl mx-auto px-6 py-0">
         <div className="flex justify-center items-center gap-3 mb-10">
           <h2 className="text-3xl text-blue-600 font-bold text-center">
             {keyword}
@@ -22,7 +22,7 @@ const WhyUs2 = ({ keyword }: Props) => {
 
         <div className="space-y-6">
           {/* Card 1: ความแข็งแรงปลอดภัย */}
-          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-lg transition-shadow duration-300 overflow-hidden">
+          <div className="bg-white rounded-md border border-gray-200 shadow-sm hover:shadow-lg transition-shadow duration-300 overflow-hidden">
             <div className="grid grid-cols-3 gap-0">
               <div className="col-span-2 p-8 flex flex-col items-center justify-center">
                 <div className="w-18 h-18 rounded-full bg-blue-50 flex items-center justify-center mb-6">
@@ -37,7 +37,6 @@ const WhyUs2 = ({ keyword }: Props) => {
                   {keyword}ที่ไม่มีคุณภาพ ดังนั้นงานติดตั้ง{keyword}
                   ทุกงานของเราคำนึงถึงความปลอดภัยในเคสการใช้งานกับพื้นผิวและวัสดุของพื้นที่หน้างานต่างๆ
                 </p>
-                <LineContactButton analyticsPosition="why_us_desktop_safety" />
               </div>
               <div className="col-span-1 relative h-[400px]">
                 <Image
@@ -52,7 +51,7 @@ const WhyUs2 = ({ keyword }: Props) => {
           </div>
 
           {/* Card 2: การออกแบบที่เข้ากับหน้างาน */}
-          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-lg transition-shadow duration-300 overflow-hidden">
+          <div className="bg-white rounded-md border border-gray-200 shadow-sm hover:shadow-lg transition-shadow duration-300 overflow-hidden">
             <div className="grid grid-cols-3 gap-0">
               <div className="col-span-1 relative h-[400px]">
                 <Image
@@ -76,13 +75,12 @@ const WhyUs2 = ({ keyword }: Props) => {
                   {keyword}
                   จะต้องเข้ากันได้ดีกับโทนบานของลูกค้าเช่นกัน
                 </p>
-                <LineContactButton analyticsPosition="why_us_desktop_design" />
               </div>
             </div>
           </div>
 
           {/* Card 3: บริการหลังการขาย */}
-          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-lg transition-shadow duration-300 overflow-hidden">
+          <div className="bg-white rounded-md border border-gray-200 shadow-sm hover:shadow-lg transition-shadow duration-300 overflow-hidden">
             <div className="grid grid-cols-3 gap-0">
               <div className="col-span-2 p-8 flex flex-col items-center justify-center">
                 <div className="w-18 h-18 rounded-full bg-blue-50 flex items-center justify-center mb-6">
@@ -96,7 +94,6 @@ const WhyUs2 = ({ keyword }: Props) => {
                   2-7 วันหลังรับเรื่องจากลูกค้า และเราเข้าใจว่า{keyword}
                   เป็นงานที่มีความเชี่ยวชาญและวัสดุอุปกรณ์เฉพาะทางที่ต้องมีประสบการณ์ในการติดตั้งดังนั้นในกรณีที่มีปัญหาเล็กๆน้อยๆหลังการใช้งานเป็นเรื่องยุ่งยากที่ลูกค้าจะต้องหาซื้อวัสดุอุปกรณ์มาแก้ไขเอง
                 </p>
-                <LineContactButton analyticsPosition="why_us_desktop_after_sales" />
               </div>
               <div className="col-span-1 relative h-[400px]">
                 <Image
@@ -125,7 +122,7 @@ const WhyUs2 = ({ keyword }: Props) => {
 
         <div className="flex flex-col gap-6">
           {/* Mobile Card 1 */}
-          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden flex flex-col">
+          <div className="bg-white rounded-md border border-gray-200 shadow-sm overflow-hidden flex flex-col">
             <div className="p-4 flex items-center gap-3 border-b border-gray-100">
               <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center flex-shrink-0">
                 <Shield className="text-blue-600 w-6 h-6" />
@@ -158,7 +155,7 @@ const WhyUs2 = ({ keyword }: Props) => {
           </div>
 
           {/* Mobile Card 2 */}
-          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden flex flex-col">
+          <div className="bg-white rounded-md border border-gray-200 shadow-sm overflow-hidden flex flex-col">
             <div className="p-4 flex items-center gap-3 border-b border-gray-100">
               <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center flex-shrink-0">
                 <Stack className="text-blue-600 w-6 h-6" />
@@ -190,7 +187,7 @@ const WhyUs2 = ({ keyword }: Props) => {
           </div>
 
           {/* Mobile Card 3 */}
-          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden flex flex-col">
+          <div className="bg-white rounded-md border border-gray-200 shadow-sm overflow-hidden flex flex-col">
             <div className="p-4 flex items-center gap-3 border-b border-gray-100">
               <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center flex-shrink-0">
                 <Heart className="text-blue-600 w-6 h-6" />

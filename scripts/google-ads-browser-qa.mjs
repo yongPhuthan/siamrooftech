@@ -281,28 +281,6 @@ async function scenarioPaidSession(position = 'electric_awning_ads_header') {
     if (position === 'electric_awning_ads_sticky_mobile') {
       for (const width of [1440, 768, 390, 320]) {
         await client.send('Emulation.setDeviceMetricsOverride', { width, height: 900, deviceScaleFactor: 1, mobile: false }, sessionId);
-        const riskLayout = await evaluate(client, sessionId, `(() => {
-          const section = document.querySelector('#installation-risks');
-          const list = section.querySelector('ul');
-          const rect = list.getBoundingClientRect();
-          const rows = Array.from(list.querySelectorAll('li'));
-          return {
-            background: getComputedStyle(section).backgroundColor,
-            width: rect.width,
-            centered: Math.abs(rect.left + rect.width / 2 - document.documentElement.clientWidth / 2) < 2,
-            stacked: rows.every(row => {
-              const heading = row.querySelector('h3').getBoundingClientRect();
-              const copy = row.querySelector('p').getBoundingClientRect();
-              return copy.top >= heading.bottom && Math.abs(copy.left - heading.left) < 2;
-            }),
-            rows: rows.length,
-            images: section.querySelectorAll('img').length,
-          };
-        })()`);
-        if (riskLayout.background !== 'rgb(255, 255, 255)' || riskLayout.width > 768 ||
-            !riskLayout.centered || !riskLayout.stacked || riskLayout.rows !== 6 || riskLayout.images) {
-          fail(`Risk text must be a centered, narrow reading column on white at ${width}px: ${JSON.stringify(riskLayout)}`);
-        }
         // There is exactly one persistent LINE CTA at any width: the sticky
         // navbar's header CTA at >=768px (the floating corner button was
         // removed as redundant with it), and the bottom sticky bar below
@@ -344,7 +322,14 @@ async function scenarioPaidSession(position = 'electric_awning_ads_header') {
       // label-checked) document-wide. The surface rules below stay scoped to
       // <main>: they govern the landing page's own content, not the chrome.
       const cta = document.querySelector('[data-analytics-type="line"][data-analytics-position="electric_awning_ads_header"]');
-      const surfaces = Array.from(main.querySelectorAll('section, article, figure, a, summary, img'));
+      // [data-legacy-ui] wraps sections reused verbatim from the homepage
+      // (DamageWarningSection, WhyUs2, HowItWorks, FinalCTASection, EndSection).
+      // They intentionally keep their original rounded/shadowed look instead of
+      // this page's flat ad design system, so the appearance contract below
+      // only governs the page's own ad-native sections.
+      const isLegacyUi = (el) => !!el.closest('[data-legacy-ui]');
+      const surfaces = Array.from(main.querySelectorAll('section, article, figure, a, summary, img'))
+        .filter((el) => !isLegacyUi(el));
       return {
         heroBackground: getComputedStyle(hero).backgroundColor,
         ctaBackground: getComputedStyle(cta).backgroundColor,
@@ -353,12 +338,12 @@ async function scenarioPaidSession(position = 'electric_awning_ads_header') {
           .filter(el => el.textContent.trim() !== 'สอบถาม-ประเมินราคาฟรี').length,
         excessiveCorners: surfaces.filter(el => parseFloat(getComputedStyle(el).borderTopLeftRadius) > 4).length,
         shadows: surfaces.filter(el => getComputedStyle(el).boxShadow !== 'none').length,
-        // In-body CTAs are allowed only at the three approved conversion
-        // points; anything else sprouting inside a section still fails.
+        // No in-body CTA is approved inside an ad-native section right now --
+        // conversion points live in the nav header, the mobile sticky bar, or
+        // inside a [data-legacy-ui] block (exempt, see above). A CTA sprouting
+        // inside any other section still fails.
         unapprovedSectionCtas: Array.from(main.querySelectorAll('section [data-analytics-type]'))
-          .filter(el => !['electric_awning_ads_why_us',
-                          'electric_awning_ads_testimonial',
-                          'electric_awning_ads_steps'].includes(el.dataset.analyticsPosition)).length,
+          .filter((el) => !isLegacyUi(el)).length,
       };
     })()`);
     if (appearance.heroBackground !== 'rgb(255, 255, 255)' ||

@@ -135,47 +135,32 @@ await checkPage({
   canonical: `${canonicalOrigin}/services/electric-retractable-awning`,
   robots: 'noindex, follow',
   imageFreeSections: [
-    'ระบบไฟฟ้าที่ดี ไม่ใช่แค่ใส่มอเตอร์',
-    'ติดตั้งกันสาดไฟฟ้าไม่ถูกต้อง เสี่ยงอะไรบ้าง',
+    'กันสาดไฟฟ้าที่ดีต้องเลือกให้ถูกและติดตั้งให้เหมาะกับหน้างาน',
   ],
   shouldInclude: [
     'data-landing-page="google-ads-electric-awning"',
-    'กันสาดไฟฟ้า ใช้ง่ายด้วยรีโมท มั่นใจตั้งแต่มอเตอร์จนถึงระบบไฟ',
+    'กันสาดไฟฟ้าที่ลูกค้าวางใจ ตั้งแต่มอเตอร์จนถึงระบบไฟฟ้า',
     'กันสาดไฟฟ้าขนาดเท่ากัน อาจใช้ระบบไม่เหมือนกัน',
     'ต้องการใช้งานสำรองเมื่อไฟดับหรือไม่',
-    'ระบบไฟฟ้าที่ดี ไม่ใช่แค่ใส่มอเตอร์',
+    'กันสาดไฟฟ้าที่ดีต้องเลือกให้ถูกและติดตั้งให้เหมาะกับหน้างาน',
     'มีมือหมุนสำรองไว้เมื่อไฟฟ้าขัดข้อง',
     'ระบบไฟฟ้า–มือหมุน',
     'ใช้มือหมุนได้เฉพาะระบบที่ออกแบบมารองรับ',
     'electric_awning_ads_header',
     'electric_awning_ads_sticky_mobile',
-    // Three approved in-body conversion points; the browser QA whitelist must
-    // stay in sync with these names.
-    'electric_awning_ads_why_us',
-    'electric_awning_ads_testimonial',
-    'electric_awning_ads_steps',
-    'จุดยึดไม่สัมพันธ์กับโครงสร้าง',
-    'มอเตอร์ไม่สัมพันธ์กับระบบ',
-    'ตั้งระยะกาง–พับไม่เหมาะสม',
-    'ระบบไฟไม่เหมาะกับพื้นที่ภายนอก',
-    'โครง แขนพับ และผ้าไม่อยู่ในแนวเดียวกัน',
-    'ส่งมอบโดยไม่ทดสอบครบวงจร',
-    'ข้อควรระวังทั่วไป ไม่ใช่รายงานปัญหาจากผลงานที่แสดงในหน้านี้',
-    // Credibility sections. The damage photos are cases customers sent in for
-    // assessment, so the disclaimer disowning them is part of the contract.
-    'ลูกค้าที่ให้ Siamrooftech ติดตั้งจริง',
-    'ความเสี่ยงจากกันสาดไฟฟ้าคุณภาพต่ำและการติดตั้งที่ไม่ได้มาตรฐาน',
-    'ทั้งหมดเป็นงานที่ติดตั้งมาจากที่อื่น ไม่ใช่ผลงานของ Siamrooftech',
+    // Credibility sections. DamageWarningSection is reused verbatim from the
+    // homepage (see src/lib/layout-config.ts) so the same damage photos never
+    // carry different copy depending on which page a visitor lands on.
+    'ไว้ใจสยามรูฟเทค',
+    'เราผ่านประสบการณ์ติดตั้งกันสาดไฟฟ้า กันสาดพับได้มาหลายรูปแบบ',
+    'ความเสี่ยงจากกันสาดคุณภาพต่ำและการติดตั้งที่ไม่ได้มาตรฐาน',
     'นัดลงพื้นที่สำรวจ',
-    // WhyUs (solution step, right after damage evidence + the six-point risk
-    // checklist). Four cards, intentionally overlapping earlier sections for
-    // emphasis -- see plan notes for why that repetition is deliberate.
+    // WhyUs (LP-native "solution" step, four cards).
     'ความมั่นใจที่มาพร้อมกันสาดไฟฟ้าทุกชุด',
     'โครงสร้างที่ผ่านการยึดอย่างถูกวิธี',
-    'เดินระบบไฟฟ้าให้ปลอดภัยตั้งแต่จุดจ่ายไฟ',
+    'เดินระบบไฟฟ้าอร่วมกับแหล่งจ่ายไฟบ้านอย่างปลอดภัย',
     'ออกแบบและติดตั้งมาแล้วหลากหลายรูปแบบหน้างาน',
     'รับประกันมอเตอร์ 2 ปี เสีย เปลี่ยนใหม่ ไม่ซ่อม',
-    'ผลงานกันสาดไฟฟ้าจริง',
     'สอบถาม-ประเมินราคาฟรี',
     'ภาพประกอบเพื่ออธิบายระบบ',
     'ผลงานติดตั้งจริง',
@@ -186,6 +171,11 @@ await checkPage({
     'electric_awning_ads_control_choice',
     'electric_awning_ads_risk_proof',
     'electric_awning_ads_final',
+    // Retired positions: the testimonial CTA, the LP-native WhyUs CTA, and the
+    // old "3 steps" section were all removed/replaced by reused home sections.
+    'electric_awning_ads_testimonial',
+    'electric_awning_ads_why_us',
+    'electric_awning_ads_steps',
     'system-overview-v1',
     'risk-structure-motor-v1',
     'risk-limit-alignment-v1',

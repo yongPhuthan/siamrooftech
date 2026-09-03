@@ -33,14 +33,11 @@ const warningCards = [
 
 function DamageWarningSection() {
   return (
-    <section className="bg-gradient-to-b from-white via-gray-50 to-gray-100 border border-gray-200 rounded-3xl mt-12 px-6 py-12 shadow-lg">
+    <section className="bg-gradient-to-b from-white via-gray-50 to-gray-100 border border-gray-200 rounded-md mt-12 px-6 py-12 shadow-lg">
       <div className="max-w-6xl mx-auto space-y-10">
         <div className="text-center mb-8 space-y-3">
-          <p className="inline-flex items-center justify-center mx-auto rounded-full border border-red-300 bg-red-50 px-4 py-1 text-xs uppercase tracking-[0.5em] text-red-600 font-bold shadow-sm">
-            คำเตือนจากสถานการณ์จริง
-          </p>
           <h2 className="text-3xl md:text-4xl font-semibold text-gray-900 mt-3">
-            ความเสียหายจากกันสาดคุณภาพต่ำและการติดตั้งที่ไม่ได้มาตรฐาน
+            ความเสี่ยงจากกันสาดคุณภาพต่ำและการติดตั้งที่ไม่ได้มาตรฐาน
           </h2>
           <p className="text-base text-gray-600 mt-3 md:px-24 leading-relaxed">
             ตัวอย่างความเสียหายหน้างานจริงที่ลูกค้าส่งมาให้เราประเมินก่อนดำเนินการแก้ไขปัญหาที่มาจากกันสาดคุณภาพต่ำ ลดเสป็ค ราคาถูก และการติดตั้งกันสาดที่ไม่ถูกต้องตามมาตรฐาน ทำให้เกิดความเสียหายต่อทรัพย์สินและความปลอดภัยของผู้อยู่อาศัย
@@ -53,7 +50,7 @@ function DamageWarningSection() {
             return (
               <article
                 key={card.title}
-                className="rounded-2xl border border-gray-200 bg-white/80 shadow-sm transition hover:shadow-lg"
+                className="rounded-md border border-gray-200 bg-white/80 shadow-sm transition hover:shadow-lg"
               >
                 <div className={`flex flex-col gap-6 px-6 py-6 lg:flex-row ${reverse ? 'lg:flex-row-reverse' : ''}`}>
                   <div className="relative flex-1 overflow-hidden rounded-xl border border-gray-200 bg-black aspect-[4/3] md:aspect-[3/2] lg:aspect-[4/3] max-h-[360px]">
@@ -82,7 +79,7 @@ function DamageWarningSection() {
           })}
         </div>
 
-        <div className="mt-4 text-center bg-gray-900 text-white rounded-2xl p-6 border border-gray-800">
+        <div className="mt-4 text-center bg-gray-900 text-white rounded-md p-6 border border-gray-800">
           <p className="text-base leading-relaxed">
 ความเสียหายจากโครงสร้างกันสาดที่ไม่แข็งแรง นอกจากต้องเสียค่าใช้จ่ายสูง ยังอาจสร้างปัญหาต่อทรัพย์สินและความปลอดภัยของทุกคนในบ้าน
           </p>
