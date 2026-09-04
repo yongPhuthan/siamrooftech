@@ -146,8 +146,6 @@ await checkPage({
     'มีมือหมุนสำรองไว้เมื่อไฟฟ้าขัดข้อง',
     'ระบบไฟฟ้า–มือหมุน',
     'ใช้มือหมุนได้เฉพาะระบบที่ออกแบบมารองรับ',
-    'electric_awning_ads_header',
-    'electric_awning_ads_sticky_mobile',
     // Credibility sections. DamageWarningSection is reused verbatim from the
     // homepage (see src/lib/layout-config.ts) so the same damage photos never
     // carry different copy depending on which page a visitor lands on.
@@ -176,6 +174,14 @@ await checkPage({
     'electric_awning_ads_testimonial',
     'electric_awning_ads_why_us',
     'electric_awning_ads_steps',
+    // Retired: the sticky mobile LINE bar, the floating desktop button, and
+    // the nav's own embedded LINE CTA were all removed -- the navbar is no
+    // longer sticky and carries no CTA of its own. In-body CTAs (WhyUs2
+    // mobile cards, the "bottom" button, FinalCTASection) are the only LINE
+    // conversion points left on this page.
+    'electric_awning_ads_sticky_mobile',
+    'electric_awning_ads_sticky_desktop',
+    'electric_awning_ads_header',
     'system-overview-v1',
     'risk-structure-motor-v1',
     'risk-limit-alignment-v1',

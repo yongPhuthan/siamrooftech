@@ -273,55 +273,19 @@ function clickPhoneLink(client, sessionId) {
 
 // --- Scenario 1: paid session (gclid) -- the full positive flow --------------
 
-async function scenarioPaidSession(position = 'electric_awning_ads_header') {
+// The nav carries no CTA of its own anymore (see src/app/components/ui/Navigation.tsx),
+// so the tested conversion point is FinalCTASection's compact LINE button --
+// the page's other reused-from-home CTAs (why_us_mobile_*, "bottom") work
+// identically since they all render the same LineContactButton.
+async function scenarioPaidSession(position = 'final_cta') {
   await withFreshBrowser(async (client, sessionId) => {
     const gclid = `qa-browser-${Date.now()}`;
     await navigateTo(client, sessionId, `/lp/google-ads/electric-awning?gclid=${gclid}&utm_source=google&utm_medium=cpc&utm_campaign=qa_monochrome`);
 
-    if (position === 'electric_awning_ads_sticky_mobile') {
-      for (const width of [1440, 768, 390, 320]) {
-        await client.send('Emulation.setDeviceMetricsOverride', { width, height: 900, deviceScaleFactor: 1, mobile: false }, sessionId);
-        // There is exactly one persistent LINE CTA at any width: the sticky
-        // navbar's header CTA at >=768px (the floating corner button was
-        // removed as redundant with it), and the bottom sticky bar below
-        // that -- where the navbar itself is hidden entirely, so the bar
-        // never competes with a second CTA.
-        const sticky = await evaluate(client, sessionId, `(() => {
-          // Two elements share the electric_awning_ads_header position (the
-          // desktop-menu CTA and the lg:hidden "mobile header" CTA slot, only
-          // one of which is ever on-screen at once), so this checks whether
-          // *any* of them is visible rather than picking an arbitrary match.
-          const headerEls = Array.from(document.querySelectorAll('[data-analytics-position="electric_awning_ads_header"]'));
-          const visibleHeader = headerEls.map(el => el.getBoundingClientRect()).find(r => r.width > 0);
-          const mobileBar = document.querySelector('[data-analytics-position="electric_awning_ads_sticky_mobile"]');
-          const floatingDesktop = document.querySelector('[data-analytics-position="electric_awning_ads_sticky_desktop"]');
-          const mobileRect = mobileBar?.getBoundingClientRect();
-          const mobileVisible = !!mobileRect?.width;
-          return {
-            headerVisible: !!visibleHeader,
-            mobileVisible,
-            floatingDesktopExists: !!floatingDesktop,
-            overflow: document.documentElement.scrollWidth > innerWidth,
-            headerInsideViewport: !visibleHeader || (visibleHeader.left >= 0 && visibleHeader.right <= document.documentElement.clientWidth),
-            mobileSafelyInside: !mobileVisible || (mobileRect.left >= 20 && mobileRect.right <= document.documentElement.clientWidth - 20 && mobileRect.bottom <= innerHeight - 20),
-          };
-        })()`);
-        if (sticky.overflow || sticky.floatingDesktopExists || sticky.headerVisible !== (width >= 768) ||
-            sticky.mobileVisible !== (width < 768) || !sticky.headerInsideViewport || !sticky.mobileSafelyInside) {
-          fail(`Nav header CTA and mobile sticky bar must swap at the 768px breakpoint with no floating desktop button at ${width}px: ${JSON.stringify(sticky)}`);
-        }
-      }
-      await client.send('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 1, mobile: false }, sessionId);
-    }
-
     const appearance = await evaluate(client, sessionId, `(() => {
       const main = document.querySelector('[data-landing-page="google-ads-electric-awning"]');
       const hero = main.querySelector('section');
-      // The header CTA and the sticky buttons live in the shared Navigation /
-      // LineButtonsLayout chrome, outside <main>, so they are looked up (and
-      // label-checked) document-wide. The surface rules below stay scoped to
-      // <main>: they govern the landing page's own content, not the chrome.
-      const cta = document.querySelector('[data-analytics-type="line"][data-analytics-position="electric_awning_ads_header"]');
+      const cta = document.querySelector('[data-analytics-type="line"][data-analytics-position="${position}"]');
       // [data-legacy-ui] wraps sections reused verbatim from the homepage
       // (DamageWarningSection, WhyUs2, HowItWorks, FinalCTASection, EndSection).
       // They intentionally keep their original rounded/shadowed look instead of
@@ -339,9 +303,9 @@ async function scenarioPaidSession(position = 'electric_awning_ads_header') {
         excessiveCorners: surfaces.filter(el => parseFloat(getComputedStyle(el).borderTopLeftRadius) > 4).length,
         shadows: surfaces.filter(el => getComputedStyle(el).boxShadow !== 'none').length,
         // No in-body CTA is approved inside an ad-native section right now --
-        // conversion points live in the nav header, the mobile sticky bar, or
-        // inside a [data-legacy-ui] block (exempt, see above). A CTA sprouting
-        // inside any other section still fails.
+        // every remaining conversion point lives inside a [data-legacy-ui]
+        // block (exempt, see above). A CTA sprouting inside any other
+        // section still fails.
         unapprovedSectionCtas: Array.from(main.querySelectorAll('section [data-analytics-type]'))
           .filter((el) => !isLegacyUi(el)).length,
       };
@@ -567,15 +531,17 @@ async function scenarioHomepageSurveyAppearance() {
     if (radius <= 4) fail('Homepage survey: original rounded appearance must be preserved');
     const clicks = await evaluate(client, sessionId,
       `(window.dataLayer || []).filter(e => e.event === 'line_click')`);
-    if (clicks.length !== 1 || clicks[0].position !== 'navigation_desktop') {
-      fail(`Homepage navigation must track one LINE click with its existing position: ${JSON.stringify(clicks.map(e => e.position))}`);
+    // The nav no longer carries its own LINE CTA, so the first `a[href*="lin.ee"]`
+    // in DOM order is WhyUs2's first mobile-card button (its desktop cards
+    // dropped their CTAs; see src/app/components/section/WhyUs2.tsx).
+    if (clicks.length !== 1 || clicks[0].position !== 'why_us_mobile_safety') {
+      fail(`Homepage must track one LINE click with its existing position: ${JSON.stringify(clicks.map(e => e.position))}`);
     }
   });
 }
 
 try {
   await scenarioPaidSession();
-  await scenarioPaidSession('electric_awning_ads_sticky_mobile');
   if (!args.has('landing-only')) {
     await scenarioOrganicSession();
     await scenarioUtmOnlySession();

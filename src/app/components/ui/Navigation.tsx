@@ -3,9 +3,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
-import LineContactButton from '../LineContactButton';
 import { trackPhoneClick } from '@/lib/gtag';
-import { getLineCtaPositions, hidesSiteChrome, isAdLandingPage } from '@/lib/layout-config';
+import { hidesSiteChrome, isAdLandingPage } from '@/lib/layout-config';
 
 export default function Navigation() {
   const [isOpen, setIsOpen] = useState(false);
@@ -14,7 +13,6 @@ export default function Navigation() {
   // Ad landing pages keep the shared chrome but drop the nav links, so a paid
   // visitor has no cheap exit away from the single conversion path.
   const showNavLinks = !isAdLandingPage(pathname);
-  const positions = getLineCtaPositions(pathname);
 
   const navItems = [
     { name: 'หน้าแรก', href: '/' },
@@ -59,7 +57,7 @@ export default function Navigation() {
   };
 
   return (
-    <nav className={`sticky top-0 z-50 transition-all duration-300 ${
+    <nav className={`relative z-50 transition-all duration-300 ${
       // Ad landing pages drop the navbar on mobile entirely -- the sticky
       // bottom LINE bar is the sole mobile CTA there, so a second bar at the
       // top would only compete with it. Desktop keeps the bar for its CTA.
@@ -108,16 +106,10 @@ export default function Navigation() {
                 {item.name}
               </Link>
             ))}
-
-            {/* CTA Button */}
-            <div className={showNavLinks ? 'ml-4 pl-4 border-l border-gray-200' : ''}>
-              <LineContactButton analyticsPosition={positions.navigationDesktop} />
-            </div>
           </div>
 
           {/* Mobile Menu Button */}
           <div className="lg:hidden flex items-center space-x-2">
-            <LineContactButton analyticsPosition={positions.navigationMobileHeader} compact />
             {showNavLinks && (
               <button
                 onClick={() => setIsOpen(!isOpen)}
@@ -169,7 +161,6 @@ export default function Navigation() {
                     </svg>
                     <span>098-454-2455</span>
                   </a>
-                  <LineContactButton analyticsPosition={positions.navigationMobileMenu} />
                 </div>
               </div>
             </div>

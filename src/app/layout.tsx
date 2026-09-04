@@ -5,7 +5,6 @@ import { Suspense } from "react";
 import "./globals.css";
 import AttributionCapture from "./components/AttributionCapture";
 import Navigation from "./components/ui/Navigation";
-import LineButtonsLayout from "./components/LineButtonsLayout";
 import SiteFooter from "./components/SiteFooter";
 import { Geist } from "next/font/google";
 import { cn } from "@/lib/utils";
@@ -98,16 +97,13 @@ export default function RootLayout({
           <GoogleTagManager gtmId={process.env.NEXT_PUBLIC_GTM_ID} />
         </>
       ) : null}
-      {/* Bottom padding clears the mobile sticky LINE bar; the desktop
-          floating button is a small pill and needs no reserved space. */}
-      <body className="bg-white pb-[calc(7rem+env(safe-area-inset-bottom,0px))] md:pb-0">
+      <body className="bg-white">
         <Suspense fallback={null}>
           <AttributionCapture />
         </Suspense>
         <Navigation />
         <Suspense>{children}</Suspense>
         <SiteFooter />
-        <LineButtonsLayout />
       </body>
     </html>
   );
