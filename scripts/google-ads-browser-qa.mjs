@@ -347,7 +347,7 @@ async function scenarioPaidSession(position = 'electric_awning_ads_header') {
       };
     })()`);
     if (appearance.heroBackground !== 'rgb(255, 255, 255)' ||
-        appearance.ctaBackground !== 'rgb(0, 128, 43)' ||
+        appearance.ctaBackground !== 'rgb(1, 178, 2)' ||
         appearance.unapprovedSectionCtas || appearance.incorrectLineLabels || appearance.ctaRadius > 4 || appearance.excessiveCorners || appearance.shadows) {
       fail(`Ads appearance: expected white hero, green LINE CTA with approved label, low radii and no decorative shadows; got ${JSON.stringify(appearance)}`);
     }
@@ -557,7 +557,7 @@ async function scenarioHomepageSurveyAppearance() {
       nestedButton: !!el.querySelector('button'),
     }))`);
     if (!lineButtons.length || lineButtons.some(button => button.label !== 'สอบถาม-ประเมินราคาฟรี' ||
-      button.radius > 4 || button.background !== 'rgb(0, 128, 43)' || button.nestedButton)) {
+      button.radius > 4 || button.background !== 'rgb(1, 178, 2)' || button.nestedButton)) {
       fail(`Homepage LINE buttons should share green low-radius styling and the approved label: ${JSON.stringify(lineButtons)}`);
     }
     await clickLineLink(client, sessionId);
