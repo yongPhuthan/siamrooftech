@@ -357,7 +357,6 @@ async function scenarioPaidSession(position = 'electric_awning_ads_final') {
       'testimonials',
       'portfolio',
       'risks',
-      'installation_quality',
       'backup_system',
       'why_us',
       'site_assessment',

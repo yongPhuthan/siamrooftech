@@ -17,7 +17,6 @@ import {
 } from '@phosphor-icons/react/dist/ssr';
 import { AdsLineCta, AdsSectionHeading } from '@/app/components/google-ads/AdsLandingPrimitives';
 import { ElectricAwningWhyUs } from '@/app/components/google-ads/ElectricAwningWhyUs';
-import { ElectricAwningInstallationQuality } from '@/app/components/google-ads/ElectricAwningInstallationSections';
 import { ElectricAwningTestimonials } from '@/app/components/google-ads/ElectricAwningTestimonials';
 import { ElectricAwningRiskProof } from '@/app/components/google-ads/ElectricAwningRiskProof';
 import { ElectricAwningProcess } from '@/app/components/google-ads/ElectricAwningProcess';
@@ -226,10 +225,6 @@ export default function ElectricAwningGoogleAdsLandingPage() {
       <div data-funnel-section="risks">
         <ElectricAwningRiskProof />
       </div>
-
-      {/* <div data-funnel-section="installation_quality">
-        <ElectricAwningInstallationQuality />
-      </div> */}
 
       <section data-funnel-section="backup_system" className="border-b border-neutral-300 bg-white">
         <div className="mx-auto grid max-w-7xl gap-10 px-4 py-16 sm:px-6 lg:grid-cols-[1.02fr_0.98fr] lg:items-center lg:gap-16 lg:px-8 lg:py-20">

@@ -148,16 +148,12 @@ await checkPage({
   path: '/lp/google-ads/electric-awning?gclid=qa-electric-awning&srt_keyword=raw-query-must-not-render',
   canonical: `${canonicalOrigin}/services/electric-retractable-awning`,
   robots: 'noindex, follow',
-  imageFreeSections: [
-    'กันสาดไฟฟ้าที่ดีต้องเลือกให้ถูกและติดตั้งให้เหมาะกับหน้างาน',
-  ],
   orderedText: [
     'data-funnel-section="hero"',
     'data-funnel-section="trust"',
     'data-funnel-section="testimonials"',
     'data-funnel-section="portfolio"',
     'data-funnel-section="risks"',
-    'data-funnel-section="installation_quality"',
     'data-funnel-section="backup_system"',
     'data-funnel-section="why_us"',
     'data-funnel-section="site_assessment"',
@@ -169,7 +165,6 @@ await checkPage({
     'กันสาดไฟฟ้าที่ลูกค้าวางใจ ตั้งแต่มอเตอร์จนถึงระบบไฟฟ้า',
     'กันสาดไฟฟ้าขนาดเท่ากัน อาจใช้ระบบไม่เหมือนกัน',
     'ต้องการใช้งานสำรองเมื่อไฟดับหรือไม่',
-    'กันสาดไฟฟ้าที่ดีต้องเลือกให้ถูกและติดตั้งให้เหมาะกับหน้างาน',
     'มีมือหมุนสำรองไว้เมื่อไฟฟ้าขัดข้อง',
     'ระบบไฟฟ้า–มือหมุน',
     'ใช้มือหมุนได้เฉพาะระบบที่ออกแบบมารองรับ',
@@ -177,9 +172,7 @@ await checkPage({
     'electric_awning_ads_site_assessment',
     'electric_awning_ads_final',
     'electric_awning_ads_sticky_mobile',
-    // Credibility sections. DamageWarningSection is reused verbatim from the
-    // homepage (see src/lib/layout-config.ts) so the same damage photos never
-    // carry different copy depending on which page a visitor lands on.
+    // Credibility and risk-proof sections.
     'ไว้ใจสยามรูฟเทค',
     'เราผ่านประสบการณ์ติดตั้งกันสาดไฟฟ้า กันสาดพับได้มาหลายรูปแบบ',
     'ความเสี่ยงจากกันสาดคุณภาพต่ำและการติดตั้งที่ไม่ได้มาตรฐาน',
@@ -193,7 +186,7 @@ await checkPage({
     'สอบถาม-ประเมินราคาฟรี',
     'ภาพประกอบเพื่ออธิบายระบบ',
     'ผลงานติดตั้งจริง',
-    'ผลงานกันสาดไฟฟ้าจริง',
+    'กันสาดไฟฟ้าสำหรับ บ้าน คาเฟ่ และสำนักงาน',
   ],
   shouldNotInclude: [
     'electric_awning_ads_control_choice',
