@@ -1,5 +1,9 @@
 # Growth Stack Infrastructure Record (2026-08)
 
+> **Conversion-flow notice (2026-09-07):** The two GA4 key events recorded
+> below are legacy state. Current website CTA events are diagnostics; the
+> Primary conversion is the first matched inbound LINE message via Data Manager.
+
 Concrete account and ID reference for the GTM/GA4/GCP stack rebuilt in
 2026-08. The "how to rebuild this" runbook lives in
 `scripts/growth-stack-setup/README.md` — this file is the "what actually

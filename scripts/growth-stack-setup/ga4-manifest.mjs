@@ -30,7 +30,10 @@ export const customDimensions = rows
 // docs/google-ads/gtm-ga4-implementation-checklist-2026-07.md, which is
 // prose, not structured data. Keep the two in sync by hand if that table
 // changes.
-export const keyEvents = [
-  { eventName: 'line_survey_complete', countingMethod: 'ONCE_PER_EVENT' },
-  { eventName: 'phone_click', countingMethod: 'ONCE_PER_EVENT' },
-];
+// Website CTA events are diagnostics only. The primary Google Ads signal is
+// the first matched inbound LINE message, uploaded server-side via Data Manager.
+export const keyEvents = [];
+
+// These browser proxy conversions are intentionally retained in reports but
+// must no longer be marked as GA4 key events after direct LINE handoff ships.
+export const retiredKeyEvents = ['line_survey_complete', 'phone_click'];

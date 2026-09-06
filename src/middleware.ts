@@ -10,9 +10,6 @@ const LEGACY_SERVICE_PATHS: Record<string, string> = {
   '/กันสาดพับเก็บได้/ปทุมธานี': '/services/retractable-awning/pathum-thani',
 };
 const GOOGLE_ADS_DYNAMIC_QUERY_KEYS = ['ad_kw', 'ad_audience', 'ad_area', 'ad_intent'];
-const GOOGLE_ADS_CLICK_ID_KEYS = ['gclid', 'gbraid', 'wbraid'];
-const PAID_LEAD_COOKIE_NAME = 'srt_paid';
-const PAID_LEAD_COOKIE_MAX_AGE_SECONDS = 1800;
 const GOOGLE_ADS_SERVICE_PATHS = new Set([
   '/services/retractable-awning',
   '/services/electric-retractable-awning',
@@ -42,29 +39,6 @@ function rewriteGoogleAdsLandingPage(request: NextRequest) {
   url.pathname = `/lp/google-ads/${serviceSlug}`;
 
   return NextResponse.rewrite(url);
-}
-
-function attachPaidLeadCookie(
-  response: NextResponse,
-  request: NextRequest,
-  isLocalHost: boolean,
-) {
-  const hasClickId = GOOGLE_ADS_CLICK_ID_KEYS.some((key) =>
-    request.nextUrl.searchParams.has(key),
-  );
-
-  if (!hasClickId) {
-    return response;
-  }
-
-  response.cookies.set(PAID_LEAD_COOKIE_NAME, '1', {
-    maxAge: PAID_LEAD_COOKIE_MAX_AGE_SECONDS,
-    path: '/',
-    sameSite: 'lax',
-    secure: !isLocalHost,
-  });
-
-  return response;
 }
 
 export function middleware(request: NextRequest) {
@@ -100,10 +74,10 @@ export function middleware(request: NextRequest) {
   }
 
   if (shouldRewriteGoogleAdsLandingPage(request)) {
-    return attachPaidLeadCookie(rewriteGoogleAdsLandingPage(request), request, isLocalHost);
+    return rewriteGoogleAdsLandingPage(request);
   }
 
-  return attachPaidLeadCookie(NextResponse.next(), request, isLocalHost);
+  return NextResponse.next();
 }
 
 export const config = {

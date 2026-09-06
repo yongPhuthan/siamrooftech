@@ -16,6 +16,11 @@ export const PERSONA_VALUES: Record<LeadPersona, number> = {
   contractor: 1,
 };
 
+// A matched first LINE message is the real initial conversion. The value is
+// deliberately a 1 THB technical placeholder (not revenue); staff can later
+// restate the same transactionId with an estimated or actual business value.
+export const LINE_MESSAGE_CONVERSION_VALUE = 1;
+
 function generateRefCodeSuffix(): string {
   const bytes = crypto.getRandomValues(new Uint8Array(REF_CODE_LENGTH));
   let out = '';
@@ -156,13 +161,13 @@ export async function matchLeadByRefCode(
   const hasClickId = Boolean(lead.gclid || lead.gbraid || lead.wbraid);
   let queueMessage: AdsSyncQueueMessage | null = null;
 
-  if (hasClickId && personaValue !== null) {
+  if (hasClickId) {
     const jobId = crypto.randomUUID();
     statements.push(
       env.CHAT_DB.prepare(
-        `INSERT INTO ads_sync_jobs (job_id, lead_id, created_at, kind, conversion_value, currency, mode, state, attempts)
+        `INSERT OR IGNORE INTO ads_sync_jobs (job_id, lead_id, created_at, kind, conversion_value, currency, mode, state, attempts)
          VALUES (?, ?, ?, 'initial', ?, 'THB', ?, 'pending', 0)`,
-      ).bind(jobId, lead.lead_id, matchedAt, personaValue, env.ADS_SYNC_MODE),
+      ).bind(jobId, lead.lead_id, matchedAt, LINE_MESSAGE_CONVERSION_VALUE, env.ADS_SYNC_MODE),
     );
     queueMessage = { jobId };
   }
@@ -292,13 +297,13 @@ export async function manualMatchLead(
 
   const hasClickId = Boolean(lead.gclid || lead.gbraid || lead.wbraid);
   let queueMessage: AdsSyncQueueMessage | null = null;
-  if (hasClickId && personaValue !== null) {
+  if (hasClickId) {
     const jobId = crypto.randomUUID();
     statements.push(
       env.CHAT_DB.prepare(
-        `INSERT INTO ads_sync_jobs (job_id, lead_id, created_at, kind, conversion_value, currency, mode, state, attempts)
+        `INSERT OR IGNORE INTO ads_sync_jobs (job_id, lead_id, created_at, kind, conversion_value, currency, mode, state, attempts)
          VALUES (?, ?, ?, 'initial', ?, 'THB', ?, 'pending', 0)`,
-      ).bind(jobId, leadId, now, personaValue, env.ADS_SYNC_MODE),
+      ).bind(jobId, leadId, now, LINE_MESSAGE_CONVERSION_VALUE, env.ADS_SYNC_MODE),
     );
     queueMessage = { jobId };
   }

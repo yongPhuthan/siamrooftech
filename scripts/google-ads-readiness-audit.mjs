@@ -199,8 +199,8 @@ async function validateGtmSource() {
     }
   }
 
-  if (!source.includes("conversion_priority: 'primary'")) {
-    fail('src/lib/gtm.ts missing primary conversion_priority marker');
+  if (!source.includes("conversion_priority: 'secondary'")) {
+    fail('src/lib/gtm.ts missing secondary conversion_priority marker for CTA diagnostics');
   }
 
   if (!source.includes('page_location') || !source.includes('page_path')) {
@@ -225,11 +225,11 @@ async function validateGtmSource() {
     (item) => item.includes('src/lib/gtm.ts') || item.includes('AttributionCapture'),
   );
   if (gtmFailures.length === 0) {
-    pass('src/lib/gtm.ts has required attribution keys and primary lead events');
+    pass('src/lib/gtm.ts has required attribution keys and diagnostic CTA events');
   }
 
   if (trackingFailures.length === 0) {
-    pass('Server-rendered data-analytics CTA links are wired to primary tracking events');
+    pass('Server-rendered data-analytics CTA links are wired to diagnostic tracking events');
   }
 }
 

@@ -6,7 +6,8 @@ exposes a read-only HTTP API for an AI Agent (or a human) to pull chat
 history by date/time range, and — since the lead-matching feature — binds
 LINE conversations back to the ad click (gclid) that produced them, tracks
 each lead through a status pipeline, and feeds a conversion value back to
-Google Ads via the Data Manager API. See
+Google Ads via the Data Manager API. The first matched inbound LINE message
+is the initial conversion; the website does not ask a persona survey. See
 [docs/lead-matching/README.md](../../docs/lead-matching/README.md) for that
 part in full; this file stays focused on chat-history + Worker operations.
 

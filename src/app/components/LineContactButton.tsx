@@ -8,7 +8,7 @@ type LineContactButtonProps = {
   compact?: boolean;
 };
 
-/** Presentational CTA; AttributionCapture owns click tracking and the paid survey. */
+/** Presentational CTA; AttributionCapture owns tracking and the direct LINE handoff. */
 export default function LineContactButton({
   analyticsPosition,
   label = 'สอบถาม-ประเมินราคาฟรี',

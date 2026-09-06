@@ -2,6 +2,11 @@
 
 Date: 2026-07-25
 
+> **Superseded conversion model (2026-09-07):** Survey and click proxy
+> conversions below are historical. The current Primary signal is the first
+> matched inbound LINE message uploaded through Data Manager. See
+> `production-qa-runbook-2026-07.md` and the current CSV manifests.
+
 ## Purpose
 
 Turn the Google Ads URL matrix and conversion mapping into a concrete GTM/GA4 setup checklist.

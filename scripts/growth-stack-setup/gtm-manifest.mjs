@@ -18,8 +18,6 @@ const readCsv = (filename) => parseCsv(readFileSync(join(DOCS_DIR, filename), 'u
 // excluded here -- build them when that work actually starts.
 const P0_EVENTS = new Set([
   'line_click',
-  'line_survey_start',
-  'line_survey_complete',
   'phone_click',
   'contact_click',
 ]);
@@ -54,3 +52,14 @@ function loadTagSpecs() {
 export const variables = loadVariables();
 export const triggers = loadTriggers();
 export const tagSpecs = loadTagSpecs();
+
+export const retiredArtifacts = {
+  tags: ['GA4 Event - line_survey_start', 'GA4 Event - line_survey_complete'],
+  triggers: ['CE - line_survey_start', 'CE - line_survey_complete'],
+  variables: [
+    'DLV - lead_persona',
+    'DLV - lead_quality_score',
+    'DLV - value',
+    'DLV - attribution_lead_persona',
+  ],
+};

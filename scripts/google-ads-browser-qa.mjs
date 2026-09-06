@@ -497,24 +497,29 @@ async function scenarioPaidSession(position = 'electric_awning_ads_final') {
       fail(`Ads appearance: expected white hero, green LINE CTA with approved label, low radii and no decorative shadows; got ${JSON.stringify(appearance)}`);
     }
 
-    if (!(await hasCookie(client, sessionId, 'srt_paid'))) {
-      fail('Paid session: srt_paid cookie was not set after visiting a URL with gclid');
-      return;
+    if (await hasCookie(client, sessionId, 'srt_paid')) {
+      fail('Paid session: retired survey cookie must not be set');
     }
 
-    // Intercept window.open instead of letting a real tab open, so we can
-    // assert on the URL LINE would actually receive.
+    // Intercept the browser's native anchor navigation after the app's
+    // capture/bubble listeners have run. This proves the customer gets a
+    // one-click LINE handoff without opening a survey or a scripted popup.
     const gtmEnabled = await evaluate(
       client,
       sessionId,
       `Array.from(document.scripts).some((script) => script.src.includes('googletagmanager.com'))`,
     );
 
-    await evaluate(
-      client,
-      sessionId,
-      `window.__openedUrls = []; window.open = (url) => { window.__openedUrls.push(url); return null; };`,
-    );
+    await evaluate(client, sessionId, `(() => {
+      window.__lineNavigations = [];
+      document.addEventListener('click', (event) => {
+        const target = event.target instanceof Element ? event.target : null;
+        const anchor = target?.closest('a[href*="lin.ee"], a[href*="line.me"]');
+        if (!anchor) return;
+        event.preventDefault();
+        window.__lineNavigations.push(anchor.href);
+      });
+    })()`);
 
     // Capture the browser transport as well as the dataLayer. A correctly
     // shaped dataLayer event is not sufficient if the live GTM container is
@@ -524,6 +529,7 @@ async function scenarioPaidSession(position = 'electric_awning_ads_final') {
       sessionId,
       `(() => {
         window.__analyticsDispatches = [];
+        window.__leadIntakes = [];
         const capture = (url, body) => {
           const text = typeof body === 'string' ? body : body ? String(body) : '';
           if (String(url).includes('google-analytics.com') || String(url).includes('/g/collect')) {
@@ -532,7 +538,11 @@ async function scenarioPaidSession(position = 'electric_awning_ads_final') {
         };
         const originalFetch = window.fetch.bind(window);
         window.fetch = (input, init) => {
-          capture(typeof input === 'string' ? input : input?.url, init?.body);
+          const url = typeof input === 'string' ? input : input?.url;
+          capture(url, init?.body);
+          if (String(url).includes('/api/leads/intake')) {
+            window.__leadIntakes.push(JSON.parse(String(init?.body || '{}')));
+          }
           return originalFetch(input, init);
         };
         const originalBeacon = navigator.sendBeacon.bind(navigator);
@@ -566,39 +576,22 @@ async function scenarioPaidSession(position = 'electric_awning_ads_final') {
     );
     await wait(300);
 
-    if (!(await dialogVisible(client, sessionId))) {
-      fail('Paid session: clicking a LINE link did not open the survey modal');
-      return;
+    if (await dialogVisible(client, sessionId)) {
+      fail('Paid session: LINE click must not be blocked by a survey modal');
     }
 
-    const surveyAppearance = await evaluate(client, sessionId, `(() => {
-      const panel = document.querySelector('[role="dialog"] > div');
-      const button = panel.querySelector('button');
-      return {
-        panelRadius: parseFloat(getComputedStyle(panel).borderTopLeftRadius),
-        buttonRadius: parseFloat(getComputedStyle(button).borderTopLeftRadius),
-        shadow: getComputedStyle(panel).boxShadow,
-      };
-    })()`);
-    if (surveyAppearance.panelRadius !== 0 || surveyAppearance.buttonRadius > 4 || surveyAppearance.shadow !== 'none') {
-      fail(`Ads survey: expected square panel, low-radius buttons and no decorative shadow; got ${JSON.stringify(surveyAppearance)}`);
+    const lineNavigations = await evaluate(client, sessionId, 'window.__lineNavigations');
+    if (lineNavigations.length !== 1 ||
+        !lineNavigations[0].startsWith('https://line.me/R/oaMessage/%40siamrooftech/') ||
+        !decodeURIComponent(lineNavigations[0]).includes('[SRT-')) {
+      fail(`Paid session: expected one native LINE navigation with a ref code; got: ${JSON.stringify(lineNavigations)}`);
     }
 
-    const firstOptionFocused = await evaluate(client, sessionId,
-      `document.activeElement === document.querySelector('[role="dialog"] button')`);
-    if (!firstOptionFocused) fail('Ads survey: opening should focus the first persona option');
-    // Exercise the public keyboard handler deterministically in headless Chrome.
-    // Native Shift+Tab is also verified in the interactive browser QA pass.
-    await evaluate(client, sessionId, `document.activeElement.dispatchEvent(new KeyboardEvent('keydown', {
-      key: 'Tab', shiftKey: true, bubbles: true, cancelable: true,
-    }))`);
-    const focusWrapped = await waitFor(() => evaluate(client, sessionId, `(() => {
-      const options = document.querySelectorAll('[role="dialog"] button');
-      return document.activeElement === options[options.length - 1];
-    })()`), 3000, 'survey keyboard focus wrap');
-    if (!focusWrapped) {
-      const active = await evaluate(client, sessionId, `document.activeElement?.outerHTML`);
-      fail(`Ads survey: Shift+Tab should keep focus inside the dialog; active element: ${active}`);
+    const leadIntakes = await evaluate(client, sessionId, 'window.__leadIntakes');
+    if (leadIntakes.length !== 1 || leadIntakes[0].gclid !== gclid ||
+        !/^SRT-[23456789ABCDEFGHJKMNPQRSTVWXYZ]{8}$/.test(leadIntakes[0].ref_code) ||
+        leadIntakes[0].lead_persona !== undefined || leadIntakes[0].lead_quality_score !== undefined) {
+      fail(`Paid session: expected one persona-free lead intake with the paid-click attribution; got: ${JSON.stringify(leadIntakes)}`);
     }
 
     events = await dataLayerEventNames(client, sessionId);
@@ -618,96 +611,31 @@ async function scenarioPaidSession(position = 'electric_awning_ads_final') {
         fail(`Sticky LINE click must include funnel context: ${JSON.stringify(lineClickEvent)}`);
       }
     }
-    if (!events.includes('line_survey_start')) {
-      fail(`Paid session: expected line_survey_start in dataLayer, got: ${events.join(', ')}`);
-    }
-
-    const startEvent = await evaluate(
-      client,
-      sessionId,
-      `(window.dataLayer || []).find((e) => e.event === 'line_survey_start')`,
-    );
-    if (startEvent?.position !== position) {
-      fail(`Paid session: LINE survey position mismatch; got: ${startEvent?.position}`);
-    }
-
-    const answered = await evaluate(
-      client,
-      sessionId,
-      `(() => {
-        const button = document.querySelector('[role="dialog"] button');
-        if (!button) return false;
-        button.click();
-        return true;
-      })()`,
-    );
-
-    if (!answered) {
-      fail('Paid session: no persona option button found in the survey modal');
-      return;
-    }
-
-    await wait(300);
-
-    const openedUrls = await evaluate(client, sessionId, 'window.__openedUrls');
-    if (!openedUrls.some((url) => /lin\.ee|line\.me/.test(url))) {
-      fail(`Paid session: answering the survey did not call window.open with a LINE url; got: ${JSON.stringify(openedUrls)}`);
-    }
-
-    events = await dataLayerEventNames(client, sessionId);
-    if (!events.includes('line_survey_complete')) {
-      fail(`Paid session: expected line_survey_complete in dataLayer, got: ${events.join(', ')}`);
-    }
-
-    const completeEvent = await evaluate(
-      client,
-      sessionId,
-      `(window.dataLayer || []).find((e) => e.event === 'line_survey_complete')`,
-    );
-
-    if (!completeEvent || !['homeowner', 'procurement', 'contractor'].includes(completeEvent.lead_persona)) {
-      fail(`Paid session: line_survey_complete missing a valid lead_persona; got: ${completeEvent?.lead_persona}`);
-    }
-    if (completeEvent && ![0, 1].includes(completeEvent.value)) {
-      fail(`Paid session: line_survey_complete has an unexpected value; got: ${completeEvent?.value}`);
-    }
-    if (completeEvent && completeEvent.attribution_latest_gclid !== gclid) {
-      fail(`Paid session: line_survey_complete missing attribution_latest_gclid=${gclid}; got: ${completeEvent?.attribution_latest_gclid}`);
-    }
-    if (completeEvent?.attribution_latest_utm_source !== 'google' ||
-        completeEvent?.attribution_latest_utm_medium !== 'cpc' ||
-        completeEvent?.attribution_latest_utm_campaign !== 'qa_monochrome') {
-      fail('Paid session: survey completion must preserve UTM attribution');
-    }
-    if (completeEvent && completeEvent.position !== position) {
-      fail(`Paid session: line_survey_complete position mismatch; got: ${completeEvent.position}`);
+    if (events.includes('line_survey_start') || events.includes('line_survey_complete')) {
+      fail(`Paid session: retired survey events must not fire; got: ${events.join(', ')}`);
     }
 
     // Keep the page alive briefly so GTM can dispatch queued analytics hits
     // before the isolated browser profile is torn down.
-    await wait(2000);
+    // GA4 may batch custom events for a few seconds in production even when
+    // the base page_view is sent immediately.
+    await wait(6000);
 
     if (gtmEnabled) {
       const analyticsDispatches = await evaluate(client, sessionId, 'window.__analyticsDispatches || []');
-      for (const eventName of ['phone_click', 'line_survey_complete']) {
+      const analyticsResources = await evaluate(client, sessionId, `performance.getEntriesByType('resource')
+        .map((entry) => entry.name)
+        .filter((url) => url.includes('google-analytics.com') || url.includes('/g/collect'))`);
+      for (const eventName of ['phone_click', 'line_click']) {
+        const encodedEvent = `en=${encodeURIComponent(eventName)}`;
         if (!analyticsDispatches.some((dispatch) =>
-          `${dispatch.url}\n${dispatch.body}`.includes(eventName))) {
-          fail(`Paid session: GTM/GA4 did not dispatch ${eventName}; got: ${JSON.stringify(analyticsDispatches)}`);
+          `${dispatch.url}\n${dispatch.body}`.includes(eventName)) &&
+          !analyticsResources.some((url) => url.includes(encodedEvent))) {
+          fail(`Paid session: GTM/GA4 did not dispatch ${eventName}; got transports=${JSON.stringify(analyticsDispatches)} resources=${JSON.stringify(analyticsResources)}`);
         }
       }
     }
 
-    // Answered once this session -- clicking LINE again must not re-open the
-    // modal. The gate no longer intercepts the click at all once a persona is
-    // stored, so this becomes a normal anchor navigation (target="_blank"),
-    // not a window.open() call -- there is nothing to capture here beyond
-    // "no modal appears a second time".
-    await clickLineLink(client, sessionId);
-    await wait(300);
-
-    if (await dialogVisible(client, sessionId)) {
-      fail('Paid session: survey modal re-opened on a second LINE click after already answering this session');
-    }
   });
 }
 
@@ -751,8 +679,7 @@ async function scenarioUtmOnlySession() {
   });
 }
 
-// The monochrome survey is exclusive to this landing page.
-async function scenarioHomepageSurveyAppearance() {
+async function scenarioHomepageDirectLine() {
   await withFreshBrowser(async (client, sessionId) => {
     await navigateTo(client, sessionId, '/?gclid=qa-home-survey');
     const lineButtons = await evaluate(client, sessionId, `Array.from(document.querySelectorAll('a[href*="lin.ee"]')).map(el => ({
@@ -765,11 +692,13 @@ async function scenarioHomepageSurveyAppearance() {
       button.radius > 4 || button.background !== 'rgb(1, 178, 2)' || button.nestedButton)) {
       fail(`Homepage LINE buttons should share green low-radius styling and the approved label: ${JSON.stringify(lineButtons)}`);
     }
+    await evaluate(client, sessionId, `document.addEventListener('click', (event) => {
+      const target = event.target instanceof Element ? event.target : null;
+      if (target?.closest('a[href*="lin.ee"], a[href*="line.me"]')) event.preventDefault();
+    })`);
     await clickLineLink(client, sessionId);
-    await waitFor(() => dialogVisible(client, sessionId), 3000, 'homepage survey');
-    const radius = await evaluate(client, sessionId,
-      `parseFloat(getComputedStyle(document.querySelector('[role="dialog"] > div')).borderTopLeftRadius)`);
-    if (radius <= 4) fail('Homepage survey: original rounded appearance must be preserved');
+    await wait(300);
+    if (await dialogVisible(client, sessionId)) fail('Homepage LINE click must not open a survey');
     const clicks = await evaluate(client, sessionId,
       `(window.dataLayer || []).filter(e => e.event === 'line_click')`);
     // The nav no longer carries its own LINE CTA, so the first `a[href*="lin.ee"]`
@@ -787,7 +716,7 @@ try {
   if (!args.has('landing-only')) {
     await scenarioOrganicSession();
     await scenarioUtmOnlySession();
-    await scenarioHomepageSurveyAppearance();
+    await scenarioHomepageDirectLine();
   }
 } catch (error) {
   fail(error.message);

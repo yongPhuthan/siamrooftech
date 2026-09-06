@@ -1,12 +1,10 @@
 # Lead Matching + Dashboard + Google Ads Conversion Feedback
 
-Status: **MVP shipped, `ADS_SYNC_MODE=dry_run`** (no Google Ads account exists
-yet — see "Going live" below). Scope: bind a LINE conversation to the ad
-click that produced it, track the lead through a pipeline, and feed a
-conversion value back to Google Ads once the outcome is known. Explicitly
-**not** in scope: any AI-driven persona/sentiment scoring beyond the
-existing 3-persona survey, and no automatic decision to send a value —
-a human or an agent always chooses the number, this system just moves it.
+Status: **direct LINE handoff shipped in code, `ADS_SYNC_MODE=dry_run`**.
+Scope: bind a LINE conversation to the ad click that produced it, count the
+first matched inbound message as the real initial conversion, and allow staff
+to restate its value once the outcome is known. No survey or persona question
+is shown before LINE opens.
 
 Builds directly on [docs/line-chat-history/README.md](../line-chat-history/README.md)
 — same Worker, same D1 database, same account. Read that doc first for the
@@ -15,13 +13,10 @@ matching, the dashboard, and the Google Ads adapter.
 
 ## The problem this solves
 
-Before this, `gclid` never left the browser. `src/middleware.ts` only ever
-checked `searchParams.has('gclid')` to arm a cookie — it never read the
-value — and the LINE buttons across the site all pointed at the same bare
-`https://lin.ee/pPz1ZqN` link with no parameters. So even though the site
-already ran a mandatory persona survey before opening LINE
-(`src/app/components/LeadSurveyModal.tsx`), there was no way to connect
-*which* ad click produced *which* LINE conversation. `src/lib/firestore.ts`
+Before this, `gclid` never left the browser and the LINE buttons across the
+site all pointed at the same bare `https://lin.ee/pPz1ZqN` link with no
+parameters. There was no way to connect *which* ad click produced *which*
+LINE conversation. `src/lib/firestore.ts`
 had a `contact_submissions` collection that could have been the answer, but
 the form that wrote to it (`ContactForm.tsx`) isn't rendered anywhere in the
 app, and separately, **`firebase-admin` cannot run in this Cloudflare
@@ -92,20 +87,14 @@ rate as reliable — see the runbook below.
 
 ## Two-layer value model
 
-Every lead gets a `persona_value` immediately from its survey answer
-(`homeowner`/`procurement` = 100 THB, `contractor` = 1 THB — see
-`PERSONA_VALUES` in `leads.ts`). Later, once someone actually knows the
-outcome, `actual_value` (or an interim `estimated_value`) can be set via the
-dashboard or `yarn leads:value`.
+The first matched inbound LINE message creates an initial conversion with a
+1 THB technical placeholder. This is not revenue. Once staff knows the
+outcome, `actual_value` (or an interim `estimated_value`) can be set through
+the dashboard or `yarn leads:value`, restating the same transaction ID.
+Historical persona fields remain nullable for backward compatibility.
 
-**`persona_value` is never 0, even for `contractor`.** This is the single
-most important constraint in this system: Google Ads' Data Manager API
-treats a **restatement to 0.00 as a permanent retraction** — the conversion
-cannot be un-retracted or restated again afterward (confirmed from Google's
-own Data Manager docs). If the initial conversion had been sent as 0, there
-would be no way to later say "actually this contractor lead qualified,
-here's a real value." A 1 THB placeholder keeps that door open.
-`updateLeadValue` in `leads.ts` refuses any value `<= 0` outright.
+`updateLeadValue` refuses any value `<= 0`: Data Manager treats a restatement
+to 0 as a permanent retraction that cannot later be restored.
 
 ## Google Ads side: Data Manager API, not `UploadClickConversions`
 
@@ -145,7 +134,7 @@ Practical implications of that API, reflected in `workers/line-chat-history/src/
 
 ```
 Ad click (?gclid=...)
-   │  middleware.ts sets srt_paid cookie (existing, unchanged)
+   │  AttributionCapture stores click attribution in localStorage
    ▼
 LINE button click ── AttributionCapture.tsx ──► POST /api/leads/intake (Next.js proxy)
    │  rewrites href to a ref-coded                    │
@@ -222,11 +211,10 @@ windowing, and the transcript endpoint. It polls rather than sleeping a
 fixed amount, since the ads-sync queue consumer runs asynchronously (up to
 `max_batch_timeout` in `wrangler.jsonc`).
 
-`yarn ads:qa` and `yarn ads:browser-qa` (the pre-existing paid-traffic QA)
-were re-run against the modified `AttributionCapture.tsx` and pass
-unchanged — the survey gate, `line_survey_complete` event, and the
-`window.open` call to a `line.me` URL all still work with the ref-coded
-rewrite in place.
+`yarn ads:qa` and `yarn ads:browser-qa` verify the direct handoff: one click
+opens a ref-coded `line.me/R/oaMessage` URL through native anchor navigation,
+records one intake and one diagnostic `line_click`, emits no survey events,
+and still opens the original LINE URL if JavaScript or intake fails.
 
 **Manual verification still required before relying on the match rate:**
 

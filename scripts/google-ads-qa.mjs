@@ -228,7 +228,7 @@ await checkPage({
   ],
 });
 
-// --- P0: current pilot -- homepage + survey gate cookie ----------------------
+// --- P0: current pilot -- no survey-gate cookie -------------------------------
 if (args.has('landing-only')) {
   if (failures.length) {
     console.error(failures.join('\n'));
@@ -238,12 +238,7 @@ if (args.has('landing-only')) {
   process.exit(0);
 }
 
-// All P0 campaigns land on the homepage with no DKI params (see
-// docs/google-ads/launch-url-matrix-2026-07.csv). The thing that actually
-// gates the lead-persona survey is the srt_paid cookie set by middleware.ts,
-// keyed only on gclid/gbraid/wbraid -- never utm_*, never ad_*.
-
-async function checkGate({ path, shouldSetCookie, label }) {
+async function checkNoGateCookie({ path, label }) {
   const response = await fetchPath(path);
   if (response.status !== 200) {
     fail(`${label} (${path}): expected 200, got ${response.status}`);
@@ -252,51 +247,34 @@ async function checkGate({ path, shouldSetCookie, label }) {
 
   const cookie = getCookie(response, 'srt_paid');
 
-  if (shouldSetCookie && !cookie) {
-    fail(`${label} (${path}): expected srt_paid cookie to be set, none found`);
-  }
-
-  if (shouldSetCookie && cookie && cookie.value !== '1') {
-    fail(`${label} (${path}): expected srt_paid=1, got srt_paid=${cookie.value}`);
-  }
-
-  if (shouldSetCookie && cookie && !/max-age=1800/i.test(cookie.raw)) {
-    fail(`${label} (${path}): expected Max-Age=1800 on srt_paid cookie, got: ${cookie.raw}`);
-  }
-
-  if (!shouldSetCookie && cookie) {
-    fail(`${label} (${path}): srt_paid cookie must NOT be set here, but got: ${cookie.raw}`);
+  if (cookie) {
+    fail(`${label} (${path}): retired srt_paid survey cookie must not be set, got: ${cookie.raw}`);
   }
 }
 
-await checkGate({
+await checkNoGateCookie({
   path: '/?gclid=qa-static-gclid',
-  shouldSetCookie: true,
   label: 'paid session (gclid present)',
 });
 
-await checkGate({
+await checkNoGateCookie({
   path: '/?gbraid=qa-static-gbraid',
-  shouldSetCookie: true,
   label: 'paid session (gbraid present)',
 });
 
-await checkGate({
+await checkNoGateCookie({
   path: '/',
-  shouldSetCookie: false,
   label: 'organic session (no params)',
 });
 
-await checkGate({
+await checkNoGateCookie({
   path: '/?utm_source=google_paid&utm_medium=paid&utm_campaign=qa_static',
-  shouldSetCookie: false,
-  label: 'UTM-only session (no gclid) -- must not open the gate',
+  label: 'UTM-only session (no gclid)',
 });
 
-await checkGate({
+await checkNoGateCookie({
   path: '/services/retractable-awning?gclid=qa-static-gclid',
-  shouldSetCookie: true,
-  label: 'paid session on a /services/* path (gate applies site-wide, not just homepage)',
+  label: 'paid session on a /services/* path',
 });
 
 // --- Future: DKI capability check ---------------------------------------------
@@ -382,7 +360,7 @@ for (const key of requiredTrackedKeys) {
   }
 }
 
-const requiredSurveyExports = [
+const retiredSurveySymbols = [
   'LEAD_PERSONAS',
   'isPaidLeadSession',
   'getStoredPersona',
@@ -391,20 +369,15 @@ const requiredSurveyExports = [
   'trackLineSurveyComplete',
 ];
 
-for (const symbol of requiredSurveyExports) {
-  if (!gtmSource.includes(symbol)) {
-    fail(`src/lib/gtm.ts: missing lead-survey export ${symbol}`);
+for (const symbol of retiredSurveySymbols) {
+  if (gtmSource.includes(symbol)) {
+    fail(`src/lib/gtm.ts: retired lead-survey symbol remains: ${symbol}`);
   }
 }
 
 const middlewareSource = await readFile(resolve(process.cwd(), 'src/middleware.ts'), 'utf8');
-if (!middlewareSource.includes('srt_paid')) {
-  fail('src/middleware.ts: missing srt_paid cookie logic');
-}
-for (const key of ['gclid', 'gbraid', 'wbraid']) {
-  if (!middlewareSource.includes(`'${key}'`)) {
-    fail(`src/middleware.ts: missing click-id key ${key} in cookie gate condition`);
-  }
+if (middlewareSource.includes('srt_paid') || middlewareSource.includes('attachPaidLeadCookie')) {
+  fail('src/middleware.ts: retired paid-survey cookie logic remains');
 }
 
 if (failures.length > 0) {

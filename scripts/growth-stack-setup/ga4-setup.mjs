@@ -17,7 +17,7 @@ import {
   createKeyEvent,
   deleteKeyEvent,
 } from './lib/ga4.mjs';
-import { customDimensions, keyEvents } from './ga4-manifest.mjs';
+import { customDimensions, keyEvents, retiredKeyEvents } from './ga4-manifest.mjs';
 
 const args = new Set(process.argv.slice(2));
 const WIPE = args.has('--wipe');
@@ -116,6 +116,15 @@ async function ensureKeyEvents(property) {
   }
 }
 
+async function retireLegacyKeyEvents(property) {
+  const retired = new Set(retiredKeyEvents);
+  for (const keyEvent of await listKeyEvents(property)) {
+    if (!retired.has(keyEvent.eventName)) continue;
+    console.log(`  retire key event: ${keyEvent.eventName}`);
+    await deleteKeyEvent(keyEvent.name);
+  }
+}
+
 async function main() {
   const property = await resolveProperty();
 
@@ -128,9 +137,10 @@ async function main() {
 
   console.log('\nKey events:');
   console.log(
-    '  Only line_survey_complete and phone_click -- line_click stays a non-key event ' +
-      '(analytics only, denominator for survey completion rate). See pilot-launch-plan-2026-07.md.',
+    '  Website CTA events remain diagnostics only. Actual matched inbound LINE messages ' +
+      'are uploaded directly to Google Ads through Data Manager.',
   );
+  await retireLegacyKeyEvents(property);
   await ensureKeyEvents(property);
 
   console.log('\nDone. New key events can take up to 24-48h to propagate to Google Ads.');

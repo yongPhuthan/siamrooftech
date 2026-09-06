@@ -22,11 +22,13 @@ import {
   createTag,
   deleteTag,
   createVersion,
+  publishVersion,
 } from './lib/gtm.mjs';
-import { variables, triggers, tagSpecs } from './gtm-manifest.mjs';
+import { variables, triggers, tagSpecs, retiredArtifacts } from './gtm-manifest.mjs';
 
 const args = new Set(process.argv.slice(2));
 const WIPE = args.has('--wipe');
+const PUBLISH = args.has('--publish');
 
 // GTM's implicit, always-present "All Pages" trigger. Not returned by
 // triggers.list (it's not a real trigger resource) -- this numeric ID is a
@@ -58,6 +60,32 @@ async function wipeExisting(ws) {
   }
   for (const variable of await listVariables(ws)) {
     console.log(`  delete variable: ${variable.name}`);
+    await deleteVariable(variable.path);
+    await sleep(1000);
+  }
+}
+
+async function retireLegacyArtifacts(ws) {
+  const retiredTagNames = new Set(retiredArtifacts.tags);
+  const retiredTriggerNames = new Set(retiredArtifacts.triggers);
+  const retiredVariableNames = new Set(retiredArtifacts.variables);
+
+  // Delete dependants first so GTM never rejects an in-use trigger/variable.
+  for (const tag of await listTags(ws)) {
+    if (!retiredTagNames.has(tag.name)) continue;
+    console.log(`  retire tag:      ${tag.name}`);
+    await deleteTag(tag.path);
+    await sleep(1000);
+  }
+  for (const trigger of await listTriggers(ws)) {
+    if (!retiredTriggerNames.has(trigger.name)) continue;
+    console.log(`  retire trigger:  ${trigger.name}`);
+    await deleteTrigger(trigger.path);
+    await sleep(1000);
+  }
+  for (const variable of await listVariables(ws)) {
+    if (!retiredVariableNames.has(variable.name)) continue;
+    console.log(`  retire variable: ${variable.name}`);
     await deleteVariable(variable.path);
     await sleep(1000);
   }
@@ -128,22 +156,7 @@ async function ensureTags(ws, triggerIds) {
     await createTag(ws, {
       name: CONFIG_TAG_NAME,
       type: 'googtag',
-      parameter: [
-        { type: 'template', key: 'tagId', value: measurementId },
-        {
-          type: 'list',
-          key: 'userProperties',
-          list: [
-            {
-              type: 'map',
-              map: [
-                { type: 'template', key: 'name', value: 'lead_persona' },
-                { type: 'template', key: 'value', value: '{{DLV - lead_persona}}' },
-              ],
-            },
-          ],
-        },
-      ],
+      parameter: [{ type: 'template', key: 'tagId', value: measurementId }],
       firingTriggerId: [ALL_PAGES_TRIGGER_ID],
     });
     await sleep(1000);
@@ -175,6 +188,9 @@ async function main() {
 
   if (WIPE) {
     await wipeExisting(ws);
+  } else {
+    console.log('\nRetiring legacy survey artifacts:');
+    await retireLegacyArtifacts(ws);
   }
 
   console.log('\nVariables:');
@@ -186,14 +202,23 @@ async function main() {
   console.log('\nTags:');
   await ensureTags(ws, triggerIds);
 
-  console.log('\nCreating a draft version (NOT publishing -- review in GTM Preview mode first)...');
+  console.log(`\nCreating a ${PUBLISH ? 'publishable' : 'draft'} version...`);
   const version = await createVersion(
     ws,
     `Growth stack rebuild (${new Date().toISOString().slice(0, 10)})`,
     'Created by scripts/growth-stack-setup/gtm-setup.mjs from docs/google-ads CSVs.',
   );
-  console.log(`Draft version created: ${version.containerVersion?.name || version.name}`);
-  console.log('Open GTM > Versions to review, then Preview + Publish manually.');
+  const containerVersion = version.containerVersion;
+  console.log(`Version created: ${containerVersion?.name || version.name}`);
+  if (PUBLISH) {
+    if (!containerVersion?.path) {
+      throw new Error('GTM create_version response did not include a publishable version path');
+    }
+    await publishVersion(containerVersion.path);
+    console.log('Version published.');
+  } else {
+    console.log('Open GTM > Versions to review, then Preview + Publish manually.');
+  }
 }
 
 main().catch((err) => {

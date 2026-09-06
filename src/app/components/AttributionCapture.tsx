@@ -1,21 +1,14 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
 import {
   captureAttribution,
-  getStoredPersona,
-  isPaidLeadSession,
-  setStoredPersona,
   trackContactClick,
   trackLineClick,
-  trackLineSurveyComplete,
-  trackLineSurveyStart,
   trackPhoneClick,
-  type LeadPersona,
 } from '@/lib/gtag';
 import { buildLineOaMessageHref, mintRefCode, postLeadIntake, type LeadIntakePayload } from '@/lib/lead-intake';
-import LeadSurveyModal from './LeadSurveyModal';
 
 const LINE_LINK_SELECTOR = 'a[href*="lin.ee"], a[href*="line.me"]';
 
@@ -28,9 +21,6 @@ const LINE_LINK_SELECTOR = 'a[href*="lin.ee"], a[href*="line.me"]';
 function beginLeadForLineClick(): string {
   const refCode = mintRefCode();
   const attribution = captureAttribution();
-
-  const persona = getStoredPersona();
-  const score = attribution.lead_quality_score;
 
   const payload: LeadIntakePayload = {
     ref_code: refCode,
@@ -48,8 +38,6 @@ function beginLeadForLineClick(): string {
     ...(attribution.latest_srt_matchtype && { srt_matchtype: attribution.latest_srt_matchtype }),
     ...(attribution.latest_srt_device && { srt_device: attribution.latest_srt_device }),
     ...(attribution.first_landing_page && { landing_page: attribution.first_landing_page }),
-    ...(persona && { lead_persona: persona }),
-    ...(persona && score && { lead_quality_score: Number(score) }),
   };
 
   postLeadIntake(payload);
@@ -60,8 +48,6 @@ export default function AttributionCapture() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const queryString = searchParams?.toString() || '';
-  const [isSurveyOpen, setIsSurveyOpen] = useState(false);
-  const [surveyPosition, setSurveyPosition] = useState('unknown');
 
   useEffect(() => {
     captureAttribution();
@@ -103,7 +89,7 @@ export default function AttributionCapture() {
   }, []);
 
   useEffect(() => {
-    const handleLineGate = (event: MouseEvent) => {
+    const handleLineRedirect = (event: MouseEvent) => {
       const target = event.target instanceof Element ? event.target : null;
       const anchor = target?.closest<HTMLAnchorElement>(LINE_LINK_SELECTOR);
 
@@ -111,62 +97,18 @@ export default function AttributionCapture() {
         return;
       }
 
-      if (!isPaidLeadSession() || getStoredPersona()) {
-        // Organic, or a paid visitor who already answered the survey in an
-        // earlier session (persona is permanent in localStorage). Mint the
-        // lead now (persona attaches automatically if already known) and
-        // rewrite the href in place — no preventDefault, so the browser's
-        // normal navigation carries the visitor to LINE with no popup-
-        // blocker risk and no extra click.
-        anchor.href = beginLeadForLineClick();
-        return;
-      }
-
-      // First-ever paid click for this browser: intercept and survey first.
-      // The lead isn't minted yet — persona is unknown until answered, and
-      // the lead should carry it from the start rather than be patched
-      // afterward.
-      event.preventDefault();
-      event.stopPropagation();
-
-      const position = anchor.dataset.analyticsPosition || 'unknown';
-      setSurveyPosition(position);
-      setIsSurveyOpen(true);
-      // The capture-phase gate stops this click before it reaches the
-      // bubble-phase analytics listener, so record the CTA click here.
-      trackLineClick(position);
-      trackLineSurveyStart(position);
+      // Mint the attributed lead and update the real anchor before its native
+      // navigation runs. Never block LINE on the intake request or add an
+      // intermediate modal/popup.
+      anchor.href = beginLeadForLineClick();
     };
 
-    document.addEventListener('click', handleLineGate, true);
+    document.addEventListener('click', handleLineRedirect, true);
 
     return () => {
-      document.removeEventListener('click', handleLineGate, true);
+      document.removeEventListener('click', handleLineRedirect, true);
     };
   }, []);
 
-  const handleSurveyAnswer = useCallback(
-    (persona: LeadPersona) => {
-      setStoredPersona(persona);
-      trackLineSurveyComplete(persona, surveyPosition);
-
-      // Mint + open synchronously in the same click-handler call stack as
-      // the button press (required to avoid popup blockers) — persona is
-      // already in localStorage from setStoredPersona above, so it's
-      // included in the intake payload.
-      const href = beginLeadForLineClick();
-      window.open(href, '_blank', 'noopener,noreferrer');
-
-      setIsSurveyOpen(false);
-    },
-    [surveyPosition],
-  );
-
-  return (
-    <LeadSurveyModal
-      isOpen={isSurveyOpen}
-      onAnswer={handleSurveyAnswer}
-      tone={pathname === '/lp/google-ads/electric-awning' ? 'monochrome' : 'brand'}
-    />
-  );
+  return null;
 }

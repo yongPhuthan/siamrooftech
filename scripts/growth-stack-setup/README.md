@@ -95,17 +95,23 @@ export GA4_MEASUREMENT_ID=G-XXXXXXXXXX
 
 ```bash
 # GA4: property + data stream (first run only), custom dimensions, key
-# events.
-yarn ga4:setup --wipe
+# events. A normal run retires the old survey/phone key events without
+# touching unrelated GA4 configuration.
+yarn ga4:setup
 
-# GTM: variables, triggers, tags, draft version. Does NOT publish.
-yarn gtm:setup --wipe
+# GTM: retires survey-only artifacts, then creates/updates the direct-flow
+# variables, triggers, tags, and a draft version. Does NOT publish.
+yarn gtm:setup
 ```
 
+After Preview verification, publish the same targeted cleanup/configuration
+with `yarn gtm:setup --publish`. The flag creates and publishes a new version;
+without it the script always leaves a draft for review.
+
 `--wipe` deletes/archives everything currently in the workspace/property
-first. Safe to run without it on a brand-new container/property — there's
-nothing to wipe, and re-running either script is idempotent (skips anything
-that already exists by name).
+first and should only be used for an intentional full rebuild. Normal rollout
+must run without it; both scripts retire only the known legacy survey
+artifacts and preserve unrelated configuration.
 
 Tag Manager's default per-minute write quota is easy to trip on a full
 rebuild (30+ variables plus triggers plus tags) — `gtm-setup.mjs` sleeps

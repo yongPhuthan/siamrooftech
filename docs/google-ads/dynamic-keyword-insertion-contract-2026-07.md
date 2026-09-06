@@ -2,6 +2,10 @@
 
 Date: 2026-07-24
 
+> **Conversion-flow notice (2026-09-07):** Survey-gate sections in this
+> historical contract are retired. All public LINE CTAs now open LINE directly
+> with a ref-code; use `production-qa-runbook-2026-07.md` for current QA.
+
 > **Status (2026-08-21): not used by the current P0 pilot.** Ads traffic
 > lands on the homepage with no `ad_kw`/`ad_audience`/`ad_area`/`ad_intent`
 > query params -- see `launch-url-matrix-2026-07.csv`. The homepage does not

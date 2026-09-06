@@ -112,7 +112,6 @@ async function run() {
   // 1. Intake -> lead row with gclid, ads_state='not_sent' (has a click id).
   const intakeRes = await intake({
     gclid,
-    lead_persona: 'contractor', // deliberately the 0-risk persona -- must never become 0
     utm_campaign: 'qa-campaign',
   });
   const intakeBody = await intakeRes.json();
@@ -160,15 +159,18 @@ async function run() {
   if (!matchedLead) fail('lead never showed conversation_id after the ref-code webhook');
   const lead = matchedLead || (await (await get(`/leads/${leadId}`)).json());
 
-  // 4. Lead is now matched, with persona_value = 1 (never 0) for contractor.
+  // 4. A persona-free first LINE message is the initial conversion seam.
   if (lead.match?.conversation_id !== conversationId) {
     fail(`lead matching: expected conversation_id=${conversationId}, got ${lead.match?.conversation_id}`);
   }
   if (lead.match?.match_method !== 'ref_code') {
     fail(`lead matching: expected match_method=ref_code, got ${lead.match?.match_method}`);
   }
-  if (lead.value?.persona_value !== 1) {
-    fail(`contractor persona_value: expected 1 (never 0 -- see docs/lead-matching/README.md), got ${lead.value?.persona_value}`);
+  if (lead.attribution?.lead_persona !== null || lead.value?.persona_value !== null) {
+    fail(`direct LINE lead must not require persona data: ${JSON.stringify({
+      lead_persona: lead.attribution?.lead_persona,
+      persona_value: lead.value?.persona_value,
+    })}`);
   }
   const eventsBeforeRedelivery = lead.events?.length ?? 0;
 
@@ -221,9 +223,23 @@ async function run() {
     }
   }
 
-  const initialJob = (await fetchJobs()).find((j) => j.kind === 'initial');
-  if (initialJob && initialJob.mode === 'dry_run' && (!initialJob.request_payload || initialJob.state === 'pending')) {
-    fail('dry-run initial job has no recorded request_payload, or never reached a terminal state');
+  const initialJob = await waitFor(async () => {
+    const jobs = await fetchJobs();
+    const job = jobs.find((j) => j.kind === 'initial');
+    return job && job.state !== 'pending' ? job : null;
+  });
+  if (!initialJob) {
+    fail('persona-free matched LINE message did not create an initial conversion job');
+  } else {
+    if (initialJob.conversion_value !== 1) {
+      fail(`initial LINE-message conversion value: expected technical placeholder 1 THB, got ${initialJob.conversion_value}`);
+    }
+    if (initialJob.request_payload?.events?.[0]?.transactionId !== leadId) {
+      fail(`initial transactionId should equal lead_id (${leadId}), got ${initialJob.request_payload?.events?.[0]?.transactionId}`);
+    }
+    if (initialJob.mode === 'dry_run' && initialJob.state !== 'succeeded') {
+      fail(`dry-run initial job: expected state=succeeded, got ${initialJob.state}`);
+    }
   }
 
   // 9. Status after the value call should be 'won' (value endpoint accepted an optional status).
@@ -239,6 +255,14 @@ async function run() {
     conversation_id: 'user:manually-matched-conversation',
   });
   if (manualMatchRes.status !== 200) fail(`manual match: expected 200, got ${manualMatchRes.status}`);
+  const manualInitialJob = await waitFor(async () => {
+    const jobs = ((await (await get(`/ads-sync/jobs?limit=100`)).json()).jobs || []);
+    const job = jobs.find((j) => j.lead_id === unmatchedBody.lead_id && j.kind === 'initial');
+    return job && job.state !== 'pending' ? job : null;
+  });
+  if (!manualInitialJob || manualInitialJob.conversion_value !== 1) {
+    fail(`manual persona-free match must create one 1 THB initial conversion job: ${JSON.stringify(manualInitialJob)}`);
+  }
 
   // 12. Auth: no bearer -> 401; wrong write token -> 401; POST /leads (GET-only) -> 405.
   const noAuthList = await fetch(`${baseUrl}/leads`);
@@ -257,7 +281,12 @@ async function run() {
   if (postToLeadsRes.status !== 405) fail(`POST /leads: expected 405, got ${postToLeadsRes.status}`);
 
   // 13. Timezone windowing: today's leads must show up under date=today in Asia/Bangkok.
-  const today = new Date(ts).toISOString().slice(0, 10);
+  const today = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Bangkok',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(new Date(ts));
   const listRes = await get(`/leads?date=${today}&timezone=Asia/Bangkok&limit=500`);
   const listBody = await listRes.json();
   if (!(listBody.leads || []).some((l) => l.lead_id === leadId)) {

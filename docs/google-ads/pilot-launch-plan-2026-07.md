@@ -2,6 +2,11 @@
 
 Date: 2026-07-25
 
+> **Conversion-flow notice (2026-09-07):** Replace every survey-based bidding
+> rule below with the current rule: keep Maximize Clicks until at least 30
+> actual matched LINE messages occur in 30 days. Survey/click events are
+> Secondary diagnostics only.
+
 ## Purpose
 
 Launch only enough Google Search traffic to verify lead quality without damaging SEO, attribution, or budget control.
