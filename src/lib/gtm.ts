@@ -79,6 +79,32 @@ const getCurrentPageContext = (): GTMEventPayload => {
   };
 };
 
+const getFunnelContext = (): GTMEventPayload => {
+  if (typeof window === 'undefined') {
+    return {};
+  }
+
+  const viewportCenter = window.innerHeight / 2;
+  const activeSection = Array.from(
+    document.querySelectorAll<HTMLElement>('[data-funnel-section]'),
+  ).find((section) => {
+    const rect = section.getBoundingClientRect();
+    return rect.top <= viewportCenter && rect.bottom >= viewportCenter;
+  });
+  const scrollableDistance = Math.max(
+    document.documentElement.scrollHeight - window.innerHeight,
+    0,
+  );
+  const scrollDepthPercent = scrollableDistance === 0
+    ? 0
+    : Math.min(100, Math.max(0, Math.round((window.scrollY / scrollableDistance) * 100)));
+
+  return {
+    active_section: activeSection?.dataset.funnelSection || 'unknown',
+    scroll_depth_percent: scrollDepthPercent,
+  };
+};
+
 const toEventAttributionParams = (data: StoredAttribution): GTMEventPayload => {
   return Object.fromEntries(
     Object.entries(data).map(([key, value]) => [`attribution_${key}`, value]),
@@ -180,6 +206,7 @@ export const trackLineClick = (position: string = 'unknown') => {
     lead_type: 'line',
     conversion_priority: 'secondary',
     position,
+    ...getFunnelContext(),
   });
 };
 

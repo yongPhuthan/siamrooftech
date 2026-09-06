@@ -66,13 +66,15 @@ export function ElectricAwningInstallationQuality() {
   return (
     <section id="installation-quality" className="border-y border-neutral-300 bg-white text-neutral-900">
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-16 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:gap-20 lg:px-8 lg:py-24">
-        <div>
-          <AdsSectionHeading
-            tone="monochrome"
-            eyebrow="หัวใจของงานติดตั้ง"
-            title="กันสาดไฟฟ้าที่ดีต้องเลือกให้ถูกและติดตั้งให้เหมาะกับหน้างาน"
-          />
-          <p className="mt-6 max-w-md text-base leading-8 text-neutral-600 sm:text-lg">
+        <div className="text-center lg:text-left">
+          <div className="[&>div]:mx-auto lg:[&>div]:mx-0">
+            <AdsSectionHeading
+              tone="monochrome"
+              eyebrow="หัวใจของงานติดตั้ง"
+              title="กันสาดไฟฟ้าที่ดีต้องเลือกให้ถูกและติดตั้งให้เหมาะกับหน้างาน"
+            />
+          </div>
+          <p className="mx-auto mt-6 max-w-md text-base leading-8 text-neutral-600 sm:text-lg lg:mx-0">
             ความสะดวกตอนกดรีโมท เริ่มจากการเลือกและติดตั้งให้เหมาะกับพื้นที่
             ทั้งส่วนที่มองเห็น และส่วนที่อยู่เบื้องหลังการกาง–พับ
           </p>

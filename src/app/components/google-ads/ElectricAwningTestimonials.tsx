@@ -40,7 +40,7 @@ export function ElectricAwningTestimonials() {
             <br />
             ไว้ใจสยามรูฟเทค
           </h2>
-          <p className="mt-4 text-base leading-8 text-neutral-600 sm:text-lg">
+          <p className="mt-4 text-left text-base leading-8 text-neutral-600 sm:text-center sm:text-lg">
             เราผ่านประสบการณ์ติดตั้งกันสาดไฟฟ้า กันสาดพับได้มาหลายรูปแบบ
             ทำให้เราเข้าใจถึงปัญหาและมีประสบการณ์ในการติดตั้งกันสาดไฟฟ้าในพื้นผิวหน้างานรูปแบบต่างๆ
             งานติดตั้งทุกงานของเราจึงคำนึงถึงความปลอดภัยและปิดทุกความเสี่ยงที่อาจเกิดขึ้นจากการติดตั้งกันสาดไฟฟ้าในพื้นที่ของคุณ

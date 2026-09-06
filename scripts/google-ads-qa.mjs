@@ -64,6 +64,7 @@ async function checkPage({
   shouldInclude = [],
   shouldNotInclude = [],
   imageFreeSections = [],
+  orderedText = [],
 }) {
   const response = await fetchPath(path);
   if (response.status !== 200) {
@@ -111,6 +112,19 @@ async function checkPage({
     }
   }
 
+  let previousIndex = -1;
+  for (const text of orderedText) {
+    const currentIndex = renderedHtml.indexOf(text);
+    if (currentIndex === -1) {
+      fail(`${path}: expected ordered marker "${text}"`);
+      continue;
+    }
+    if (currentIndex <= previousIndex) {
+      fail(`${path}: expected "${text}" after the previous funnel marker`);
+    }
+    previousIndex = currentIndex;
+  }
+
   for (const heading of imageFreeSections) {
     const section = [...renderedHtml.matchAll(/<section\b[^>]*>[\s\S]*?<\/section>/gi)]
       .map(([markup]) => markup)
@@ -137,6 +151,19 @@ await checkPage({
   imageFreeSections: [
     'กันสาดไฟฟ้าที่ดีต้องเลือกให้ถูกและติดตั้งให้เหมาะกับหน้างาน',
   ],
+  orderedText: [
+    'data-funnel-section="hero"',
+    'data-funnel-section="trust"',
+    'data-funnel-section="testimonials"',
+    'data-funnel-section="portfolio"',
+    'data-funnel-section="risks"',
+    'data-funnel-section="installation_quality"',
+    'data-funnel-section="backup_system"',
+    'data-funnel-section="why_us"',
+    'data-funnel-section="site_assessment"',
+    'data-funnel-section="process"',
+    'data-funnel-section="final"',
+  ],
   shouldInclude: [
     'data-landing-page="google-ads-electric-awning"',
     'กันสาดไฟฟ้าที่ลูกค้าวางใจ ตั้งแต่มอเตอร์จนถึงระบบไฟฟ้า',
@@ -146,6 +173,10 @@ await checkPage({
     'มีมือหมุนสำรองไว้เมื่อไฟฟ้าขัดข้อง',
     'ระบบไฟฟ้า–มือหมุน',
     'ใช้มือหมุนได้เฉพาะระบบที่ออกแบบมารองรับ',
+    'electric_awning_ads_hero',
+    'electric_awning_ads_site_assessment',
+    'electric_awning_ads_final',
+    'electric_awning_ads_sticky_mobile',
     // Credibility sections. DamageWarningSection is reused verbatim from the
     // homepage (see src/lib/layout-config.ts) so the same damage photos never
     // carry different copy depending on which page a visitor lands on.
@@ -156,32 +187,29 @@ await checkPage({
     // WhyUs (LP-native "solution" step, four cards).
     'ความมั่นใจที่มาพร้อมกันสาดไฟฟ้าทุกชุด',
     'โครงสร้างที่ผ่านการยึดอย่างถูกวิธี',
-    'เดินระบบไฟฟ้าอร่วมกับแหล่งจ่ายไฟบ้านอย่างปลอดภัย',
+    'เดินระบบไฟฟ้าร่วมกับแหล่งจ่ายไฟบ้านอย่างปลอดภัย',
     'ออกแบบและติดตั้งมาแล้วหลากหลายรูปแบบหน้างาน',
     'รับประกันมอเตอร์ 2 ปี เสีย เปลี่ยนใหม่ ไม่ซ่อม',
     'สอบถาม-ประเมินราคาฟรี',
     'ภาพประกอบเพื่ออธิบายระบบ',
     'ผลงานติดตั้งจริง',
+    'ผลงานกันสาดไฟฟ้าจริง',
   ],
   shouldNotInclude: [
-    'electric_awning_ads_hero',
-    'electric_awning_ads_site_assessment',
     'electric_awning_ads_control_choice',
     'electric_awning_ads_risk_proof',
-    'electric_awning_ads_final',
     // Retired positions: the testimonial CTA, the LP-native WhyUs CTA, and the
     // old "3 steps" section were all removed/replaced by reused home sections.
     'electric_awning_ads_testimonial',
     'electric_awning_ads_why_us',
     'electric_awning_ads_steps',
-    // Retired: the sticky mobile LINE bar, the floating desktop button, and
-    // the nav's own embedded LINE CTA were all removed -- the navbar is no
-    // longer sticky and carries no CTA of its own. In-body CTAs (WhyUs2
-    // mobile cards, the "bottom" button, FinalCTASection) are the only LINE
-    // conversion points left on this page.
-    'electric_awning_ads_sticky_mobile',
-    'electric_awning_ads_sticky_desktop',
+    // Retired: the nav's own embedded LINE CTA was removed. The responsive
+    // sticky controls live outside the page body and are covered by browser QA.
     'electric_awning_ads_header',
+    'data-analytics-position="bottom"',
+    'why_us_mobile_safety',
+    'why_us_mobile_design',
+    'why_us_mobile_after_sales',
     'system-overview-v1',
     'risk-structure-motor-v1',
     'risk-limit-alignment-v1',

@@ -16,7 +16,7 @@ const baseUrl = String(
   args.get('base') || process.env.ADS_BROWSER_QA_BASE_URL || 'http://localhost:3000',
 );
 // Development servers may need to compile a route on its first request.
-const pageLoadTimeoutMs = Number(args.get('page-load-timeout') || 15000);
+const pageLoadTimeoutMs = Number(args.get('page-load-timeout') || 30000);
 const chromePath = String(
   args.get('chrome') ||
     process.env.CHROME_PATH ||
@@ -51,7 +51,6 @@ function launchChrome(userDataDir) {
     [
       '--headless=new',
       '--disable-gpu',
-      '--disable-background-networking',
       '--disable-default-apps',
       '--disable-extensions',
       '--disable-sync',
@@ -77,6 +76,10 @@ async function stopChrome(child) {
     new Promise((resolve) => child.once('exit', resolve)),
     wait(5000),
   ]);
+
+  if (child.exitCode === null) {
+    child.kill('SIGKILL');
+  }
 }
 
 function waitForWebSocketUrl(child) {
@@ -124,6 +127,7 @@ function createCdpClient(webSocketUrl) {
     if (!callback) return;
 
     pending.delete(message.id);
+    clearTimeout(callback.timeout);
     if (message.error) {
       callback.reject(new Error(`${message.error.message || 'CDP error'} (${message.method || message.id})`));
       return;
@@ -137,6 +141,14 @@ function createCdpClient(webSocketUrl) {
     socket.addEventListener('error', reject, { once: true });
   });
 
+  socket.addEventListener('close', () => {
+    for (const callback of pending.values()) {
+      clearTimeout(callback.timeout);
+      callback.reject(new Error('Chrome DevTools connection closed'));
+    }
+    pending.clear();
+  });
+
   function send(method, params = {}, sessionId) {
     const messageId = (id += 1);
     const payload = { id: messageId, method, params };
@@ -146,7 +158,11 @@ function createCdpClient(webSocketUrl) {
     }
 
     const response = new Promise((resolve, reject) => {
-      pending.set(messageId, { resolve, reject });
+      const timeout = setTimeout(() => {
+        pending.delete(messageId);
+        reject(new Error(`Timed out waiting for Chrome DevTools command: ${method}`));
+      }, pageLoadTimeoutMs);
+      pending.set(messageId, { resolve, reject, timeout });
     });
 
     socket.send(JSON.stringify(payload));
@@ -172,7 +188,11 @@ async function evaluate(client, sessionId, expression) {
   );
 
   if (result.exceptionDetails) {
-    throw new Error(result.exceptionDetails.text || 'Runtime evaluation failed');
+    throw new Error(
+      result.exceptionDetails.exception?.description ||
+        result.exceptionDetails.text ||
+        'Runtime evaluation failed',
+    );
   }
 
   return result.result.value;
@@ -180,13 +200,15 @@ async function evaluate(client, sessionId, expression) {
 
 // Runs `fn(client, sessionId)` against a fresh, isolated Chrome profile (own
 // cookies/localStorage) and always cleans up, even on failure.
-async function withFreshBrowser(fn) {
+async function withFreshBrowser(fn, attempt = 0) {
   const userDataDir = await mkdtemp(join(tmpdir(), 'siamrooftech-ads-browser-qa-'));
   const child = launchChrome(userDataDir);
+  let client;
+  let runError;
 
   try {
     const webSocketUrl = await waitForWebSocketUrl(child);
-    const client = createCdpClient(webSocketUrl);
+    client = createCdpClient(webSocketUrl);
     await client.ready;
 
     const { targetId } = await client.send('Target.createTarget', { url: 'about:blank' });
@@ -199,9 +221,11 @@ async function withFreshBrowser(fn) {
     await client.send('Page.enable', {}, sessionId);
 
     await fn(client, sessionId);
+  } catch (error) {
+    runError = error;
 
-    client.close();
   } finally {
+    client?.close();
     await stopChrome(child);
     await rm(userDataDir, {
       recursive: true,
@@ -210,15 +234,40 @@ async function withFreshBrowser(fn) {
       retryDelay: 100,
     });
   }
+
+  if (runError && attempt < 1 && /Chrome DevTools|Page\.navigate|Runtime\.evaluate/.test(runError.message)) {
+    return withFreshBrowser(fn, attempt + 1);
+  }
+  if (runError) throw runError;
 }
 
 async function navigateTo(client, sessionId, path) {
-  await client.send('Page.navigate', { url: new URL(path, baseUrl).toString() }, sessionId);
-  await waitFor(
-    () => evaluate(client, sessionId, 'document.readyState === "complete"'),
-    pageLoadTimeoutMs,
-    `page load for ${path}`,
-  );
+  const targetUrl = new URL(path, baseUrl).toString();
+  let navigationError;
+  try {
+    await client.send('Page.navigate', { url: targetUrl }, sessionId);
+  } catch (error) {
+    // Chrome can occasionally omit the Page.navigate acknowledgement even
+    // though the target committed. Verify the actual document before failing.
+    navigationError = error;
+  }
+
+  try {
+    await waitFor(
+      () => evaluate(
+        client,
+        sessionId,
+        `location.href === ${JSON.stringify(targetUrl)} && document.readyState === "complete"`,
+      ),
+      pageLoadTimeoutMs,
+      `page load for ${path}`,
+    );
+  } catch (error) {
+    if (navigationError) {
+      throw new Error(`${navigationError.message}; ${error.message}`);
+    }
+    throw error;
+  }
   // Let client-side hydration (middleware cookie is already set by the
   // response; the click listeners are attached by AttributionCapture on
   // mount) settle before interacting.
@@ -274,13 +323,148 @@ function clickPhoneLink(client, sessionId) {
 // --- Scenario 1: paid session (gclid) -- the full positive flow --------------
 
 // The nav carries no CTA of its own anymore (see src/app/components/ui/Navigation.tsx),
-// so the tested conversion point is FinalCTASection's compact LINE button --
-// the page's other reused-from-home CTAs (why_us_mobile_*, "bottom") work
-// identically since they all render the same LineContactButton.
-async function scenarioPaidSession(position = 'final_cta') {
+// so the default conversion point is the landing page's final CTA. Other
+// positions reuse the same LineContactButton tracking and lead-intake seam.
+async function scenarioPaidSession(position = 'electric_awning_ads_final') {
   await withFreshBrowser(async (client, sessionId) => {
     const gclid = `qa-browser-${Date.now()}`;
     await navigateTo(client, sessionId, `/lp/google-ads/electric-awning?gclid=${gclid}&utm_source=google&utm_medium=cpc&utm_campaign=qa_monochrome`);
+    try {
+      await waitFor(
+        () => evaluate(
+          client,
+          sessionId,
+          `!!document.querySelector('[data-landing-page="google-ads-electric-awning"]')`,
+        ),
+        pageLoadTimeoutMs,
+        'Google Ads landing-page root',
+      );
+    } catch (error) {
+      const pageState = await evaluate(client, sessionId, `({
+        href: location.href,
+        title: document.title,
+        body: document.body?.innerText.slice(0, 500) || '',
+      })`);
+      throw new Error(`${error.message}: ${JSON.stringify(pageState)}`);
+    }
+
+    const funnelOrder = await evaluate(client, sessionId, `Array.from(
+      document.querySelectorAll('[data-funnel-section]')
+    ).map((element) => element.dataset.funnelSection)`);
+    const expectedFunnelOrder = [
+      'hero',
+      'trust',
+      'testimonials',
+      'portfolio',
+      'risks',
+      'installation_quality',
+      'backup_system',
+      'why_us',
+      'site_assessment',
+      'process',
+      'final',
+    ];
+    if (JSON.stringify(funnelOrder) !== JSON.stringify(expectedFunnelOrder)) {
+      fail(`Landing funnel order mismatch: ${JSON.stringify(funnelOrder)}`);
+    }
+
+    const retiredWhyUsCtas = await evaluate(client, sessionId, `document.querySelectorAll(
+      '[data-analytics-position^="why_us_mobile_"]'
+    ).length`);
+    if (retiredWhyUsCtas !== 0) {
+      fail(`Landing page must not render legacy WhyUs mobile CTAs; got ${retiredWhyUsCtas}`);
+    }
+
+    if (position === 'electric_awning_ads_sticky_mobile') {
+      for (const width of [430, 390, 320]) {
+        await client.send('Emulation.setDeviceMetricsOverride', { width, height: 900, deviceScaleFactor: 1, mobile: false }, sessionId);
+        await evaluate(client, sessionId, 'scrollTo(0, 0)');
+        await wait(100);
+        const mobileTopState = await evaluate(client, sessionId, `(() => {
+          const visible = (element) => {
+            if (!element) return false;
+            const rect = element.getBoundingClientRect();
+            const style = getComputedStyle(element);
+            return rect.width > 0 && rect.height > 0 && rect.bottom > 0 && rect.top < innerHeight &&
+              style.display !== 'none' && style.visibility !== 'hidden';
+          };
+          const mobileBar = document.querySelector('[data-analytics-position="electric_awning_ads_sticky_mobile"]');
+          const mobileRect = mobileBar?.getBoundingClientRect();
+          return {
+            heroVisible: visible(document.querySelector('[data-analytics-position="electric_awning_ads_hero"]')),
+            mobileVisible: visible(mobileBar),
+            visibleLineCtas: Array.from(document.querySelectorAll('[data-analytics-type="line"]')).filter(visible).length,
+            overflow: document.documentElement.scrollWidth > innerWidth,
+            mobileSafelyInside: !visible(mobileBar) || (mobileRect.left >= 20 && mobileRect.right <= document.documentElement.clientWidth - 20 && mobileRect.bottom <= innerHeight - 20),
+          };
+        })()`);
+        if (mobileTopState.overflow || !mobileTopState.mobileVisible || mobileTopState.heroVisible ||
+            mobileTopState.visibleLineCtas !== 1 || !mobileTopState.mobileSafelyInside) {
+          fail(`Mobile must show only the sticky LINE CTA at the top at ${width}px: ${JSON.stringify(mobileTopState)}`);
+        }
+
+        await evaluate(client, sessionId, `document.querySelector('[data-funnel-section="final"]').scrollIntoView({ block: 'center' })`);
+        await wait(100);
+        const mobileFinalState = await evaluate(client, sessionId, `(() => {
+          const visible = (element) => {
+            if (!element) return false;
+            const rect = element.getBoundingClientRect();
+            const style = getComputedStyle(element);
+            return rect.width > 0 && rect.height > 0 && rect.bottom > 0 && rect.top < innerHeight &&
+              style.display !== 'none' && style.visibility !== 'hidden';
+          };
+          return {
+            stickyVisible: visible(document.querySelector('[data-analytics-position="electric_awning_ads_sticky_mobile"]')),
+            finalVisible: visible(document.querySelector('[data-analytics-position="electric_awning_ads_final"]')),
+            visibleLineCtas: Array.from(document.querySelectorAll('[data-analytics-type="line"]')).filter(visible).length,
+          };
+        })()`);
+        if (mobileFinalState.stickyVisible || !mobileFinalState.finalVisible || mobileFinalState.visibleLineCtas !== 1) {
+          fail(`Mobile final section must replace the sticky LINE CTA at ${width}px: ${JSON.stringify(mobileFinalState)}`);
+        }
+      }
+
+      for (const width of [768, 1024, 1440]) {
+        await client.send('Emulation.setDeviceMetricsOverride', { width, height: 900, deviceScaleFactor: 1, mobile: false }, sessionId);
+        const desktopStates = [];
+        for (const target of ['top', 'after-hero', 'site-assessment', 'final']) {
+          await evaluate(client, sessionId, `(() => {
+            const hero = document.querySelector('[data-floating-cta-start]');
+            if (${JSON.stringify(target)} === 'top') scrollTo(0, 0);
+            if (${JSON.stringify(target)} === 'after-hero') scrollTo(0, hero.getBoundingClientRect().bottom + scrollY + 1);
+            if (${JSON.stringify(target)} === 'site-assessment') document.querySelector('[data-floating-cta-blocker]').scrollIntoView({ block: 'center' });
+            if (${JSON.stringify(target)} === 'final') document.querySelector('[data-funnel-section="final"]').scrollIntoView({ block: 'center' });
+          })()`);
+          await wait(100);
+          desktopStates.push(await evaluate(client, sessionId, `(() => {
+            const visible = (element) => {
+              if (!element) return false;
+              const rect = element.getBoundingClientRect();
+              const style = getComputedStyle(element);
+              return rect.width > 0 && rect.height > 0 && rect.bottom > 0 && rect.top < innerHeight &&
+                style.display !== 'none' && style.visibility !== 'hidden';
+            };
+            const floating = document.querySelector('[data-analytics-position="electric_awning_ads_sticky_desktop"]');
+            const rect = floating?.getBoundingClientRect();
+            return {
+              target: ${JSON.stringify(target)},
+              floatingVisible: visible(floating),
+              visibleLineCtas: Array.from(document.querySelectorAll('[data-analytics-type="line"]')).filter(visible).length,
+              safelyInside: !visible(floating) || (rect.right <= innerWidth - 32 && rect.bottom <= innerHeight - 32),
+            };
+          })()`));
+        }
+        const expectedFloating = [false, true, false, false];
+        if (desktopStates.some((state, index) => state.floatingVisible !== expectedFloating[index] ||
+            state.visibleLineCtas !== 1 || !state.safelyInside)) {
+          fail(`Desktop must expose one context-appropriate LINE CTA at ${width}px: ${JSON.stringify(desktopStates)}`);
+        }
+      }
+
+      await client.send('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 1, mobile: false }, sessionId);
+      await evaluate(client, sessionId, `document.querySelector('[data-funnel-section="portfolio"]').scrollIntoView({ block: 'center' })`);
+      await wait(100);
+    }
 
     const appearance = await evaluate(client, sessionId, `(() => {
       const main = document.querySelector('[data-landing-page="google-ads-electric-awning"]');
@@ -302,17 +486,15 @@ async function scenarioPaidSession(position = 'final_cta') {
           .filter(el => el.textContent.trim() !== 'สอบถาม-ประเมินราคาฟรี').length,
         excessiveCorners: surfaces.filter(el => parseFloat(getComputedStyle(el).borderTopLeftRadius) > 4).length,
         shadows: surfaces.filter(el => getComputedStyle(el).boxShadow !== 'none').length,
-        // No in-body CTA is approved inside an ad-native section right now --
-        // every remaining conversion point lives inside a [data-legacy-ui]
-        // block (exempt, see above). A CTA sprouting inside any other
-        // section still fails.
+        approvedNativeCtas: Array.from(main.querySelectorAll('section [data-analytics-type="line"]'))
+          .filter((el) => !isLegacyUi(el) && ['electric_awning_ads_hero', 'electric_awning_ads_site_assessment', 'electric_awning_ads_final'].includes(el.dataset.analyticsPosition)).length,
         unapprovedSectionCtas: Array.from(main.querySelectorAll('section [data-analytics-type]'))
-          .filter((el) => !isLegacyUi(el)).length,
+          .filter((el) => !isLegacyUi(el) && !['electric_awning_ads_hero', 'electric_awning_ads_site_assessment', 'electric_awning_ads_final'].includes(el.dataset.analyticsPosition)).length,
       };
     })()`);
     if (appearance.heroBackground !== 'rgb(255, 255, 255)' ||
         appearance.ctaBackground !== 'rgb(1, 178, 2)' ||
-        appearance.unapprovedSectionCtas || appearance.incorrectLineLabels || appearance.ctaRadius > 4 || appearance.excessiveCorners || appearance.shadows) {
+        appearance.approvedNativeCtas !== 3 || appearance.unapprovedSectionCtas || appearance.incorrectLineLabels || appearance.ctaRadius > 4 || appearance.excessiveCorners || appearance.shadows) {
       fail(`Ads appearance: expected white hero, green LINE CTA with approved label, low radii and no decorative shadows; got ${JSON.stringify(appearance)}`);
     }
 
@@ -323,10 +505,43 @@ async function scenarioPaidSession(position = 'final_cta') {
 
     // Intercept window.open instead of letting a real tab open, so we can
     // assert on the URL LINE would actually receive.
+    const gtmEnabled = await evaluate(
+      client,
+      sessionId,
+      `Array.from(document.scripts).some((script) => script.src.includes('googletagmanager.com'))`,
+    );
+
     await evaluate(
       client,
       sessionId,
       `window.__openedUrls = []; window.open = (url) => { window.__openedUrls.push(url); return null; };`,
+    );
+
+    // Capture the browser transport as well as the dataLayer. A correctly
+    // shaped dataLayer event is not sufficient if the live GTM container is
+    // missing its matching GA4 event tag.
+    await evaluate(
+      client,
+      sessionId,
+      `(() => {
+        window.__analyticsDispatches = [];
+        const capture = (url, body) => {
+          const text = typeof body === 'string' ? body : body ? String(body) : '';
+          if (String(url).includes('google-analytics.com') || String(url).includes('/g/collect')) {
+            window.__analyticsDispatches.push({ url: String(url), body: text });
+          }
+        };
+        const originalFetch = window.fetch.bind(window);
+        window.fetch = (input, init) => {
+          capture(typeof input === 'string' ? input : input?.url, init?.body);
+          return originalFetch(input, init);
+        };
+        const originalBeacon = navigator.sendBeacon.bind(navigator);
+        navigator.sendBeacon = (url, data) => {
+          capture(url, data);
+          return originalBeacon(url, data);
+        };
+      })()`,
     );
 
     await clickPhoneLink(client, sessionId);
@@ -391,6 +606,19 @@ async function scenarioPaidSession(position = 'final_cta') {
     if (!events.includes('line_click')) {
       fail(`Paid session: expected line_click in dataLayer, got: ${events.join(', ')}`);
     }
+
+    if (position === 'electric_awning_ads_sticky_mobile') {
+      const lineClickEvent = await evaluate(
+        client,
+        sessionId,
+        `(window.dataLayer || []).find((event) => event.event === 'line_click' && event.position === ${JSON.stringify(position)})`,
+      );
+      if (lineClickEvent?.active_section !== 'portfolio' ||
+          typeof lineClickEvent?.scroll_depth_percent !== 'number' ||
+          lineClickEvent.scroll_depth_percent <= 0 || lineClickEvent.scroll_depth_percent >= 100) {
+        fail(`Sticky LINE click must include funnel context: ${JSON.stringify(lineClickEvent)}`);
+      }
+    }
     if (!events.includes('line_survey_start')) {
       fail(`Paid session: expected line_survey_start in dataLayer, got: ${events.join(', ')}`);
     }
@@ -454,6 +682,20 @@ async function scenarioPaidSession(position = 'final_cta') {
     }
     if (completeEvent && completeEvent.position !== position) {
       fail(`Paid session: line_survey_complete position mismatch; got: ${completeEvent.position}`);
+    }
+
+    // Keep the page alive briefly so GTM can dispatch queued analytics hits
+    // before the isolated browser profile is torn down.
+    await wait(2000);
+
+    if (gtmEnabled) {
+      const analyticsDispatches = await evaluate(client, sessionId, 'window.__analyticsDispatches || []');
+      for (const eventName of ['phone_click', 'line_survey_complete']) {
+        if (!analyticsDispatches.some((dispatch) =>
+          `${dispatch.url}\n${dispatch.body}`.includes(eventName))) {
+          fail(`Paid session: GTM/GA4 did not dispatch ${eventName}; got: ${JSON.stringify(analyticsDispatches)}`);
+        }
+      }
     }
 
     // Answered once this session -- clicking LINE again must not re-open the
@@ -542,6 +784,7 @@ async function scenarioHomepageSurveyAppearance() {
 
 try {
   await scenarioPaidSession();
+  await scenarioPaidSession('electric_awning_ads_sticky_mobile');
   if (!args.has('landing-only')) {
     await scenarioOrganicSession();
     await scenarioUtmOnlySession();
