@@ -7,7 +7,7 @@
   "compatibility_flags": ["nodejs_compat"],
   "vars": {
     "MEDIA_MAX_BYTES": "26214400",
-    "ADS_SYNC_MODE": "dry_run",
+    "ADS_SYNC_MODE": "live",
     "ADS_CUSTOMER_ID": "1546144152",
     "ADS_CONVERSION_ACTION_ID": "7751515179",
     "GOOGLE_SA_CLIENT_EMAIL": "ads-data-manager@siamrooftech-tools.iam.gserviceaccount.com"
