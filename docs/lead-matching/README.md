@@ -46,32 +46,26 @@ system.**
 
 ## How matching actually works
 
-LINE gives no way to attach metadata to an inbound message, and the
-Messaging API's `line.me/R/oaMessage/{id}/?{text}` URL scheme (confirmed
-from LINE's own docs) is the only lever available: it opens a chat with the
-OA and **prefills the message input box** with arbitrary text. So:
+LINE gives no reliable way to attach click metadata to an inbound message.
+The production contact contract therefore prioritizes the verified
+`https://lin.ee/pPz1ZqN` short link over message-prefill attribution:
 
 1. Every click on a LINE button (`src/app/components/AttributionCapture.tsx`)
    mints an 8-character ref code client-side (`SRT-K3F9QA2M`, using a
    Crockford-style alphabet without `0/O/1/I/L/U` — see
    `src/lib/lead-intake.ts`), fires a `POST /api/leads/intake` beacon with
    the ref code plus whatever attribution is in `localStorage` at that
-   moment (gclid, utm_*, persona if already known), and rewrites the click
-   target to `https://line.me/R/oaMessage/%40siamrooftech/?<message>%20[<ref>]`.
+   moment (gclid and utm_*). It does **not** rewrite the anchor destination.
 2. The lead is minted **client-side**, not server-round-tripped first — the
-   intake POST is fire-and-forget (`keepalive: true`) so it never delays
-   opening LINE, and a failed intake never blocks a lead from reaching a
-   human. The Worker (`workers/line-chat-history/src/leads.ts`
-   `createLead`) just records the same code the client already burned into
-   the URL.
-3. If the visitor taps send without editing the prefilled text, their first
-   LINE message contains the ref code. The webhook
+   intake POST is fire-and-forget (`keepalive: true`) while the browser opens
+   `https://lin.ee/pPz1ZqN` natively. A failed intake never blocks LINE.
+3. Legacy or manually supplied LINE messages may still contain a ref code. The webhook
    (`workers/line-chat-history/src/webhook.ts`) scans every inbound text
    message for the `SRT-XXXXXXXX` pattern and, on a hit, binds
    `leads.conversation_id` to that LINE conversation
    (`matchLeadByRefCode` in `leads.ts`).
-4. **If they clear the prefilled text, the lead is never automatically
-   matched.** It shows up in `GET /leads/unmatched` with time-window
+4. Normal short-link clicks contain no ref code and are not automatically
+   matched. They show up in `GET /leads/unmatched` with time-window
    candidates (LINE conversations that started within ±15 minutes) for a
    human to confirm manually in the dashboard. Automatic matching is
    deliberately exact-ref-only — a wrong *automatic* guess would silently
@@ -79,11 +73,8 @@ OA and **prefills the message input box** with arbitrary text. So:
    the same failure mode phone-number matching has. A wrong *manual* match
    is at least a decision a human made on purpose.
 
-**Not yet verified on real devices**: whether `oaMessage` still prefills
-correctly when the visitor isn't already a friend of the OA (it may show an
-add-friend interstitial first), and whether behavior differs between iOS,
-Android, and LINE's desktop client. Verify this before treating the match
-rate as reliable — see the runbook below.
+The short link must be rechecked on real iOS, Android, and desktop devices
+after contact-flow changes. A generic `line.me` landing page is a release blocker.
 
 ## Two-layer value model
 
@@ -137,12 +128,12 @@ Ad click (?gclid=...)
    │  AttributionCapture stores click attribution in localStorage
    ▼
 LINE button click ── AttributionCapture.tsx ──► POST /api/leads/intake (Next.js proxy)
-   │  rewrites href to a ref-coded                    │
-   │  line.me/R/oaMessage/... URL                      ▼
+   │  preserves https://lin.ee/pPz1ZqN                │
+   │                                                   ▼
    │                                    Worker: POST /internal/leads/intake
    │                                       └─► D1 leads (gclid, persona, ref_code, ...)
    ▼
-Opens LINE, ref code in prefilled message
+Opens the verified LINE OA short link
    │
    ▼
 Visitor taps send ──► LINE webhook (existing /line/webhook)
@@ -212,7 +203,7 @@ fixed amount, since the ads-sync queue consumer runs asynchronously (up to
 `max_batch_timeout` in `wrangler.jsonc`).
 
 `yarn ads:qa` and `yarn ads:browser-qa` verify the direct handoff: one click
-opens a ref-coded `line.me/R/oaMessage` URL through native anchor navigation,
+opens exactly `https://lin.ee/pPz1ZqN` through native anchor navigation,
 records one intake and one diagnostic `line_click`, emits no survey events,
 and still opens the original LINE URL if JavaScript or intake fails.
 
@@ -264,13 +255,13 @@ Worker's own local dev server).
 
 ## MVP vs. later
 
-**Shipped:** ref-code minting + intake, exact-ref matching in the webhook,
+**Shipped:** click intake without rewriting the verified LINE short link, legacy exact-ref matching in the webhook,
 `leads`/`lead_events`/`ads_sync_jobs` schema, `/admin/leads` dashboard,
 Read/Write API + CLI, Data Manager adapter with `dry_run` default, manual
 match for unmatched leads with time-window candidate suggestions.
 
-**Deferred:** flipping to `live` mode (blocked on an actual Google Ads
-account existing), smarter automatic-match heuristics beyond exact ref
+**Deferred:** a reliable privacy-safe attribution mechanism that works with
+the verified LINE short link, smarter automatic-match heuristics beyond exact ref
 code, retention/purge tooling for PDPA, campaign/keyword-level reporting
 rollups.
 

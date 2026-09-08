@@ -42,11 +42,10 @@ export async function handleWebhook(request: Request, env: Env): Promise<Respons
       await env.MEDIA_QUEUE.send(message);
     }
 
-    // Lead matching: an inbound text message carrying a ref code (from the
-    // LINE prefill link built in AttributionCapture.tsx) binds the lead
-    // this LINE conversation. See docs/lead-matching/README.md — matching
-    // is exact-ref-only, never inferred, since a wrong automatic match
-    // would attach a conversion to the wrong gclid.
+    // Legacy/manual flows may still supply a ref code in an inbound text
+    // message. The public CTA now preserves the verified lin.ee short link,
+    // so normal clicks require manual matching rather than risking a broken
+    // contact handoff or an inferred match to the wrong gclid.
     for (const event of events) {
       if (event.type !== 'message') continue;
       const message = (event as any).message;

@@ -8,17 +8,15 @@ import {
   trackLineClick,
   trackPhoneClick,
 } from '@/lib/gtag';
-import { buildLineOaMessageHref, mintRefCode, postLeadIntake, type LeadIntakePayload } from '@/lib/lead-intake';
+import { mintRefCode, postLeadIntake, type LeadIntakePayload } from '@/lib/lead-intake';
 
 const LINE_LINK_SELECTOR = 'a[href*="lin.ee"], a[href*="line.me"]';
 
 /**
- * Mints a lead + ref code for every LINE-button click (paid or organic —
- * the dashboard wants organic leads too), rewrites the click target to the
- * ref-coded LINE prefill URL, and fires the intake beacon. See
- * src/lib/lead-intake.ts and docs/lead-matching/README.md.
+ * Records a lead-intake attempt for every LINE-button click (paid or organic)
+ * without changing the verified lin.ee destination on the anchor.
  */
-function beginLeadForLineClick(): string {
+function recordLeadForLineClick(): void {
   const refCode = mintRefCode();
   const attribution = captureAttribution();
 
@@ -41,7 +39,6 @@ function beginLeadForLineClick(): string {
   };
 
   postLeadIntake(payload);
-  return buildLineOaMessageHref(refCode);
 }
 
 export default function AttributionCapture() {
@@ -97,10 +94,10 @@ export default function AttributionCapture() {
         return;
       }
 
-      // Mint the attributed lead and update the real anchor before its native
-      // navigation runs. Never block LINE on the intake request or add an
-      // intermediate modal/popup.
-      anchor.href = beginLeadForLineClick();
+      // Analytics must never rewrite the verified LINE short link. Rewriting
+      // it to a line.me deep link can fall back to the generic LINE homepage
+      // on clients that cannot resolve that scheme.
+      recordLeadForLineClick();
     };
 
     document.addEventListener('click', handleLineRedirect, true);

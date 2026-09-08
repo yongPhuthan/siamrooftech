@@ -502,8 +502,9 @@ async function scenarioPaidSession(position = 'electric_awning_ads_final') {
     }
 
     // Intercept the browser's native anchor navigation after the app's
-    // capture/bubble listeners have run. This proves the customer gets a
-    // one-click LINE handoff without opening a survey or a scripted popup.
+    // capture/bubble listeners have run. The production short link is the
+    // contact contract: client analytics must never rewrite it to a line.me
+    // URL that can fall back to the generic LINE homepage.
     const gtmEnabled = await evaluate(
       client,
       sessionId,
@@ -581,10 +582,8 @@ async function scenarioPaidSession(position = 'electric_awning_ads_final') {
     }
 
     const lineNavigations = await evaluate(client, sessionId, 'window.__lineNavigations');
-    if (lineNavigations.length !== 1 ||
-        !lineNavigations[0].startsWith('https://line.me/R/oaMessage/%40siamrooftech/') ||
-        !decodeURIComponent(lineNavigations[0]).includes('[SRT-')) {
-      fail(`Paid session: expected one native LINE navigation with a ref code; got: ${JSON.stringify(lineNavigations)}`);
+    if (lineNavigations.length !== 1 || lineNavigations[0] !== 'https://lin.ee/pPz1ZqN') {
+      fail(`Paid session: expected the verified LINE short link without client-side rewriting; got: ${JSON.stringify(lineNavigations)}`);
     }
 
     const leadIntakes = await evaluate(client, sessionId, 'window.__leadIntakes');
