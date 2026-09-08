@@ -2,9 +2,9 @@
 
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import LineButtonMobile from './LineButtonMobile';
-import LineButtonDesktop from './LineButtonDesktop';
 import { getLineCtaPositions, hidesSiteChrome, isAdLandingPage } from '@/lib/layout-config';
+import LineButtonDesktop from './LineButtonDesktop';
+import LineButtonMobile from './LineButtonMobile';
 
 /** Sticky LINE buttons on every public page; admin screens opt out. */
 export default function LineButtonsLayout() {

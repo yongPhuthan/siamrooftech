@@ -1,6 +1,7 @@
 'use client';
 
 import { trackLineClick, trackPhoneClick } from '@/lib/gtag';
+import { LINE_CONTACT_URL } from '@/features/line-contact/constants';
 
 interface PortfolioCTAProps {
   className?: string;
@@ -54,7 +55,7 @@ export default function PortfolioCTA({ className = '' }: PortfolioCTAProps) {
             <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center max-w-lg mx-auto">
               {/* Line Button */}
               <a
-                href="https://lin.ee/pPz1ZqN"
+                href={LINE_CONTACT_URL}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={handleLineClick}

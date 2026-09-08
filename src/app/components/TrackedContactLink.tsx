@@ -1,12 +1,12 @@
 'use client';
 
 import { ReactNode } from 'react';
+import { LINE_CONTACT_URL } from '@/features/line-contact/constants';
 import { trackLineClick, trackPhoneClick } from '@/lib/gtag';
 
 type TrackedContactLinkProps = {
   type: 'line' | 'phone';
   position: string;
-  href?: string;
   phoneNumber?: string;
   className?: string;
   children: ReactNode;
@@ -15,12 +15,11 @@ type TrackedContactLinkProps = {
 export default function TrackedContactLink({
   type,
   position,
-  href,
   phoneNumber = '0984542455',
   className,
   children,
 }: TrackedContactLinkProps) {
-  const linkHref = href || (type === 'phone' ? `tel:${phoneNumber}` : 'https://lin.ee/pPz1ZqN');
+  const linkHref = type === 'phone' ? `tel:${phoneNumber}` : LINE_CONTACT_URL;
 
   const handleClick = () => {
     if (type === 'phone') {

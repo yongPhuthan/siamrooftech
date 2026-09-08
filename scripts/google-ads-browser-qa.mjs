@@ -691,13 +691,23 @@ async function scenarioHomepageDirectLine() {
       button.radius > 4 || button.background !== 'rgb(1, 178, 2)' || button.nestedButton)) {
       fail(`Homepage LINE buttons should share green low-radius styling and the approved label: ${JSON.stringify(lineButtons)}`);
     }
-    await evaluate(client, sessionId, `document.addEventListener('click', (event) => {
-      const target = event.target instanceof Element ? event.target : null;
-      if (target?.closest('a[href*="lin.ee"], a[href*="line.me"]')) event.preventDefault();
-    })`);
+    await evaluate(client, sessionId, `(() => {
+      window.__homeLineNavigations = [];
+      document.addEventListener('click', (event) => {
+        const target = event.target instanceof Element ? event.target : null;
+        const anchor = target?.closest('a[data-analytics-type="line"]');
+        if (!anchor) return;
+        event.preventDefault();
+        window.__homeLineNavigations.push(anchor.href);
+      });
+    })()`);
     await clickLineLink(client, sessionId);
     await wait(300);
     if (await dialogVisible(client, sessionId)) fail('Homepage LINE click must not open a survey');
+    const navigations = await evaluate(client, sessionId, 'window.__homeLineNavigations');
+    if (navigations.length !== 1 || navigations[0] !== 'https://lin.ee/pPz1ZqN') {
+      fail(`Homepage LINE click must preserve the verified short link: ${JSON.stringify(navigations)}`);
+    }
     const clicks = await evaluate(client, sessionId,
       `(window.dataLayer || []).filter(e => e.event === 'line_click')`);
     // The nav no longer carries its own LINE CTA, so the first `a[href*="lin.ee"]`

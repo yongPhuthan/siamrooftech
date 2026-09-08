@@ -5,7 +5,8 @@ import { Suspense } from "react";
 import "./globals.css";
 import AttributionCapture from "./components/AttributionCapture";
 import Navigation from "./components/ui/Navigation";
-import LineButtonsLayout from "./components/LineButtonsLayout";
+import LineButtonsLayout from "@/features/line-contact/LineButtonsLayout";
+import LineLeadCapture from "@/features/line-contact/LineLeadCapture";
 import SiteFooter from "./components/SiteFooter";
 import { Geist } from "next/font/google";
 import { cn } from "@/lib/utils";
@@ -104,6 +105,7 @@ export default function RootLayout({
         <Suspense fallback={null}>
           <AttributionCapture />
         </Suspense>
+        <LineLeadCapture />
         <Navigation />
         <Suspense>{children}</Suspense>
         <SiteFooter />

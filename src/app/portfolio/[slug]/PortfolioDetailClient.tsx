@@ -17,6 +17,7 @@ import VideoModal from '@/components/ui/VideoModal';
 import { trackLineClick, trackPhoneClick } from '@/lib/gtag';
 import { getServiceLinksForProject } from '@/lib/service-linking';
 import { getProjectProof, hasManualProjectProof } from '@/lib/project-proof';
+import { LINE_CONTACT_URL } from '@/features/line-contact/constants';
 
 interface PortfolioDetailClientProps {
   project: Project;
@@ -544,7 +545,7 @@ return (
           {/* CTA */}
           <div className="flex flex-col sm:flex-row gap-4 mt-6">
             <a
-              href="https://lin.ee/pPz1ZqN"
+              href={LINE_CONTACT_URL}
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => trackLineClick('portfolio_detail_cta')}

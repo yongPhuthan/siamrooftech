@@ -3,8 +3,9 @@
 Date: 2026-07-25
 
 > **Conversion-flow notice (2026-09-07):** The survey conversion mapping in
-> this historical document is retired. LINE CTAs now use direct ref-coded
-> handoff; actual matched inbound messages are the Primary conversion.
+> this historical document is retired. LINE CTAs now use exactly
+> `https://lin.ee/pPz1ZqN`; normal short-link conversations require manual
+> matching because LINE does not receive a prefilled ref-code.
 
 > **Status (2026-08-21): partially superseded.** This document's Launch URL
 > Matrix section, and every `/services/*?ad_kw=...` URL example below, describe

@@ -6,6 +6,7 @@ import { ServicePage, servicePageUrl } from '@/lib/service-pages';
 import { ServiceProofProject } from '@/lib/service-project-matching';
 import { canonicalUrl } from '@/lib/seo-config';
 import type { GoogleAdsDynamicContent } from '@/lib/google-ads-dynamic-content';
+import { LINE_CONTACT_URL } from '@/features/line-contact/constants';
 
 type ServiceLandingPageProps = {
   page: ServicePage;
@@ -172,7 +173,7 @@ export default function ServiceLandingPage({
               </div>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <a
-                  href="https://lin.ee/pPz1ZqN"
+                  href={LINE_CONTACT_URL}
                   target="_blank"
                   rel="noopener noreferrer"
                   data-analytics-type="line"
@@ -277,7 +278,7 @@ export default function ServiceLandingPage({
                 </p>
                 <div className="mt-6 flex flex-col gap-3 sm:flex-row">
                   <a
-                    href="https://lin.ee/pPz1ZqN"
+                    href={LINE_CONTACT_URL}
                     target="_blank"
                     rel="noopener noreferrer"
                     data-analytics-type="line"

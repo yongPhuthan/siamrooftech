@@ -17,9 +17,10 @@ yarn ads:browser-qa --base=https://www.siamrooftech.com
 yarn leads:qa
 ```
 
-A blocking failure is any dialog on a LINE click, a missing ref-code, duplicate
-events/intakes, survey events, missing attribution, a navigation blocked by an
-intake failure, a duplicate webhook conversion, or a canonical/sitemap failure.
+A blocking failure is any dialog on a LINE click, any destination other than
+`https://lin.ee/pPz1ZqN`, duplicate events/intakes, survey events, missing
+attribution, a navigation blocked by an intake failure, a duplicate webhook
+conversion, or a canonical/sitemap failure.
 
 ## Browser flow
 
@@ -27,10 +28,11 @@ Test paid, UTM-only, and organic visits on every public-page CTA position.
 
 1. Open `https://www.siamrooftech.com/?gclid=qa-live-gclid-<date>&utm_source=google`.
 2. Click a LINE CTA once. No dialog may appear.
-3. Confirm native anchor navigation targets `line.me/R/oaMessage`, with the
-   prefilled text `สอบถามข้อมูลกันสาดจากเว็บไซต์ครับ/ค่ะ [SRT-XXXXXXXX]`.
-4. Confirm exactly one `/api/leads/intake` request carries the same ref-code,
-   gclid/UTM values, page URL, and CTA position. Persona must be null/absent.
+3. Confirm native anchor navigation targets exactly `https://lin.ee/pPz1ZqN`.
+   It must not be rewritten to a `line.me` URL and must not depend on JavaScript.
+4. Confirm exactly one `/api/leads/intake` request carries a diagnostic ref-code,
+   gclid/UTM values, and page URL. Persona must be null/absent. The ref-code is
+   not prefilled into LINE and therefore does not imply automatic matching.
 5. Confirm exactly one diagnostic `line_click` fires with `position`,
    `active_section`, `scroll_depth_percent`, and attribution.
 6. Confirm no `line_survey_start` or `line_survey_complete` event fires and no
@@ -43,13 +45,15 @@ Test paid, UTM-only, and organic visits on every public-page CTA position.
 ## Real-device LINE QA
 
 Test iOS and Android, both an existing LINE OA friend and a first-time visitor.
-The prefilled message and ref-code must survive LINE's interstitial and remain
-sendable. After sending, verify that the lead is matched to the conversation.
+The verified short link must open the Siamrooftech OA contact flow rather than
+the generic LINE homepage. Send a real message and use manual matching when no
+legacy ref-code is present.
 
 ## Webhook and Data Manager QA
 
-1. Send the ref-coded message once. The first matched inbound message must queue
-   one initial conversion even when persona is null.
+1. Manually match a real short-link conversation, or send a legacy ref-coded
+   message. The first matched inbound message must queue one initial conversion
+   even when persona is null.
 2. Confirm value is `1 THB` and `transactionId` is the immutable `lead_id`.
 3. Replay the webhook. No second conversion may be created.
 4. Verify manual matching produces the same one-time initial conversion.
@@ -79,6 +83,6 @@ sendable. After sending, verify that the lead is matched to the conversation.
 
 ## Rollback triggers
 
-Pause Ads or roll back if LINE navigation becomes blocked, ref-codes disappear,
-intake-to-message matching drops unexpectedly, duplicate conversions appear, or
-Google Ads starts bidding on `line_click`, `phone_click`, or the retired survey.
+Pause Ads or roll back if LINE navigation becomes blocked, the destination stops
+being exactly `https://lin.ee/pPz1ZqN`, duplicate conversions appear, or Google
+Ads starts bidding on `line_click`, `phone_click`, or the retired survey.

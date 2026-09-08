@@ -1,24 +1,23 @@
 import Image from 'next/image';
+import { LINE_CONTACT_URL } from './constants';
 
 type LineContactButtonProps = {
   analyticsPosition: string;
   label?: string;
-  href?: string;
   fullWidth?: boolean;
   compact?: boolean;
 };
 
-/** Presentational CTA; AttributionCapture owns tracking and the direct LINE handoff. */
+/** Presentational CTA; the browser owns the direct LINE handoff. */
 export default function LineContactButton({
   analyticsPosition,
   label = 'สอบถาม-ประเมินราคาฟรี',
-  href = 'https://lin.ee/pPz1ZqN',
   fullWidth = false,
   compact = false,
 }: LineContactButtonProps) {
   return (
     <a
-      href={href}
+      href={LINE_CONTACT_URL}
       target="_blank"
       rel="noopener noreferrer"
       data-analytics-type="line"

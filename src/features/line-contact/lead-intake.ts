@@ -5,7 +5,7 @@
 
 // Crockford-style alphabet (no 0/O, 1/I/L, U) — must match
 // workers/line-chat-history/src/leads.ts REF_CODE_ALPHABET exactly, since
-// the webhook parses this exact character set out of the message text.
+// the webhook parses this exact character set out of legacy/manual messages.
 const REF_CODE_ALPHABET = '23456789ABCDEFGHJKMNPQRSTVWXYZ';
 const REF_CODE_LENGTH = 8;
 

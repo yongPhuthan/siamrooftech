@@ -1,4 +1,5 @@
-import LineContactButton from './LineContactButton';
+import LineContactButton from '@/features/line-contact/LineContactButton';
+import { LINE_CONTACT_URL } from '@/features/line-contact/constants';
 
 interface FinalCTASectionProps {
   compactLineButton?: boolean;
@@ -49,7 +50,7 @@ export default function FinalCTASection({
                 <LineContactButton analyticsPosition={analyticsPosition} />
               ) : (
                 <a
-                  href="https://lin.ee/pPz1ZqN"
+                  href={LINE_CONTACT_URL}
                   target="_blank"
                   rel="noopener noreferrer"
                   data-analytics-type="line"

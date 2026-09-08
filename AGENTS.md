@@ -5,6 +5,12 @@ A modern Siamrooftech website for retractable awning services, portfolio showcas
 
 **CRITICAL: This is an SEO-focused website. NEVER use 'use client' or client-side rendering except for admin pages. Always prioritize SSG/ISR for public pages.**
 
+## Revenue-Critical LINE Contact Funnel
+
+- The LINE contact feature is owned by `src/features/line-contact/`. Read and obey its nested `AGENTS.md` before changing any LINE CTA, destination, click handling, lead intake, attribution, survey, redirect, or related QA.
+- All user-facing LINE contact links outside that folder must import its canonical `LINE_CONTACT_URL`; never hard-code, construct, wrap, or replace the destination elsewhere.
+- A working native handoff to `https://lin.ee/pPz1ZqN` takes priority over analytics and attribution. Any change that adds friction or can prevent contact is a release blocker.
+
 ## Tech Stack & Commands
 
 ### Dependencies (Current Versions)

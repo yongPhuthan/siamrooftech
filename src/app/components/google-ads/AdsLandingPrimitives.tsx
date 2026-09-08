@@ -1,8 +1,7 @@
 import { ArrowRight, ChatCircle } from '@phosphor-icons/react/dist/ssr';
 import type { Icon as PhosphorIcon } from '@phosphor-icons/react';
-import LineContactButton from '../LineContactButton';
-
-const DEFAULT_LINE_URL = 'https://lin.ee/pPz1ZqN';
+import LineContactButton from '@/features/line-contact/LineContactButton';
+import { LINE_CONTACT_URL } from '@/features/line-contact/constants';
 
 type AdsTone = 'brand' | 'monochrome';
 
@@ -10,7 +9,6 @@ export type AdsLineCtaProps = {
   analyticsPosition: string;
   label: string;
   inverted?: boolean;
-  href?: string;
   tone?: AdsTone;
   fullWidth?: boolean;
 };
@@ -19,17 +17,16 @@ export function AdsLineCta({
   analyticsPosition,
   label,
   inverted = false,
-  href = DEFAULT_LINE_URL,
   tone = 'brand',
   fullWidth = false,
 }: AdsLineCtaProps) {
   if (tone === 'monochrome') {
-    return <LineContactButton analyticsPosition={analyticsPosition} label={label} href={href} fullWidth={fullWidth} />;
+    return <LineContactButton analyticsPosition={analyticsPosition} label={label} fullWidth={fullWidth} />;
   }
 
   return (
     <a
-      href={href}
+      href={LINE_CONTACT_URL}
       target="_blank"
       rel="noopener noreferrer"
       data-analytics-type="line"

@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import type { ReactNode } from 'react';
+import { LINE_CONTACT_URL } from '@/features/line-contact/constants';
 
 type TrackingType = 'hero' | 'middle' | 'bottom' | 'mobile' | 'desktop';
 
@@ -26,7 +27,7 @@ const LineButton = ({
 }: LineButtonProps) => {
   return (
     <a
-      href="https://lin.ee/pPz1ZqN"
+      href={LINE_CONTACT_URL}
       target="_blank"
       rel="noopener noreferrer"
       className={className || 'block w-full'}

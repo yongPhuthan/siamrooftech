@@ -1,4 +1,4 @@
-import LineContactButton from '../LineContactButton';
+import LineContactButton from '@/features/line-contact/LineContactButton';
 import { Shield, Stack, Heart } from '@phosphor-icons/react/dist/ssr';
 import Image from 'next/image';
 

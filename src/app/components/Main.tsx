@@ -9,7 +9,7 @@ import DamageWarningSection from "./section/DamageWarningSection";
 import { Project } from "@/lib/firestore";
 import { transformFirestoreProjectsToProjectShow } from "@/lib/project-utils";
 import ProjectGalleryClient from "./ProjectGalleryClient";
-import LineContactButton from "./LineContactButton";
+import LineContactButton from "@/features/line-contact/LineContactButton";
 import PortfolioButton from "./PortfolioButton";
 
 type Props = {

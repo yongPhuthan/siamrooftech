@@ -1,6 +1,6 @@
 # Lead Matching + Dashboard + Google Ads Conversion Feedback
 
-Status: **direct LINE handoff shipped in code, `ADS_SYNC_MODE=dry_run`**.
+Status: **verified LINE short-link handoff shipped, `ADS_SYNC_MODE=live`**.
 Scope: bind a LINE conversation to the ad click that produced it, count the
 first matched inbound message as the real initial conversion, and allow staff
 to restate its value once the outcome is known. No survey or persona question
@@ -50,10 +50,10 @@ LINE gives no reliable way to attach click metadata to an inbound message.
 The production contact contract therefore prioritizes the verified
 `https://lin.ee/pPz1ZqN` short link over message-prefill attribution:
 
-1. Every click on a LINE button (`src/app/components/AttributionCapture.tsx`)
+1. Every click on a LINE button (`src/features/line-contact/LineLeadCapture.tsx`)
    mints an 8-character ref code client-side (`SRT-K3F9QA2M`, using a
    Crockford-style alphabet without `0/O/1/I/L/U` — see
-   `src/lib/lead-intake.ts`), fires a `POST /api/leads/intake` beacon with
+   `src/features/line-contact/lead-intake.ts`), fires a `POST /api/leads/intake` beacon with
    the ref code plus whatever attribution is in `localStorage` at that
    moment (gclid and utm_*). It does **not** rewrite the anchor destination.
 2. The lead is minted **client-side**, not server-round-tripped first — the
@@ -127,7 +127,7 @@ Practical implications of that API, reflected in `workers/line-chat-history/src/
 Ad click (?gclid=...)
    │  AttributionCapture stores click attribution in localStorage
    ▼
-LINE button click ── AttributionCapture.tsx ──► POST /api/leads/intake (Next.js proxy)
+LINE button click ── LineLeadCapture.tsx ─────► POST /api/leads/intake (Next.js proxy)
    │  preserves https://lin.ee/pPz1ZqN                │
    │                                                   ▼
    │                                    Worker: POST /internal/leads/intake
@@ -210,10 +210,10 @@ and still opens the original LINE URL if JavaScript or intake fails.
 **Manual verification still required before relying on the match rate:**
 
 - Click a LINE button on a real phone, both **iOS and Android**, both as a
-  first-time visitor (not yet a friend of the OA) and as an existing
-  friend — confirm the prefilled `[SRT-...]` text survives whatever
-  interstitial LINE shows, and confirm sending it produces a matched lead
-  (`yarn leads:show <id>` shows `match.conversation_id`).
+  first-time visitor (not yet a friend of the OA) and as an existing friend.
+  Confirm the Siamrooftech OA opens rather than the generic LINE homepage.
+  Normal short-link conversations require manual matching because no ref-code
+  is prefilled into LINE.
 - Same check on desktop (LINE desktop client / browser fallback).
 
 ## Going live with Google Ads
