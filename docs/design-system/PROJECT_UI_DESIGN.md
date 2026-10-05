@@ -1,8 +1,15 @@
 # Project UI Design System
 
+The shared public token and component ownership rules live in
+[`PUBLIC_UI_DESIGN.md`](./PUBLIC_UI_DESIGN.md). This project-specific document
+extends that foundation with portfolio patterns and should not create a second
+primitive or token owner.
+
 > **Design Pattern Documentation for Project-Related Components**
 >
 > This document captures the existing design patterns used across all project-related UI components. Use this as reference when creating new features or modifying existing UI to maintain visual consistency.
+
+The code samples and detailed legacy examples below document existing behavior, not the current visual source of truth. For new or updated public UI, use the tokens, variants, Phosphor icons, and owner rules in [`PUBLIC_UI_DESIGN.md`](./PUBLIC_UI_DESIGN.md); keep this document focused on project-specific composition and interaction.
 
 ---
 
@@ -19,7 +26,10 @@
 
 ## Color Palette
 
-### Primary Colors
+### Public Colors
+Use `site-*` tokens from `PUBLIC_UI_DESIGN.md`. Historical palette values below explain legacy screenshots only and must not be used for new public UI.
+
+### Historical Primary Colors
 ```css
 /* Blue Shades - Primary Brand */
 --primary-light: #027DFF
@@ -87,7 +97,7 @@ h6: '"Sukhumvit Set"' with bold weight
 - Tailwind CSS utility classes are the source of truth for layout, spacing, color, and responsive behavior.
 - shadcn-style components live under `src/components/ui` and are configured by `components.json`.
 - DaisyUI button classes such as `btn`, `btn-primary`, and `btn-outline` exist in legacy/current UI. Prefer project-consistent Tailwind/shadcn-style composition for new reusable components.
-- Use `lucide-react` for icons.
+- Use Phosphor SSR icons through the public `PublicIcon` wrapper. Admin icon dependencies remain unchanged.
 - Do not use MUI or Emotion for new UI. Those packages are not part of the current dependency set.
 
 ### Font Sizes & Weights

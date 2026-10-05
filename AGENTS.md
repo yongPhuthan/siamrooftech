@@ -3,7 +3,7 @@
 ## Project Overview
 A modern Siamrooftech website for retractable awning services, portfolio showcases, and SEO-optimized articles. Built with TypeScript + Next.js 15 App Router + Firebase. The current application code lives primarily under `src/`, with supporting packages and legacy workspace folders also present.
 
-**CRITICAL: This is an SEO-focused website. NEVER use 'use client' or client-side rendering except for admin pages. Always prioritize SSG/ISR for public pages.**
+**CRITICAL: This is an SEO-focused website. Public pages should use SSG/ISR and server rendering. Avoid adding client components; keep only the existing public client boundaries listed in [`docs/design-system/PUBLIC_CLIENT_BOUNDARIES.md`](docs/design-system/PUBLIC_CLIENT_BOUNDARIES.md), and do not expand them for styling. Admin pages may use client rendering.**
 
 ## Revenue-Critical LINE Contact Funnel
 
@@ -98,13 +98,22 @@ yarn firebase:functions  # Deploy only functions
 - **Tailwind CSS utility classes** are the primary styling approach for public pages and admin UI.
 - **shadcn-style components** are configured through `components.json` with `rsc: true`, `tsx: true`, `baseColor: neutral`, and aliases such as `@/components/ui` and `@/lib/utils`.
 - **@base-ui/react** is available for accessible low-level primitives when a custom component needs robust interaction behavior.
-- **lucide-react** is the primary icon library for UI controls and navigation icons.
+- **Phosphor** (`@phosphor-icons/react/dist/ssr` through `PublicIcon`) is the standard for public UI icons. Admin and legacy consumers may retain their existing icon packages; do not migrate admin as part of public UI work.
 - **DaisyUI classes** are still used in parts of the existing UI, especially button classes such as `btn`, `btn-primary`, and `btn-outline`.
 - **Do not introduce MUI or Emotion** for new UI. The project no longer depends on `@mui/material`, `@mui/material-nextjs`, or Emotion packages.
+
+### Public UI ownership and reuse
+- Before creating a public UI component, search existing owners under `src/components/ui/public` and `src/components/site`; extend a typed variant when the semantics match instead of creating a duplicate.
+- Reuse public UI in this order: `site-*` theme tokens → server-safe primitive → reusable site pattern → page or feature composition. Public primitives must not fetch CMS data or contain business rules.
+- Keep admin UI on its existing `src/components/ui` API. Public components must not import client-only primitives or add `use client` merely for styling.
+- Shared public components must use semantic HTML and preserve keyboard, focus, label, and landmark behavior. A `className` prop is for layout extension; colors, typography, radius, and shadows belong to tokens or named variants.
+- Feature-specific composition belongs with the feature. Share a component only when it has more than one real consumer and the semantics are the same; visual similarity alone is insufficient.
+- Existing public client boundaries are documented exceptions. Do not expand them for styling or layout work.
 
 ### Design System
 **IMPORTANT: Before making UI changes to project-related components, ALWAYS consult:**
 - [`/docs/design-system/PROJECT_UI_DESIGN.md`](/docs/design-system/PROJECT_UI_DESIGN.md) - Comprehensive design patterns and component library
+- [`/docs/design-system/PUBLIC_UI_DESIGN.md`](/docs/design-system/PUBLIC_UI_DESIGN.md) - Public theme tokens, owners, variants, and composition rules
 
 This design system ensures consistency across:
 - **ProjectShow** (Homepage featured projects)
@@ -114,12 +123,12 @@ This design system ensures consistency across:
 - **Navigation Components** (Breadcrumbs, CTAs)
 
 **Key Design Principles:**
-- Color palette: Primary blues (#008AD7, #027DFF, blue-600), neutral grays
+- Public theme: Slate background/surfaces, subtle borders and shadows, Blue/Sky accents; use `site-*` tokens and named visual variants.
 - Typography: Sukhumvit Set font family with bold headings
 - Spacing: Consistent gaps (gap-3, gap-6, gap-8) and container widths (max-w-6xl, max-w-7xl)
-- Cards: rounded-2xl with shadow-sm → shadow-2xl on hover
+- Cards: 16px radius and restrained shadows; actions use 8px and media 12px radii.
 - Images: aspect-[4/3] with overlay effects
-- Animations: duration-300 for quick, duration-500 for dramatic transitions
+- Animations: brief 140–200ms transitions; honor reduced motion and avoid attention-pulling effects.
 
 ### Animations & Interactions
 - **@react-spring/web v9.7.3**: Spring-physics based animations

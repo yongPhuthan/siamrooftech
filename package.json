@@ -20,6 +20,7 @@
     "firebase:functions": "firebase deploy --only functions",
     "check:all": "yarn line-contact:qa && yarn type-check && yarn lint && yarn test",
     "seo:qa": "node scripts/seo-qa.mjs",
+    "ui:qa": "node scripts/ui-qa.mjs",
     "ads:qa": "yarn line-contact:qa && node scripts/google-ads-qa.mjs",
     "ads:readiness": "node scripts/google-ads-readiness-audit.mjs",
     "ads:browser-qa": "node scripts/google-ads-browser-qa.mjs",

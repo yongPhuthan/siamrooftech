@@ -14,10 +14,114 @@
   --color-primary-base: #008AD7;
   --color-primary-dark: #004589;
 
+  /* Public-site tokens. Keep these separate from shadcn/admin tokens. */
+  --color-site-background: #f8fafc;
+  --color-site-brand: #2563eb;
+  --color-site-brand-strong: #1d4ed8;
+  --color-site-brand-soft: #eff6ff;
+  --color-site-sky: #0284c7;
+  --color-site-sky-soft: #f0f9ff;
+  --color-site-ink: #0f172a;
+  --color-site-muted: #64748b;
+  --color-site-surface: #ffffff;
+  --color-site-subtle: #f1f5f9;
+  --color-site-border: #e2e8f0;
+  --color-site-focus: #2563eb;
+  --color-site-line: #01b202;
+  --color-site-line-strong: #01bd00;
+  --color-site-overlay: rgb(0 0 0 / 70%);
+  --radius-site-action: 0.5rem;
+  --radius-site-media: 0.75rem;
+  --radius-site-badge: 9999px;
+  --radius-site-card: 1rem;
+  --shadow-site-card: 0 1px 2px rgb(15 23 42 / 6%);
+  --shadow-site-card-hover: 0 8px 20px rgb(15 23 42 / 10%);
+
   --background-image-gradient-radial: radial-gradient(var(--tw-gradient-stops));
   --background-image-gradient-conic: conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops));
 
   --animate-marquee: marquee 40s linear infinite;
+}
+
+/* Bridge legacy public palette utilities onto the public theme, scoped away
+   from admin routes while their visual components retain their own system. */
+[data-site-theme] {
+  color-scheme: light;
+  --color-gray-50: var(--color-site-background);
+  --color-gray-100: var(--color-site-subtle);
+  --color-gray-200: var(--color-site-border);
+  --color-gray-300: #cbd5e1;
+  --color-gray-400: #94a3b8;
+  --color-gray-500: var(--color-site-muted);
+  --color-gray-600: #475569;
+  --color-gray-700: #334155;
+  --color-gray-800: #1e293b;
+  --color-gray-900: var(--color-site-ink);
+  --color-gray-950: #020617;
+  --color-slate-50: var(--color-site-background);
+  --color-slate-100: var(--color-site-subtle);
+  --color-slate-200: var(--color-site-border);
+  --color-slate-300: #cbd5e1;
+  --color-slate-400: #94a3b8;
+  --color-slate-500: var(--color-site-muted);
+  --color-slate-600: #475569;
+  --color-slate-700: #334155;
+  --color-slate-800: #1e293b;
+  --color-slate-900: var(--color-site-ink);
+  --color-slate-950: #020617;
+  --color-neutral-50: var(--color-site-background);
+  --color-neutral-100: var(--color-site-subtle);
+  --color-neutral-200: var(--color-site-border);
+  --color-neutral-300: #cbd5e1;
+  --color-neutral-400: #94a3b8;
+  --color-neutral-500: var(--color-site-muted);
+  --color-neutral-600: #475569;
+  --color-neutral-700: #334155;
+  --color-neutral-800: #1e293b;
+  --color-neutral-900: var(--color-site-ink);
+  --color-neutral-950: #020617;
+  --color-blue-50: var(--color-site-brand-soft);
+  --color-blue-100: #dbeafe;
+  --color-blue-200: #bfdbfe;
+  --color-blue-300: #93c5fd;
+  --color-blue-400: #60a5fa;
+  --color-blue-500: var(--color-site-focus);
+  --color-blue-600: var(--color-site-brand);
+  --color-blue-700: var(--color-site-brand-strong);
+  --color-blue-800: #1e40af;
+  --color-blue-900: #1e3a8a;
+  --color-sky-50: var(--color-site-sky-soft);
+  --color-sky-100: #e0f2fe;
+  --color-sky-200: #bae6fd;
+  --color-sky-300: #7dd3fc;
+  --color-sky-400: #38bdf8;
+  --color-sky-500: var(--color-site-sky);
+  --color-sky-600: #0284c7;
+  --color-sky-700: #0369a1;
+  --color-sky-800: #075985;
+  --color-sky-900: #0c4a6e;
+}
+
+[data-site-theme] .shadow-xl,
+[data-site-theme] .shadow-2xl {
+  box-shadow: var(--shadow-site-card-hover);
+}
+
+[data-site-theme] .transition-all,
+[data-site-theme] .transition-transform,
+[data-site-theme] .transition-colors {
+  transition-duration: 180ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-site-theme] *,
+  [data-site-theme] *::before,
+  [data-site-theme] *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 @keyframes marquee {
@@ -91,64 +195,64 @@
   font-display: swap;
 }
 
-/* Custom Swiper Styles for Portfolio Gallery */
-.main-gallery .swiper-pagination-bullet {
-  background: rgb(107 114 128) !important; /* gray-500 */
+/* Public gallery styles are scoped to the public theme and its shared tokens. */
+[data-site-theme] .main-gallery .swiper-pagination-bullet {
+  background: var(--color-site-muted) !important;
   opacity: 0.5 !important;
   width: 12px !important;
   height: 12px !important;
   margin: 0 6px !important;
-  transition: all 0.3s ease !important;
+  transition: all 180ms ease !important;
 }
 
-.main-gallery .swiper-pagination-bullet-active {
-  background: rgb(55 65 81) !important; /* gray-700 */
+[data-site-theme] .main-gallery .swiper-pagination-bullet-active {
+  background: var(--color-site-brand-strong) !important;
   opacity: 1 !important;
   transform: scale(1.3) !important;
 }
 
-.main-gallery .swiper-pagination-bullet:hover {
+[data-site-theme] .main-gallery .swiper-pagination-bullet:hover {
   opacity: 0.8 !important;
   transform: scale(1.15) !important;
 }
 
 /* Enhanced navigation buttons */
-.main-gallery .swiper-button-next-custom,
-.main-gallery .swiper-button-prev-custom {
-  transition: all 0.3s ease !important;
+[data-site-theme] .main-gallery .swiper-button-next-custom,
+[data-site-theme] .main-gallery .swiper-button-prev-custom {
+  transition: all 180ms ease !important;
 }
 
-.main-gallery .swiper-button-next-custom:hover,
-.main-gallery .swiper-button-prev-custom:hover {
+[data-site-theme] .main-gallery .swiper-button-next-custom:hover,
+[data-site-theme] .main-gallery .swiper-button-prev-custom:hover {
   background: rgba(255, 255, 255, 1) !important;
   transform: scale(1.1) !important;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 12px -6px rgba(0, 0, 0, 0.1) !important;
+  box-shadow: var(--shadow-site-card-hover) !important;
 }
 
 /* Main gallery container */
-.main-gallery {
-  border-radius: 12px !important;
+[data-site-theme] .main-gallery {
+  border-radius: var(--radius-site-media) !important;
   overflow: hidden !important;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+  box-shadow: var(--shadow-site-card) !important;
 }
 
-.main-gallery .swiper-slide {
+[data-site-theme] .main-gallery .swiper-slide {
   height: 400px !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
 }
 
-.main-gallery .swiper-wrapper {
+[data-site-theme] .main-gallery .swiper-wrapper {
   align-items: center !important;
 }
 
 /* Thumbnail gallery styles */
-.thumbnail-gallery .swiper-slide {
-  transition: all 0.2s ease !important;
+[data-site-theme] .thumbnail-gallery .swiper-slide {
+  transition: all 180ms ease !important;
 }
 
-.thumbnail-gallery .swiper-slide:hover {
+[data-site-theme] .thumbnail-gallery .swiper-slide:hover {
   transform: translateY(-2px) !important;
 }
 
@@ -165,16 +269,16 @@
 }
 
 /* Fade effect enhancements */
-.main-gallery .swiper-slide-active {
+[data-site-theme] .main-gallery .swiper-slide-active {
   z-index: 1 !important;
 }
 
-.main-gallery .swiper-slide {
+[data-site-theme] .main-gallery .swiper-slide {
   opacity: 0 !important;
   transition: opacity 0.3s ease !important;
 }
 
-.main-gallery .swiper-slide-active {
+[data-site-theme] .main-gallery .swiper-slide-active {
   opacity: 1 !important;
 }
 
@@ -257,6 +361,46 @@ body {
     line-height: 1.75;
   }
 
+  .article-content {
+    color: var(--color-site-ink);
+    font-family: 'Sukhumvit Set', Arial, sans-serif;
+    font-size: 1.0625rem;
+    line-height: 1.85;
+  }
+
+  .article-content :is(h2, h3, h4) {
+    color: var(--color-site-ink);
+    font-family: 'Sukhumvit Bold', 'Sukhumvit Set', Arial, sans-serif;
+    font-weight: 700;
+    letter-spacing: 0;
+    scroll-margin-top: 6rem;
+  }
+
+  .article-content h2 {
+    margin-block: 2.5rem 1rem;
+    font-size: 1.75rem;
+    line-height: 1.3;
+  }
+
+  .article-content h3 {
+    margin-block: 2rem 0.75rem;
+    font-size: 1.375rem;
+    line-height: 1.35;
+  }
+
+  .article-content :is(p, ul, ol, blockquote, table, pre) {
+    margin-block: 1rem;
+  }
+
+  .article-content :is(ul, ol) {
+    padding-inline-start: 1.5rem;
+  }
+
+  .article-content ul { list-style: disc; }
+  .article-content ol { list-style: decimal; }
+  .article-content a { color: var(--color-site-brand-strong); text-decoration: underline; text-underline-offset: 0.2em; }
+  .article-content blockquote { border-inline-start: 3px solid var(--color-site-brand); padding-inline-start: 1rem; color: var(--color-site-muted); }
+
   @media (min-width: 640px) {
     .heading-display {
       font-size: 2.5rem;
@@ -275,34 +419,34 @@ body {
 }
 
 /* Add this to your global styles or a CSS file */
-.swiper-pagination-bullet {
+[data-site-theme] .swiper-pagination-bullet {
   width: 10px;
   height: 10px;
-  background: white;
+  background: var(--color-site-surface);
   opacity: 0.5;
   transition: opacity 0.3s, transform 0.3s;
 }
 
-.swiper-pagination-bullet-active {
+[data-site-theme] .swiper-pagination-bullet-active {
   opacity: 1;
   transform: scale(1.2);
 }
 
-.swiper-fraction {
+[data-site-theme] .swiper-fraction {
 position: absolute !important;
   color: white  !important;
   margin-left: 80% !important;
   top: 3% !important;
 }
 @media (min-width: 768px) {
-  .swiper-fraction {
+  [data-site-theme] .swiper-fraction {
     margin-left: 95% !important;
   }
 }
 
 /* Add this to your stylesheet */
-.swiper-button-next,
-.swiper-button-prev {
+[data-site-theme] .swiper-button-next,
+[data-site-theme] .swiper-button-prev {
   /* background-color: white; */
   /* padding: 5px 5px; */
   /* width: 60px !important; */
@@ -311,14 +455,14 @@ position: absolute !important;
   color: white !important;
 
 }
-.swiper-button-next::after {
+[data-site-theme] .swiper-button-next::after {
   width: 10rem !important;
   max-width: 100px !important;
   font-size:x-large !important;
   margin-right: 5rem;
 
 }
-.swiper-button-prev::after {
+[data-site-theme] .swiper-button-prev::after {
   width: 10rem !important;
   max-width: 100px !important;
   font-size: x-large !important;
