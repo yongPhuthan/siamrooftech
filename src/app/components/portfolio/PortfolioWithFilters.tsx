@@ -1,6 +1,8 @@
 'use client';
 
+import { ArrowLeft, ArrowRight } from '@phosphor-icons/react/dist/ssr';
 import { useCategories, useFilter, useFilteredProjects, usePortfolioStore } from '../../../store/portfolioStore';
+import { PublicIcon } from '@/components/ui/public';
 import StaticPortfolioGrid from './StaticPortfolioGrid';
 
 export default function PortfolioWithFilters() {
@@ -125,13 +127,9 @@ export default function PortfolioWithFilters() {
             {/* Mobile scroll hint */}
             <div className="flex justify-center mt-3">
               <div className="flex items-center text-xs text-gray-400 bg-gray-50 px-3 py-1.5 rounded-full">
-                <svg className="w-3 h-3 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16l-4-4m0 0l4-4m-4 4h18" />
-                </svg>
+                <PublicIcon icon={ArrowLeft} size={16} className="mr-1.5" />
                 <span>เลื่อนดูหมวดหมู่เพิ่มเติม</span>
-                <svg className="w-3 h-3 ml-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                </svg>
+                <PublicIcon icon={ArrowRight} size={16} className="ml-1.5" />
               </div>
             </div>
           </div>

@@ -16,11 +16,11 @@
   display: inline-flex;
   align-items: center;
   gap: 0.6rem;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--color-site-border);
   border-radius: 9999px;
   background: white;
   padding: 0.5rem 1rem;
-  color: #374151;
+  color: var(--color-site-ink);
   cursor: pointer;
   font-size: 0.875rem;
   font-weight: 500;
@@ -33,15 +33,15 @@
   align-items: center;
   justify-content: center;
   border-radius: 9999px;
-  background: #f3f4f6;
+  background: var(--color-site-subtle);
   padding-inline: 0.35rem;
-  color: #4b5563;
+  color: var(--color-site-muted);
   font-size: 0.75rem;
 }
 
 .filterInput:checked + .filterLabel {
-  border-color: #2563eb;
-  background: #2563eb;
+  border-color: var(--color-site-brand);
+  background: var(--color-site-brand);
   color: white;
 }
 
@@ -69,7 +69,7 @@
 
 .card:hover h2,
 .card:focus-visible h2 {
-  color: #2563eb;
+  color: var(--color-site-brand);
 }
 
 .listing:has(:global(#project-filter-1:checked)) .card:not([data-category-index="1"]),

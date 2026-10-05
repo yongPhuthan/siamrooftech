@@ -1,7 +1,7 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
-import Footer from './ui/Footer';
+import Footer from '@/components/site/Footer';
 import { hidesSiteChrome, isAdLandingPage } from '@/lib/layout-config';
 
 /** Shared footer on every public page; admin screens opt out. */

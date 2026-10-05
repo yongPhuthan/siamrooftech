@@ -4,10 +4,11 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { articlesAdminService } from '@/lib/firestore-admin';
 import { Article } from '@/lib/firestore';
-import Breadcrumbs from '../../components/ui/Breadcrumbs';
-import FinalCTASection from '../../components/FinalCTASection';
+import Breadcrumbs from '@/components/site/Breadcrumbs';
+import FinalCTASection from '@/components/site/FinalCTASection';
 import { unstable_cache } from 'next/cache';
 import { getArticleRouteSlug } from '@/lib/articles/slug-generator';
+import { ArticleHeader } from '@/components/site/ArticleHeader';
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -201,7 +202,7 @@ export default async function ArticleDetailPage({ params }: Props) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
 
-      <div className="min-h-screen bg-white">
+      <div data-site-theme className="min-h-screen bg-white text-site-ink">
         {/* Breadcrumbs - Clean design */}
         <div className="border-b border-gray-100">
           <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -218,28 +219,14 @@ export default async function ArticleDetailPage({ params }: Props) {
 
         {/* Article Content - Clean & Minimal */}
         <article className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-          {/* Category Label - Subtle */}
-          <div className="mb-6">
-            <span className="inline-block px-3 py-1 text-xs font-medium text-gray-600 bg-gray-100 rounded">
-              {article.category}
-            </span>
-          </div>
-
-          {/* Title - Clean Typography */}
-<h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-6 leading-snug lg:leading-normal tracking-tight">
-  {article.title}
-</h1>
-
-          {/* Meta Info - Minimal */}
-          <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500 mb-10 pb-8 border-b border-gray-100">
-            <span>{article.author}</span>
-            <span className="text-gray-300">|</span>
-            <time dateTime={article.published_at || article.created_at}>
-              {formatDate(article.published_at || article.created_at)}
-            </time>
-            <span className="text-gray-300">|</span>
-            <span>{article.read_time}</span>
-          </div>
+          <ArticleHeader
+            category={article.category}
+            title={article.title}
+            author={article.author}
+            publishedAt={article.published_at || article.created_at}
+            publishedLabel={formatDate(article.published_at || article.created_at)}
+            readTime={article.read_time}
+          />
 
           {/* Featured Image - Clean rounded corners */}
           {featuredImageUrl && (
@@ -289,7 +276,7 @@ export default async function ArticleDetailPage({ params }: Props) {
                     )}
                     {htmlContent && (
                       <div
-                        className={`prose prose-lg max-w-none text-gray-800 leading-relaxed ${
+                        className={`article-content prose prose-lg max-w-none ${
                           isCaptionOnly ? 'text-center' : ''
                         }`}
                         dangerouslySetInnerHTML={{ __html: htmlContent }}
@@ -300,14 +287,9 @@ export default async function ArticleDetailPage({ params }: Props) {
               })}
             </div>
           ) : (
-            <div className="prose prose-lg max-w-none">
+            <div className="article-content prose prose-lg max-w-none">
               <div
-                className="text-gray-800 leading-relaxed space-y-4"
-                style={{
-                  fontSize: '1.125rem',
-                  lineHeight: '1.8',
-                  fontFamily: 'system-ui, -apple-system, sans-serif',
-                }}
+                className="space-y-4"
                 dangerouslySetInnerHTML={{
                   __html: convertMarkdownToHtml(article.content || ''),
                 }}

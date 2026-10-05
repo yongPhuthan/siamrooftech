@@ -49,7 +49,7 @@ export function ElectricAwningProcess() {
                 className="mx-auto aspect-[4/3] w-full max-w-64 object-contain"
               />
               <div className="mt-5 flex items-start gap-4 text-left">
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#004589] text-base font-bold text-white">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-site-brand-strong text-base font-bold text-white">
                   {index + 1}
                 </span>
                 <div>

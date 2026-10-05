@@ -1,5 +1,6 @@
 import { ArrowRight, ChatCircle } from '@phosphor-icons/react/dist/ssr';
 import type { Icon as PhosphorIcon } from '@phosphor-icons/react';
+import { PublicIcon } from '@/components/ui/public';
 import LineContactButton from '@/features/line-contact/LineContactButton';
 import { LINE_CONTACT_URL } from '@/features/line-contact/constants';
 
@@ -33,8 +34,8 @@ export function AdsLineCta({
       data-analytics-position={analyticsPosition}
       className={`inline-flex min-h-12 items-center justify-center gap-2 px-5 py-3 text-center text-sm font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${fullWidth ? 'w-full' : ''} ${
         inverted
-          ? 'rounded-md bg-white text-[#004589] hover:bg-blue-50 focus-visible:ring-white'
-          : 'rounded-md bg-[#027DFF] text-white shadow-lg shadow-blue-600/20 hover:bg-[#006ee5] focus-visible:ring-[#027DFF]'
+          ? 'rounded-site-action bg-white text-site-brand-strong hover:bg-site-brand-soft focus-visible:ring-white'
+          : 'rounded-site-action bg-site-brand text-white shadow-lg shadow-site-card hover:bg-site-brand-strong focus-visible:ring-site-brand'
       }`}
     >
       <ChatCircle aria-hidden="true" className="h-5 w-5 shrink-0" />
@@ -63,8 +64,8 @@ export function AdsSectionHeading({
 }: AdsSectionHeadingProps) {
   return (
     <div className="max-w-3xl">
-      {Icon ? <Icon aria-hidden="true" className={`mb-4 h-7 w-7 ${tone === 'monochrome' ? 'text-neutral-700' : inverted ? 'text-white' : 'text-[#004589]'}`} /> : null}
-      {eyebrow ? <p className={`text-sm tracking-wide ${tone === 'monochrome' ? 'font-semibold text-neutral-600' : inverted ? 'font-bold text-sky-300' : 'font-bold text-[#027DFF]'}`}>
+      {Icon ? <PublicIcon icon={Icon} size={24} className={`mb-4 ${tone === 'monochrome' ? 'text-neutral-700' : inverted ? 'text-white' : 'text-site-brand-strong'}`} /> : null}
+      {eyebrow ? <p className={`text-sm tracking-wide ${tone === 'monochrome' ? 'font-semibold text-neutral-600' : inverted ? 'font-bold text-sky-300' : 'font-bold text-site-brand'}`}>
         {eyebrow}
       </p> : null}
       <h2 className={`${eyebrow ? 'mt-3' : ''} text-3xl font-bold leading-tight sm:text-4xl ${tone === 'monochrome' ? 'text-neutral-900' : inverted ? 'text-white' : 'text-slate-950'}`}>

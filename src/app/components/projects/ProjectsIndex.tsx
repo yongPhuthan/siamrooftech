@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import type { Project } from "@/lib/firestore";
 import { getProjectPath } from "@/lib/project-url";
+import { PublicBadge, PublicCard, PublicHeading } from '@/components/ui/public';
 import styles from "./projects-index.module.css";
 
 interface ProjectsIndexProps {
@@ -46,7 +47,7 @@ export default function ProjectsIndex({ projects }: ProjectsIndexProps) {
         </div>
       </fieldset>
 
-      <p className="mb-5 text-center text-sm text-gray-600">
+      <p className="mb-5 text-center text-sm text-site-muted">
         แสดงผลงานติดตั้งจริงทั้งหมด {projects.length} รายการ
       </p>
 
@@ -65,7 +66,7 @@ export default function ProjectsIndex({ projects }: ProjectsIndexProps) {
               href={projectPath}
               key={project.id}
             >
-              <article className="h-full overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-gray-200/70 transition hover:-translate-y-1 hover:shadow-lg">
+              <PublicCard variant="interactive" className="h-full">
                 <div className="relative aspect-[4/3] overflow-hidden bg-gray-100">
                   <Image
                     src={image}
@@ -75,21 +76,21 @@ export default function ProjectsIndex({ projects }: ProjectsIndexProps) {
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                     className="object-cover transition duration-300 group-hover:scale-105"
                   />
-                  <span className="absolute left-3 top-3 rounded-md bg-black/70 px-2 py-1 text-xs font-medium text-white">
+                  <PublicBadge tone="inverse" className="absolute left-3 top-3">
                     {project.category}
-                  </span>
-                  <span className="absolute right-3 top-3 rounded-md bg-white/95 px-2 py-1 text-xs font-medium text-gray-800">
+                  </PublicBadge>
+                  <PublicBadge className="absolute right-3 top-3 bg-white/95 text-site-ink">
                     {project.images?.length || 1} รูป
-                  </span>
+                  </PublicBadge>
                 </div>
                 <div className="p-4">
-                  <h2 className="text-lg font-semibold text-gray-900">กันสาดพับเก็บได้ {project.width} × {project.extension} ม.</h2>
-                  <p className="mt-1 text-sm text-gray-600">{project.location} · {project.year}</p>
-                  <p className="mt-3 line-clamp-2 text-sm leading-6 text-gray-700">
+                  <PublicHeading as="h2" level="panel" className="text-lg">กันสาดพับเก็บได้ {project.width} × {project.extension} ม.</PublicHeading>
+                  <p className="mt-1 text-sm text-site-muted">{project.location} · {project.year}</p>
+                  <p className="mt-3 line-clamp-2 text-sm leading-6 text-site-ink">
                     {Array.isArray(project.description) ? project.description[0] : project.description}
                   </p>
                 </div>
-              </article>
+              </PublicCard>
             </Link>
           );
         })}

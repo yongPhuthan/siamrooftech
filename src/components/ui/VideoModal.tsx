@@ -2,6 +2,7 @@
 
 import { useEffect, useCallback } from 'react';
 import { X as CloseIcon, CaretLeft as ChevronLeftIcon, CaretRight as ChevronRightIcon } from '@phosphor-icons/react/dist/ssr';
+import { PublicIcon } from '@/components/ui/public';
 import { ProjectVideo } from '../../lib/firestore';
 import VideoPlayer from './VideoPlayer';
 import { getVideoTypeBadge } from '../../lib/project-video-utils';
@@ -73,14 +74,14 @@ export default function VideoModal({
         className="absolute top-4 right-4 z-50 bg-white/10 hover:bg-white/20 text-white p-3 rounded-full transition-all shadow-lg"
         aria-label="ปิด"
       >
-        <CloseIcon className="w-8 h-8" />
+        <PublicIcon icon={CloseIcon} size={24} className="size-8" />
       </button>
 
       {/* Video Info - Top Left (Desktop) */}
       <div className="hidden md:block absolute top-4 left-4 z-50 bg-white/10 backdrop-blur-sm text-white px-4 py-2 rounded-full">
         {typeBadge && (
           <span className="mr-2 font-semibold">
-            {typeBadge.emoji} {typeBadge.label}
+            {typeBadge.label}
           </span>
         )}
         {currentIndex + 1} / {videos.length}
@@ -99,7 +100,7 @@ export default function VideoModal({
               className="absolute left-4 z-50 bg-white/10 hover:bg-white/20 text-white p-3 rounded-full transition-all shadow-lg"
               aria-label="วีดีโอก่อนหน้า"
             >
-              <ChevronLeftIcon className="w-8 h-8" />
+              <PublicIcon icon={ChevronLeftIcon} size={24} />
             </button>
           )}
 
@@ -113,7 +114,7 @@ export default function VideoModal({
               className="absolute right-4 z-50 bg-white/10 hover:bg-white/20 text-white p-3 rounded-full transition-all shadow-lg"
               aria-label="วีดีโอถัดไป"
             >
-              <ChevronRightIcon className="w-8 h-8" />
+              <PublicIcon icon={ChevronRightIcon} size={24} />
             </button>
           )}
         </div>
@@ -131,7 +132,7 @@ export default function VideoModal({
               className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white p-3 rounded-full transition-all shadow-lg"
               aria-label="วีดีโอก่อนหน้า"
             >
-              <ChevronLeftIcon className="w-6 h-6" />
+              <PublicIcon icon={ChevronLeftIcon} size={24} />
             </button>
           )}
 
@@ -148,7 +149,7 @@ export default function VideoModal({
               className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white p-3 rounded-full transition-all shadow-lg"
               aria-label="วีดีโอถัดไป"
             >
-              <ChevronRightIcon className="w-6 h-6" />
+              <PublicIcon icon={ChevronRightIcon} size={24} />
             </button>
           )}
         </div>

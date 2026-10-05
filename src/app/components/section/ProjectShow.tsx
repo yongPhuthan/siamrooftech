@@ -24,8 +24,8 @@ const ProjectShow = (props:any) => {
                   key={index}
                   className={`text-left font-bold text-3xl lg:text-4xl ${
                     index === 0
-                      ? 'border-l-4 border-[#008AD7] pl-4 mr-2 text-gray-900'
-                      : 'text-[#008AD7]'
+                      ? 'border-l-4 border-site-sky pl-4 mr-2 text-gray-900'
+                      : 'text-site-sky'
                   }`}
                 >
                   {item}
@@ -85,7 +85,7 @@ const ProjectShow = (props:any) => {
                     const [label, content] = item.split(' : ');
                     return (
                       <div key={index} className="flex flex-col space-y-1.5 p-4 bg-gray-50 rounded-xl">
-                        <span className="text-sm font-semibold text-[#027DFF] uppercase tracking-wide">
+                        <span className="text-sm font-semibold text-site-brand uppercase tracking-wide">
                           {label}
                         </span>
                         <span className="text-base text-gray-800 font-medium">{content}</span>
@@ -105,7 +105,7 @@ const ProjectShow = (props:any) => {
       <Link href={href} className="flex lg:hidden md:hidden flex-col bg-white rounded-2xl shadow-lg my-6 mx-4 overflow-hidden">
         <div className="w-full">
           {/* Mobile Title Section */}
-          <div className="bg-gradient-to-r from-[#008AD7] to-[#004589] p-4">
+          <div className="bg-gradient-to-r from-site-sky to-site-brand-strong p-4">
             <div className="space-y-2">
               <div className="flex items-center justify-center">
                 {title.map((item:any, index:number) => (
@@ -170,7 +170,7 @@ const ProjectShow = (props:any) => {
                 const [label, content] = item.split(' : ');
                 return (
                   <div key={index} className="p-3 bg-gray-50 rounded-xl border border-gray-100">
-                    <div className="text-xs font-semibold text-[#027DFF] uppercase tracking-wide mb-1">
+                    <div className="text-xs font-semibold text-site-brand uppercase tracking-wide mb-1">
                       {label}
                     </div>
                     <div className="text-sm text-gray-800 font-medium">

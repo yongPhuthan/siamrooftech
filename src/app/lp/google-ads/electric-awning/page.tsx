@@ -25,7 +25,7 @@ import { fileProjects } from '@/data/projects';
 import { getProjectProof } from '@/lib/project-proof';
 import { canonicalUrl } from '@/lib/seo-config';
 import EndSection from '@/app/components/section/EndSection';
-import FinalCTASection from '@/app/components/FinalCTASection';
+import FinalCTASection from '@/components/site/FinalCTASection';
 
 export const dynamic = 'force-static';
 
@@ -100,6 +100,7 @@ const siteAssessmentChecks = [
 export default function ElectricAwningGoogleAdsLandingPage() {
   return (
     <main
+      data-site-theme
       data-landing-page="google-ads-electric-awning"
       className="min-w-0 bg-white text-neutral-900"
     >
@@ -108,7 +109,7 @@ export default function ElectricAwningGoogleAdsLandingPage() {
           <div className="text-center md:text-left">
             {/* Mobile hides the shared navbar entirely (see Navigation.tsx),
                 so this is the only brand identity a mobile visitor sees. */}
-            <p className="text-base font-black tracking-tight text-[#004589] md:hidden">สยามรูฟเทค</p>
+            <p className="text-base font-black tracking-tight text-site-brand-strong md:hidden">สยามรูฟเทค</p>
             <p className="mt-3 text-sm font-bold text-neutral-900 md:mt-0">กันสาดไฟฟ้าสำหรับบ้าน ร้านค้า และธุรกิจ</p>
             <h1 className="mx-auto mt-4 max-w-3xl text-4xl font-black leading-[1.12] tracking-tight text-neutral-900 sm:text-5xl md:mx-0 lg:text-6xl">
               กันสาดไฟฟ้าที่ลูกค้าวางใจ ตั้งแต่มอเตอร์จนถึงระบบไฟฟ้า

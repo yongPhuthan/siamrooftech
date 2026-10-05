@@ -3,6 +3,9 @@ import Image from 'next/image';
 import ImageWatermark from '../ui/ImageWatermark';
 import { Article } from '../../../lib/firestore';
 import { getArticleRouteSlug } from '../../../lib/articles/slug-generator';
+import { PublicBadge, PublicCard } from '@/components/ui/public';
+import { ArrowRight, UserCircle } from '@phosphor-icons/react/dist/ssr';
+import { PublicIcon } from '@/components/ui/public';
 
 interface ArticleCardProps {
   article: Article;
@@ -38,7 +41,7 @@ export default function ArticleCard({ article }: ArticleCardProps) {
       href={`/articles/${getArticleRouteSlug(article)}`}
       className="group block"
     >
-      <article className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2">
+      <PublicCard variant="interactive" className="group">
         {/* Image Container - aspect-[4/3] like Portfolio */}
         <ImageWatermark className="block w-full">
           <div className="relative aspect-[4/3] overflow-hidden bg-gray-100">
@@ -52,16 +55,16 @@ export default function ArticleCard({ article }: ArticleCardProps) {
 
             {/* Category Badge - Top Left */}
             <div className="absolute top-3 left-3 z-30">
-              <span className="bg-blue-600 text-white px-3 py-1 rounded-lg text-sm font-medium backdrop-blur-sm shadow-sm">
-                {article.category}
-              </span>
+                <PublicBadge tone="brand">
+                  {article.category}
+                </PublicBadge>
             </div>
 
             {/* Read Time Badge - Top Right */}
             <div className="absolute top-3 right-3 z-30">
-              <span className="bg-white/95 backdrop-blur-sm px-3 py-1 rounded-lg text-sm font-medium text-gray-800 shadow-sm">
-                {article.read_time}
-              </span>
+                <PublicBadge className="bg-white/95 text-site-ink shadow-sm backdrop-blur-sm">
+                  {article.read_time}
+                </PublicBadge>
             </div>
 
             {/* Hover Overlay */}
@@ -73,10 +76,8 @@ export default function ArticleCard({ article }: ArticleCardProps) {
         <div className="p-4 space-y-3">
           {/* Meta: Author + Date */}
           <div className="flex items-center justify-between text-sm text-gray-600">
-            <div className="flex items-center space-x-2">
-              <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-              </svg>
+              <div className="flex items-center gap-2">
+              <PublicIcon icon={UserCircle} size={16} className="text-site-muted" />
               <span className="truncate">{article.author}</span>
             </div>
             <div className="text-gray-500 font-medium">
@@ -115,13 +116,11 @@ export default function ArticleCard({ article }: ArticleCardProps) {
           <div className="pt-2 border-t border-gray-100">
             <span className="text-blue-600 text-sm font-medium opacity-0 group-hover:opacity-100 transition-all duration-200 transform translate-x-2 group-hover:translate-x-0 flex items-center">
               อ่านต่อ
-              <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
+              <PublicIcon icon={ArrowRight} size={16} />
             </span>
           </div>
         </div>
-      </article>
+      </PublicCard>
     </Link>
   );
 }

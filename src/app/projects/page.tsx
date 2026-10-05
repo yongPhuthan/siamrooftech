@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { unstable_cache } from "next/cache";
-import Breadcrumbs from "../components/ui/Breadcrumbs";
-import FinalCTASection from "../components/FinalCTASection";
+import Breadcrumbs from '@/components/site/Breadcrumbs';
+import FinalCTASection from '@/components/site/FinalCTASection';
 import ProjectsIndex from "../components/projects/ProjectsIndex";
 import type { Project } from "@/lib/firestore";
 import { projectsAdminService } from "@/lib/firestore-admin";
 import { canonicalUrl } from "@/lib/seo-config";
 import { getProjectPath } from "@/lib/project-url";
+import { PublicBadge, PublicHeading } from '@/components/ui/public';
 
 export const revalidate = 300;
 
@@ -67,7 +68,7 @@ export default async function ProjectsPage() {
 
   if (!projectPaths.length) {
     return (
-      <main className="mx-auto flex min-h-[60vh] max-w-7xl flex-col items-center justify-center px-4 text-center">
+      <main data-site-theme className="mx-auto flex min-h-[60vh] max-w-7xl flex-col items-center justify-center px-4 text-center">
         <h1 className="text-3xl font-bold text-gray-900">ยังไม่มีผลงาน</h1>
         <p className="mt-3 text-gray-600">กลับไปดูข้อมูลเพิ่มเติมได้ที่หน้าแรก</p>
         <Link href="/" className="mt-5 text-blue-700 underline">กลับหน้าแรก</Link>
@@ -76,7 +77,7 @@ export default async function ProjectsPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-50">
+    <main data-site-theme className="min-h-screen bg-gray-50 text-site-ink">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
       <div className="border-b border-gray-200 bg-white/80">
         <div className="mx-auto max-w-7xl px-4 py-3 sm:px-6 lg:px-8">
@@ -85,9 +86,9 @@ export default async function ProjectsPage() {
       </div>
       <header className="border-b border-gray-100 bg-white px-4 py-10 text-center sm:py-12">
         <div className="mx-auto max-w-3xl">
-          <p className="mb-3 inline-flex rounded-full bg-blue-50 px-3 py-1 text-sm font-medium text-blue-800">ผลงานทั้งหมด</p>
-          <h1 className="text-3xl font-bold text-gray-900 sm:text-4xl">ผลงานติดตั้งกันสาดพับเก็บได้</h1>
-          <p className="mt-3 text-lg leading-8 text-gray-600">ชมผลงานติดตั้งจริงสำหรับบ้าน ร้านอาหาร คาเฟ่ และอาคารพาณิชย์</p>
+          <PublicBadge tone="brand" className="mb-3">ผลงานทั้งหมด</PublicBadge>
+          <PublicHeading as="h1" level="display" className="text-3xl sm:text-4xl">ผลงานติดตั้งกันสาดพับเก็บได้</PublicHeading>
+          <p className="mt-3 text-lg leading-8 text-site-muted">ชมผลงานติดตั้งจริงสำหรับบ้าน ร้านอาหาร คาเฟ่ และอาคารพาณิชย์</p>
         </div>
       </header>
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">

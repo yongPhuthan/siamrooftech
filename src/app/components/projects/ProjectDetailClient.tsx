@@ -1,11 +1,13 @@
 'use client';
 
 import { CaretLeft as ChevronLeftIcon, CaretRight as ChevronRightIcon, X as CloseIcon, MagnifyingGlassPlus as ZoomInIcon } from '@phosphor-icons/react/dist/ssr';
+import { Play, ClockCounterClockwise, CheckCircle } from '@phosphor-icons/react/dist/ssr';
+import { PublicIcon } from '@/components/ui/public';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
 import { Project } from '../../../lib/firestore';
-import Breadcrumbs from '../ui/Breadcrumbs';
+import Breadcrumbs from '@/components/site/Breadcrumbs';
 import ImageWatermark from '../ui/ImageWatermark';
 import SeparateBeforeAfterGallery from '../portfolio/SeparateBeforeAfterGallery';
 import PortfolioCTA from '../section/PortfolioCTA';
@@ -283,7 +285,7 @@ export default function ProjectDetailClient({ project, allProjects }: PortfolioD
 
 
 return (
-  <div className="min-h-screen bg-white">
+  <div data-site-theme className="min-h-screen bg-white text-site-ink">
     {/* Structured Data */}
     <script
       type="application/ld+json"
@@ -632,9 +634,7 @@ return (
           <div className="mb-8">
             <div className="flex items-center gap-3 mb-2">
               <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M8 5v14l11-7z" />
-                </svg>
+                <PublicIcon icon={Play} size={20} />
               </div>
               <h2 className="heading-section text-gray-900">
                 วีดีโอผลงาน
@@ -813,7 +813,7 @@ return (
               className="bg-white/20 hover:bg-white/30 text-white p-2 rounded-full transition-all flex-shrink-0"
               aria-label="ปิด"
             >
-              <CloseIcon className="w-5 h-5" />
+              <PublicIcon icon={CloseIcon} size={20} />
             </button>
           </div>
         </div>
@@ -826,14 +826,15 @@ return (
             className="absolute top-4 right-4 z-50 bg-white/10 hover:bg-white/20 text-white p-3 rounded-full transition-all"
             aria-label="ปิด"
           >
-            <CloseIcon className="w-8 h-8" />
+            <PublicIcon icon={CloseIcon} size={24} />
           </button>
 
           {/* Image Counter & Type Indicator */}
           <div className="absolute top-4 left-4 z-50 bg-white/10 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm">
             {isBeforeAfterMode && (
-              <span className="mr-2 font-semibold">
-                {lightboxImageType === 'before' ? '🕐 ก่อนติดตั้ง' : '✅ หลังติดตั้ง'}
+                <span className="mr-2 inline-flex items-center gap-1 font-semibold">
+                <PublicIcon icon={lightboxImageType === 'before' ? ClockCounterClockwise : CheckCircle} size={16} />
+                {lightboxImageType === 'before' ? 'ก่อนติดตั้ง' : 'หลังติดตั้ง'}
               </span>
             )}
             {lightboxImageIndex + 1} / {lightboxImages.length}
@@ -860,7 +861,7 @@ return (
               className="text-white hover:text-blue-400 transition-colors px-2 flex items-center justify-center"
               aria-label="ซูมเข้า"
             >
-              <ZoomInIcon className="w-5 h-5" />
+              <PublicIcon icon={ZoomInIcon} size={20} />
             </button>
           </div>
         </div>
@@ -876,7 +877,7 @@ return (
               className="absolute left-4 z-50 bg-white/10 hover:bg-white/20 text-white p-3 rounded-full transition-all"
               aria-label="รูปก่อนหน้า"
             >
-              <ChevronLeftIcon className="w-8 h-8" />
+              <PublicIcon icon={ChevronLeftIcon} size={24} />
             </button>
 
             {/* Next Button */}
@@ -888,7 +889,7 @@ return (
               className="absolute right-4 z-50 bg-white/10 hover:bg-white/20 text-white p-3 rounded-full transition-all"
               aria-label="รูปถัดไป"
             >
-              <ChevronRightIcon className="w-8 h-8" />
+              <PublicIcon icon={ChevronRightIcon} size={24} />
             </button>
           </div>
 
@@ -903,7 +904,7 @@ return (
               className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white p-3 rounded-full transition-all shadow-lg"
               aria-label="รูปก่อนหน้า"
             >
-              <ChevronLeftIcon className="w-6 h-6" />
+              <PublicIcon icon={ChevronLeftIcon} size={24} />
             </button>
 
             <div className="bg-white/20 backdrop-blur-sm text-white px-3 py-1.5 rounded-full text-xs font-medium">
@@ -918,7 +919,7 @@ return (
               className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white p-3 rounded-full transition-all shadow-lg"
               aria-label="รูปถัดไป"
             >
-              <ChevronRightIcon className="w-6 h-6" />
+              <PublicIcon icon={ChevronRightIcon} size={24} />
             </button>
           </div>
         )}

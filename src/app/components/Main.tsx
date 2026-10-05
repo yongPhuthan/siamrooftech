@@ -3,7 +3,7 @@ import TrustedBy from "./section/TrustedBy";
 import WhyUs from "./section/WhyUs";
 import HowItWorks from "./section/HowItWorks";
 import EndSection from "./section/EndSection";
-import FinalCTASection from "./FinalCTASection";
+import FinalCTASection from '@/components/site/FinalCTASection';
 import Whyus2 from "./section/WhyUs2";
 import DamageWarningSection from "./section/DamageWarningSection";
 import { Project } from "@/lib/firestore";
@@ -35,7 +35,7 @@ const Main = (props: Props) => {
         <WhyUs keyword={keyword} />
       </div>
 
-      <div className="bg-[#fafafaff] pt-10 mt-10 ">
+      <div className="bg-site-background pt-10 mt-10 ">
         <ProjectGalleryClient projects={projects} />
 
         {/* ปุ่มดูผลงานทั้งหมด หากมีผลงานเกิน 25 รายการ */}

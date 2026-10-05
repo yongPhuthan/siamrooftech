@@ -22,7 +22,7 @@ export default function LineContactButton({
       rel="noopener noreferrer"
       data-analytics-type="line"
       data-analytics-position={analyticsPosition}
-      className={`inline-flex max-w-full min-w-0 items-center justify-center gap-2 rounded-[4px] bg-[#01b202] text-center font-bold text-white transition-colors hover:bg-[#01bd00] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#01b202] focus-visible:ring-offset-2 ${compact ? 'min-h-11 px-3 py-2 text-xs' : 'min-h-12 px-5 py-3 text-sm'} ${fullWidth ? 'w-full' : ''}`}
+      className={`inline-flex max-w-full min-w-0 items-center justify-center gap-2 rounded-site-action bg-site-line text-center font-bold text-white transition-colors hover:bg-site-line-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-site-line focus-visible:ring-offset-2 ${compact ? 'min-h-11 px-3 py-2 text-xs' : 'min-h-12 px-5 py-3 text-sm'} ${fullWidth ? 'w-full' : ''}`}
     >
       <Image src="/images/line.png" alt="" aria-hidden="true" width={24} height={24} className="h-6 w-6 shrink-0" />
       <span>{label}</span>

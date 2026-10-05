@@ -1,13 +1,10 @@
 import { Metadata } from 'next';
-import Image from 'next/image';
-import Link from 'next/link';
-import Breadcrumbs from '../components/ui/Breadcrumbs';
-import ImageWatermark from '../components/ui/ImageWatermark';
+import Breadcrumbs from '@/components/site/Breadcrumbs';
 import { Article } from '../../lib/firestore';
 import { articlesAdminService } from '../../lib/firestore-admin';
-import FinalCTASection from '../components/FinalCTASection';
-import { getArticleRouteSlug } from '../../lib/articles/slug-generator';
+import FinalCTASection from '@/components/site/FinalCTASection';
 import { canonicalUrl } from '@/lib/seo-config';
+import ArticleCard from '../components/articles/ArticleCard';
 
 export const metadata: Metadata = {
   title: 'บทความกันสาดพับได้ - เทคนิค คำแนะนำ การดูแล | Siamrooftech',
@@ -31,24 +28,6 @@ function getUniqueCategories(articles: Article[]): string[] {
   return ['ทั้งหมด', ...uniqueCategories];
 }
 
-// Helper function to format Firebase timestamp
-function formatDate(timestamp: any): string {
-  if (!timestamp) return '';
-  
-  // Handle Firebase timestamp
-  if (timestamp.toDate) {
-    return timestamp.toDate().toLocaleDateString('th-TH');
-  }
-  
-  // Handle string date
-  if (typeof timestamp === 'string') {
-    return new Date(timestamp).toLocaleDateString('th-TH');
-  }
-  
-  // Handle Date object
-  return new Date(timestamp).toLocaleDateString('th-TH');
-}
-
 export default async function ArticlesPage() {
   let articles: Article[] = [];
   let categories: string[] = ['ทั้งหมด'];
@@ -64,7 +43,7 @@ export default async function ArticlesPage() {
     articles = [];
   }
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div data-site-theme className="min-h-screen bg-gray-50 text-site-ink">
       {/* Breadcrumbs */}
       <div className="bg-white border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -111,69 +90,7 @@ export default async function ArticlesPage() {
       {/* Articles Grid */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {articles.map((article) => (
-            <Link
-              key={article.id}
-              href={`/articles/${getArticleRouteSlug(article)}`}
-              className="group block"
-            >
-              <article className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2">
-              <ImageWatermark>
-                <div className="relative aspect-[4/3] overflow-hidden bg-gray-100">
-                  <Image
-                    src={article.featured_image || '/images/default-article.jpg'}
-                    alt={article.title}
-                    fill
-                    className="object-cover transition-all duration-700 group-hover:scale-110"
-                  />
-                  {/* Category Badge - Top Left */}
-                  <div className="absolute top-3 left-3">
-                    <span className="bg-blue-600 text-white px-3 py-1 rounded-lg text-sm font-medium backdrop-blur-sm">
-                      {article.category}
-                    </span>
-                  </div>
-                  {/* Read Time Badge - Top Right */}
-                  {/* <div className="absolute top-3 right-3">
-                    <span className="bg-white/95 backdrop-blur-sm px-3 py-1 rounded-lg text-sm font-medium text-gray-800 shadow-sm">
-                      {article.read_time}
-                    </span>
-                  </div> */}
-                </div>
-              </ImageWatermark>
-              
-              <div className="p-4 space-y-3">
-                {/* Title */}
-                <h3 className="font-semibold text-gray-900 text-lg leading-tight line-clamp-2 group-hover:text-blue-600 transition-colors duration-200">
-                  {article.title}
-                </h3>
-
-                {/* Excerpt */}
-                <p className="text-gray-600 text-sm leading-relaxed line-clamp-2">
-                  {article.excerpt}
-                </p>
-
-                {/* Meta: Author + Date */}
-                <div className="flex items-center justify-between text-sm text-gray-500">
-                  <div className="flex items-center space-x-2">
-                    <span>{article.author}</span>
-                    <span>•</span>
-                    <span>{formatDate(article.published_at)}</span>
-                  </div>
-                </div>
-
-                {/* CTA */}
-                <div className="pt-2 border-t border-gray-100">
-                  <span className="text-blue-600 text-sm font-medium opacity-0 group-hover:opacity-100 transition-all duration-200 transform translate-x-2 group-hover:translate-x-0 flex items-center">
-                    อ่านต่อ
-                    <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                  </span>
-                </div>
-              </div>
-              </article>
-            </Link>
-          ))}
+          {articles.map((article) => <ArticleCard key={article.id} article={article} />)}
         </div>
       </div>
 
