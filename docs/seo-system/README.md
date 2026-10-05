@@ -21,6 +21,8 @@ These are outside the SEO foundation stop condition but connect to the same page
 
 | Area | Status | Document |
 |---|---|---|
+| Site page registry, final article URLs and sitemap eligibility | Documented; repo status inspected 2026-10-04, production/CMS verification pending | [Site page plan](site-page-plan.md) |
+| Existing sitemap vs local pages | 2026-10-04 audit is a point-in-time snapshot of the prior redirect setup; project routes have since moved to `/projects` and retired project paths now return 404 in local QA; production verification pending; article source unavailable locally | [Local sitemap audit](local-sitemap-audit-2026-10-04.md) |
 | Google Ads URL and landing page concept | Drafted | `docs/google-ads/url-landing-page-concept-2026-07.md` |
 | Google Ads dynamic keyword insertion contract | Drafted | `docs/google-ads/dynamic-keyword-insertion-contract-2026-07.md` |
 | Google Ads launch URL matrix and GTM/GA4 mapping | Drafted | `docs/google-ads/launch-url-matrix-conversion-mapping-2026-07.md`, `docs/google-ads/launch-url-matrix-2026-07.csv`, `docs/google-ads/gtm-ga4-conversion-mapping-2026-07.csv`, `docs/google-ads/ga4-custom-dimensions-2026-07.csv` |

@@ -103,7 +103,7 @@ Rationale:
 
 Mechanism:
 
-1. `src/middleware.ts` sets cookie `srt_paid=1` (`Max-Age=1800`, i.e. 30 minutes, `path=/`, `sameSite=lax`) whenever the request URL contains `gclid`, `gbraid`, or `wbraid`. This applies site-wide, not only on the five `/services/*` paths eligible for the `/lp/google-ads/*` rewrite, because the floating LINE buttons (`LineButtonsLayout`) render on every route and a paid visitor commonly browses `/portfolio` before messaging.
+1. `src/middleware.ts` sets cookie `srt_paid=1` (`Max-Age=1800`, i.e. 30 minutes, `path=/`, `sameSite=lax`) whenever the request URL contains `gclid`, `gbraid`, or `wbraid`. This applies site-wide, not only on the five `/services/*` paths eligible for the `/lp/google-ads/*` rewrite, because the floating LINE buttons (`LineButtonsLayout`) render on every route and a paid visitor commonly browses `/projects` before messaging.
 2. A capture-phase click listener in `src/app/components/AttributionCapture.tsx` intercepts any click on an `a[href*="lin.ee"], a[href*="line.me"]` link. If `srt_paid=1` is present and no persona has been recorded yet this session, it blocks navigation and shows `LeadSurveyModal` (single mandatory question, no skip).
 3. The answer is stored in the existing `siamrooftech_attribution_v1` localStorage object as `lead_persona`, `lead_quality_score`, `lead_survey_answered_at` -- reusing the attribution store means every event tracked afterward (via `attribution_*` passthrough) automatically carries `attribution_lead_persona`.
 4. `line_survey_complete` fires with `lead_persona`, `lead_quality_score` (0 or 1), and `value` (0 or 1, same as score), then LINE opens via `window.open` in the same click-handler call stack (required to avoid popup blockers).

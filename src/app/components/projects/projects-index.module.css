@@ -1,0 +1,106 @@
+.listing {
+  --project-gap: 1.25rem;
+}
+
+.filterInput {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  clip-path: inset(50%);
+}
+
+.filterLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 9999px;
+  background: white;
+  padding: 0.5rem 1rem;
+  color: #374151;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.filterLabel span {
+  display: inline-flex;
+  min-width: 1.5rem;
+  height: 1.5rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background: #f3f4f6;
+  padding-inline: 0.35rem;
+  color: #4b5563;
+  font-size: 0.75rem;
+}
+
+.filterInput:checked + .filterLabel {
+  border-color: #2563eb;
+  background: #2563eb;
+  color: white;
+}
+
+.filterInput:checked + .filterLabel span {
+  background: rgb(255 255 255 / 20%);
+  color: white;
+}
+
+.filterInput:focus-visible + .filterLabel {
+  outline: 3px solid rgb(37 99 235 / 35%);
+  outline-offset: 2px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: var(--project-gap);
+}
+
+.card {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+
+.card:hover h2,
+.card:focus-visible h2 {
+  color: #2563eb;
+}
+
+.listing:has(:global(#project-filter-1:checked)) .card:not([data-category-index="1"]),
+.listing:has(:global(#project-filter-2:checked)) .card:not([data-category-index="2"]),
+.listing:has(:global(#project-filter-3:checked)) .card:not([data-category-index="3"]),
+.listing:has(:global(#project-filter-4:checked)) .card:not([data-category-index="4"]),
+.listing:has(:global(#project-filter-5:checked)) .card:not([data-category-index="5"]),
+.listing:has(:global(#project-filter-6:checked)) .card:not([data-category-index="6"]),
+.listing:has(:global(#project-filter-7:checked)) .card:not([data-category-index="7"]),
+.listing:has(:global(#project-filter-8:checked)) .card:not([data-category-index="8"]),
+.listing:has(:global(#project-filter-9:checked)) .card:not([data-category-index="9"]),
+.listing:has(:global(#project-filter-10:checked)) .card:not([data-category-index="10"]),
+.listing:has(:global(#project-filter-11:checked)) .card:not([data-category-index="11"]),
+.listing:has(:global(#project-filter-12:checked)) .card:not([data-category-index="12"]) {
+  display: none;
+}
+
+@media (min-width: 640px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1280px) {
+  .grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}

@@ -4,6 +4,8 @@
 > **Date**: 2025-10-12
 > **Version**: 1.0
 
+> **Route update (2026-10-05):** current public project pages use `/projects` and `/projects/[slug]`. The route names and build output shown later in this 2025 summary are historical snapshots.
+
 ---
 
 ## 🎯 Overview
@@ -70,7 +72,7 @@ Functions:
 - ✅ Shows video count
 - ✅ Clean blue badge design
 
-#### PortfolioDetailClient (`src/app/portfolio/[slug]/PortfolioDetailClient.tsx`)
+#### ProjectDetailClient (`src/app/components/projects/ProjectDetailClient.tsx`)
 - ✅ Video Gallery Section (after Process Timeline)
 - ✅ Grid layout: 1 col (mobile), 2 (tablet), 3 (desktop)
 - ✅ Click video → open VideoModal

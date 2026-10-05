@@ -651,7 +651,7 @@ className="grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
 
 ### Complete Portfolio Card
 ```tsx
-<Link href={`/portfolio/${slug}`} className="group block">
+<Link href={`/projects/${slug}`} className="group block">
   <article className="bg-white rounded-2xl overflow-hidden
     shadow-sm hover:shadow-2xl transition-all duration-500
     transform hover:-translate-y-2">
@@ -876,8 +876,8 @@ src/app/components/section/ProjectShow.tsx       - Homepage featured project car
 src/app/components/portfolio/PortfolioCard.tsx   - Reusable portfolio card
 src/app/components/portfolio/StaticPortfolioGrid.tsx - Portfolio grid layout
 src/app/components/portfolio/PortfolioWithFilters.tsx - Filter chips & grid
-src/app/portfolio/[slug]/PortfolioDetailClient.tsx - Project detail page
-src/app/portfolio/page.tsx - Portfolio listing page
+src/app/components/projects/ProjectDetailClient.tsx - Project detail page
+src/app/projects/page.tsx - Project listing page
 src/app/components/ui/BeforeAfterSlider.tsx - 🆕 Before/After slider component
 src/app/components/portfolio/BeforeAfterGallery.tsx - 🆕 Gallery with Before/After
 src/lib/project-image-utils.ts - 🆕 Image utility functions
@@ -1068,7 +1068,7 @@ transition: border-color 0.2s;
 
 **Video grid display in portfolio detail pages**
 
-**Location**: Used in `src/app/portfolio/[slug]/PortfolioDetailClient.tsx`
+**Location**: Used in `src/app/components/projects/ProjectDetailClient.tsx`
 
 **Features**:
 - 📹 Grid layout: 1 column (mobile), 2 (tablet), 3 (desktop)

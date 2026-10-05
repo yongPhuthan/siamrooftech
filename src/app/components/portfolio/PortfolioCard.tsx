@@ -27,7 +27,7 @@ export default function PortfolioCard({ project, index }: PortfolioCardProps) {
 
   return (
     <Link
-      href={`/portfolio/${project.slug || project.id}`}
+      href={project.slug ? `/projects/${project.slug}` : '/projects'}
       className="group block"
       style={{
         animationDelay: `${index * 100}ms`

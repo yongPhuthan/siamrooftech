@@ -112,7 +112,7 @@ export const servicePages: ServicePage[] = [
     relatedLinks: [
       { href: '/services/electric-retractable-awning', label: 'กันสาดพับไฟฟ้า' },
       { href: '/services/retractable-awning/bangkok', label: 'ติดตั้งในกรุงเทพ' },
-      { href: '/portfolio', label: 'ดูผลงานติดตั้งจริง' },
+      { href: '/projects', label: 'ดูผลงานติดตั้งจริง' },
     ],
   },
   {
@@ -185,7 +185,7 @@ export const servicePages: ServicePage[] = [
     ],
     relatedLinks: [
       { href: '/services/retractable-awning', label: 'กันสาดพับเก็บได้' },
-      { href: '/portfolio', label: 'ดูผลงานติดตั้งจริง' },
+      { href: '/projects', label: 'ดูผลงานติดตั้งจริง' },
       { href: '/contact', label: 'ติดต่อประเมินราคา' },
     ],
   },
@@ -255,7 +255,7 @@ export const servicePages: ServicePage[] = [
     relatedLinks: [
       { href: '/services/retractable-awning', label: 'กันสาดพับเก็บได้' },
       { href: '/services/electric-retractable-awning', label: 'กันสาดพับไฟฟ้า' },
-      { href: '/portfolio', label: 'ดูผลงานติดตั้งจริง' },
+      { href: '/projects', label: 'ดูผลงานติดตั้งจริง' },
     ],
   },
   {
@@ -393,7 +393,7 @@ export const servicePages: ServicePage[] = [
     relatedLinks: [
       { href: '/services/retractable-awning', label: 'กันสาดพับเก็บได้' },
       { href: '/services/electric-retractable-awning', label: 'กันสาดพับไฟฟ้า' },
-      { href: '/portfolio', label: 'ดูผลงานติดตั้งจริง' },
+      { href: '/projects', label: 'ดูผลงานติดตั้งจริง' },
     ],
   },
 ];

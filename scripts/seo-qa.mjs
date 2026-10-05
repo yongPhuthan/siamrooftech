@@ -18,7 +18,7 @@ const headers = {
 const pages = [
   { path: '/', canonical: canonicalOrigin, schema: ['LocalBusiness', 'FAQPage'] },
   { path: '/contact', canonical: `${canonicalOrigin}/contact` },
-  { path: '/portfolio', canonical: `${canonicalOrigin}/portfolio`, schema: ['CollectionPage'] },
+  { path: '/projects', canonical: `${canonicalOrigin}/projects`, schema: ['CollectionPage'] },
   { path: '/articles', canonical: `${canonicalOrigin}/articles` },
   { path: '/services/retractable-awning', canonical: `${canonicalOrigin}/services/retractable-awning`, schema: ['Service', 'FAQPage'] },
   { path: '/services/electric-retractable-awning', canonical: `${canonicalOrigin}/services/electric-retractable-awning`, schema: ['Service', 'FAQPage'] },
@@ -60,6 +60,167 @@ async function fetchPath(path, options = {}) {
   }
 }
 
+
+const retiredProjectPaths = [
+  '/portfolio',
+  '/portfolio/LQfEBn95phGTTk9y7dsx',
+  `/portfolio/category/${encodeURIComponent('ร้านอาหาร')}`,
+  '/works',
+  '/works/LQfEBn95phGTTk9y7dsx',
+  '/works/not-a-real-project',
+  '/allawning',
+];
+
+const retiredShortPortfolioSlugs = [
+  '5x2-520680',
+  '4-5x2-860430',
+  '3-5x1.5-744861',
+  '5x2-5-351507',
+  '4-5x2-542650',
+  '5x2-767881',
+  '2x1-5-326707',
+  '4-7x2.5-886205',
+  '2x1-5-368997',
+  '2-6x2-881761',
+  '3x2-204672',
+  '5-7x2.5-290684',
+  '5x2-5-472465',
+  '5-6x2-728032',
+  '4-5x2.5-854715',
+  '5-3x2.5-192907',
+];
+
+const expectedProjectUrls = [
+  '/projects/retractable-awning-5x2-1',
+  '/projects/retractable-awning-4-5x2-1',
+  '/projects/electric-awning-2-6x2-1',
+];
+
+const previousProjectSlugs = [
+  'retractable-awning-5x2-520680',
+  'retractable-awning-4-5x2-860430',
+  'retractable-awning-3-5x1-5-744861',
+  'retractable-awning-5x2-5-351507',
+  'retractable-awning-4-5x2-542650',
+  'retractable-awning-5x2-767881',
+  'retractable-awning-2x1-5-326707',
+  'retractable-awning-4-7x2-5-886205',
+  'retractable-awning-2x1-5-368997',
+  'electric-awning-2-6x2-881761',
+  'retractable-awning-3x2-204672',
+  'retractable-awning-5-7x2-5-290684',
+  'retractable-awning-5x2-5-472465',
+  'retractable-awning-5-6x2-728032',
+  'retractable-awning-4-5x2-5-854715',
+  'retractable-awning-5-3x2-5-192907',
+];
+
+const retiredProjectIds = [
+  '0xsjRpgMF3TUL2uBcpum',
+  'IailaI60SuYGitQ5LtS9',
+  '8GVaR1JAWdEl5ORKaLIb',
+  '98u5zas9XNMfBTYdsmUH',
+  'LQfEBn95phGTTk9y7dsx',
+  'jBHjDK3XxsgETc9nvj3r',
+  'dJ1kY665ES3tkn4I4E7f',
+  'YsvKbIiaQVDi2SEhoFx3',
+  '9cOoM17u6XoB4eJIQi6O',
+  'u12Uzh3H1wJeNoLwsMO3',
+  'XY5U8EZNDjSabhZN2jBM',
+  'GStr1xNPDU91Y5PbZn3S',
+  'O4X2bTHjDrQx4cXmU9bT',
+  'KyeA2zp2JohVgZMD0WpA',
+  'LRE2Xzf2H6faOfoMgC8N',
+  'ANocfCe2kmiS4wdtv5Sm',
+];
+
+const portfolioUnknownPaths = [
+  '/projects/not-a-real-project',
+  '/projects/LQfEBn95phGTTk9y7dsx',
+];
+
+const projectApiResponse = await fetchPath('/api/projects');
+let projects = [];
+if (projectApiResponse.status !== 200) {
+  fail(`/api/projects: expected 200 to discover published project URLs, got ${projectApiResponse.status}`);
+} else {
+  projects = await projectApiResponse.json();
+  if (!Array.isArray(projects) || projects.length !== 16) {
+    fail(`/api/projects: expected 16 published projects, got ${Array.isArray(projects) ? projects.length : 'invalid response'}`);
+    projects = [];
+  }
+}
+
+const projectUrls = projects.map((project) => `/projects/${project.slug}`);
+if (new Set(projectUrls).size !== projectUrls.length) {
+  fail('/api/projects: published project slugs are not unique');
+}
+
+for (const expectedUrl of expectedProjectUrls) {
+  if (!projectUrls.includes(expectedUrl)) {
+    fail(`/api/projects: missing expected stable URL ${expectedUrl}`);
+  }
+}
+
+for (const url of projectUrls) {
+  const response = await fetchPath(url);
+  if (response.status !== 200) {
+    fail(`${url}: expected 200, got ${response.status}`);
+    continue;
+  }
+
+  const html = await response.text();
+  const canonical = getAttr(html, [
+    /<link\s+rel=["']canonical["']\s+href=["']([^"']*)["']/i,
+    /<link\s+href=["']([^"']*)["']\s+rel=["']canonical["']/i,
+  ]);
+  if (canonical !== `${canonicalOrigin}${url}`) {
+    fail(`${url}: canonical mismatch. expected ${canonicalOrigin}${url}, got ${canonical || 'NONE'}`);
+  }
+  if (/<meta\s+name=["']robots["'][^>]*content=["'][^"']*noindex/i.test(html)) {
+    fail(`${url}: public project detail unexpectedly has noindex`);
+  }
+  const schemas = [];
+  const jsonLdBlocks = [...html.matchAll(/<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)];
+  for (const [, block] of jsonLdBlocks) {
+    try {
+      schemas.push(JSON.parse(block));
+    } catch {
+      fail(`${url}: invalid JSON-LD in initial HTML`);
+    }
+  }
+  if (!schemas.some((schema) => schema['@type'] === 'CreativeWork')) {
+    fail(`${url}: missing CreativeWork schema in initial HTML`);
+  }
+  if (html.includes('/portfolio/') || html.includes('/works/')) {
+    fail(`${url}: initial HTML contains retired project URLs`);
+  }
+}
+
+for (const oldSlug of previousProjectSlugs) {
+  retiredProjectPaths.push(`/portfolio/${oldSlug}`);
+}
+for (const oldSlug of retiredShortPortfolioSlugs) {
+  retiredProjectPaths.push(`/portfolio/${oldSlug}`);
+}
+for (const oldId of retiredProjectIds) {
+  retiredProjectPaths.push(`/works/${oldId}`);
+}
+
+for (const retiredPath of retiredProjectPaths) {
+  const response = await fetchPath(retiredPath);
+  if (response.status !== 404 || response.headers.has('location')) {
+    fail(`${decodeURIComponent(retiredPath)}: expected 404 without Location, got ${response.status} (${response.headers.get('location') || 'no Location'})`);
+  }
+}
+
+for (const unknownPath of portfolioUnknownPaths) {
+  const response = await fetchPath(unknownPath);
+  if (response.status !== 404 || response.headers.has('location')) {
+    fail(`${unknownPath}: expected 404 without Location, got ${response.status} (${response.headers.get('location') || 'no Location'})`);
+  }
+}
+
 for (const page of pages) {
   const response = await fetchPath(page.path);
   if (response.status !== 200) {
@@ -92,6 +253,17 @@ for (const page of pages) {
       fail(`${page.path}: missing ${schemaType} schema`);
     }
   }
+
+  if (page.path === '/projects') {
+    for (const projectUrl of projectUrls) {
+      if (!html.includes(`href="${projectUrl}"`)) {
+        fail(`/projects: initial HTML is missing project link ${projectUrl}`);
+      }
+    }
+    if (html.includes('useEffect')) {
+      fail('/projects: initial HTML unexpectedly depends on client-side project loading');
+    }
+  }
 }
 
 const sitemapResponse = await fetchPath('/sitemap.xml');
@@ -103,6 +275,14 @@ if (sitemapResponse.status !== 200) {
     if (!sitemap.includes(page.path) && page.path !== '/') {
       fail(`/sitemap.xml: missing ${page.path}`);
     }
+  }
+  for (const projectUrl of projectUrls) {
+    if (!sitemap.includes(`${canonicalOrigin}${projectUrl}`)) {
+      fail(`/sitemap.xml: missing ${projectUrl}`);
+    }
+  }
+  if (sitemap.includes('/portfolio') || sitemap.includes('/works') || sitemap.includes('/allawning')) {
+    fail('/sitemap.xml: contains a retired project URL');
   }
 }
 

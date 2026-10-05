@@ -1,53 +1,39 @@
-import { MetadataRoute } from 'next'
+import type { MetadataRoute } from 'next'
+import type { Article, Project } from '../lib/firestore'
 import { articlesAdminService, projectsAdminService } from '../lib/firestore-admin'
 import { getArticleRouteSlug } from '../lib/articles/slug-generator'
 import { canonicalUrl, toDate } from '../lib/seo-config'
 import { servicePages } from '../lib/service-pages'
+import { getProjectPath } from '../lib/project-url'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Static pages
   const staticPages = [
     {
       url: canonicalUrl('/'),
-      lastModified: new Date(),
       changeFrequency: 'weekly' as const,
       priority: 1,
     },
     {
       url: canonicalUrl('/contact'),
-      lastModified: new Date(),
       changeFrequency: 'monthly' as const,
       priority: 0.8,
     },
     {
-      url: canonicalUrl('/portfolio'),
-      lastModified: new Date(),
+      url: canonicalUrl('/projects'),
       changeFrequency: 'weekly' as const,
       priority: 0.9,
     },
     {
-      url: canonicalUrl('/works'),
-      lastModified: new Date(),
-      changeFrequency: 'weekly' as const,
-      priority: 0.7,
-    },
-    {
       url: canonicalUrl('/articles'),
-      lastModified: new Date(),
       changeFrequency: 'weekly' as const,
       priority: 0.8,
-    },
-    {
-      url: canonicalUrl('/allawning'),
-      lastModified: new Date(),
-      changeFrequency: 'monthly' as const,
-      priority: 0.6,
     },
   ]
 
   // Fetch actual projects for sitemap
-  let projects: any[] = [];
-  let articles: any[] = [];
+  let projects: Project[] = [];
+  let articles: Article[] = [];
   
   try {
     projects = await projectsAdminService.getAll();
@@ -62,34 +48,42 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     console.error('Error fetching articles for sitemap:', error);
   }
 
-  // Dynamic portfolio pages
-  const portfolioPages = projects.map((project) => ({
-    url: canonicalUrl(`/portfolio/${project.slug || project.id}`),
-    lastModified: toDate(project.updated_at || project.created_at),
-    changeFrequency: 'monthly' as const,
-    priority: 0.7,
-  }));
+  // Dynamic project detail pages
+  const projectLastModified = (project: Project): Date | undefined =>
+    toDate(project.updated_at) ?? toDate(project.created_at);
 
-  const portfolioCategoryPages = [...new Set(projects.map((project) => project.category).filter(Boolean))].map((category) => ({
-    url: canonicalUrl(`/portfolio/category/${encodeURIComponent(String(category))}`),
-    lastModified: new Date(),
-    changeFrequency: 'monthly' as const,
-    priority: 0.6,
-  }));
+  const projectPages = projects.flatMap((project) => {
+    const path = getProjectPath(project);
+    if (!path) return [];
+    const lastModified = projectLastModified(project);
+    return {
+      url: canonicalUrl(path),
+      ...(lastModified ? { lastModified } : {}),
+      changeFrequency: 'monthly' as const,
+      priority: 0.7,
+    };
+  });
 
-  const articlePages = articles.map((article) => ({
-    url: canonicalUrl(`/articles/${getArticleRouteSlug(article)}`),
-    lastModified: toDate(article.lastModified || article.updated_at || article.published_at || article.created_at),
-    changeFrequency: 'monthly' as const,
-    priority: 0.7,
-  }));
+  const articlePages = articles.map((article) => {
+    const lastModified =
+      toDate(article.lastModified) ??
+      toDate(article.updated_at) ??
+      toDate(article.published_at) ??
+      toDate(article.created_at);
+
+    return {
+      url: canonicalUrl(`/articles/${getArticleRouteSlug(article)}`),
+      ...(lastModified ? { lastModified } : {}),
+      changeFrequency: 'monthly' as const,
+      priority: 0.7,
+    };
+  });
 
   const serviceLandingPages = servicePages.map((page) => ({
     url: canonicalUrl(page.slug),
-    lastModified: new Date(),
     changeFrequency: 'monthly' as const,
     priority: page.kind === 'service' ? 0.9 : 0.8,
   }));
 
-  return [...staticPages, ...serviceLandingPages, ...portfolioPages, ...portfolioCategoryPages, ...articlePages]
+  return [...staticPages, ...serviceLandingPages, ...projectPages, ...articlePages]
 }

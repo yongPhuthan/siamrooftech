@@ -16,7 +16,7 @@ export default function Navigation() {
 
   const navItems = [
     { name: 'หน้าแรก', href: '/' },
-    { name: 'ผลงาน', href: '/portfolio' },
+    { name: 'ผลงาน', href: '/projects' },
     { name: 'บทความ', href: '/articles' },
   ];
 
@@ -47,8 +47,8 @@ export default function Navigation() {
     if (href === '/') {
       return pathname === '/';
     }
-    if (href === '/portfolio') {
-      return pathname.startsWith('/portfolio') || pathname.startsWith('/works');
+    if (href === '/projects') {
+      return pathname.startsWith('/projects');
     }
     if (href === '/articles') {
       return pathname.startsWith('/articles');

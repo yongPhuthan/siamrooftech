@@ -325,7 +325,7 @@ window.dataLayer?.slice(-10)
    - `position` เป็นตำแหน่งที่ถูกต้อง
 
 #### D) (Optional) Micro - Portfolio Button Click (`portfolio_view_click`)
-1) คลิกปุ่ม “ดูผลงานทั้งหมด” (เช่นปุ่มที่พาไป `/portfolio`)
+1) คลิกปุ่ม “ดูผลงานทั้งหมด” (เช่นปุ่มที่พาไป `/projects`)
 2) ใน Tag Assistant ต้องเห็น event `portfolio_view_click`
 3) ถ้าต้องการนับเป็น conversion ให้สร้าง Google Ads Conversion Tag ที่ผูกกับ trigger นี้โดยเฉพาะ (หรือใช้เป็นแค่ event สำหรับรีมาร์เก็ตติ้ง/วัด engagement)
 

@@ -47,6 +47,9 @@ export function validateFileProjects(projects: Project[] = fileProjects): void {
     if (!project.location) errors.push(`${project.id}: missing location`);
 
     if (project.slug) {
+      if (!/^(retractable|electric)-awning-[a-z0-9-]+-[1-9]\d{0,3}$/.test(project.slug)) {
+        errors.push(`${project.id}: slug is not in the canonical public format`);
+      }
       const owner = slugs.get(project.slug);
       if (owner) errors.push(`${project.id}: duplicate slug with ${owner}`);
       slugs.set(project.slug, project.id);
@@ -120,11 +123,7 @@ export const fileProjectsService = {
   },
 
   getBySlug(slug: string): Project | null {
-    const normalizedSlug = slug.toLowerCase();
-    return (
-      fileProjects.find((project) => project.slug?.toLowerCase() === normalizedSlug) ||
-      null
-    );
+    return fileProjects.find((project) => project.slug === slug) || null;
   },
 
   getByCategory(category: string): Project[] {

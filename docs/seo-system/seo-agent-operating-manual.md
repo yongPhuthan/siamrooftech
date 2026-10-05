@@ -37,7 +37,7 @@ Maintain and improve Siamrooftech organic visibility for retractable awning inst
 ### Weekly Checks
 
 1. Export GSC page/query data.
-2. Segment by service/local/article/portfolio.
+2. Segment by service/local/article/project.
 3. Identify:
    - high-impression low-CTR pages
    - queries where service pages are near page 1

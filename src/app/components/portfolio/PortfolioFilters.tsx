@@ -27,11 +27,11 @@ export default function PortfolioFilters({ projects, activeCategory = 'ทั้
   }, {} as Record<string, Project[]>);
 
   const categories = [
-    { name: 'ทั้งหมด', count: projects.length, href: '/portfolio' },
+    { name: 'ทั้งหมด', count: projects.length, href: '/projects' },
     ...Object.keys(groupedProjects).map(category => ({
       name: category,
       count: groupedProjects[category].length,
-      href: `/portfolio/category/${encodeURIComponent(category)}`
+      href: '/projects'
     }))
   ];
 

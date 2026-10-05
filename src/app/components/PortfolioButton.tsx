@@ -9,7 +9,7 @@ interface PortfolioButtonProps {
 const PortfolioButton = ({ className, children, position = 'unknown' }: PortfolioButtonProps) => {
   return (
     <Link
-      href="/portfolio"
+      href="/projects"
       className={`inline-flex items-center justify-center ${className || ''}`}
       data-analytics-position={position}
     >

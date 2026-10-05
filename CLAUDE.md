@@ -236,7 +236,7 @@ interface Article {
 - `src/components/ui/VideoPlayer.tsx` - **NEW v1.2** Custom video player
 - `src/components/ui/VideoModal.tsx` - **NEW v1.2** Fullscreen video modal
 - `src/components/ui/` - Reusable UI components
-- `src/app/portfolio/[slug]/page.tsx` - Portfolio detail page (SSG example)
+- `src/app/projects/[slug]/page.tsx` - Project detail page (SSG/ISR example)
 - `src/app/admin/` - Admin dashboard (client-side)
 
 ### Firebase Configuration

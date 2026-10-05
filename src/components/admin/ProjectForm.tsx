@@ -95,7 +95,6 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
 
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [createdProjectId, setCreatedProjectId] = useState<string | null>(null);
   const [revalidationStatus, setRevalidationStatus] = useState<{
     completed: boolean;
     success: boolean;
@@ -733,32 +732,22 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
         }
       }
 
-      let docId: string;
-
       if (project) {
         // Update existing project
         const docRef = doc(db, "projects", project.id);
         await updateDoc(docRef, cleanedFormData);
-        docId = project.id;
       } else {
         // Add new project
-        const docRef = await addDoc(collection(db, "projects"), cleanedFormData);
-        docId = docRef.id;
+        await addDoc(collection(db, "projects"), cleanedFormData);
       }
 
-      setCreatedProjectId(generatedSlug);
       setSuccess(true);
 
       // Enhanced cache revalidation with tag-based clearing
       try {
         const revalidationPayload = {
-          tags: ["projects-data", `project-data-${generatedSlug}`], // Tag-based revalidation
-          paths: [
-            "/portfolio",
-            "/works",
-            `/portfolio/${generatedSlug}`,
-            `/works/${generatedSlug}`,
-          ], // Path-based revalidation
+          tags: ["projects-data"],
+          paths: ["/projects"],
           debug: process.env.NODE_ENV === "development",
           secret: process.env.REVALIDATION_SECRET_TOKEN,
         };
@@ -840,7 +829,6 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
       // Hide success message after 10 seconds
       setTimeout(() => {
         setSuccess(false);
-        setCreatedProjectId(null);
         setRevalidationStatus(null);
       }, 10000);
     } catch (error) {
@@ -874,26 +862,16 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
                   <p className="text-gray-600">ตรวจสอบบนหน้าเว็บไซต์เพื่อดูการอัปเดตล่าสุด</p>
                 </div>
               </div>
-              {createdProjectId && (
-                <div className="flex w-full flex-col gap-2 text-sm sm:w-auto sm:flex-row">
-                  <a
-                    href={`/portfolio/${createdProjectId}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center rounded-lg bg-gray-900 px-4 py-2 text-white transition-colors hover:bg-gray-800"
-                  >
-                    เปิดหน้าโปรเจค
-                  </a>
-                  <a
-                    href="/portfolio"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center rounded-lg border border-gray-300 px-4 py-2 text-gray-700 transition-colors hover:bg-gray-50"
-                  >
-                    ดูผลงานทั้งหมด
-                  </a>
-                </div>
-              )}
+              <div className="flex w-full flex-col gap-2 text-sm sm:w-auto sm:flex-row">
+                <a
+                  href="/projects"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center rounded-lg border border-gray-300 px-4 py-2 text-gray-700 transition-colors hover:bg-gray-50"
+                >
+                  ดูผลงานที่เผยแพร่
+                </a>
+              </div>
             </div>
           </div>
 

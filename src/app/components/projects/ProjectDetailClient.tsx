@@ -5,11 +5,10 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
 import { Project } from '../../../lib/firestore';
-import { usePortfolioStore } from '../../../store/portfolioStore';
-import Breadcrumbs from '../../components/ui/Breadcrumbs';
-import ImageWatermark from '../../components/ui/ImageWatermark';
-import SeparateBeforeAfterGallery from '../../components/portfolio/SeparateBeforeAfterGallery';
-import PortfolioCTA from '../../components/section/PortfolioCTA';
+import Breadcrumbs from '../ui/Breadcrumbs';
+import ImageWatermark from '../ui/ImageWatermark';
+import SeparateBeforeAfterGallery from '../portfolio/SeparateBeforeAfterGallery';
+import PortfolioCTA from '../section/PortfolioCTA';
 import { getBeforeImage, getAfterImages, getBeforeImages, shouldShowBeforeAfter } from '@/lib/project-image-utils';
 import { hasVideos, getVideos, sortVideos } from '@/lib/project-video-utils';
 import VideoPlayer from '@/components/ui/VideoPlayer';
@@ -17,15 +16,17 @@ import VideoModal from '@/components/ui/VideoModal';
 import { trackLineClick, trackPhoneClick } from '@/lib/gtag';
 import { getServiceLinksForProject } from '@/lib/service-linking';
 import { getProjectProof, hasManualProjectProof } from '@/lib/project-proof';
+import { getProjectPath } from '@/lib/project-url';
 import { LINE_CONTACT_URL } from '@/features/line-contact/constants';
 
 interface PortfolioDetailClientProps {
   project: Project;
+  allProjects: Project[];
 }
 
-export default function PortfolioDetailClient({ project }: PortfolioDetailClientProps) {
-  const { getRelatedProjects } = usePortfolioStore();
-  const relatedProjects = getRelatedProjects(project, 3);
+export default function ProjectDetailClient({ project, allProjects }: PortfolioDetailClientProps) {
+  const projectPath = getProjectPath(project) ?? '/projects';
+  const relatedProjects = allProjects.filter((related) => related.id !== project.id).slice(0, 3);
   const serviceLinks = getServiceLinksForProject(project);
   const projectProof = getProjectProof(project);
   const hasManualProof = hasManualProjectProof(project);
@@ -65,7 +66,7 @@ export default function PortfolioDetailClient({ project }: PortfolioDetailClient
     name: project.title,
     description: Array.isArray(project.description) ? project.description.join(" ") : project.description,
     image: project.featured_image || project.images?.[0]?.original_size,
-    url: `https://www.siamrooftech.com/portfolio/${project.slug || project.id}`,
+    url: `https://www.siamrooftech.com${projectPath}`,
     about: "กันสาดพับได้",
     keywords: `กันสาดพับได้, ${project.type}, ${project.category}, ${project.location}`,
     creator: {
@@ -116,19 +117,13 @@ export default function PortfolioDetailClient({ project }: PortfolioDetailClient
           "@type": "ListItem", 
           position: 2,
           name: "ผลงาน",
-          item: "https://www.siamrooftech.com/portfolio",
+          item: "https://www.siamrooftech.com/projects",
         },
         {
           "@type": "ListItem",
           position: 3,
-          name: project.category,
-          item: `https://www.siamrooftech.com/portfolio/category/${encodeURIComponent(project.category)}`,
-        },
-        {
-          "@type": "ListItem",
-          position: 4,
           name: project.title,
-          item: `https://www.siamrooftech.com/portfolio/${project.slug || project.id}`,
+          item: `https://www.siamrooftech.com${projectPath}`,
         },
       ],
     },
@@ -301,9 +296,8 @@ return (
         <Breadcrumbs 
           items={[
             { name: 'หน้าแรก', href: '/' },
-            { name: 'ผลงาน', href: '/portfolio' },
-            { name: project.category, href: `/portfolio/category/${encodeURIComponent(project.category)}` },
-            { name: project.title, href: `/portfolio/${project.slug}` }
+            { name: 'ผลงานทั้งหมด', href: '/projects' },
+            { name: project.title }
           ]} 
         />
       </div>
@@ -698,7 +692,7 @@ return (
             </div>
             {/* Desktop / Tablet only */}
             <Link
-              href="/portfolio"
+              href="/projects"
               className="hidden sm:inline-flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
             >
               ดูผลงานทั้งหมด →
@@ -710,7 +704,7 @@ return (
             {relatedProjects.map((relatedProject) => (
               <Link
                 key={relatedProject.id}
-                href={`/portfolio/${relatedProject.slug || relatedProject.id}`}
+                href={getProjectPath(relatedProject) ?? '/projects'}
                 className="rounded-xl overflow-hidden border border-gray-200 hover:shadow-md transition-shadow bg-white flex flex-col"
               >
                 {/* Image */}
@@ -758,7 +752,7 @@ return (
             {/* Mobile only → ปุ่มหลังการ์ดสุดท้าย */}
             <div className="sm:hidden">
               <Link
-                href="/portfolio"
+                href="/projects"
                 className="mt-4 w-full inline-flex justify-center items-center gap-2 px-4 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
               >
                 ดูผลงานทั้งหมด →

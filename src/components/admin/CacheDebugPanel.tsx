@@ -114,7 +114,7 @@ export default function CacheDebugPanel() {
         },
         body: JSON.stringify({
           tags: ['projects'],
-          paths: ['/portfolio', '/works'],
+          paths: ['/projects'],
           debug: true,
           secret: process.env.REVALIDATION_SECRET_TOKEN
         }),

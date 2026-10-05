@@ -8,7 +8,7 @@ const ProjectShow = (props:any) => {
   const description = props.description;
   const projectId = props.projectId;
   const projectSlug = props.projectSlug;
-  const href = `/portfolio/${projectSlug || projectId}`;
+  const href = projectSlug ? `/projects/${projectSlug}` : '/projects';
 
   return (
     <>

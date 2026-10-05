@@ -240,7 +240,7 @@ interface Article {
 - `src/components/ui/VideoPlayer.tsx` - **NEW v1.2** Custom video player
 - `src/components/ui/VideoModal.tsx` - **NEW v1.2** Fullscreen video modal
 - `src/components/ui/` - Reusable UI components
-- `src/app/portfolio/[slug]/page.tsx` - Portfolio detail page (SSG example)
+- `src/app/projects/[slug]/page.tsx` - Project detail page (SSG/ISR example)
 - `src/app/admin/` - Admin dashboard (client-side)
 
 ### Firebase Configuration
@@ -249,6 +249,23 @@ interface Article {
 - Security rules defined in `firestore.rules`
 
 ## SEO Best Practices
+
+### SEO Change Rules (Required)
+
+- **New, renamed, removed or republished public pages:** update `docs/seo-system/site-page-plan.md` (URL, implementation/publication status, sitemap eligibility). Review `src/app/sitemap.ts` and its data sources; ensure eligible pages appear automatically or update generation when needed. Never add planned pages, drafts, redirects, errors, noindex pages or non-canonical aliases to the sitemap. Record exclusions and pending production verification.
+- **URL changes and removals:** do not add redirects to compensate for URLs that are renamed or removed. A retired URL returns 404 and has no alias, rewrite, meta refresh, or client-side navigation. Add a redirect only when the user explicitly authorizes that redirect in the current task and identifies the intended old URL and equivalent destination. Unknown URLs always return 404; never send them to the homepage or a parent page. Update canonical, internal links, breadcrumbs, structured-data URLs and sitemap together. Do not rename published URLs solely to insert keywords.
+- **Publication checks:** verify real content, HTTP status, initial HTML, title/description, H1, canonical, robots/noindex, relevant structured data and incoming internal links. Sitemap `lastmod` must reflect a real significant content change; omit it when unknown. HTTP 200 alone is insufficient, including streamed not-found responses.
+
+Choose the audit level by **blast radius**, not just file or URL count:
+
+| Level | Trigger | Required SEO verification |
+|---|---|---|
+| Focused | 1–5 pages using unchanged templates/helpers | Check each changed page, its incoming links, sitemap inclusion/exclusion and any redirect pair against the publication checks above. Use relevant topics from `technical-seo-audit`; no full-site audit. |
+| Template | Shared templates, URL/metadata helpers, navigation, or a larger batch of pages | Focused checks plus representative pages of every affected type, edge cases and unchanged control pages; inspect the generated sitemap for duplicates/conflicts. Run `yarn seo:qa` against the running local server (or `node scripts/seo-qa.mjs --base=http://127.0.0.1:3000`); add manual checks for URLs the script does not cover. |
+| Site-wide | Bulk URL migration, global canonical/robots/indexing policy, or sitemap-generation changes | Use `technical-seo-audit` across all seven topics; reconcile the affected URL inventory with sitemap, redirects and indexability. Verify a local production build and document rollback for migration/indexing changes. Confirm deployed behavior when production access is in scope. |
+
+- **Skill routing:** use `media-seo` for image/video discovery, markup or delivery changes; `core-web-vitals-audit` for performance investigations or changes likely to affect LCP/INP/CLS. Scope checks to affected pages/dependencies; a cosmetic edit alone does not trigger SEO audits. Skill audits remain inspection/reporting; implement only within the user's requested scope.
+- **Completion evidence:** report the audit level, tested URLs/environment, commands/results, findings and unavailable checks. Keep local and production results separate; missing CMS/GSC/browser data is a limitation, not a pass or proof of Google indexing. These rules do not authorize deployment, external configuration changes or sitemap submission.
 
 ### Meta Tags & Structured Data
 - Always include title, description, Open Graph tags
