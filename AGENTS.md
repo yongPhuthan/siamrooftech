@@ -126,7 +126,7 @@ This design system ensures consistency across:
 - Public theme: Slate background/surfaces, subtle borders and shadows, Blue/Sky accents; use `site-*` tokens and named visual variants.
 - Typography: Sukhumvit Set font family with bold headings
 - Spacing: Consistent gaps (gap-3, gap-6, gap-8) and container widths (max-w-6xl, max-w-7xl)
-- Cards: 16px radius and restrained shadows; actions use 8px and media 12px radii.
+- Public cards, actions, media, and other rounded surfaces use a 4px radius. Keep fully rounded pills and circles only where their shape is intentional. Admin radius tokens remain independent.
 - Images: aspect-[4/3] with overlay effects
 - Animations: brief 140–200ms transitions; honor reduced motion and avoid attention-pulling effects.
 

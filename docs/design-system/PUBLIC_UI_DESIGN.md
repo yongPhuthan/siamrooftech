@@ -11,7 +11,7 @@ This is the source of truth for reusable UI on public routes. It does not replac
 
 ## Theme
 
-Use `site-background` (`#f8fafc`), `site-surface` (`#fff`), `site-ink` (`#0f172a`), `site-muted` (`#64748b`), `site-border` (`#e2e8f0`), `site-brand` (`#2563eb`), `site-brand-strong` (`#1d4ed8`), `site-sky` (`#0284c7`), and the named focus, subtle, LINE, radius, and shadow tokens for public UI. Legacy gray, slate, neutral, blue, and sky palette utilities are bridged to these values only under `[data-site-theme]`. Keep the Sukhumvit fonts and existing container widths. Do not change shadcn tokens used by admin.
+Use `site-background` (`#f8fafc`), `site-surface` (`#fff`), `site-ink` (`#0f172a`), `site-muted` (`#64748b`), `site-border` (`#e2e8f0`), `site-brand` (`#2563eb`), `site-brand-strong` (`#1d4ed8`), `site-sky` (`#0284c7`), and the named focus, subtle, LINE, radius, and shadow tokens for public UI. Standard public actions, cards, media, and other rounded surfaces use a 4px radius through the scoped site theme, including legacy Tailwind rounding utilities. Keep `rounded-full` and the badge pill token only for intentionally pill-shaped or circular UI; use `rounded-none` when square edges are intentional. Legacy gray, slate, neutral, blue, and sky palette utilities are bridged to these values only under `[data-site-theme]`. Keep the Sukhumvit fonts and existing container widths. Do not change shadcn tokens used by admin.
 
 `heading-display`, `heading-section`, `heading-card`, `heading-panel`, `eyebrow`, `body-lead`, `body-copy`, and `article-content` are the shared typography recipes. Article renderer and data formats remain feature-owned.
 

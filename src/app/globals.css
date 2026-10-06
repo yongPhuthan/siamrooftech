@@ -30,10 +30,10 @@
   --color-site-line: #01b202;
   --color-site-line-strong: #01bd00;
   --color-site-overlay: rgb(0 0 0 / 70%);
-  --radius-site-action: 0.5rem;
-  --radius-site-media: 0.75rem;
+  --radius-site-action: 0.25rem;
+  --radius-site-media: 0.25rem;
   --radius-site-badge: 9999px;
-  --radius-site-card: 1rem;
+  --radius-site-card: 0.25rem;
   --shadow-site-card: 0 1px 2px rgb(15 23 42 / 6%);
   --shadow-site-card-hover: 0 8px 20px rgb(15 23 42 / 10%);
 
@@ -47,6 +47,9 @@
    from admin routes while their visual components retain their own system. */
 [data-site-theme] {
   color-scheme: light;
+  --radius-site-action: 4px;
+  --radius-site-media: 4px;
+  --radius-site-card: 4px;
   --color-gray-50: var(--color-site-background);
   --color-gray-100: var(--color-site-subtle);
   --color-gray-200: var(--color-site-border);
@@ -100,6 +103,12 @@
   --color-sky-700: #0369a1;
   --color-sky-800: #075985;
   --color-sky-900: #0c4a6e;
+}
+
+/* Normalize legacy Tailwind rounding utilities across public UI. Pill and
+   circular shapes remain intentional; admin routes have no site-theme scope. */
+[data-site-theme] [class*="rounded-"]:not([class~="rounded-full"]):not([class~="rounded-site-badge"]):not([class~="rounded-none"]) {
+  border-radius: 4px;
 }
 
 [data-site-theme] .shadow-xl,

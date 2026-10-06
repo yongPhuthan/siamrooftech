@@ -7,7 +7,7 @@ const cardVariants = cva('overflow-hidden rounded-site-card border border-site-b
     variant: {
       default: '',
       interactive: 'transition-shadow duration-[180ms] hover:shadow-site-card-hover',
-      compact: 'rounded-xl shadow-none',
+      compact: 'rounded-site-card shadow-none',
       landing: 'rounded-site-media shadow-site-card',
     },
   },
