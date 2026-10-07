@@ -1,10 +1,10 @@
-import { GoogleTagManager } from "@next/third-parties/google";
+import { GoogleAnalytics } from "@next/third-parties/google";
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { Suspense } from "react";
 import "./globals.css";
 import AttributionCapture from "./components/AttributionCapture";
-import Navigation from "./components/ui/Navigation";
+import Navigation from '@/components/site/Navigation';
 import LineButtonsLayout from "@/features/line-contact/LineButtonsLayout";
 import LineLeadCapture from "@/features/line-contact/LineLeadCapture";
 import SiteFooter from "./components/SiteFooter";
@@ -94,10 +94,8 @@ export default function RootLayout({
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
       </head>
-      {process.env.NODE_ENV === "production" && process.env.NEXT_PUBLIC_GTM_ID ? (
-        <>
-          <GoogleTagManager gtmId={process.env.NEXT_PUBLIC_GTM_ID} />
-        </>
+      {process.env.NODE_ENV === "production" && process.env.NEXT_PUBLIC_GA4_MEASUREMENT_ID ? (
+        <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA4_MEASUREMENT_ID} />
       ) : null}
       {/* Bottom padding clears the mobile sticky LINE bar; the desktop
           floating button is a small pill and needs no reserved space. */}

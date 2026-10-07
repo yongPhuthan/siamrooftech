@@ -91,9 +91,9 @@ Tree แสดงบทบาทและรูปแบบ URL; `{slug}` แล
 | ART-04 | กันสาดพับได้ ราคา | `/articles/retractable-awning-price` | วางแผน | ห้ามเพิ่ม | `/services/retractable-awning` |
 | ART-05 | กันสาดไฟฟ้า ราคา | `/articles/electric-retractable-awning-price` | วางแผน | ห้ามเพิ่ม | `/services/electric-retractable-awning` |
 
-มี [article detail template](../../src/app/articles/[slug]/page.tsx) แล้ว แต่ยังไม่ได้ตรวจ CMS ว่ามี record สำหรับห้า URL นี้หรือไม่ จึงยังไม่ระบุว่าเนื้อหาสร้างหรือเผยแพร่แล้ว ให้ตรวจบทความเดิมก่อนสร้าง record ใหม่หรือย้ายเนื้อหา
+มี [article detail template](../../src/app/articles/[slug]/page.tsx) และ editor ใหม่แล้ว แต่ยังไม่ได้ตรวจ CMS ว่ามี record สำหรับห้า URL นี้หรือไม่ จึงยังไม่ระบุว่าเนื้อหาสร้างหรือเผยแพร่แล้ว ให้ตรวจบทความเดิมก่อนสร้าง record ใหม่หรือย้ายเนื้อหา
 
-ข้อจำกัดที่ต้องแก้ก่อนใช้ Final URL: [getArticleRouteSlug](../../src/lib/articles/slug-generator.ts) เติม `PRIMARY_KEYWORD = 'กันสาดพับได้'` ให้ slug อัตโนมัติ จึงยังไม่รับรองว่า English slug ในแผนจะเป็น URL ที่ระบบใช้งานจริง ต้องปรับกติกาโดยรักษา URL เดิม/redirect และตรวจ canonical, internal links, schema และ sitemap ให้สอดคล้องกัน
+ระบบบทความที่นำมาใช้แล้วบันทึก English slug ที่ผู้เขียนกำหนดและอ่าน URL จาก published snapshot เท่านั้น ไม่มีการเติม primary keyword อัตโนมัติ ไม่มี fallback จาก ID/title และไม่สร้าง redirect เมื่อ slug เปลี่ยนหรือบทความถูก unpublish; การเผยแพร่ยังต้องทำผ่าน admin และตรวจ content policy ก่อน
 
 ART-02 และ ART-03 จะมี brief และเนื้อหาแยกตามที่ผู้ใช้ต้องการ; รายละเอียดคอนเทนต์ยังไม่ล็อก ห้ามสร้างข้ออ้างเรื่องรุ่นสินค้า เซนเซอร์หรือ Smart Home ที่ยังไม่ยืนยันกับธุรกิจ และห้ามรับรองว่าการแยกหน้าจะทำให้ Google index ทั้งคู่แน่นอน
 

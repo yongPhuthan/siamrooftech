@@ -1,7 +1,8 @@
 import type { MetadataRoute } from 'next'
-import type { Article, Project } from '../lib/firestore'
-import { articlesAdminService, projectsAdminService } from '../lib/firestore-admin'
-import { getArticleRouteSlug } from '../lib/articles/slug-generator'
+import type { Project } from '@/features/projects/types';
+import { projectsRepository } from '@/features/projects/server/repository'
+import { getPublishedArticles } from '@/features/articles/server/repository'
+import { articlePath } from '@/features/articles/article-path'
 import { canonicalUrl, toDate } from '../lib/seo-config'
 import { servicePages } from '../lib/service-pages'
 import { getProjectPath } from '../lib/project-url'
@@ -33,19 +34,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Fetch actual projects for sitemap
   let projects: Project[] = [];
-  let articles: Article[] = [];
+  let articles = await getPublishedArticles().catch((error) => {
+    console.error('Error fetching published articles for sitemap:', error);
+    return [];
+  });
   
   try {
-    projects = await projectsAdminService.getAll();
+    projects = await projectsRepository.getAll();
   } catch (error) {
     console.error('Error fetching projects for sitemap:', error);
-  }
-
-  try {
-    const allArticles = await articlesAdminService.getAll();
-    articles = allArticles.filter((article) => article.isPublished === true);
-  } catch (error) {
-    console.error('Error fetching articles for sitemap:', error);
   }
 
   // Dynamic project detail pages
@@ -65,14 +62,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   });
 
   const articlePages = articles.map((article) => {
-    const lastModified =
-      toDate(article.lastModified) ??
-      toDate(article.updated_at) ??
-      toDate(article.published_at) ??
-      toDate(article.created_at);
-
+    const lastModified = toDate(article.modifiedAt);
     return {
-      url: canonicalUrl(`/articles/${getArticleRouteSlug(article)}`),
+      url: canonicalUrl(articlePath(article.metadata.slug)),
       ...(lastModified ? { lastModified } : {}),
       changeFrequency: 'monthly' as const,
       priority: 0.7,

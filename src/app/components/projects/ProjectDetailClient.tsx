@@ -6,7 +6,7 @@ import { PublicIcon } from '@/components/ui/public';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
-import { Project } from '../../../lib/firestore';
+import type { Project } from '@/features/projects/types';
 import Breadcrumbs from '@/components/site/Breadcrumbs';
 import ImageWatermark from '../ui/ImageWatermark';
 import SeparateBeforeAfterGallery from '../portfolio/SeparateBeforeAfterGallery';

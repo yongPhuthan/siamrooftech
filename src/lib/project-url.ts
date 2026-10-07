@@ -1,4 +1,4 @@
-import type { Project } from "./firestore";
+import type { Project } from '@/features/projects/types';
 
 /** Return the canonical public path only when a project has a published slug. */
 export function getProjectPath(project: Pick<Project, "slug">): string | null {

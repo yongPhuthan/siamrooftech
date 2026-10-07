@@ -1,5 +1,5 @@
 import { fileProjects } from "../data/projects";
-import { Project } from "./firestore";
+import type { Project } from '@/features/projects/types';
 
 const supportedProofAreas = new Set([
   "กรุงเทพ",

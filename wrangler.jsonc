@@ -5,12 +5,61 @@
   "main": ".open-next/worker.js",
   "compatibility_date": "2026-06-06",
   "compatibility_flags": ["nodejs_compat"],
+  "send_email": [
+    { "name": "AUTH_EMAIL", "allowed_sender_addresses": ["noreply@siamrooftech.com"] }
+  ],
+  "d1_databases": [
+    {
+      "binding": "APP_DB",
+      "database_name": "siamrooftech-cms-local",
+      "database_id": "00000000-0000-0000-0000-000000000001",
+      "migrations_dir": "drizzle/migrations"
+    },
+    {
+      "binding": "NEXT_TAG_CACHE_D1",
+      "database_name": "siamrooftech-cache-local",
+      "database_id": "00000000-0000-0000-0000-000000000002",
+      "migrations_dir": "drizzle/cache-migrations"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "MEDIA_BUCKET",
+      "bucket_name": "siamrooftech-media"
+    },
+    {
+      "binding": "NEXT_INC_CACHE_R2_BUCKET",
+      "bucket_name": "siamrooftech-opennext-cache"
+    }
+  ],
+  "services": [
+    {
+      "binding": "WORKER_SELF_REFERENCE",
+      "service": "siamrooftech"
+    }
+  ],
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "NEXT_CACHE_DO_QUEUE",
+        "class_name": "DOQueueHandler"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": ["DOQueueHandler"]
+    }
+  ],
   "assets": {
     "directory": ".open-next/assets",
     "binding": "ASSETS"
   },
   "vars": {
-    "NEXT_PUBLIC_GTM_ID": "GTM-WVZ3KQ6F",
+    "AUTH_EMAIL_DELIVERY": "disabled",
+    "AUTH_EMAIL_FROM": "noreply@siamrooftech.com",
+    "NEXT_PUBLIC_GA4_MEASUREMENT_ID": "G-49Q49WM381",
     "LINE_CHAT_HISTORY_WORKER_URL": "https://siamrooftech-line-chat-history.phuthan-dev.workers.dev"
   },
   "observability": {
@@ -20,6 +69,63 @@
       "head_sampling_rate": 1,
       "persist": true,
       "invocation_logs": true
+    }
+  },
+  "env": {
+    "staging": {
+      "name": "siamrooftech-staging",
+      "workers_dev": false,
+      "send_email": [
+        { "name": "AUTH_EMAIL", "allowed_sender_addresses": ["noreply@siamrooftech.com"] }
+      ],
+      "d1_databases": [
+        {
+          "binding": "APP_DB",
+          "database_name": "siamrooftech-cms-staging",
+          "database_id": "9a9be19b-990c-4e3b-bdae-fa5d9ba73716",
+          "migrations_dir": "drizzle/migrations"
+        },
+        {
+          "binding": "NEXT_TAG_CACHE_D1",
+          "database_name": "siamrooftech-cache-staging",
+          "database_id": "4332fbf7-cfb6-417a-8963-099d6ab726ba",
+          "migrations_dir": "drizzle/cache-migrations"
+        }
+      ],
+      "r2_buckets": [
+        {
+          "binding": "MEDIA_BUCKET",
+          "bucket_name": "siamrooftech-media-staging"
+        },
+        {
+          "binding": "NEXT_INC_CACHE_R2_BUCKET",
+          "bucket_name": "siamrooftech-opennext-cache-staging"
+        }
+      ],
+      "services": [
+        {
+          "binding": "WORKER_SELF_REFERENCE",
+          "service": "siamrooftech-staging"
+        }
+      ],
+      "durable_objects": {
+        "bindings": [
+          {
+            "name": "NEXT_CACHE_DO_QUEUE",
+            "class_name": "DOQueueHandler"
+          }
+        ]
+      },
+      "assets": {
+        "directory": ".open-next/assets",
+        "binding": "ASSETS"
+      },
+      "vars": {
+        "AUTH_EMAIL_DELIVERY": "live",
+        "AUTH_EMAIL_FROM": "noreply@siamrooftech.com",
+        "NEXT_PUBLIC_GA4_MEASUREMENT_ID": "",
+        "LINE_CHAT_HISTORY_WORKER_URL": ""
+      }
     }
   }
 }

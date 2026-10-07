@@ -1,3 +1,4 @@
+import { adminFetch } from '@/lib/admin-fetch';
 import imageCompression from 'browser-image-compression';
 import { getShortFileHash } from '../utils/fileHash';
 
@@ -18,7 +19,7 @@ async function applyWatermark(file: File, watermarkText: string): Promise<File> 
   formData.append('file', file);
   formData.append('text', watermarkText);
 
-  const response = await fetch('/api/upload/watermark', {
+  const response = await adminFetch('/api/upload/watermark', {
     method: 'POST',
     body: formData,
   });
@@ -67,7 +68,7 @@ export async function uploadImageToCloudflare(
 
     console.log(`📤 Uploading ${label} size (${maxSize}px) for file: ${fileName}`);
 
-    const presignRes = await fetch(`/api/upload/presign`, {
+    const presignRes = await adminFetch(`/api/upload/presign`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -78,17 +79,15 @@ export async function uploadImageToCloudflare(
 
     if (!presignRes.ok) throw new Error('Failed to get presigned URL');
 
-    const { presignedUrl, objectPath } = await presignRes.json();
+    const { uploadUrl, publicUrl } = await presignRes.json() as { uploadUrl: string; publicUrl: string };
 
-    const uploadRes = await fetch(presignedUrl, {
+    const uploadRes = await adminFetch(uploadUrl, {
       method: 'PUT',
-      headers: { 'Content-Type': `image/${ext}` },
+      headers: { 'Content-Type': resized.type || sourceFile.type || file.type },
       body: resized,
     });
 
     if (!uploadRes.ok) throw new Error('Upload to Cloudflare failed');
-
-    const publicUrl = `${process.env.NEXT_PUBLIC_CF_PUBLIC_URL}/${objectPath}`;
 
     console.log(`✅ Successfully uploaded ${label}: ${publicUrl}`);
 

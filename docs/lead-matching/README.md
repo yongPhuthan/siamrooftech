@@ -16,13 +16,9 @@ matching, the dashboard, and the Google Ads adapter.
 Before this, `gclid` never left the browser and the LINE buttons across the
 site all pointed at the same bare `https://lin.ee/pPz1ZqN` link with no
 parameters. There was no way to connect *which* ad click produced *which*
-LINE conversation. `src/lib/firestore.ts`
-had a `contact_submissions` collection that could have been the answer, but
-the form that wrote to it (`ContactForm.tsx`) isn't rendered anywhere in the
-app, and separately, **`firebase-admin` cannot run in this Cloudflare
-Workers runtime** (`EvalError: Code generation from strings disallowed` —
-see commit `ceca931`), which is why lead storage lives in D1 alongside chat
-history rather than Firestore.
+LINE conversation. Lead attribution now lives in the LINE chat-history
+Worker's own D1 database so attribution, matching, and chat history share one
+transaction boundary without coupling those records to the website CMS.
 
 ## Why gclid-only matching, not phone number
 
@@ -148,7 +144,7 @@ Staff / AI Agent ──► yarn leads:show <id> --with-transcript
                   ──► yarn leads:value <id> --value=45000 --status=won
                         └─► enqueue ADS_QUEUE {kind: restatement, same transactionId}
 
-Dashboard: /admin/leads ──► /api/admin/lead-proxy/* (Firebase-auth gated) ──► Worker /leads*
+Dashboard: /admin/leads ──► /api/admin/lead-proxy/* (server-session gated) ──► Worker /leads*
 ```
 
 ## Schema
@@ -185,8 +181,8 @@ yarn leads:ads-jobs --state=pending
 
 `/admin/leads` follows the exact conventions of `/admin/projects` /
 `/admin/articles` — `page.tsx` dynamic-imports the client component with
-`{ ssr: false }` (same reason as always: `firebase/auth`'s `eval()` crashes
-Workers SSR), wrapped in `AdminAuthGate`. **Unlike the existing
+`{ ssr: false }` to keep browser-only editor code out of server rendering,
+wrapped in `AdminAuthGate`. **Unlike the existing
 articles/projects admin routes, `GET` is also gated** behind
 `verifyAdminRequest` here (`src/app/api/admin/lead-proxy/[...path]/route.ts`)
 — lead data carries gclid and other attribution that shouldn't be openly

@@ -1,115 +1,51 @@
-// app/api/projects/[slug]/route.ts
-import { NextRequest, NextResponse } from "next/server";
-import { revalidateTag } from "next/cache";
-import { projectsAdminService } from "@/lib/firestore-admin";
-import { Project } from "@/lib/firestore";
-import { verifyAdminRequest, unauthorizedResponse } from "@/lib/api-auth";
+import { NextResponse } from 'next/server';
+import { verifyAdminRequest, unauthorizedResponse } from '@/lib/api-auth';
+import { getPublishedProjectBySlug, getAdminProjectBySlug, saveProjectDraft, deleteProjectBySlug } from '@/features/projects/server/repository';
 
-// GET: ดึงข้อมูลโปรเจกต์
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ slug: string }> }
-): Promise<NextResponse<Project | { error: string }>> {
+export const dynamic = 'force-dynamic';
+
+type Context = { params: Promise<{ slug: string }> };
+
+export async function GET(_request: Request, { params }: Context) {
   try {
     const { slug } = await params;
-
-    // Step 1: ลองดึงจาก Firestore โดยตรง (ถือว่าเป็น source of truth)
-    let project = await projectsAdminService.getBySlug(slug);
-    if (!project) {
-      project = await projectsAdminService.getById(slug);
-    }
-
-    // Step 2: ถ้าไม่มีข้อมูล → ส่ง 404
-    if (!project) {
-      return NextResponse.json({ error: "Project not found" }, { status: 404 });
-    }
-
-    // Step 3: คืนค่าข้อมูล + ให้ tag สำหรับ ISR cache
-    return NextResponse.json(project, {
-      status: 200,
-      headers: {
-        "x-revalidate-tag": `project-${slug}`,
-      },
-    });
+    const project = await getPublishedProjectBySlug(slug);
+    if (!project) return NextResponse.json({ error: 'Project not found' }, { status: 404 });
+    return NextResponse.json(project, { headers: { 'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=3600' } });
   } catch (error) {
-    console.error("API error:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch project data" },
-      { status: 500 }
-    );
+    console.error('Project API read failed', error);
+    return NextResponse.json({ error: 'Project data is unavailable' }, { status: 503 });
   }
 }
 
-// POST: on-demand revalidation
-export async function POST(
-  request: NextRequest,
-  { params }: { params: Promise<{ slug: string }> }
-) {
+export async function PATCH(request: Request, { params }: Context) {
+  if (!(await verifyAdminRequest(request))) return unauthorizedResponse();
+  const { slug } = await params;
+  const current = await getAdminProjectBySlug(slug);
+  if (!current) return NextResponse.json({ error: 'Project not found' }, { status: 404 });
+  const body = await request.json().catch(() => null) as { expectedRevision?: unknown; project?: unknown } | null;
+  if (!body || typeof body.expectedRevision !== 'number' || !body.project) return NextResponse.json({ error: 'Invalid project update' }, { status: 400 });
   try {
-    const { slug } = await params;
-    const body = await request.json();
-    const { secret } = body;
-
-    if (secret !== process.env.REVALIDATION_SECRET_TOKEN) {
-      return NextResponse.json(
-        { error: "Invalid secret token" },
-        { status: 401 }
-      );
-    }
-
-    revalidateTag(`project-${slug}`);
-
-    return NextResponse.json({
-      revalidated: true,
-      now: Date.now(),
-      message: `Revalidated project-${slug}`,
-    });
+    const project = await saveProjectDraft(current.id, body.expectedRevision, body.project);
+    return NextResponse.json(project, { headers: { 'Cache-Control': 'private, no-store' } });
   } catch (error) {
-    console.error("Revalidation error:", error);
-    return NextResponse.json(
-      { error: "Failed to revalidate" },
-      { status: 500 }
-    );
+    const code = error instanceof Error ? error.message : '';
+    const status = code === 'REVISION_CONFLICT' ? 409 : code === 'PROJECT_NOT_FOUND' ? 404 : code === 'INVALID_PROJECT' ? 400 : 503;
+    return NextResponse.json({ error: status === 409 ? 'Project changed in another session' : status === 404 ? 'Project not found' : status === 400 ? 'Invalid project' : 'Could not save project draft' }, { status, headers: { 'Cache-Control': 'private, no-store' } });
   }
 }
 
-// DELETE: ลบโปรเจค
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: Promise<{ slug: string }> }
-): Promise<NextResponse<{ success: boolean; message: string } | { error: string }>> {
-  if (!(await verifyAdminRequest(request))) {
-    return unauthorizedResponse();
-  }
-
+export async function DELETE(request: Request, { params }: Context) {
+  if (!(await verifyAdminRequest(request))) return unauthorizedResponse();
+  const { slug } = await params;
+  const body = await request.json().catch(() => null) as { expectedRevision?: unknown } | null;
+  if (!body || typeof body.expectedRevision !== 'number') return NextResponse.json({ error: 'Expected revision is required' }, { status: 400 });
   try {
-    const { slug } = await params;
-
-    // Delete the project
-    const success = await projectsAdminService.deleteBySlug(slug);
-
-    if (!success) {
-      return NextResponse.json(
-        { error: "Project not found or could not be deleted" },
-        { status: 404 }
-      );
-    }
-
-    // Revalidate cache after deletion
-    revalidateTag("projects");
-    revalidateTag(`project-${slug}`);
-
-    return NextResponse.json({
-      success: true,
-      message: `Project ${slug} deleted successfully`
-    }, {
-      status: 200
-    });
+    await deleteProjectBySlug(slug, body.expectedRevision);
+    return NextResponse.json({ success: true }, { headers: { 'Cache-Control': 'private, no-store' } });
   } catch (error) {
-    console.error("Delete API error:", error);
-    return NextResponse.json(
-      { error: "Failed to delete project" },
-      { status: 500 }
-    );
+    const code = error instanceof Error ? error.message : '';
+    const status = code === 'REVISION_CONFLICT' ? 409 : code === 'PROJECT_NOT_FOUND' ? 404 : 503;
+    return NextResponse.json({ error: status === 404 ? 'Project not found' : status === 409 ? 'Project changed in another session' : 'Could not delete project' }, { status, headers: { 'Cache-Control': 'private, no-store' } });
   }
 }

@@ -17,7 +17,7 @@ Read the [parent instructions](../../../../AGENTS.md) first. The root public UI 
 ## Dependencies
 
 - May import `cn`, `cva`, `next/link`, and server-safe React/Next primitives.
-- Must not import admin components, route handlers, Firebase clients, or feature state.
+- Must not import admin components, route handlers, database adapters, or feature state.
 
 ## Verification
 

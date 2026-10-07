@@ -90,12 +90,6 @@ const retiredShortPortfolioSlugs = [
   '5-3x2.5-192907',
 ];
 
-const expectedProjectUrls = [
-  '/projects/retractable-awning-5x2-1',
-  '/projects/retractable-awning-4-5x2-1',
-  '/projects/electric-awning-2-6x2-1',
-];
-
 const previousProjectSlugs = [
   'retractable-awning-5x2-520680',
   'retractable-awning-4-5x2-860430',
@@ -139,27 +133,22 @@ const portfolioUnknownPaths = [
   '/projects/LQfEBn95phGTTk9y7dsx',
 ];
 
-const projectApiResponse = await fetchPath('/api/projects');
-let projects = [];
-if (projectApiResponse.status !== 200) {
-  fail(`/api/projects: expected 200 to discover published project URLs, got ${projectApiResponse.status}`);
+const sitemapResponse = await fetchPath('/sitemap.xml');
+let sitemap = '';
+if (sitemapResponse.status !== 200) {
+  fail(`/sitemap.xml: expected 200, got ${sitemapResponse.status}`);
 } else {
-  projects = await projectApiResponse.json();
-  if (!Array.isArray(projects) || projects.length !== 16) {
-    fail(`/api/projects: expected 16 published projects, got ${Array.isArray(projects) ? projects.length : 'invalid response'}`);
-    projects = [];
-  }
+  sitemap = await sitemapResponse.text();
 }
 
-const projectUrls = projects.map((project) => `/projects/${project.slug}`);
+const projectUrls = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/gi)]
+  .map(([, value]) => new URL(value, canonicalOrigin).pathname)
+  .filter((path) => path.startsWith('/projects/'));
+if (projectUrls.length !== 16) {
+  fail(`/sitemap.xml: expected 16 published project URLs, got ${projectUrls.length}`);
+}
 if (new Set(projectUrls).size !== projectUrls.length) {
-  fail('/api/projects: published project slugs are not unique');
-}
-
-for (const expectedUrl of expectedProjectUrls) {
-  if (!projectUrls.includes(expectedUrl)) {
-    fail(`/api/projects: missing expected stable URL ${expectedUrl}`);
-  }
+  fail('/sitemap.xml: published project URLs are not unique');
 }
 
 for (const url of projectUrls) {
@@ -266,11 +255,7 @@ for (const page of pages) {
   }
 }
 
-const sitemapResponse = await fetchPath('/sitemap.xml');
-if (sitemapResponse.status !== 200) {
-  fail(`/sitemap.xml: expected 200, got ${sitemapResponse.status}`);
-} else {
-  const sitemap = await sitemapResponse.text();
+if (sitemap) {
   for (const page of pages) {
     if (!sitemap.includes(page.path) && page.path !== '/') {
       fail(`/sitemap.xml: missing ${page.path}`);

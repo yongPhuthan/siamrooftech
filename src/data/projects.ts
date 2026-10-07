@@ -1,8 +1,8 @@
-import type { Project } from "../lib/firestore";
+import type { Project } from '@/features/projects/types';
 
-// Generated from Firestore project siamrooftech-d7b13 on 2026-06-13.
-// Edit this file directly when adding small numbers of portfolio items.
-// Keep image URLs verified; public pages read this data without hitting Firestore.
+// Public-project import baseline captured on 2026-06-13.
+// New work is managed as private drafts through the CMS admin interface.
+// Keep source media URLs verified; the local importer preserves these records.
 export const fileProjects = [
   {
     "id": "0xsjRpgMF3TUL2uBcpum",

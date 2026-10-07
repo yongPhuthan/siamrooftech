@@ -28,8 +28,8 @@ for (const directory of publicOwners) {
     if (!isExistingNavigationBoundary && /(^|\n)['"]use client['"]/.test(source)) {
       failures.push(`${relativePath}: shared public primitives/patterns must stay server-safe unless listed as a pre-existing boundary`);
     }
-    if (/from ['"](?:@\/lib\/firestore|@\/lib\/firestore-admin|firebase)/.test(source)) {
-      failures.push(`${relativePath}: shared UI must not own CMS or Firebase access`);
+    if (/from ['"](?:@\/lib\/database|@\/features\/(?:projects|articles)\/server)/.test(source)) {
+      failures.push(`${relativePath}: shared UI must not own CMS access`);
     }
   }
 }

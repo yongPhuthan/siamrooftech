@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Image from 'next/image';
 import { Images, MagnifyingGlassPlus } from '@phosphor-icons/react/dist/ssr';
 import { PublicIcon } from '@/components/ui/public';
-import { Project, ProjectImage } from '@/lib/firestore';
+import type { Project, ProjectImage } from '@/features/projects/types';
 import ImageWatermark from '../ui/ImageWatermark';
 
 interface SeparateBeforeAfterGalleryProps {

@@ -1,4 +1,4 @@
-import { Project, ProjectImage } from './firestore';
+import type { Project, ProjectImage } from '@/features/projects/types';
 
 /**
  * Utility functions for Before/After image handling

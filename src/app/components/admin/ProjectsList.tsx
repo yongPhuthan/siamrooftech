@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Project } from "../../../lib/firestore";
+import type { Project } from '@/features/projects/types';
 import { getAfterImages, getBeforeImages } from "../../../lib/project-image-utils";
 import { getProjectPath } from "../../../lib/project-url";
 
@@ -9,9 +9,10 @@ interface ProjectsListProps {
   projects: Project[];
   onEdit: (project: Project) => void;
   onDelete: (project: Project) => void;
+  onTogglePublication: (project: Project) => void;
 }
 
-export default function ProjectsList({ projects, onEdit, onDelete }: ProjectsListProps) {
+export default function ProjectsList({ projects, onEdit, onDelete, onTogglePublication }: ProjectsListProps) {
   const [deletingProject, setDeletingProject] = useState<string | null>(null);
 
   const handleDeleteClick = (project: Project) => {
@@ -74,7 +75,7 @@ export default function ProjectsList({ projects, onEdit, onDelete }: ProjectsLis
                 const afterImages = getAfterImages(project);
                 const beforeImages = getBeforeImages(project);
                 const hasBeforeImages = beforeImages.length > 0;
-                const publicPath = getProjectPath(project);
+                const publicPath = project.isPublished ? getProjectPath(project) : null;
 
                 return (
                   <tr key={project.id} className="hover:bg-gray-50">
@@ -152,6 +153,12 @@ export default function ProjectsList({ projects, onEdit, onDelete }: ProjectsLis
                         แก้ไข
                       </button>
                       <button
+                        onClick={() => onTogglePublication(project)}
+                        className="inline-flex items-center justify-center rounded-md border border-gray-200 px-3 py-1.5 text-gray-700 transition-colors hover:border-gray-300 hover:text-gray-900"
+                      >
+                        {project.isPublished ? 'ยกเลิกเผยแพร่' : 'เผยแพร่'}
+                      </button>
+                      <button
                         onClick={() => handleDeleteClick(project)}
                         className={`inline-flex items-center justify-center rounded-md border px-3 py-1.5 transition-colors ${
                           deletingProject === project.id
@@ -182,7 +189,7 @@ export default function ProjectsList({ projects, onEdit, onDelete }: ProjectsLis
           const afterImages = getAfterImages(project);
           const beforeImages = getBeforeImages(project);
           const hasBeforeImages = beforeImages.length > 0;
-          const publicPath = getProjectPath(project);
+          const publicPath = project.isPublished ? getProjectPath(project) : null;
 
           return (
             <div
@@ -272,6 +279,12 @@ export default function ProjectsList({ projects, onEdit, onDelete }: ProjectsLis
                     className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-center text-sm font-medium text-gray-700 transition-colors hover:border-gray-300 hover:text-gray-900 active:scale-[0.99]"
                   >
                     แก้ไขรายละเอียด
+                  </button>
+                  <button
+                    onClick={() => onTogglePublication(project)}
+                    className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-center text-sm font-medium text-gray-700 transition-colors hover:border-gray-300 hover:text-gray-900"
+                  >
+                    {project.isPublished ? 'ยกเลิกเผยแพร่' : 'เผยแพร่'}
                   </button>
                   <button
                     onClick={() => handleDeleteClick(project)}

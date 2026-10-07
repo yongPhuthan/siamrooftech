@@ -7,6 +7,7 @@ type ArticleHeaderProps = {
   publishedLabel: string;
   publishedAt?: string;
   readTime?: string;
+  reviewedBy?: string;
 };
 
 export function ArticleHeader({
@@ -16,6 +17,7 @@ export function ArticleHeader({
   publishedLabel,
   publishedAt,
   readTime,
+  reviewedBy,
 }: ArticleHeaderProps) {
   return (
     <header>
@@ -27,6 +29,7 @@ export function ArticleHeader({
       </PublicHeading>
       <div className="mb-10 flex flex-wrap items-center gap-4 border-b border-site-border pb-8 text-sm text-site-muted">
         <span>{author}</span>
+        {reviewedBy ? <><span aria-hidden="true" className="text-site-border">|</span><span>ตรวจทานโดย {reviewedBy}</span></> : null}
         <span aria-hidden="true" className="text-site-border">|</span>
         <time dateTime={publishedAt}>{publishedLabel}</time>
         {readTime ? (

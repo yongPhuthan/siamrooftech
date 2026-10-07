@@ -1,694 +1,323 @@
-"use client";
+'use client';
 
-import { useState, useEffect, useMemo } from "react";
-import { Article, ArticleBlock } from "../../lib/firestore";
-import ArticleBlockEditor, { BlockData as BlockEditorBlock } from "./ArticleBlockEditor";
-import ArticlePreviewModal from "./ArticlePreviewModal";
-import { PRIMARY_KEYWORD } from "../../types/article";
-import { adminFetch } from "../../lib/admin-fetch";
+import dynamic from 'next/dynamic';
+import { useEffect, useState } from 'react';
+import { ArticleDocument, ArticleMetadata, ArticleMetadataSchema, ArticleSeoSettings, emptyArticleSeoSettings } from '@/features/articles/document-schema';
+import { ArticleRecordV1 } from '@/features/articles/publication-policy';
+import type { PublicationProblem } from '@/features/articles/publication-policy';
+import { analyzeArticleOnPage, type ArticleOnPageAnalysis, type AnalysisTarget } from '@/features/articles/analysis/on-page-analysis';
+import { createHeadingId } from '@/features/articles/admin/heading-id';
+import ArticleWorkspace from '@/features/articles/admin/ArticleWorkspace';
+import ArticleOutlinePanel from '@/features/articles/admin/ArticleOutlinePanel';
+import ArticleMetadataSidebar, { type MetadataSection } from '@/features/articles/admin/ArticleMetadataSidebar';
+import type { ArticleHeading } from '@/features/articles/heading-outline';
+import { adminFetch } from '@/lib/admin-fetch';
+
+const ArticleEditor = dynamic(() => import('@/features/articles/admin/ArticleEditor'), { ssr: false, loading: () => <div className="rounded border border-slate-200 bg-white p-8 text-sm text-slate-500">กำลังเปิดตัวแก้ไขบทความ…</div> });
 
 interface ArticleFormProps {
-  article?: Article | null;
+  article?: ArticleRecordV1 | null;
+  onBack: () => void;
   onSuccess?: () => void;
+  onUnsavedChange?: (hasChanges: boolean) => void;
 }
 
-const MAX_SLUG_WORDS = 6;
-
-const generateSeoSlug = (title: string, category: string, tags: string[]): string => {
-  const sources = [title, ...tags.slice(0, 2), category].join(" ").toLowerCase();
-
-  const cleaned = sources
-    .replace(/\d+/g, " ")
-    .replace(/[^a-z\u0E00-\u0E7F\s-]/g, " ")
-    .replace(/-{2,}/g, "-")
-    .replace(/\s+/g, " ")
-    .trim();
-
-  if (!cleaned) {
-    return "article";
-  }
-
-  const seen = new Set<string>();
-  const words: string[] = [];
-
-  cleaned.split(" ").forEach((word) => {
-    const trimmedWord = word.replace(/^-+|-+$/g, "");
-    if (!trimmedWord || trimmedWord.length < 2) return;
-    if (seen.has(trimmedWord)) return;
-    seen.add(trimmedWord);
-    words.push(trimmedWord);
-  });
-
-  const limitedWords = words.slice(0, MAX_SLUG_WORDS);
-  if (limitedWords.length === 0) {
-    return "article";
-  }
-
-  let slug = limitedWords.join("-");
-  if (slug.length > 80) {
-    slug = limitedWords
-      .slice(0, Math.max(1, MAX_SLUG_WORDS - 1))
-      .join("-");
-  }
-
-  return slug.replace(/-+/g, "-").replace(/(^-|-$)/g, "") || "article";
+const emptyMetadata: ArticleMetadata = {
+  title: '', slug: '', excerpt: '', category: '', authorName: '', topic: '', tags: [], seoTitle: '', seoDescription: '', sources: [],
 };
 
-const categories = [
-  "เทคนิคและคำแนะนำ",
-  "การดูแลรักษา",
-  "การติดตั้ง",
-  "แนะนำผลิตภัณฑ์",
-  "ข่าวสาร",
-  "อื่นๆ",
-];
+const emptyDocument: ArticleDocument = { type: 'doc', content: [] };
 
-export default function ArticleForm({ article, onSuccess }: ArticleFormProps) {
-  const [blocks, setBlocks] = useState<BlockEditorBlock[]>([]);
-  const [formData, setFormData] = useState({
-    title: "",
-    excerpt: "",
-    content: "",
-    featured_image: "",
-    category: categories[0],
-    author: "Siamrooftech",
-    tags: [] as string[],
-    slug: "",
-    read_time: "",
-    seoTitle: "",
-    seoDescription: "",
-    seoKeywords: [PRIMARY_KEYWORD] as string[],
-    isPublished: false,
-  });
+function buildElectricAwningOutline(): ArticleDocument {
+  const headings: Array<{ level: 2 | 3; text: string }> = [
+    { level: 2, text: 'การสำรวจความพร้อมของหน้างาน' },
+    { level: 3, text: '1. ประเภทโครงสร้างผนังและความสามารถในการรับน้ำหนัก' },
+    { level: 3, text: '2. การคำนวณขนาด ระยะยื่น และทิศทางแสงแดด' },
+    { level: 3, text: '3. ตำแหน่งจุดจ่ายไฟและมาตรฐานกล่องกันน้ำภายนอก' },
+    { level: 2, text: 'การเลือกสเปกอุปกรณ์และบริการหลังการขาย' },
+    { level: 3, text: '4. สเปกมอเตอร์ไฟฟ้า กำลังวัตต์ และระบบตัดความร้อน' },
+    { level: 3, text: '5. การเลือกชนิดผ้าใบ: โพลีเอสเตอร์เคลือบ เทียบกับ อะคริลิกย้อมเส้นด้าย' },
+    { level: 3, text: '6. ระบบสั่งการผ่านรีโมทและระบบเปิด-ปิดสำรอง (Manual Override)' },
+    { level: 3, text: '7. ขอบเขตการรับประกันสินค้าและบริการซ่อมบำรุง' },
+    { level: 2, text: 'ตัวอย่างผลงานการติดตั้งกันสาดไฟฟ้า' },
+    { level: 2, text: 'ข้อมูลที่ต้องเตรียมสำหรับการประเมินหน้างานและขอราคา' },
+  ];
+  return { type: 'doc', content: headings.map(({ level, text }) => ({ type: 'heading', attrs: { level, id: createHeadingId() }, content: [{ type: 'text', text }] })) };
+}
 
-  const [tagInput, setTagInput] = useState("");
-  const [seoKeywordInput, setSeoKeywordInput] = useState("");
-  const [submitting, setSubmitting] = useState(false);
-  const [lastSaved, setLastSaved] = useState<Date | null>(null);
-  const [showPreview, setShowPreview] = useState(false);
+interface PreviewData { title: string; excerpt: string; html: string }
 
-  const initialBlocks = useMemo<ArticleBlock[]>(() => {
-    if (!article) return [];
+export default function ArticleForm({ article, onBack, onSuccess, onUnsavedChange }: ArticleFormProps) {
+  const [metadata, setMetadata] = useState<ArticleMetadata>(article?.draft.metadata ?? emptyMetadata);
+  const [document, setDocument] = useState<ArticleDocument>(article?.draft.document ?? emptyDocument);
+  const [seoSettings, setSeoSettings] = useState<ArticleSeoSettings>(article?.draft.seoSettings ?? emptyArticleSeoSettings);
+  const [revision, setRevision] = useState(article?.revision ?? 0);
+  const [savedId, setSavedId] = useState(article?.id ?? '');
+  const [hasPublishedSnapshot, setHasPublishedSnapshot] = useState(Boolean(article?.published));
+  const [savedFingerprint, setSavedFingerprint] = useState(() => JSON.stringify({ metadata: article?.draft.metadata ?? emptyMetadata, document: article?.draft.document ?? emptyDocument, seoSettings: article?.draft.seoSettings ?? emptyArticleSeoSettings }));
+  const [saving, setSaving] = useState(false);
+  const [publishing, setPublishing] = useState(false);
+  const [unpublishing, setUnpublishing] = useState(false);
+  const [error, setError] = useState('');
+  const [publishProblems, setPublishProblems] = useState<PublicationProblem[]>([]);
+  const [savedAt, setSavedAt] = useState('');
+  const [preview, setPreview] = useState<PreviewData | null>(null);
+  const [previewLoading, setPreviewLoading] = useState(false);
+  const [newTag, setNewTag] = useState('');
+  const [sourceLabel, setSourceLabel] = useState('');
+  const [sourceUrl, setSourceUrl] = useState('');
+  const [headings, setHeadings] = useState<ArticleHeading[]>([]);
+  const [activeHeadingId, setActiveHeadingId] = useState<string>();
+  const [focusHeadingId, setFocusHeadingId] = useState<string>();
+  const [focusEditorTarget, setFocusEditorTarget] = useState<{ kind: 'text' | 'image'; from: number; to: number; token: number }>();
+  const [pendingFieldFocus, setPendingFieldFocus] = useState<string>();
+  const [editorComposing, setEditorComposing] = useState(false);
+  const [analysis, setAnalysis] = useState<ArticleOnPageAnalysis | null>(null);
+  const [analysisFingerprint, setAnalysisFingerprint] = useState('');
+  const [openMetadataSections, setOpenMetadataSections] = useState<Record<MetadataSection, boolean>>({ general: true, seo: false, author: false, sources: false, onpage: false });
 
-    if (article.blocks && article.blocks.length > 0) {
-      const sorted = [...article.blocks].sort(
-        (a, b) => (a.order_index ?? 0) - (b.order_index ?? 0)
-      );
-      return sorted.map((block, index) => ({
-        ...block,
-        order_index: index,
-      }));
-    }
-
-    if (article.content) {
-      return [
-        {
-          id: article.id ? `legacy-${article.id}` : `legacy-${Date.now()}`,
-          content: article.content,
-          image: article.featured_image,
-          order_index: 0,
-          created_at: article.updated_at || article.created_at || new Date().toISOString(),
-        },
-      ];
-    }
-
-    return [];
-  }, [article]);
-
-  const previewBlocks = useMemo<ArticleBlock[]>(() => {
-    return blocks.reduce<ArticleBlock[]>((acc, block, index) => {
-      const trimmedContent = block.content.trim();
-      const previewImage =
-        block.localImagePreview || (!block.imageRemoved ? block.image : undefined);
-
-      if (!trimmedContent && !previewImage) {
-        return acc;
-      }
-
-      acc.push({
-        id: block.id,
-        content: trimmedContent,
-        image: previewImage,
-        order_index: index,
-      });
-
-      return acc;
-    }, []);
-  }, [blocks]);
-
-  const canPreview = previewBlocks.length > 0 || formData.title.trim().length > 0;
+  const fingerprint = JSON.stringify({ metadata, document, seoSettings });
+  const hasUnsavedChanges = fingerprint !== savedFingerprint;
+  const mutationPending = saving || publishing || unpublishing;
+  const analysisIsCurrent = Boolean(analysis && analysisFingerprint === fingerprint);
 
   useEffect(() => {
-    if (article) {
-      setFormData({
-        title: article.title || "",
-        excerpt: article.excerpt || "",
-        content: article.content || "",
-        featured_image: article.featured_image || "",
-        category: article.category || categories[0],
-        author: article.author || "Siamrooftech",
-        tags: article.tags || [],
-        slug: article.slug || "",
-        read_time: article.read_time || "",
-        seoTitle: article.seoTitle || "",
-        seoDescription: article.seoDescription || "",
-        seoKeywords:
-          article.seoKeywords && article.seoKeywords.length > 0
-            ? article.seoKeywords
-            : [PRIMARY_KEYWORD],
-        isPublished: article.isPublished || false,
-      });
-    }
-  }, [article]);
+    setAnalysis(null);
+    setAnalysisFingerprint('');
+    if (editorComposing) return;
+    const timer = globalThis.setTimeout(() => {
+      setAnalysis(analyzeArticleOnPage({ metadata, document, seoSettings }));
+      setAnalysisFingerprint(fingerprint);
+    }, 400);
+    return () => globalThis.clearTimeout(timer);
+  }, [metadata, document, seoSettings, fingerprint, editorComposing]);
 
   useEffect(() => {
-    if (article) return;
+    if (!pendingFieldFocus) return;
+    const frame = globalThis.requestAnimationFrame(() => {
+      const element = Array.from(globalThis.document.querySelectorAll<HTMLElement>('[data-article-field]')).find((item) => item.dataset.articleField === pendingFieldFocus);
+      element?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      element?.querySelector<HTMLElement>('input, textarea, select, button')?.focus({ preventScroll: true });
+      setPendingFieldFocus(undefined);
+    });
+    return () => globalThis.cancelAnimationFrame(frame);
+  }, [pendingFieldFocus, openMetadataSections]);
 
-    const title = formData.title.trim();
-    if (!title) {
-      setFormData(prev => (prev.slug === "" ? prev : { ...prev, slug: "" }));
+  useEffect(() => { onUnsavedChange?.(hasUnsavedChanges); }, [hasUnsavedChanges, onUnsavedChange]);
+  useEffect(() => {
+    if (!hasUnsavedChanges) return;
+    const warnBeforeClose = (event: BeforeUnloadEvent) => { event.preventDefault(); event.returnValue = ''; };
+    globalThis.addEventListener('beforeunload', warnBeforeClose);
+    return () => globalThis.removeEventListener('beforeunload', warnBeforeClose);
+  }, [hasUnsavedChanges]);
+
+  const setField = <K extends keyof ArticleMetadata>(key: K, value: ArticleMetadata[K]) => setMetadata((current) => ({ ...current, [key]: value }));
+
+  const saveDraft = async () => {
+    setSaving(true);
+    setError('');
+    setPublishProblems([]);
+    try {
+      const url = savedId ? `/api/admin/articles/${savedId}` : '/api/admin/articles';
+      const response = await adminFetch(url, {
+        method: savedId ? 'PUT' : 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ expectedRevision: revision, metadata, document, seoSettings }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || `บันทึกไม่สำเร็จ (${response.status})`);
+      setSavedId(data.id);
+      setRevision(data.revision);
+      setMetadata(data.draft.metadata);
+      setDocument(data.draft.document);
+      setSeoSettings(data.draft.seoSettings ?? emptyArticleSeoSettings);
+      setHasPublishedSnapshot(Boolean(data.published));
+      setSavedFingerprint(JSON.stringify({ metadata: data.draft.metadata, document: data.draft.document, seoSettings: data.draft.seoSettings ?? emptyArticleSeoSettings }));
+      setSavedAt(new Date().toLocaleTimeString('th-TH'));
+      onSuccess?.();
+    } catch (saveError) {
+      setError(saveError instanceof Error ? saveError.message : 'บันทึกฉบับร่างไม่สำเร็จ');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const publish = async () => {
+    if (!savedId) {
+      setError('บันทึกฉบับร่างก่อนเผยแพร่');
       return;
     }
-
-    const nextSlug = generateSeoSlug(title, formData.category, formData.tags);
-    setFormData(prev => (prev.slug === nextSlug ? prev : { ...prev, slug: nextSlug }));
-  }, [article, formData.title, formData.category, formData.tags]);
-
-  useEffect(() => {
-    const combinedContent = blocks
-      .map(block => block.content.trim())
-      .filter(Boolean)
-      .join("\n\n")
-      .trim();
-
-    const wordCount = combinedContent
-      ? combinedContent.split(/\s+/).filter(Boolean).length
-      : 0;
-    const minutes = wordCount > 0 ? Math.max(1, Math.ceil(wordCount / 200)) : 0;
-    const nextReadTime = minutes > 0 ? `${minutes} นาที` : "";
-
-    setFormData(prev => {
-      if (prev.content === combinedContent && prev.read_time === nextReadTime) {
-        return prev;
-      }
-      return {
-        ...prev,
-        content: combinedContent,
-        read_time: nextReadTime,
-      };
-    });
-  }, [blocks]);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSubmitting(true);
-
+    if (hasUnsavedChanges) {
+      setError('บันทึกการแก้ไขเป็นฉบับร่างก่อนเผยแพร่');
+      return;
+    }
+    setPublishing(true);
+    setError('');
+    setPublishProblems([]);
     try {
-      const allUploadPromises: Promise<any>[] = [];
-      const blockUploadMap: Record<string, number> = {};
-
-      blocks.forEach(block => {
-        const selectedFiles = block.imageUploadRef.current?.getSelectedFiles();
-        if (selectedFiles && selectedFiles.length > 0) {
-          const uploadPromise = block.imageUploadRef.current?.uploadFiles();
-          if (uploadPromise) {
-            blockUploadMap[block.id] = allUploadPromises.length;
-            allUploadPromises.push(uploadPromise);
-          }
-        }
+      const response = await adminFetch(`/api/admin/articles/${savedId}/publish`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ expectedRevision: revision }),
       });
-
-      let allUploadResults: any[] = [];
-      if (allUploadPromises.length > 0) {
-        try {
-          allUploadResults = await Promise.all(allUploadPromises);
-        } catch (uploadError) {
-          console.error("Image upload failed:", uploadError);
-          alert("การอัพโหลดรูปภาพล้มเหลว กรุณาลองใหม่อีกครั้ง");
-          setSubmitting(false);
-          return;
-        }
+      const data = await response.json();
+      if (!response.ok) {
+        setPublishProblems(Array.isArray(data.problems) ? data.problems : []);
+        throw new Error(data.error || `เผยแพร่ไม่สำเร็จ (${response.status})`);
       }
-
-      const builtBlocks: ArticleBlock[] = [];
-      blocks.forEach(block => {
-        const uploadIndex = blockUploadMap[block.id];
-        const hasUpload = uploadIndex !== undefined;
-        let imageUrl = "";
-
-        if (hasUpload) {
-          const uploadResults = allUploadResults[uploadIndex];
-          if (uploadResults && uploadResults.length > 0) {
-            imageUrl = uploadResults[0].mediumUrl || uploadResults[0].originalUrl || "";
-          }
-        } else if (!block.imageRemoved) {
-          imageUrl = block.image || "";
-        }
-
-        const trimmedContent = block.content.trim();
-        const finalImage = imageUrl || undefined;
-
-        if (!trimmedContent && !finalImage) {
-          return;
-        }
-
-        const originalBlock = article?.blocks?.find(existing => existing.id === block.id);
-
-        builtBlocks.push({
-          id: block.id,
-          image: finalImage,
-          content: trimmedContent,
-          order_index: builtBlocks.length,
-          created_at: originalBlock?.created_at || new Date().toISOString(),
-        });
-      });
-
-      const combinedContent = builtBlocks
-        .map(block => block.content)
-        .filter(Boolean)
-        .join("\n\n");
-
-      const featuredImageFromBlocks = builtBlocks.find(block => block.image)?.image || "";
-
-      const finalSlug = formData.slug || generateSeoSlug(formData.title.trim(), formData.category, formData.tags);
-
-      const articleData = {
-        ...formData,
-        slug: finalSlug,
-        content: combinedContent,
-        featured_image: featuredImageFromBlocks || "",
-        authoringMode: "blocks" as const,
-        blocks: builtBlocks,
-      };
-
-      const url = article ? `/api/articles/${article.slug}` : "/api/articles";
-      const method = article ? "PUT" : "POST";
-
-      const response = await adminFetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(articleData),
-      });
-
-      if (response.ok) {
-        setLastSaved(new Date());
-        alert(article ? "แก้ไขบทความสำเร็จ" : "สร้างบทความสำเร็จ");
-
-        blocks.forEach(block => {
-          block.imageUploadRef.current?.reset();
-        });
-
-        setBlocks(prev =>
-          prev.map(block => {
-            const savedBlock = builtBlocks.find(b => b.id === block.id);
-            return {
-              ...block,
-              image: savedBlock?.image,
-              localImagePreview: undefined,
-              imageRemoved: savedBlock ? !savedBlock.image : block.imageRemoved,
-            };
-          })
-        );
-
-        setFormData(prev => ({
-          ...prev,
-          featured_image: featuredImageFromBlocks || "",
-        }));
-
-        onSuccess?.();
-      } else {
-        const error = await response.json();
-        alert(`เกิดข้อผิดพลาด: ${error.message || error.error}`);
-      }
-    } catch (error) {
-      console.error("Error submitting article:", error);
-      alert("เกิดข้อผิดพลาดในการบันทึก");
+      setRevision(data.revision);
+      setHasPublishedSnapshot(Boolean(data.published));
+      setSavedFingerprint(JSON.stringify({ metadata: data.draft.metadata, document: data.draft.document, seoSettings: data.draft.seoSettings ?? emptyArticleSeoSettings }));
+      setSavedAt(new Date().toLocaleTimeString('th-TH'));
+      onSuccess?.();
+    } catch (publishError) {
+      setError(publishError instanceof Error ? publishError.message : 'เผยแพร่ไม่สำเร็จ');
     } finally {
-      setSubmitting(false);
+      setPublishing(false);
+    }
+  };
+
+  const loadPreview = async () => {
+    if (!savedId) {
+      setError('บันทึกฉบับร่างก่อนดูตัวอย่าง');
+      return;
+    }
+    setPreviewLoading(true);
+    try {
+      const response = await adminFetch(`/api/admin/articles/${savedId}/preview`);
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'ดูตัวอย่างไม่ได้');
+      setPreview(data);
+    } catch (previewError) {
+      setError(previewError instanceof Error ? previewError.message : 'ดูตัวอย่างไม่ได้');
+    } finally {
+      setPreviewLoading(false);
+    }
+  };
+
+  const unpublish = async () => {
+    if (!savedId || !hasPublishedSnapshot || !globalThis.confirm('ยกเลิกการเผยแพร่บทความนี้หรือไม่? URL จะกลับเป็น 404 และบทความจะออกจาก sitemap')) return;
+    setUnpublishing(true);
+    setError('');
+    try {
+      const response = await adminFetch(`/api/admin/articles/${savedId}/unpublish`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ expectedRevision: revision }) });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'ยกเลิกการเผยแพร่ไม่สำเร็จ');
+      setHasPublishedSnapshot(false);
+      setRevision(data.revision);
+      setSavedFingerprint(JSON.stringify({ metadata: data.draft.metadata, document: data.draft.document, seoSettings: data.draft.seoSettings ?? emptyArticleSeoSettings }));
+      setSavedAt(new Date().toLocaleTimeString('th-TH'));
+      onSuccess?.();
+    } catch (unpublishError) {
+      setError(unpublishError instanceof Error ? unpublishError.message : 'ยกเลิกการเผยแพร่ไม่สำเร็จ');
+    } finally {
+      setUnpublishing(false);
     }
   };
 
   const addTag = () => {
-    if (tagInput.trim() && !formData.tags.includes(tagInput.trim())) {
-      setFormData(prev => ({
-        ...prev,
-        tags: [...prev.tags, tagInput.trim()],
-      }));
-      setTagInput("");
+    const tag = newTag.trim();
+    if (tag && !metadata.tags.includes(tag)) setField('tags', [...metadata.tags, tag]);
+    setNewTag('');
+  };
+
+  const addSource = () => {
+    const parsed = ArticleMetadataSchema.shape.sources.element.safeParse({ label: sourceLabel.trim(), url: sourceUrl.trim() });
+    if (!parsed.success) {
+      setError('แหล่งอ้างอิงต้องมีชื่อและ URL ที่ถูกต้อง');
+      return;
+    }
+    setField('sources', [...metadata.sources, parsed.data]);
+    setSourceLabel('');
+    setSourceUrl('');
+  };
+
+  const focusPublicationProblem = (problem: PublicationProblem) => {
+    if (problem.field.startsWith('document#')) {
+      setFocusHeadingId(problem.field.slice('document#'.length));
+      return;
+    }
+    if (problem.field.startsWith('metadata.')) {
+      const field = problem.field.slice('metadata.'.length);
+      const section: MetadataSection = ['seoTitle', 'seoDescription'].includes(field) ? 'seo' : ['authorName', 'authorType', 'authorUrl', 'reviewerName', 'reviewerType', 'reviewerUrl'].includes(field) ? 'author' : field === 'sources' ? 'sources' : 'general';
+      setOpenMetadataSections((current) => ({ ...current, [section]: true }));
     }
   };
 
-  const removeTag = (tag: string) => {
-    setFormData(prev => ({
-      ...prev,
-      tags: prev.tags.filter(t => t !== tag),
-    }));
-  };
-
-  const addSeoKeyword = () => {
-    if (seoKeywordInput.trim() && !formData.seoKeywords.includes(seoKeywordInput.trim())) {
-      setFormData(prev => ({
-        ...prev,
-        seoKeywords: [...prev.seoKeywords, seoKeywordInput.trim()],
-      }));
-      setSeoKeywordInput("");
+  const focusAnalysisTarget = (target: AnalysisTarget) => {
+    if (target.kind === 'text') {
+      setFocusEditorTarget({ kind: 'text', from: target.from, to: target.to, token: Date.now() });
+      return;
     }
+    if (target.kind === 'image') {
+      setFocusEditorTarget({ kind: 'image', from: target.from, to: target.from + 1, token: Date.now() });
+      return;
+    }
+    if (target.kind === 'heading') {
+      setFocusHeadingId(target.id);
+      return;
+    }
+    const section: MetadataSection = target.field.startsWith('seoSettings.') ? 'onpage' : ['metadata.seoTitle', 'metadata.seoDescription'].includes(target.field) ? 'seo' : ['metadata.authorName', 'metadata.authorType', 'metadata.authorUrl', 'metadata.reviewerName', 'metadata.reviewerType', 'metadata.reviewerUrl'].includes(target.field) ? 'author' : ['metadata.sources'].includes(target.field) ? 'sources' : 'general';
+    setOpenMetadataSections((current) => ({ ...current, [section]: true }));
+    setPendingFieldFocus(target.field);
   };
 
-  const removeSeoKeyword = (keyword: string) => {
-    setFormData(prev => ({
-      ...prev,
-      seoKeywords: prev.seoKeywords.filter(k => k !== keyword),
-    }));
-  };
+  const setMetadataSectionOpen = (section: MetadataSection, open: boolean) => setOpenMetadataSections((current) => ({ ...current, [section]: open }));
+
+  const saveState = hasUnsavedChanges ? 'มีการแก้ไขที่ยังไม่บันทึก' : savedAt ? `บันทึกล่าสุด ${savedAt}` : savedId ? `บันทึกแล้ว · revision ${revision}` : 'ยังไม่บันทึก';
 
   return (
-    <>
-      <form onSubmit={handleSubmit} className="max-w-4xl mx-auto space-y-6 pb-28">
-        <div className="space-y-6">
-          {lastSaved && (
-            <div className="text-xs text-gray-500 text-center bg-green-50 py-2 rounded-lg">
-              ✓ บันทึกล่าสุด: {lastSaved.toLocaleTimeString('th-TH')}
-            </div>
-          )}
-
-          <section className="bg-white rounded-xl border border-gray-200 shadow-sm">
-            <div className="p-4 sm:p-6 space-y-6">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                <h3 className="text-base font-semibold text-gray-900">
-                  📝 ข้อมูลหลัก
-                </h3>
-                {formData.read_time && (
-                  <span className="text-xs sm:text-sm text-gray-600 bg-gray-100 px-3 py-1 rounded-full">
-                    ⏱️ เวลาอ่านประมาณ {formData.read_time}
-                  </span>
-                )}
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-900 mb-2">
-                  หัวข้อบทความ <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={formData.title}
-                  onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-                  className="w-full px-4 py-3 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="เช่น: 5 เทคนิคการเลือกกันสาดพับได้"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-900 mb-2">
-                  สรุปย่อ <span className="text-red-500">*</span>
-                </label>
-                <textarea
-                  required
-                  value={formData.excerpt}
-                  onChange={(e) => setFormData(prev => ({ ...prev, excerpt: e.target.value }))}
-                  rows={4}
-                  className="w-full px-4 py-3 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-                  placeholder="สรุปเนื้อหาบทความสั้นๆ 2-3 ประโยค"
-                  maxLength={200}
-                />
-                <p className="text-xs text-gray-500 mt-1">{formData.excerpt.length}/200 ตัวอักษร</p>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-900 mb-2">
-                    หมวดหมู่ <span className="text-red-500">*</span>
-                  </label>
-                  <div className="relative">
-                    <select
-                      required
-                      value={formData.category}
-                      onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value }))}
-                      className="w-full px-4 py-3 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white pr-10 cursor-pointer"
-                    >
-                      {categories.map(cat => (
-                        <option key={cat} value={cat}>{cat}</option>
-                      ))}
-                    </select>
-                    <div className="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none">
-                      <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                      </svg>
-                    </div>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-900 mb-2">
-                    ผู้เขียน
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.author}
-                    onChange={(e) => setFormData(prev => ({ ...prev, author: e.target.value }))}
-                    className="w-full px-4 py-3 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-900 mb-2">
-                  แท็ก <span className="text-xs text-gray-500">(สูงสุด 7 แท็ก)</span>
-                </label>
-                <div className="flex gap-2 mb-3">
-                  <input
-                    type="text"
-                    value={tagInput}
-                    onChange={(e) => setTagInput(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault();
-                        addTag();
-                      }
-                    }}
-                    className="flex-1 px-4 py-2.5 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="พิมพ์แท็กแล้วกด Enter"
-                    disabled={formData.tags.length >= 7}
-                  />
-                  <button
-                    type="button"
-                    onClick={addTag}
-                    disabled={formData.tags.length >= 7}
-                    className="px-5 py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 disabled:opacity-50 transition-colors text-sm font-medium"
-                  >
-                    เพิ่ม
-                  </button>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {formData.tags.map(tag => (
-                    <span
-                      key={tag}
-                      className="inline-flex items-center px-3 py-1.5 bg-blue-100 text-blue-800 rounded-full text-sm"
-                    >
-                      #{tag}
-                      <button
-                        type="button"
-                        onClick={() => removeTag(tag)}
-                        className="ml-2 text-blue-600 hover:text-blue-800 font-bold"
-                      >
-                        ×
-                      </button>
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </section>
-
-          <section className="bg-white rounded-xl border border-gray-200 shadow-sm">
-            <div className="p-4 sm:p-6 space-y-5">
-              <div className="space-y-1">
-                <h3 className="text-base font-semibold text-gray-900">
-                  📱 เนื้อหาต่อเนื่อง (Mobile-first)
-                </h3>
-                <p className="text-sm text-gray-500">
-                  เพิ่มรูปและข้อความทีละส่วน ให้ผู้อ่านเลื่อนอ่านบนมือถือได้ต่อเนื่องแบบหน้าเดียว
-                </p>
-              </div>
-              <ArticleBlockEditor
-                key={article?.id ?? "new-article"}
-                initialBlocks={initialBlocks}
-                onChange={(updatedBlocks) => setBlocks(updatedBlocks)}
-              />
-            </div>
-          </section>
-
-          <section className="bg-white rounded-xl border border-gray-200 shadow-sm">
-            <div className="p-4 sm:p-6 space-y-5">
-              <h3 className="text-base font-semibold text-gray-900">
-                🔍 การตั้งค่า SEO
-              </h3>
-
-              <div className="text-xs text-gray-500 bg-gray-50 border border-dashed border-gray-200 rounded-lg px-3 py-2">
-                รูปหน้าปกจะเลือกจากรูปบล็อกแรกที่มีภาพโดยอัตโนมัติ
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-900 mb-2">
-                  URL Slug <span className="text-xs text-gray-500">(ระบบสร้างให้อัตโนมัติ)</span>
-                </label>
-                <div className="flex items-center justify-between rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5">
-                  <span className="text-sm text-gray-500">/articles/</span>
-                  <span className="font-mono text-sm text-gray-900 truncate max-w-[70%] text-right">
-                    {formData.slug || "กำลังสร้าง..."}
-                  </span>
-                </div>
-                <p className="text-xs text-gray-500 mt-1">
-                  ระบบเลือกคำสำคัญที่อ่านง่าย อนาคต-proof และใช้ตัวพิมพ์เล็ก + ขีดกลางให้โดยอัตโนมัติ
-                </p>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-900 mb-2">
-                  SEO Title <span className="text-xs text-gray-500">(ถ้าไม่ระบุจะใช้หัวข้อบทความ)</span>
-                </label>
-                <input
-                  type="text"
-                  value={formData.seoTitle}
-                  onChange={(e) => setFormData(prev => ({ ...prev, seoTitle: e.target.value }))}
-                  className="w-full px-4 py-2.5 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="ถ้าไม่ระบุจะใช้หัวข้อบทความ"
-                  maxLength={60}
-                />
-                <p className="text-xs text-gray-500 mt-1">
-                  {formData.seoTitle.length}/60 ตัวอักษร
-                </p>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-900 mb-2">
-                  SEO Description <span className="text-xs text-gray-500">(ถ้าไม่ระบุจะใช้สรุปย่อ)</span>
-                </label>
-                <textarea
-                  value={formData.seoDescription}
-                  onChange={(e) => setFormData(prev => ({ ...prev, seoDescription: e.target.value }))}
-                  rows={3}
-                  className="w-full px-4 py-2.5 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-                  placeholder="ถ้าไม่ระบุจะใช้สรุปย่อ"
-                  maxLength={160}
-                />
-                <p className="text-xs text-gray-500 mt-1">
-                  {formData.seoDescription.length}/160 ตัวอักษร
-                </p>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-900 mb-2">
-                  คำสำคัญ SEO <span className="text-xs text-gray-500">(สูงสุด 10 คำ)</span>
-                </label>
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-3">
-                  <p className="text-xs text-blue-800">
-                    💡 ค่าเริ่มต้น: &quot;{PRIMARY_KEYWORD}&quot; ถูกเพิ่มให้อัตโนมัติเพื่อช่วย SEO
-                  </p>
-                </div>
-                <div className="flex gap-2 mb-3">
-                  <input
-                    type="text"
-                    value={seoKeywordInput}
-                    onChange={(e) => setSeoKeywordInput(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault();
-                        addSeoKeyword();
-                      }
-                    }}
-                    className="flex-1 px-4 py-2.5 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="เพิ่มคำสำคัญเพิ่มเติม"
-                    disabled={formData.seoKeywords.length >= 10}
-                  />
-                  <button
-                    type="button"
-                    onClick={addSeoKeyword}
-                    disabled={formData.seoKeywords.length >= 10}
-                    className="px-5 py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 disabled:opacity-50 transition-colors text-sm font-medium"
-                  >
-                    เพิ่ม
-                  </button>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {formData.seoKeywords.map((keyword, index) => (
-                    <span
-                      key={keyword}
-                      className={`inline-flex items-center px-3 py-1.5 rounded-full text-sm ${
-                        index === 0 && keyword === PRIMARY_KEYWORD
-                          ? 'bg-green-100 text-green-800 border border-green-300'
-                          : 'bg-gray-100 text-gray-800'
-                      }`}
-                    >
-                      {keyword}
-                      {index === 0 && keyword === PRIMARY_KEYWORD && (
-                        <span className="ml-1 text-[10px]">★</span>
-                      )}
-                      <button
-                        type="button"
-                        onClick={() => removeSeoKeyword(keyword)}
-                        className="ml-2 text-gray-600 hover:text-gray-800 font-bold"
-                        disabled={index === 0 && keyword === PRIMARY_KEYWORD}
-                      >
-                        ×
-                      </button>
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </section>
-        </div>
-
-        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50">
-          <div className="max-w-4xl mx-auto px-4 py-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4 w-full sm:w-auto">
-              <button
-                type="button"
-                onClick={() => setShowPreview(true)}
-                disabled={!canPreview}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium border border-gray-300 text-gray-700 rounded-lg hover:border-blue-400 hover:text-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-       
-                ดูพรีวิว
-              </button>
-              <label className="flex items-center justify-between sm:justify-start gap-2 text-sm font-medium text-gray-700">
-                <input
-                  type="checkbox"
-                  checked={formData.isPublished}
-                  onChange={(e) => setFormData(prev => ({ ...prev, isPublished: e.target.checked }))}
-                  className="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                />
-                <span>{formData.isPublished ? '✓ พร้อมเผยแพร่' : 'บันทึกเป็นฉบับร่าง'}</span>
-              </label>
-            </div>
-            <button
-              type="submit"
-              disabled={submitting}
-              className="w-full sm:w-auto px-8 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 active:bg-blue-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-md text-base"
-            >
-              {submitting
-                ? 'กำลังบันทึก...'
-                : article
-                  ? 'บันทึกการแก้ไข'
-                  : formData.isPublished
-                    ? 'เผยแพร่เลย'
-                    : 'บันทึกฉบับร่าง'}
-            </button>
+    <ArticleWorkspace
+      title={metadata.title}
+      onTitleChange={(title) => setField('title', title)}
+      onBack={onBack}
+      saveState={saveState}
+      issues={publishProblems}
+      onIssueClick={focusPublicationProblem}
+      outline={<ArticleOutlinePanel headings={headings} activeHeadingId={activeHeadingId} onSelectHeading={setFocusHeadingId} />}
+      metadata={<ArticleMetadataSidebar
+        metadata={metadata}
+        setField={setField}
+        newTag={newTag}
+        onNewTagChange={setNewTag}
+        onAddTag={addTag}
+        sourceLabel={sourceLabel}
+        onSourceLabelChange={setSourceLabel}
+        sourceUrl={sourceUrl}
+        onSourceUrlChange={setSourceUrl}
+        onAddSource={addSource}
+        openSections={openMetadataSections}
+        onSectionOpenChange={setMetadataSectionOpen}
+        seoSettings={seoSettings}
+        analysis={analysis}
+        analysisIsCurrent={analysisIsCurrent}
+        onSeoSettingsChange={setSeoSettings}
+        onAnalysisTargetClick={focusAnalysisTarget}
+      />}
+      actions={<>
+        <button type="button" onClick={saveDraft} disabled={mutationPending} className="rounded border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-800 hover:bg-slate-50 disabled:opacity-60">{saving ? 'กำลังบันทึก…' : 'บันทึกร่าง'}</button>
+        <button type="button" onClick={loadPreview} disabled={previewLoading || !savedId} className="rounded border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-800 hover:bg-slate-50 disabled:opacity-60">{previewLoading ? 'กำลังเปิด…' : 'ดูตัวอย่าง'}</button>
+        <button type="button" onClick={publish} disabled={mutationPending || !savedId || hasUnsavedChanges} className="rounded bg-blue-700 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-800 disabled:opacity-60">{publishing ? 'กำลังเผยแพร่…' : hasPublishedSnapshot ? 'เผยแพร่แก้ไข' : 'เผยแพร่'}</button>
+        {hasPublishedSnapshot && <details className="relative">
+          <summary className="article-editor-tool cursor-pointer list-none" aria-label="การเผยแพร่เพิ่มเติม">เพิ่มเติม <span aria-hidden="true">▾</span></summary>
+          <div className="absolute right-0 top-full z-30 mt-2 w-48 rounded border border-slate-200 bg-white p-2 shadow-lg">
+            <button type="button" onClick={unpublish} disabled={mutationPending} className="w-full rounded px-3 py-2 text-left text-sm text-red-800 hover:bg-red-50 disabled:opacity-60">{unpublishing ? 'กำลังยกเลิก…' : 'ยกเลิกเผยแพร่'}</button>
           </div>
-        </div>
-      </form>
-
-      <ArticlePreviewModal
-        isOpen={showPreview}
-        onClose={() => setShowPreview(false)}
-        title={formData.title}
-        excerpt={formData.excerpt}
-        blocks={previewBlocks}
-        author={formData.author}
-        category={formData.category}
+        </details>}
+      </>}
+    >
+      {error && <div role="alert" className="mb-4 rounded border border-red-200 bg-red-50 p-3 text-sm text-red-800">{error}</div>}
+      <ArticleEditor
+        document={document}
+        onChange={setDocument}
+        onOutlineChange={setHeadings}
+        onActiveHeadingChange={setActiveHeadingId}
+        focusHeadingId={focusHeadingId}
+        focusTextRange={focusEditorTarget}
+        onCompositionChange={setEditorComposing}
+        onHeadingFocused={() => setFocusHeadingId(undefined)}
+        onUploadError={setError}
       />
-    </>
+    </ArticleWorkspace>
   );
 }

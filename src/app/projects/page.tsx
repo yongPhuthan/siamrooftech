@@ -4,8 +4,8 @@ import { unstable_cache } from "next/cache";
 import Breadcrumbs from '@/components/site/Breadcrumbs';
 import FinalCTASection from '@/components/site/FinalCTASection';
 import ProjectsIndex from "../components/projects/ProjectsIndex";
-import type { Project } from "@/lib/firestore";
-import { projectsAdminService } from "@/lib/firestore-admin";
+import type { Project } from '@/features/projects/types';
+import { projectsRepository } from "@/features/projects/server/repository";
 import { canonicalUrl } from "@/lib/seo-config";
 import { getProjectPath } from "@/lib/project-url";
 import { PublicBadge, PublicHeading } from '@/components/ui/public';
@@ -32,7 +32,7 @@ export const metadata: Metadata = {
 };
 
 const fetchProjects = unstable_cache(
-  async (): Promise<Project[]> => projectsAdminService.getAll(),
+  async (): Promise<Project[]> => projectsRepository.getAll(),
   ["projects-data"],
   { revalidate: 300 },
 );

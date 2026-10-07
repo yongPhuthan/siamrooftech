@@ -1,6 +1,6 @@
 import { unstable_cache } from 'next/cache';
-import { Project } from './firestore';
-import { projectsAdminService } from './firestore-admin';
+import type { Project } from '@/features/projects/types';
+import { projectsRepository } from '@/features/projects/server/repository';
 import { getProjectProof, hasManualProjectProof } from './project-proof';
 import { getProjectPath } from './project-url';
 import { ServicePage } from './service-pages';
@@ -27,7 +27,7 @@ export type ServiceProofProject = {
 export const fetchServiceProofProjects = unstable_cache(
   async (): Promise<Project[]> => {
     try {
-      const projects = await projectsAdminService.getAll();
+      const projects = await projectsRepository.getAll();
       return projects || [];
     } catch (error) {
       console.error('Error fetching service proof projects:', error);

@@ -1,4 +1,4 @@
-import { ProjectImage } from './firestore';
+import type { ProjectImage } from '@/features/projects/types';
 
 export type ImageSize = 'thumbnail' | 'medium' | 'original';
 

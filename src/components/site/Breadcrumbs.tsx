@@ -14,10 +14,14 @@ export default function Breadcrumbs({ items, className = '' }: BreadcrumbsProps)
       ...(item.href && { item: `https://www.siamrooftech.com${item.href}` }),
     })),
   };
+  const safeBreadcrumbJson = JSON.stringify(breadcrumbSchema)
+    .replace(/</g, '\\u003c')
+    .replace(/>/g, '\\u003e')
+    .replace(/&/g, '\\u0026');
 
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeBreadcrumbJson }} />
       <nav className={`mx-auto w-full px-4 py-4 ${className}`} aria-label="Breadcrumb">
         <ol className="flex flex-wrap items-center gap-2 text-sm text-site-muted">
           {items.map((item, index) => (

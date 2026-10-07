@@ -4,7 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
 import ImageWatermark from '../ui/ImageWatermark';
-import { Project } from '../../../lib/firestore';
+import type { Project } from '@/features/projects/types';
 import { hasVideos } from '../../../lib/project-video-utils';
 
 interface PortfolioCardProps {

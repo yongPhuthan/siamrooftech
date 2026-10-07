@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 import sift from 'sift';
-import { Project } from '../lib/firestore';
+import type { Project } from '@/features/projects/types';
 
 interface FilterState {
   activeCategory: string;

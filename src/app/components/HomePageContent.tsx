@@ -1,6 +1,6 @@
 import Main from '@/app/components/Main';
-import { projectsAdminService } from '@/lib/firestore-admin';
-import type { Project } from '@/lib/firestore';
+import { projectsRepository } from '@/features/projects/server/repository';
+import type { Project } from '@/features/projects/types';
 import { SERVICE_AREAS_TH } from '@/lib/seo-config';
 
 const jsonLd = {
@@ -95,10 +95,10 @@ const faqJsonLd = {
 
 async function fetchProjects(): Promise<Project[]> {
   try {
-    const projects = await projectsAdminService.getAll();
+    const projects = await projectsRepository.getAll();
 
     if (!projects || projects.length === 0) {
-      console.warn('⚠️ [Homepage] No projects loaded from Firebase Admin SDK');
+      console.warn('[Homepage] No published projects are available in the CMS');
     }
 
     return projects || [];

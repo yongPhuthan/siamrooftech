@@ -1,3 +1,4 @@
+import { adminFetch } from '@/lib/admin-fetch';
 /**
  * Cloudflare Video Upload Utility
  *
@@ -172,7 +173,7 @@ export async function uploadVideoToCloudflare(
 
     // Upload to Cloudflare (or your backend API)
     // TODO: Replace with actual Cloudflare Stream API endpoint
-    const response = await fetch('/api/upload/video', {
+    const response = await adminFetch('/api/upload/video', {
       method: 'POST',
       body: formData,
     });
@@ -181,11 +182,13 @@ export async function uploadVideoToCloudflare(
       throw new Error(`Upload failed: ${response.statusText}`);
     }
 
-    const result = await response.json();
+    const result = await response.json() as { videoUrl?: string; thumbnailUrl?: string; success?: boolean; error?: string };
+    URL.revokeObjectURL(thumbnailDataUrl);
+    if (!result.success || !result.videoUrl) throw new Error(result.error || 'Video storage did not confirm the upload');
 
     return {
-      videoUrl: result.videoUrl || URL.createObjectURL(file), // Fallback to local URL for demo
-      thumbnailUrl: result.thumbnailUrl || thumbnailDataUrl,
+      videoUrl: result.videoUrl,
+      thumbnailUrl: result.thumbnailUrl,
       duration,
       fileSize: file.size,
       mimeType: file.type,

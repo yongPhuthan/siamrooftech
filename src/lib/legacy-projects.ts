@@ -1,4 +1,4 @@
-import { Project } from "./firestore";
+import type { Project } from '@/features/projects/types';
 
 const R2 = "https://pub-99f8d7bf688c4c79afcc2d91f37141f2.r2.dev/siamrooftech";
 

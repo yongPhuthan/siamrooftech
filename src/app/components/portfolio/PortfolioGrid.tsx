@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import PortfolioCard from './PortfolioCard';
-import { Project } from '../../../lib/firestore';
+import type { Project } from '@/features/projects/types';
 
 interface PortfolioGridProps {
   projects: Project[];

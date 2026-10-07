@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import Image from 'next/image';
-import { ProjectImage } from '@/lib/firestore';
+import type { ProjectImage } from '@/features/projects/types';
 
 // Local file with preview (not yet uploaded)
 export interface LocalImageFile {

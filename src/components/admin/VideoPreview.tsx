@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import { ProjectVideo } from '../../lib/firestore';
+import type { ProjectVideo } from '@/features/projects/types';
 import { getVideoTypeBadge } from '../../lib/project-video-utils';
 import { formatVideoDuration, formatFileSize } from '../../lib/cloudflare/uploadVideo';
 

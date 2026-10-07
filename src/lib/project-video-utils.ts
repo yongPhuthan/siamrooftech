@@ -5,7 +5,7 @@
  * similar to project-image-utils.ts
  */
 
-import { Project, ProjectVideo } from './firestore';
+import type { Project, ProjectVideo } from '@/features/projects/types';
 
 /**
  * Get all videos from a project

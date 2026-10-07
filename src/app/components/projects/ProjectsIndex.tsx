@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import type { Project } from "@/lib/firestore";
+import type { Project } from '@/features/projects/types';
 import { getProjectPath } from "@/lib/project-url";
 import { PublicBadge, PublicCard, PublicHeading } from '@/components/ui/public';
 import styles from "./projects-index.module.css";

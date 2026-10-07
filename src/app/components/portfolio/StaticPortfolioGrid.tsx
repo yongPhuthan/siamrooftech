@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, FolderOpen } from '@phosphor-icons/react/dist/ssr';
 import { PublicIcon } from '@/components/ui/public';
-import { Project } from "../../../lib/firestore";
+import type { Project } from '@/features/projects/types';
 import ImageWatermark from "../ui/ImageWatermark";
 
 interface StaticPortfolioGridProps {

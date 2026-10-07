@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Project } from "../../../lib/firestore";
+import type { Project } from '@/features/projects/types';
 import ProjectsList from "../../components/admin/ProjectsList";
 import ProjectForm from "../../../components/admin/ProjectForm";
 import AdminAuthGate from "../../../components/admin/AdminAuthGate";
@@ -64,6 +64,8 @@ function AdminProjectsContent() {
       try {
         const response = await adminFetch(`/api/projects/${project.slug}`, {
           method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ expectedRevision: project.revision }),
         });
 
         if (response.ok) {
@@ -76,6 +78,21 @@ function AdminProjectsContent() {
         console.error('Error deleting project:', error);
         alert('เกิดข้อผิดพลาดในการลบโปรเจค');
       }
+    }
+  };
+
+  const handleTogglePublication = async (project: Project) => {
+    const action = project.isPublished ? 'unpublish' : 'publish';
+    try {
+      const response = await adminFetch(`/api/projects/${project.slug}/${action}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ expectedRevision: project.revision }),
+      });
+      if (!response.ok) throw new Error((await response.json().catch(() => null))?.error || 'อัปเดตสถานะไม่สำเร็จ');
+      await fetchProjects();
+    } catch (error) {
+      alert(error instanceof Error ? error.message : 'อัปเดตสถานะไม่สำเร็จ');
     }
   };
 
@@ -158,6 +175,7 @@ function AdminProjectsContent() {
         projects={projects}
         onEdit={handleEdit}
         onDelete={handleDelete}
+        onTogglePublication={handleTogglePublication}
       />
     </div>
   );

@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { contactService } from '../../../lib/firestore';
 import { trackContactFormSubmitSuccess } from '@/lib/gtag';
 
 interface ContactFormProps {
@@ -61,7 +60,12 @@ export default function ContactForm({ projectTitle, category }: ContactFormProps
     setSubmitStatus('idle');
 
     try {
-      await contactService.submit(formData);
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+      if (!response.ok) throw new Error('Contact form request failed');
       setSubmitStatus('success');
       trackContactFormSubmitSuccess(formData.subject);
       setFormData({

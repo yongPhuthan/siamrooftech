@@ -842,7 +842,7 @@ getImageTypeBadge(type) → { color, label, emoji }
 **ProjectForm.tsx**:
 - Dropdown selector per image
 - Visual badges: 🔴 before, 🟢 after, 🟡 during, 🔵 detail
-- Real-time Firestore updates
+- Published project records from the CMS
 - Warning if no before image
 
 ### Laws of UX Applied

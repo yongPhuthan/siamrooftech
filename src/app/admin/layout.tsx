@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { AdminWorkspaceProvider } from '@/components/admin/AdminWorkspaceContext';
 
 export default function AdminLayout({
   children,
@@ -10,6 +11,7 @@ export default function AdminLayout({
 }) {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [workspaceMode, setWorkspaceMode] = useState<'default' | 'article-editor'>('default');
 
   useEffect(() => {
     setMobileOpen(false);
@@ -72,9 +74,10 @@ export default function AdminLayout({
     pathname === href || pathname.startsWith(`${href}/`);
 
   return (
+    <AdminWorkspaceProvider value={{ workspaceMode, setWorkspaceMode }}>
     <div className="min-h-screen bg-gray-50">
       {/* Navigation Header */}
-      <nav className="bg-white shadow-sm border-b">
+      {workspaceMode === 'default' && <nav className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between gap-6">
             <div className="flex items-center gap-6">
@@ -85,7 +88,7 @@ export default function AdminLayout({
                 </span>
               </Link>
 
-              <div className="hidden sm:flex sm:items-center sm:space-x-1">
+              <div className="hidden lg:flex lg:items-center lg:space-x-1">
                 {navigation.map((item) => (
                   <Link
                     key={item.name}
@@ -107,13 +110,13 @@ export default function AdminLayout({
               <Link
                 href="/"
                 target="_blank"
-                className="hidden text-sm font-medium text-gray-500 transition-colors hover:text-gray-700 sm:inline"
+                className="hidden text-sm font-medium text-gray-500 transition-colors hover:text-gray-700 lg:inline"
               >
                 ดูเว็บไซต์
               </Link>
               <button
                 type="button"
-                className="flex h-10 w-10 items-center justify-center rounded-lg border border-gray-200 text-gray-600 transition-colors hover:border-gray-300 hover:text-gray-900 sm:hidden"
+                className="flex h-10 w-10 items-center justify-center rounded-lg border border-gray-200 text-gray-600 transition-colors hover:border-gray-300 hover:text-gray-900 lg:hidden"
                 onClick={() => setMobileOpen(!mobileOpen)}
                 aria-label="สลับเมนู"
               >
@@ -131,7 +134,7 @@ export default function AdminLayout({
 
         {/* Mobile navigation */}
         {mobileOpen && (
-          <div className="border-t border-gray-100 bg-white sm:hidden">
+          <div className="border-t border-gray-100 bg-white lg:hidden">
             <div className="space-y-1 px-4 py-3">
               <Link
                 href="/"
@@ -162,12 +165,19 @@ export default function AdminLayout({
             </div>
           </div>
         )}
-      </nav>
+      </nav>}
 
       {/* Main content */}
-      <main className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+      <main
+        className={
+          workspaceMode === 'article-editor'
+            ? 'h-dvh w-full max-w-none overflow-hidden p-0'
+            : 'mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8'
+        }
+      >
         {children}
       </main>
     </div>
+    </AdminWorkspaceProvider>
   );
 }

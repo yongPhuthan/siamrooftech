@@ -1,4 +1,4 @@
-import { Project } from './firestore';
+import type { Project } from '@/features/projects/types';
 
 const LOCATION_ALIASES: Record<string, string[]> = {
   กรุงเทพ: ['กรุงเทพ', 'กรุงเทพมหานคร', 'bangkok'],

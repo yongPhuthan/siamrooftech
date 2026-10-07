@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { ArrowsOut, Pause, Play, SpeakerHigh, SpeakerSlash } from '@phosphor-icons/react/dist/ssr';
 import { PublicIcon } from '@/components/ui/public';
-import { ProjectVideo } from '../../lib/firestore';
+import type { ProjectVideo } from '@/features/projects/types';
 import { getVideoTypeBadge } from '../../lib/project-video-utils';
 import { formatVideoDuration } from '../../lib/cloudflare/uploadVideo';
 

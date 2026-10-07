@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Project } from '../../../lib/firestore';
+import type { Project } from '@/features/projects/types';
 
 interface PortfolioFiltersProps {
   projects: Project[];

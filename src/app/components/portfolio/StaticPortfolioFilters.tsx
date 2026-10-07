@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Project } from '../../../lib/firestore';
+import type { Project } from '@/features/projects/types';
 
 interface StaticPortfolioFiltersProps {
   projects: Project[];

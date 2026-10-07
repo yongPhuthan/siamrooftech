@@ -1,10 +1,6 @@
-Common commands (from package.json):
-- dev server: `yarn dev` (or `npm run dev`)
-- build: `yarn build`
-- start: `yarn start`
-- lint: `yarn lint`, fix: `yarn lint:fix`
-- type check: `yarn type-check`
-- tests: `yarn test`, watch: `yarn test:watch`, coverage: `yarn test:coverage`
-- docs: `yarn docs:sync`, `yarn docs:serve`
-- cache: `npm run revalidate`, `npm run revalidate:dev`, `npm run clear-cache`
-- firebase: `yarn firebase:emulator`, `yarn firebase:deploy`, `yarn firebase:functions`
+- Local app: `yarn dev`
+- Platform build: `yarn cf:build`
+- Checks: `yarn type-check`, `yarn lint`, `yarn test:admin`, `yarn test:articles`
+- Local CMS: `yarn db:migrate:local`, `yarn db:seed:local`, `yarn db:test:local`
+- Clear local Next cache: `yarn clear-cache`
+- LINE Worker tasks: use scripts and separate Wrangler configuration under `workers/line-chat-history/`

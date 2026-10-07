@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import { Project, ProjectImage } from '@/lib/firestore';
+import type { Project, ProjectImage } from '@/features/projects/types';
 import BeforeAfterSlider from '../ui/BeforeAfterSlider';
 
 interface BeforeAfterGalleryProps {

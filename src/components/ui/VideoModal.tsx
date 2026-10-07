@@ -3,7 +3,7 @@
 import { useEffect, useCallback } from 'react';
 import { X as CloseIcon, CaretLeft as ChevronLeftIcon, CaretRight as ChevronRightIcon } from '@phosphor-icons/react/dist/ssr';
 import { PublicIcon } from '@/components/ui/public';
-import { ProjectVideo } from '../../lib/firestore';
+import type { ProjectVideo } from '@/features/projects/types';
 import VideoPlayer from './VideoPlayer';
 import { getVideoTypeBadge } from '../../lib/project-video-utils';
 
