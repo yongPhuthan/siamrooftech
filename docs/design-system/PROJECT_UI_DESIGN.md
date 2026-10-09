@@ -84,12 +84,11 @@ background: linear-gradient(to bottom, #111827, #1f2937, #111827)
 
 ### Font Family
 ```typescript
-// Global CSS / Tailwind utility usage
-font-family: "Sukhumvit Set", Arial, sans-serif;
+// Shared site-wide font tokens, loaded locally by src/app/layout.tsx
+body, descriptions, article text, labels, controls: Sarabun (font-sans / font-body)
+h1-h6, titles, card and section headings: Sukhumvit Set (font-heading)
 
-// Headings
-h1-h5: '"Sukhumvit Bold"'
-h6: '"Sukhumvit Set"' with bold weight
+// Bold/italic body copy remains Sarabun; do not duplicate @font-face rules.
 ```
 
 ### UI Stack

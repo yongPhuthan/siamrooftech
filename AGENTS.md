@@ -25,7 +25,7 @@ Use `yarn` for package management. Run `yarn type-check`, `yarn lint`, and relev
 
 ## Public UI and contact
 
-- Follow `docs/design-system/PUBLIC_UI_DESIGN.md` and `docs/design-system/PROJECT_UI_DESIGN.md`. Public colors, typography, radius, shadows, and motion belong in `site-*` tokens or named variants. Public rounded surfaces use 4px; fully round only intentional pills/circles. Preserve admin styling.
+- Follow `docs/design-system/PUBLIC_UI_DESIGN.md` and `docs/design-system/PROJECT_UI_DESIGN.md`. Public colors, typography, radius, shadows, and motion belong in `site-*` tokens or named variants. Sarabun is the shared body font; Sukhumvit is for semantic headings and titles across public pages and admin. Keep font loading in the root layout, use the shared font tokens, and do not duplicate `@font-face` declarations. Public rounded surfaces use 4px; fully round only intentional pills/circles. Preserve admin visual tokens and component styling.
 - Use Phosphor through the public icon owner for public controls. Keep icons accessible and decorative icons hidden from assistive technology.
 - `src/features/line-contact/` owns the canonical contact destination, analytics, and lead-intake behavior. Read its nested rules before changing those flows. Outside that feature import its canonical URL; preserve a native contact handoff without waiting for analytics or API work.
 

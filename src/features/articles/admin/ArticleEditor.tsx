@@ -1,12 +1,15 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { EditorContent, useEditor, useEditorState } from '@tiptap/react';
 import type { Editor, JSONContent } from '@tiptap/core';
 import { Popover } from '@base-ui/react/popover';
+import { Type } from 'lucide-react';
 import { ArticleDocumentSchema, type ArticleDocument } from '../document-schema';
 import { collectArticleHeadings, type ArticleHeading } from '../heading-outline';
 import { uploadImageToCloudflare } from '@/app/lib/cloudflare/uploadImage';
+import { useArticleWorkspaceTheme, useArticleWorkspaceToolbarHost } from './ArticleWorkspace';
 import { createArticleEditorExtensions } from './editor-extensions';
 import { createHeadingId } from './heading-id';
 
@@ -33,9 +36,12 @@ function readImageDimensions(file: File): Promise<{ width: number; height: numbe
 }
 
 export default function ArticleEditor({ document, onChange, onOutlineChange, onActiveHeadingChange, focusHeadingId, focusTextRange, onCompositionChange, onHeadingFocused, onUploadError }: ArticleEditorProps) {
+  const theme = useArticleWorkspaceTheme();
+  const toolbarHost = useArticleWorkspaceToolbarHost();
   const [imageAlt, setImageAlt] = useState('');
   const [imageIsDecorative, setImageIsDecorative] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [formattingToolsOpen, setFormattingToolsOpen] = useState(false);
   const selectionRange = useRef<{ from: number; to: number } | null>(null);
   const extensions = useMemo(() => createArticleEditorExtensions(), []);
 
@@ -223,28 +229,40 @@ export default function ArticleEditor({ document, onChange, onOutlineChange, onA
 
   return (
     <section className="min-w-0" aria-label="ตัวแก้ไขบทความ">
-      <div className="sticky top-0 z-10 -mx-4 border-y border-slate-200 bg-white/95 px-3 py-2 backdrop-blur sm:-mx-8 sm:px-6">
-        <div role="toolbar" aria-label="เครื่องมือจัดรูปแบบบทความ" className="flex flex-wrap items-center gap-1.5">
-          <button type="button" onMouseDown={(event) => event.preventDefault()} onClick={() => addHeading(2)} disabled={!editor} aria-pressed={editorUiState?.heading2 ?? false} className={`article-editor-tool ${(editorUiState?.heading2 ?? false) ? 'border-blue-300 bg-blue-50 text-blue-800' : ''}`} aria-label="เพิ่มหัวข้อ H2">H2</button>
-          <button type="button" onMouseDown={(event) => event.preventDefault()} onClick={() => addHeading(3)} disabled={!editor} aria-pressed={editorUiState?.heading3 ?? false} className={`article-editor-tool ${(editorUiState?.heading3 ?? false) ? 'border-blue-300 bg-blue-50 text-blue-800' : ''}`} aria-label="เพิ่มหัวข้อ H3">H3</button>
-          <span aria-hidden="true" className="mx-1 h-6 border-l border-slate-200" />
-          {toolbar.map((item) => <button key={item.label} type="button" onMouseDown={(event) => event.preventDefault()} onClick={() => editor && item.run(editor)} className={`article-editor-tool ${item.active ? 'border-blue-300 bg-blue-50 text-blue-800' : ''}`} aria-label={item.label} aria-pressed={['ตัวหนา', 'ตัวเอียง', 'รายการ', 'ลำดับเลข'].includes(item.label) ? item.active : undefined} disabled={!editor || item.disabled}>{item.label}</button>)}
-          <LinkPopover onOpen={captureSelection} onApply={applyLink} />
-          <ImagePopover onOpen={captureSelection} onUpload={uploadImage} uploading={uploadingImage} imageAlt={imageAlt} onImageAltChange={setImageAlt} decorative={imageIsDecorative} onDecorativeChange={setImageIsDecorative} />
-        </div>
-      </div>
+      {toolbarHost && createPortal(
+        <Popover.Root open={formattingToolsOpen} onOpenChange={setFormattingToolsOpen}>
+          <Popover.Trigger onMouseDown={(event) => event.preventDefault()} className="article-editor-tool inline-flex size-9 items-center justify-center p-0" aria-label="เครื่องมือจัดรูปแบบ" title="เครื่องมือจัดรูปแบบ" aria-expanded={formattingToolsOpen}>
+            <Type aria-hidden="true" size={17} strokeWidth={1.8} />
+          </Popover.Trigger>
+          <Popover.Portal>
+            <Popover.Positioner side="bottom" align="start" sideOffset={6} className="z-[70]">
+              <Popover.Popup data-article-theme={theme} className="article-workspace-popover w-[min(92vw,560px)] rounded border border-slate-200 bg-white p-3 shadow-xl outline-none">
+                <div role="toolbar" aria-label="เครื่องมือจัดรูปแบบบทความ" className="flex flex-wrap items-center gap-1.5">
+                  <button type="button" onMouseDown={(event) => event.preventDefault()} onClick={() => addHeading(2)} disabled={!editor} aria-pressed={editorUiState?.heading2 ?? false} className={`article-editor-tool ${(editorUiState?.heading2 ?? false) ? 'border-blue-300 bg-blue-50 text-blue-800' : ''}`} aria-label="เพิ่มหัวข้อ H2">H2</button>
+                  <button type="button" onMouseDown={(event) => event.preventDefault()} onClick={() => addHeading(3)} disabled={!editor} aria-pressed={editorUiState?.heading3 ?? false} className={`article-editor-tool ${(editorUiState?.heading3 ?? false) ? 'border-blue-300 bg-blue-50 text-blue-800' : ''}`} aria-label="เพิ่มหัวข้อ H3">H3</button>
+                  <span aria-hidden="true" className="mx-1 h-6 border-l border-slate-200" />
+                  {toolbar.map((item) => <button key={item.label} type="button" onMouseDown={(event) => event.preventDefault()} onClick={() => editor && item.run(editor)} className={`article-editor-tool ${item.active ? 'border-blue-300 bg-blue-50 text-blue-800' : ''}`} aria-label={item.label} aria-pressed={['ตัวหนา', 'ตัวเอียง', 'รายการ', 'ลำดับเลข'].includes(item.label) ? item.active : undefined} disabled={!editor || item.disabled}>{item.label}</button>)}
+                  <LinkPopover theme={theme} onOpen={captureSelection} onApply={applyLink} />
+                  <ImagePopover theme={theme} onOpen={captureSelection} onUpload={uploadImage} uploading={uploadingImage} imageAlt={imageAlt} onImageAltChange={setImageAlt} decorative={imageIsDecorative} onDecorativeChange={setImageIsDecorative} />
+                </div>
+              </Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>,
+        toolbarHost,
+      )}
       <div className="min-h-[60vh] pb-24" onClick={() => editor?.commands.focus()}><EditorContent editor={editor} /></div>
     </section>
   );
 }
 
-function LinkPopover({ onOpen, onApply }: { onOpen: () => void; onApply: (href: string) => boolean }) {
+function LinkPopover({ theme, onOpen, onApply }: { theme: 'light' | 'dark'; onOpen: () => void; onApply: (href: string) => boolean }) {
   const [href, setHref] = useState('');
   const [error, setError] = useState('');
   return (
     <Popover.Root onOpenChange={(open) => { if (open) { onOpen(); setError(''); } }}>
       <Popover.Trigger onMouseDown={(event) => event.preventDefault()} className="article-editor-tool" aria-label="เพิ่มหรือแก้ลิงก์">ลิงก์</Popover.Trigger>
-      <Popover.Portal><Popover.Positioner sideOffset={8} className="z-50"><Popover.Popup className="w-[min(92vw,360px)] rounded border border-slate-200 bg-white p-4 shadow-xl outline-none">
+      <Popover.Portal><Popover.Positioner sideOffset={8} className="z-50"><Popover.Popup data-article-theme={theme} className="article-workspace-popover w-[min(92vw,360px)] rounded border border-slate-200 bg-white p-4 shadow-xl outline-none">
         <Popover.Title className="mb-3 font-semibold">เพิ่มลิงก์ในข้อความที่เลือก</Popover.Title>
         <label className="block space-y-1 text-sm font-medium">URL<input autoFocus value={href} onChange={(event) => setHref(event.target.value)} placeholder="https://… หรือ /projects/slug" className="article-admin-input" onKeyDown={(event) => event.key === 'Enter' && (event.preventDefault(), onApply(href) ? undefined : setError('URL ไม่ถูกต้องหรือยังไม่ได้เลือกข้อความ'))} /></label>
         {error && <p role="alert" className="mt-2 text-sm text-red-700">{error}</p>}
@@ -254,12 +272,12 @@ function LinkPopover({ onOpen, onApply }: { onOpen: () => void; onApply: (href: 
   );
 }
 
-function ImagePopover({ onOpen, onUpload, uploading, imageAlt, onImageAltChange, decorative, onDecorativeChange }: { onOpen: () => void; onUpload: (event: React.ChangeEvent<HTMLInputElement>) => Promise<void>; uploading: boolean; imageAlt: string; onImageAltChange: (value: string) => void; decorative: boolean; onDecorativeChange: (value: boolean) => void }) {
+function ImagePopover({ theme, onOpen, onUpload, uploading, imageAlt, onImageAltChange, decorative, onDecorativeChange }: { theme: 'light' | 'dark'; onOpen: () => void; onUpload: (event: React.ChangeEvent<HTMLInputElement>) => Promise<void>; uploading: boolean; imageAlt: string; onImageAltChange: (value: string) => void; decorative: boolean; onDecorativeChange: (value: boolean) => void }) {
   const fileInput = useRef<HTMLInputElement>(null);
   return (
     <Popover.Root onOpenChange={(open) => { if (open) onOpen(); }}>
       <Popover.Trigger onMouseDown={(event) => event.preventDefault()} className="article-editor-tool" aria-label="แทรกรูปภาพ">รูปภาพ</Popover.Trigger>
-      <Popover.Portal><Popover.Positioner sideOffset={8} className="z-50"><Popover.Popup className="w-[min(92vw,360px)] rounded border border-slate-200 bg-white p-4 shadow-xl outline-none">
+      <Popover.Portal><Popover.Positioner sideOffset={8} className="z-50"><Popover.Popup data-article-theme={theme} className="article-workspace-popover w-[min(92vw,360px)] rounded border border-slate-200 bg-white p-4 shadow-xl outline-none">
         <Popover.Title className="mb-3 font-semibold">แทรกรูปภาพ</Popover.Title>
         <label className="block space-y-1 text-sm font-medium">คำอธิบายภาพ<input value={imageAlt} onChange={(event) => onImageAltChange(event.target.value)} disabled={decorative} className="article-admin-input" placeholder="อธิบายสิ่งสำคัญในภาพ" /></label>
         <label className="mt-3 flex items-center gap-2 text-sm"><input type="checkbox" checked={decorative} onChange={(event) => onDecorativeChange(event.target.checked)} />ภาพตกแต่ง</label>

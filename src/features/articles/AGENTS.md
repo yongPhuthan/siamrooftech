@@ -82,6 +82,10 @@ specific boundary.
   composition; `ArticleEditor.tsx` owns the single Tiptap instance and toolbar.
   `src/components/admin/ArticleForm.tsx` remains the owner of document/metadata
   state and save, preview, publish, and unpublish commands.
+- Keep the writing canvas free of a persistent formatting strip. `ArticleWorkspace`
+  owns a toolbar host in its top bar; `ArticleEditor` portals its formatting trigger
+  and command popover there while retaining all Tiptap commands and selection logic.
+  Do not move or remount the editor to reposition these controls.
 - Keep `ArticleEditor` mounted while panels collapse, drawers open, or viewport
   breakpoints change. Do not key it by layout state or move it into conditional
   sidebar render branches; selection, IME composition, undo history, and editor
@@ -120,3 +124,19 @@ specific boundary.
 - Do not infer synonyms, correctness, expertise, search rank, indexation, URL
   availability, or AI citation. Never set keyword-density thresholds or block
   publication based on editorial suggestions.
+
+## Workspace theme
+
+- The article workspace owns its light/dark theme toggle and persists the
+  preference in browser storage. Keep the scope limited to `/admin/articles`;
+  never change the public-site tokens or the shared admin theme.
+- Define theme colors as article-workspace tokens and cover the editor canvas,
+  outline, metadata, findings, inputs, drawers, and editor popovers. Portalled
+  UI must receive the active theme explicitly because it does not inherit the
+  workspace DOM attributes.
+- Theme changes are presentation-only. Keep the Tiptap instance mounted so
+  selection, composition, undo history, and document state survive a toggle.
+- Use the shared site-wide typography tokens inside the workspace: Sarabun for
+  the document body, controls, and outline; Sukhumvit for the article title and
+  H2/H3. Do not add editor-specific font loading or change font assignment based
+  only on bold text marks.

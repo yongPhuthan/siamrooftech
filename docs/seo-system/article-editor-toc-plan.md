@@ -260,3 +260,19 @@ metadata sidebar โดยใช้กฎรุ่น `on-page-local-v1` ผล�
   `modifiedAt` หรือ sitemap `lastmod`
 - ไม่มีคะแนนรวม, keyword density target, publish gate, AI/API call, crawler หรือการ
   คาดการณ์อันดับ/AEO/GEO; result และ rule version ไม่ถูกบันทึก
+
+## ธีมของ Article Editor
+
+เพิ่มปุ่มสลับธีมมืด/สว่างภายใน workspace ของ `/admin/articles` และเก็บ preference
+ไว้ใน local storage ของ browser นั้น ขอบเขตสีครอบคลุมพื้นที่เขียน TOC, metadata,
+On-page findings, inputs, drawers และ popovers โดยใช้ tokens เฉพาะ article workspace
+ไม่เปลี่ยน public-site tokens หรือหน้าหลังบ้านอื่น การสลับธีมเป็น presentation-only
+และไม่ remount Tiptap editor; ถ้า browser ปิด storage ยังสลับธีมได้จนออกจากหน้า
+
+## แถบเครื่องมือเขียนบทความ
+
+พื้นที่กลางของ editor แสดงชื่อบทความและเอกสารโดยไม่มีแถบจัดรูปแบบค้างเหนือเนื้อหา
+คำสั่ง H2/H3 ย่อหน้า ตัวหนา/เอียง รายการ ตาราง undo/redo ลิงก์ และรูปภาพอยู่ใน popover
+“เครื่องมือจัดรูปแบบ” บนแถบด้านบน `ArticleEditor` ยังเป็นเจ้าของคำสั่งและ selection ส่วน
+`ArticleWorkspace` เป็นเจ้าของตำแหน่ง trigger; การย้ายตำแหน่งนี้ต้องไม่ remount editor
+หรือทำให้ selection/cursor หาย

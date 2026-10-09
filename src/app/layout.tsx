@@ -8,21 +8,56 @@ import Navigation from '@/components/site/Navigation';
 import LineButtonsLayout from "@/features/line-contact/LineButtonsLayout";
 import LineLeadCapture from "@/features/line-contact/LineLeadCapture";
 import SiteFooter from "./components/SiteFooter";
-import { Geist } from "next/font/google";
 import { cn } from "@/lib/utils";
 
-const geist = Geist({subsets:['latin'],variable:'--font-sans'});
-
-const myFont = localFont({
+const bodyFont = localFont({
   src: [
     {
-      path: "../../public/fonts/SukhumvitSet-Medium.ttf",
+      path: "../../public/fonts/Sarabun-Regular.ttf",
       weight: "400",
       style: "normal",
     },
     {
-      path: "../../public/fonts/SukhumvitSet-Bold.ttf",
+      path: "../../public/fonts/Sarabun-Medium.ttf",
+      weight: "500",
+      style: "normal",
+    },
+    {
+      path: "../../public/fonts/Sarabun-SemiBold.ttf",
+      weight: "600",
+      style: "normal",
+    },
+    {
+      path: "../../public/fonts/Sarabun_Bold.ttf",
       weight: "700",
+      style: "normal",
+    },
+    {
+      path: "../../public/fonts/Sarabun-Italic.ttf",
+      weight: "400",
+      style: "italic",
+    },
+    {
+      path: "../../public/fonts/Sarabun-BoldItalic.ttf",
+      weight: "700",
+      style: "italic",
+    },
+  ],
+  variable: "--font-body-local",
+  display: "swap",
+  preload: false,
+});
+
+const headingFont = localFont({
+  src: [
+    {
+      path: "../../public/fonts/SukhumvitSet-Text.ttf",
+      weight: "400",
+      style: "normal",
+    },
+    {
+      path: "../../public/fonts/SukhumvitSet-Medium.ttf",
+      weight: "500",
       style: "normal",
     },
     {
@@ -30,8 +65,15 @@ const myFont = localFont({
       weight: "600",
       style: "normal",
     },
+    {
+      path: "../../public/fonts/SukhumvitSet-Bold.ttf",
+      weight: "700",
+      style: "normal",
+    },
   ],
+  variable: "--font-heading-local",
   display: "swap",
+  preload: false,
 });
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.siamrooftech.com/"),
@@ -90,7 +132,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="th" className={cn(myFont.className, "font-sans", geist.variable)}>
+    <html lang="th" className={cn(bodyFont.variable, headingFont.variable)}>
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
       </head>
