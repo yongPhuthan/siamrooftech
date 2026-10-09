@@ -19,6 +19,13 @@ const GOOGLE_ADS_SERVICE_PATHS = new Set([
   '/services/retractable-awning/nonthaburi',
   '/services/retractable-awning/pathum-thani',
 ]);
+const RETIRED_PROJECT_PATH_PREFIXES = ['/portfolio', '/works', '/allawning'];
+
+function isRetiredProjectPath(pathname: string): boolean {
+  return RETIRED_PROJECT_PATH_PREFIXES.some(
+    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
+  );
+}
 
 const ARTICLE_NOT_FOUND_HTML = `<!doctype html><html lang="th"><head><meta charset="utf-8"><meta name="robots" content="noindex, follow"><meta name="viewport" content="width=device-width, initial-scale=1"><title>ไม่พบบทความ | Siamrooftech</title></head><body style="margin:0;background:#f8fafc;color:#0f172a;font-family:Arial,sans-serif"><main style="max-width:42rem;margin:15vh auto;padding:2rem"><p style="color:#2563eb;font-weight:700">SIAMROOFTECH</p><h1>ไม่พบบทความ</h1><p style="color:#64748b">บทความนี้อาจถูกยกเลิกหรือยังไม่ได้เผยแพร่</p><a href="/articles" style="color:#2563eb">ดูบทความทั้งหมด</a></main></body></html>`;
 
@@ -71,6 +78,16 @@ export async function middleware(request: NextRequest) {
   const isLocalHost =
     hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '::1';
   const decodedPathname = decodeURIComponent(request.nextUrl.pathname);
+
+  // Retired project URLs must be genuine 404s on every host, before canonical-host redirects.
+  if (isRetiredProjectPath(decodedPathname)) {
+    const response = new NextResponse('Not Found', { status: 404 });
+    if (DEPLOYMENT_ENV === 'staging') {
+      response.headers.set('X-Robots-Tag', 'noindex, nofollow, noarchive');
+    }
+    return response;
+  }
+
   const serviceRedirectPath = LEGACY_SERVICE_PATHS[decodedPathname];
 
   if (serviceRedirectPath) {
