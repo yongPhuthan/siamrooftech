@@ -43,6 +43,8 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 22
+      - run: corepack enable
+      - run: yarn install --frozen-lockfile --non-interactive
       - run: node scripts/deployment-policy.mjs --check
       - run: node --test scripts/deployment-policy.test.mjs
       - run: node scripts/workflow-policy-qa.mjs
