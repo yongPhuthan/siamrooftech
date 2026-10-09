@@ -4,7 +4,7 @@ Updated 2026-10-09. This document describes the implemented GitHub Actions check
 
 ## Release path
 
-Pull requests run the three required checks: `quality`, `environment-policy`, and `runtime-seo`. `main` requires a PR and up-to-date checks, applies protection to administrators, and blocks force pushes and deletion. Repository Actions enforce full commit-SHA pinning. Staging deployment is conditional on the `staging` environment variable `STAGING_DEPLOY_ENABLED=true`; this switch must stay unset until the hostname is behind Cloudflare Access and its service token works. A production release is manual and requires the exact main SHA, successful staging validation for that SHA, a production build manifest, and approval through the existing GitHub `Production` environment.
+Pull requests run the three required checks: `quality`, `environment-policy`, and `runtime-seo`. `main` requires a PR and up-to-date checks, applies protection to administrators, and blocks force pushes and deletion. Repository Actions enforce full commit-SHA pinning. Staging deployment is conditional on the repository variable `STAGING_DEPLOY_ENABLED=true`. It must be repository-scoped because GitHub evaluates a job-level `if` before attaching the job's environment, so staging Environment variables are unavailable there. `STAGING_ACCESS_READY` remains scoped to the staging environment and is checked after the job starts. A production release is manual and requires the exact main SHA, successful staging validation for that SHA, a production build manifest, and approval through the existing GitHub `Production` environment.
 
 Production deploy uses the already-built `.open-next` artifact. Its manifest binds the SHA, target, canonical origin, config digest, lockfile digest, migrations checksums, and artifact digest. D1 migrations are a separate manually dispatched workflow that requires an exact database-name confirmation. Local direct deploy commands intentionally fail.
 
@@ -20,22 +20,19 @@ GitHub records the latest Production deployments as created by `vercel[bot]` (la
 
 Check the static contract with `yarn deployment:policy`. To test a specific deploy preflight, use `node scripts/deployment-policy.mjs --target=staging --deploy` after setting `STAGING_ACCESS_READY=true`, or `--target=production --deploy`. The production command must remain blocked until isolated production resources are present. Do not copy staging resource IDs or bucket names to make it pass.
 
-Staging currently has a custom-host route in Wrangler, so set Cloudflare Access for the hostname and test both browser login and CI service-token access before setting the GitHub variable. The route is only activated by deploying the Worker. Keep `STAGING_DEPLOY_ENABLED` and `STAGING_ACCESS_READY` unset until that policy is verified.
+Staging has a custom-host route in Wrangler. Cloudflare has a proxied `staging.siamrooftech.com` DNS record, an Access self-hosted application restricted to the owner email through the existing one-time PIN identity provider, and a separate GitHub service-token policy. An unauthenticated request returned the Access login response; the service token passed Access; and the owner completed browser OTP login. Both authenticated paths reached the originless hostname and returned 522 because the Worker was not deployed. The staging D1 databases and R2 buckets exist and are distinct from production. `STAGING_ACCESS_READY=true` is set in the staging environment. The repository variable `STAGING_DEPLOY_ENABLED=true` is the push-to-main deployment switch. The custom Worker route becomes active after CI deploys the Worker.
 
 ## GitHub setup status and remaining work
 
 GitHub setup completed 2026-10-09:
 
-- PR #1 is open from `codex/seo-safe-cicd`. Its latest GitHub run passed `quality`, `environment-policy`, and `runtime-seo`; `staging-deployment` was skipped because `STAGING_DEPLOY_ENABLED` is unset. The PR contains six previously committed local website/CMS changes as well as the CI/CD commits because those commits were ahead of `origin/main`.
+- PR #1 from `codex/seo-safe-cicd` was merged on 2026-10-09. Its `quality`, `environment-policy`, and `runtime-seo` checks passed. The first post-merge run also passed those checks but skipped `staging-deployment`: `STAGING_DEPLOY_ENABLED` had been set as an environment variable, which is unavailable to a job-level `if` condition.
 - `main` requires PRs and the three checks above, requires the latest base branch, enforces protections for administrators, disallows force-pushes and deletion, and has no agent bypass.
 - The repository requires Actions to be pinned to full commit SHAs.
 - GitHub `Production` requires `yongPhuthan` as reviewer, permits the owner to approve their own release, is limited to `main`, and disables administrator bypass.
-- GitHub `staging` is limited to `main` and disables administrator bypass. It has no deployment secrets or enable switch configured.
+- GitHub `staging` is limited to `main` and disables administrator bypass. It contains `CLOUDFLARE_ACCOUNT_ID`, `STAGING_ACCESS_READY`, and the `CF_ACCESS_CLIENT_ID`, `CF_ACCESS_CLIENT_SECRET`, and `CLOUDFLARE_API_TOKEN` secrets. `STAGING_DEPLOY_ENABLED` is set as a repository variable so the job-level gate can read it.
 
-Still required before staging can deploy:
-
-1. Verify Cloudflare Access protects `staging.siamrooftech.com` and test both owner browser access and CI service-token access.
-2. Add staging environment variable `CLOUDFLARE_ACCOUNT_ID`, `STAGING_ACCESS_READY=true`, and `STAGING_DEPLOY_ENABLED=true`. Add staging secrets `CLOUDFLARE_API_TOKEN`, `CF_ACCESS_CLIENT_ID`, and `CF_ACCESS_CLIENT_SECRET`. Scope the Cloudflare API token to this account and Worker/D1/R2 deployment operations only.
+Staging Access and CI credentials are configured. The remaining staging step is merging the gate-scope fix; its push to `main` will run the deployment job. After deployment, replace the temporary account-level bootstrap token with a per-Worker Editor token and verify health/SEO through the staging workflow.
 
 Still required before production can deploy:
 
