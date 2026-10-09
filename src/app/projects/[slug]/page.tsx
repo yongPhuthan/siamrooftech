@@ -10,7 +10,7 @@ interface ProjectPageProps {
   params: Promise<{ slug: string }>;
 }
 
-export const revalidate = 3600;
+export const dynamic = 'force-dynamic';
 export const dynamicParams = true;
 
 async function getProject(slug: string): Promise<Project | null> {
@@ -44,7 +44,6 @@ export async function generateMetadata({ params }: ProjectPageProps): Promise<Me
       description,
       ...(project.featured_image ? { images: [project.featured_image] } : {}),
     },
-    robots: { index: true, follow: true },
   };
 }
 

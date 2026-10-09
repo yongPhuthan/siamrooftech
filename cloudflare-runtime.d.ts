@@ -15539,5 +15539,3 @@ declare abstract class WorkflowInstance {
 }
 
 export type { SendEmail, EmailMessageBuilder };
-
-export type { SendEmail, EmailMessageBuilder };

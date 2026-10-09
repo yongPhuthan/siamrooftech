@@ -7,6 +7,8 @@ import { canonicalUrl, toDate } from '../lib/seo-config'
 import { servicePages } from '../lib/service-pages'
 import { getProjectPath } from '../lib/project-url'
 
+export const dynamic = 'force-dynamic';
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Static pages
   const staticPages = [
@@ -33,17 +35,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ]
 
   // Fetch actual projects for sitemap
-  let projects: Project[] = [];
-  let articles = await getPublishedArticles().catch((error) => {
-    console.error('Error fetching published articles for sitemap:', error);
-    return [];
-  });
-  
-  try {
-    projects = await projectsRepository.getAll();
-  } catch (error) {
-    console.error('Error fetching projects for sitemap:', error);
-  }
+  const [projects, articles]: [Project[], Awaited<ReturnType<typeof getPublishedArticles>>] = await Promise.all([
+    projectsRepository.getAll(),
+    getPublishedArticles(),
+  ]);
 
   // Dynamic project detail pages
   const projectLastModified = (project: Project): Date | undefined =>

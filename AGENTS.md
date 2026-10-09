@@ -14,6 +14,10 @@ Use `yarn` for package management. Run `yarn type-check`, `yarn lint`, and relev
 - Admin UI may use client components. The browser uses same-origin APIs and HttpOnly session cookies; it never connects to D1 or R2 directly.
 - Admin registration and sign-in use email OTP through `src/features/auth/`. Only server-configured `ADMIN_ALLOWED_EMAILS` may self-register; grant admin access after verified mailbox ownership. Never enable unrestricted signup, trust browser-supplied roles, log OTPs, or bypass verification in local/staging. Protect state-changing APIs against cross-site requests. CLI user tools are optional maintenance, not an onboarding requirement.
 - Local, staging, and production are deployment environments, not per-record content attributes. Local data and bindings must never silently connect to remote resources.
+- CI/CD is the only supported Worker deployment path. The default `cf:deploy` command is intentionally disabled; keep deploy credentials in GitHub Environments and never create local shortcuts around required checks or production review.
+- Keep CMS-backed public routes runtime-rendered from the selected environment. A database/query failure must return an error, never a successful empty listing or sitemap. Release artifacts must not contain local CMS/QA records.
+- Staging must use its own D1/R2/cache resources, Cloudflare Access, a staging canonical origin, `X-Robots-Tag: noindex`, and a disallow-all robots policy. Do not route staging publicly until Access is verified.
+- Production config remains blocked until production resources and content parity are verified. Code rollback does not roll back D1, R2, or Durable Object lifecycle changes; do not restore a database automatically.
 
 ## SEO and page lifecycle
 

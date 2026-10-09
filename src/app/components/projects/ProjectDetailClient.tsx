@@ -20,6 +20,7 @@ import { getServiceLinksForProject } from '@/lib/service-linking';
 import { getProjectProof, hasManualProjectProof } from '@/lib/project-proof';
 import { getProjectPath } from '@/lib/project-url';
 import { LINE_CONTACT_URL } from '@/features/line-contact/constants';
+import { canonicalUrl } from '@/lib/seo-config';
 
 interface PortfolioDetailClientProps {
   project: Project;
@@ -68,13 +69,13 @@ export default function ProjectDetailClient({ project, allProjects }: PortfolioD
     name: project.title,
     description: Array.isArray(project.description) ? project.description.join(" ") : project.description,
     image: project.featured_image || project.images?.[0]?.original_size,
-    url: `https://www.siamrooftech.com${projectPath}`,
+    url: canonicalUrl(projectPath),
     about: "กันสาดพับได้",
     keywords: `กันสาดพับได้, ${project.type}, ${project.category}, ${project.location}`,
     creator: {
       "@type": "Organization", 
       name: "Siamrooftech",
-      url: "https://www.siamrooftech.com",
+      url: canonicalUrl('/'),
     },
     datePublished: project.completionDate || project.created_at,
     workExample: {
@@ -113,19 +114,19 @@ export default function ProjectDetailClient({ project, allProjects }: PortfolioD
           "@type": "ListItem",
           position: 1,
           name: "หน้าแรก",
-          item: "https://www.siamrooftech.com",
+          item: canonicalUrl('/'),
         },
         {
           "@type": "ListItem", 
           position: 2,
           name: "ผลงาน",
-          item: "https://www.siamrooftech.com/projects",
+          item: canonicalUrl('/projects'),
         },
         {
           "@type": "ListItem",
           position: 3,
           name: project.title,
-          item: `https://www.siamrooftech.com${projectPath}`,
+          item: canonicalUrl(projectPath),
         },
       ],
     },

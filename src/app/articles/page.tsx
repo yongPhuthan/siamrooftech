@@ -12,13 +12,10 @@ export const metadata: Metadata = {
   openGraph: { title: 'บทความและคำแนะนำ | Siamrooftech', description: 'ความรู้และคำแนะนำเกี่ยวกับการเลือก ติดตั้ง และดูแลกันสาด', type: 'website', url: canonicalUrl('/articles') },
 };
 
-export const revalidate = 3600;
+export const dynamic = 'force-dynamic';
 
 export default async function ArticlesPage() {
-  const articles = await getPublishedArticles().catch((error) => {
-    console.error('Published article listing unavailable', error);
-    return [];
-  });
+  const articles = await getPublishedArticles();
 
   return (
     <div data-site-theme className="min-h-screen bg-site-canvas text-site-ink">

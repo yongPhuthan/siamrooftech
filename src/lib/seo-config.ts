@@ -1,4 +1,26 @@
-export const SITE_URL = 'https://www.siamrooftech.com';
+export type DeploymentEnvironment = 'local' | 'staging' | 'production';
+
+const configuredEnvironment = process.env.DEPLOY_ENV;
+const configuredOrigins: Record<DeploymentEnvironment, string> = {
+  local: 'http://localhost:3000',
+  staging: 'https://staging.siamrooftech.com',
+  production: 'https://www.siamrooftech.com',
+};
+
+function getDeploymentEnvironment(): DeploymentEnvironment {
+  if (configuredEnvironment === 'local' || configuredEnvironment === 'staging' || configuredEnvironment === 'production') {
+    return configuredEnvironment;
+  }
+  if (process.env.NODE_ENV !== 'production') return 'local';
+  throw new Error('DEPLOY_ENV must explicitly be local, staging, or production.');
+}
+
+export const DEPLOYMENT_ENV = getDeploymentEnvironment();
+export const SITE_URL = process.env.SITE_ORIGIN || configuredOrigins[DEPLOYMENT_ENV];
+if (new URL(SITE_URL).origin !== configuredOrigins[DEPLOYMENT_ENV]) {
+  throw new Error(`SITE_ORIGIN does not match the configured ${DEPLOYMENT_ENV} deployment origin.`);
+}
+export const IS_INDEXABLE_ENVIRONMENT = DEPLOYMENT_ENV === 'production';
 
 export const SERVICE_AREAS_TH = [
   'กรุงเทพ',

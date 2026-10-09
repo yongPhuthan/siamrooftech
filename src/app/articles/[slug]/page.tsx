@@ -16,7 +16,7 @@ import { canonicalUrl } from '@/lib/seo-config';
 
 interface Props { params: Promise<{ slug: string }> }
 
-export const revalidate = 3600;
+export const dynamic = 'force-dynamic';
 
 async function getArticle(slug: string): Promise<ArticleSnapshot | null> {
   if (!isValidArticleSlug(slug)) return null;
@@ -61,7 +61,7 @@ export default async function ArticleDetailPage({ params }: Props) {
   if (!article) notFound();
   const { metadata } = article;
   const headings = collectArticleHeadings(article.document);
-  const allArticles = await getPublishedArticles().catch(() => []);
+  const allArticles = await getPublishedArticles();
   const related = allArticles.filter((item) => item.articleId !== article.articleId && item.metadata.category === metadata.category).slice(0, 3);
   const url = canonicalUrl(articlePath(metadata.slug));
   const articleJsonLd = {

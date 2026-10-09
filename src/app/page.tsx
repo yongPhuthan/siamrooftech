@@ -8,8 +8,7 @@ export const metadata: Metadata = {
   },
 };
 
-// Keep the homepage and its paid-traffic mirror fresh with the same ISR window.
-export const revalidate = 60;
+export const dynamic = 'force-dynamic';
 
 export default function Home() {
   return <HomePageContent />;

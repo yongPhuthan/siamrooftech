@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getCloudflareContext } from '@opennextjs/cloudflare';
-import { SITE_URL } from './lib/seo-config';
+import { DEPLOYMENT_ENV, SITE_URL } from './lib/seo-config';
 import { isValidArticleSlug } from './features/articles/article-path';
 
 const CANONICAL_HOST = new URL(SITE_URL).host;
@@ -54,6 +54,7 @@ function articleNotFound() {
 
 async function isPublishedContent(kind: 'article' | 'project', pathname: string): Promise<boolean> {
   const { env } = getCloudflareContext();
+  if (!env.APP_DB) throw new Error('APP_DB binding is not configured for this deployment.');
   const row = await env.APP_DB
     .prepare('SELECT 1 AS published FROM published_content WHERE kind = ? AND path = ? LIMIT 1')
     .bind(kind, pathname)
@@ -85,7 +86,8 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url, 308);
   }
 
-  if (!isLocalHost && (hostname !== CANONICAL_HOST || protocol !== 'https')) {
+  const expectedHost = new URL(SITE_URL).host;
+  if (!isLocalHost && (hostname !== expectedHost || protocol !== 'https')) {
     const url = request.nextUrl.clone();
     url.protocol = 'https';
     url.host = CANONICAL_HOST;
@@ -94,6 +96,16 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url, 308);
   }
 
+  if (DEPLOYMENT_ENV === 'staging') {
+    const response = await continueRequest(request, decodedPathname);
+    response.headers.set('X-Robots-Tag', 'noindex, nofollow, noarchive');
+    return response;
+  }
+
+  return continueRequest(request, decodedPathname);
+}
+
+async function continueRequest(request: NextRequest, decodedPathname: string): Promise<NextResponse> {
   if (decodedPathname.startsWith('/articles/')) {
     const slug = decodedPathname.slice('/articles/'.length);
     if (!isValidArticleSlug(slug)) return articleNotFound();

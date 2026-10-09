@@ -7,13 +7,20 @@ const args = new Map(
   })
 );
 
-const baseUrl = String(args.get('base') || process.env.SEO_QA_BASE_URL || 'http://localhost:3000');
-const canonicalHost = String(args.get('host') || process.env.SEO_QA_HOST || 'www.siamrooftech.com');
-const canonicalOrigin = `https://${canonicalHost}`;
-const headers = {
-  host: canonicalHost,
-  'x-forwarded-proto': 'https',
+const environment = String(args.get('environment') || process.env.SEO_QA_ENVIRONMENT || 'local');
+const expectedOrigins = {
+  local: 'http://localhost:3000',
+  staging: 'https://staging.siamrooftech.com',
+  production: 'https://www.siamrooftech.com',
 };
+if (!Object.hasOwn(expectedOrigins, environment)) throw new Error(`Unknown SEO QA environment: ${environment}`);
+const canonicalOrigin = expectedOrigins[environment];
+const baseUrl = String(args.get('base') || process.env.SEO_QA_BASE_URL || canonicalOrigin);
+const headers = {};
+if (process.env.CF_ACCESS_CLIENT_ID && process.env.CF_ACCESS_CLIENT_SECRET) {
+  headers['CF-Access-Client-Id'] = process.env.CF_ACCESS_CLIENT_ID;
+  headers['CF-Access-Client-Secret'] = process.env.CF_ACCESS_CLIENT_SECRET;
+}
 
 const pages = [
   { path: '/', canonical: canonicalOrigin, schema: ['LocalBusiness', 'FAQPage'] },
@@ -144,8 +151,8 @@ if (sitemapResponse.status !== 200) {
 const projectUrls = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/gi)]
   .map(([, value]) => new URL(value, canonicalOrigin).pathname)
   .filter((path) => path.startsWith('/projects/'));
-if (projectUrls.length !== 16) {
-  fail(`/sitemap.xml: expected 16 published project URLs, got ${projectUrls.length}`);
+if (projectUrls.length === 0) {
+  fail(`/sitemap.xml: no published project URLs were found; reconcile against the target's published inventory`);
 }
 if (new Set(projectUrls).size !== projectUrls.length) {
   fail('/sitemap.xml: published project URLs are not unique');
@@ -166,9 +173,9 @@ for (const url of projectUrls) {
   if (canonical !== `${canonicalOrigin}${url}`) {
     fail(`${url}: canonical mismatch. expected ${canonicalOrigin}${url}, got ${canonical || 'NONE'}`);
   }
-  if (/<meta\s+name=["']robots["'][^>]*content=["'][^"']*noindex/i.test(html)) {
-    fail(`${url}: public project detail unexpectedly has noindex`);
-  }
+  const hasNoindexMeta = /<meta\s+name=["']robots["'][^>]*content=["'][^"']*noindex/i.test(html);
+  if (environment === 'staging' && !hasNoindexMeta) fail(`${url}: staging project detail is missing the noindex meta policy`);
+  if (environment === 'production' && hasNoindexMeta) fail(`${url}: public project detail unexpectedly has noindex`);
   const schemas = [];
   const jsonLdBlocks = [...html.matchAll(/<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)];
   for (const [, block] of jsonLdBlocks) {
@@ -218,12 +225,23 @@ for (const page of pages) {
   }
 
   const html = await response.text();
+  const noindexHeader = response.headers.get('x-robots-tag') || '';
+  if (environment === 'staging' && !/noindex/i.test(noindexHeader)) {
+    fail(`${page.path}: staging response is missing X-Robots-Tag noindex`);
+  }
+  if (environment === 'production' && /noindex/i.test(noindexHeader)) {
+    fail(`${page.path}: production response unexpectedly has X-Robots-Tag noindex`);
+  }
   const canonical = getAttr(html, [
     /<link\s+rel=["']canonical["']\s+href=["']([^"']*)["']/i,
     /<link\s+href=["']([^"']*)["']\s+rel=["']canonical["']/i,
   ]);
   const title = getAttr(html, [/<title[^>]*>([\s\S]*?)<\/title>/i]).replace(/\s+/g, ' ').trim();
   const h1Count = [...html.matchAll(/<h1[^>]*>/gi)].length;
+  const hasNoindexMeta = /<meta\s+name=["']robots["'][^>]*content=["'][^"']*noindex/i.test(html);
+
+  if (environment === 'staging' && !hasNoindexMeta) fail(`${page.path}: staging HTML is missing the noindex meta policy`);
+  if (environment === 'production' && hasNoindexMeta) fail(`${page.path}: production HTML unexpectedly has noindex`);
 
   if (canonical !== page.canonical) {
     fail(`${page.path}: canonical mismatch. expected ${page.canonical}, got ${canonical || 'NONE'}`);
@@ -276,12 +294,28 @@ if (robotsResponse.status !== 200) {
   fail(`/robots.txt: expected 200, got ${robotsResponse.status}`);
 } else {
   const robots = await robotsResponse.text();
+  if (environment === 'staging') {
+    if (!/Disallow:\s*\//i.test(robots)) fail('/robots.txt: staging must disallow crawling of the entire site');
+    if (/Sitemap:/i.test(robots)) fail('/robots.txt: staging must not declare a sitemap');
+  }
   if (robots.includes('GPTBot') || robots.includes('ChatGPT-User')) {
     fail('/robots.txt: AI crawlers should not be explicitly blocked');
   }
-  if (!robots.includes('/sitemap.xml')) {
+  if (environment !== 'staging' && !robots.includes('/sitemap.xml')) {
     fail('/robots.txt: missing sitemap reference');
   }
+}
+
+const health = await fetchPath('/api/health');
+if (health.status !== 200) fail(`/api/health: expected 200, got ${health.status}`);
+else {
+  const healthBody = await health.json();
+  if (healthBody.status !== 'ok' || !healthBody.releaseSha) fail('/api/health: health payload is incomplete');
+  const expectedSha = process.env.SEO_QA_RELEASE_SHA;
+  if (expectedSha && healthBody.releaseSha !== expectedSha) {
+    fail(`/api/health: release SHA mismatch. expected ${expectedSha}, got ${healthBody.releaseSha}`);
+  }
+  if (health.headers.get('cache-control')?.includes('no-store') !== true) fail('/api/health: response must not be cacheable');
 }
 
 for (const [legacyPath, expectedTarget] of legacyRedirects) {
@@ -304,4 +338,4 @@ if (failures.length > 0) {
   process.exit(1);
 }
 
-console.log(`SEO QA passed for ${pages.length} pages at ${baseUrl}`);
+console.log(`SEO QA passed for ${pages.length} shared templates and ${projectUrls.length} published project URLs at ${baseUrl} (${environment})`);

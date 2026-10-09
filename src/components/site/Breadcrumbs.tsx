@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { canonicalUrl } from '@/lib/seo-config';
 
 interface BreadcrumbItem { name: string; href?: string }
 interface BreadcrumbsProps { items: BreadcrumbItem[]; className?: string }
@@ -11,7 +12,7 @@ export default function Breadcrumbs({ items, className = '' }: BreadcrumbsProps)
       '@type': 'ListItem',
       position: index + 1,
       name: item.name,
-      ...(item.href && { item: `https://www.siamrooftech.com${item.href}` }),
+      ...(item.href && { item: canonicalUrl(item.href) }),
     })),
   };
   const safeBreadcrumbJson = JSON.stringify(breadcrumbSchema)

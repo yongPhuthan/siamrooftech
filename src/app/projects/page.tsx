@@ -10,7 +10,7 @@ import { canonicalUrl } from "@/lib/seo-config";
 import { getProjectPath } from "@/lib/project-url";
 import { PublicBadge, PublicHeading } from '@/components/ui/public';
 
-export const revalidate = 300;
+export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   title: "ผลงานติดตั้งกันสาดพับเก็บได้ | Siamrooftech",
@@ -28,13 +28,12 @@ export const metadata: Metadata = {
       alt: "ผลงานติดตั้งกันสาด Siamrooftech",
     }],
   },
-  robots: { index: true, follow: true },
 };
 
 const fetchProjects = unstable_cache(
   async (): Promise<Project[]> => projectsRepository.getAll(),
   ["projects-data"],
-  { revalidate: 300 },
+  { revalidate: 300, tags: ['projects'] },
 );
 
 export default async function ProjectsPage() {

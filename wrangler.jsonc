@@ -1,6 +1,6 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
-  "name": "siamrooftech",
+  "name": "siamrooftech-local",
   "account_id": "a61f30bb027ef64c9577c73f5981f073",
   "main": ".open-next/worker.js",
   "compatibility_date": "2026-06-06",
@@ -35,7 +35,7 @@
   "services": [
     {
       "binding": "WORKER_SELF_REFERENCE",
-      "service": "siamrooftech"
+      "service": "siamrooftech-local"
     }
   ],
   "durable_objects": {
@@ -57,6 +57,9 @@
     "binding": "ASSETS"
   },
   "vars": {
+    "DEPLOY_ENV": "local",
+    "SITE_ORIGIN": "http://localhost:3000",
+    "INDEX_POLICY": "noindex",
     "AUTH_EMAIL_DELIVERY": "disabled",
     "AUTH_EMAIL_FROM": "noreply@siamrooftech.com",
     "NEXT_PUBLIC_GA4_MEASUREMENT_ID": "G-49Q49WM381",
@@ -75,6 +78,9 @@
     "staging": {
       "name": "siamrooftech-staging",
       "workers_dev": false,
+      "routes": [
+        { "pattern": "staging.siamrooftech.com/*", "zone_name": "siamrooftech.com" }
+      ],
       "send_email": [
         { "name": "AUTH_EMAIL", "allowed_sender_addresses": ["noreply@siamrooftech.com"] }
       ],
@@ -121,10 +127,44 @@
         "binding": "ASSETS"
       },
       "vars": {
+        "DEPLOY_ENV": "staging",
+        "SITE_ORIGIN": "https://staging.siamrooftech.com",
+        "INDEX_POLICY": "noindex",
         "AUTH_EMAIL_DELIVERY": "live",
         "AUTH_EMAIL_FROM": "noreply@siamrooftech.com",
         "NEXT_PUBLIC_GA4_MEASUREMENT_ID": "",
         "LINE_CHAT_HISTORY_WORKER_URL": ""
+      }
+    },
+    "production": {
+      "name": "siamrooftech",
+      "workers_dev": false,
+      "routes": [
+        { "pattern": "www.siamrooftech.com/*", "zone_name": "siamrooftech.com" }
+      ],
+      "send_email": [
+        { "name": "AUTH_EMAIL", "allowed_sender_addresses": ["noreply@siamrooftech.com"] }
+      ],
+      "services": [
+        { "binding": "WORKER_SELF_REFERENCE", "service": "siamrooftech" }
+      ],
+      "durable_objects": {
+        "bindings": [
+          { "name": "NEXT_CACHE_DO_QUEUE", "class_name": "DOQueueHandler" }
+        ]
+      },
+      "assets": {
+        "directory": ".open-next/assets",
+        "binding": "ASSETS"
+      },
+      "vars": {
+        "DEPLOY_ENV": "production",
+        "SITE_ORIGIN": "https://www.siamrooftech.com",
+        "INDEX_POLICY": "index",
+        "AUTH_EMAIL_DELIVERY": "live",
+        "AUTH_EMAIL_FROM": "noreply@siamrooftech.com",
+        "NEXT_PUBLIC_GA4_MEASUREMENT_ID": "G-49Q49WM381",
+        "LINE_CHAT_HISTORY_WORKER_URL": "https://siamrooftech-line-chat-history.phuthan-dev.workers.dev"
       }
     }
   }

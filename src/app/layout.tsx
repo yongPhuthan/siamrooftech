@@ -9,6 +9,7 @@ import LineButtonsLayout from "@/features/line-contact/LineButtonsLayout";
 import LineLeadCapture from "@/features/line-contact/LineLeadCapture";
 import SiteFooter from "./components/SiteFooter";
 import { cn } from "@/lib/utils";
+import { DEPLOYMENT_ENV, SITE_URL } from "@/lib/seo-config";
 
 const bodyFont = localFont({
   src: [
@@ -76,7 +77,7 @@ const headingFont = localFont({
   preload: false,
 });
 export const metadata: Metadata = {
-  metadataBase: new URL("https://www.siamrooftech.com/"),
+  metadataBase: new URL(`${SITE_URL}/`),
   title: "กันสาดพับได้ ระบบมือหมุน-มอเตอร์ไฟฟ้า คุณภาพยุโรป | Siamrooftech",
   description:
     "ผู้เชี่ยวชาญกันสาดพับได้ ระบบมือหมุน-มอเตอร์ไฟฟ้า คุณภาพยุโรป ราคาไทย ประสบการณ์ 10+ ปี ครอบคลุมทั่วกรุงเทพฯ-ปริมณฑล บริการครบวงจร ใบเสนอราคาฟรี",
@@ -85,11 +86,11 @@ export const metadata: Metadata = {
   creator: "Siamrooftech",
   publisher: "Siamrooftech",
   robots: {
-    index: true,
-    follow: true,
+    index: DEPLOYMENT_ENV === 'production',
+    follow: DEPLOYMENT_ENV === 'production',
     googleBot: {
-      index: true,
-      follow: true,
+      index: DEPLOYMENT_ENV === 'production',
+      follow: DEPLOYMENT_ENV === 'production',
       "max-video-preview": -1,
       "max-image-preview": "large",
       "max-snippet": -1,
@@ -99,7 +100,7 @@ export const metadata: Metadata = {
     title: "กันสาดพับได้ ระบบมือหมุน-มอเตอร์ไฟฟ้า คุณภาพยุโรป | Siamrooftech",
     description:
       "ผู้เชี่ยวชาญกันสาดพับได้ ระบบมือหมุน-มอเตอร์ไฟฟ้า คุณภาพยุโรป ราคาไทย ประสบการณ์ 10+ ปี ครอบคลุมทั่วกรุงเทพฯ-ปริมณฑล บริการครบวงจร",
-    url: "https://www.siamrooftech.com/",
+    url: `${SITE_URL}/`,
     siteName: "Siamrooftech",
     images: [
       {

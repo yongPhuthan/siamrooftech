@@ -1,17 +1,17 @@
 import Main from '@/app/components/Main';
 import { projectsRepository } from '@/features/projects/server/repository';
 import type { Project } from '@/features/projects/types';
-import { SERVICE_AREAS_TH } from '@/lib/seo-config';
+import { canonicalUrl, SERVICE_AREAS_TH } from '@/lib/seo-config';
 
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': ['LocalBusiness', 'Organization'],
   name: 'Siamrooftech - กันสาดพับได้ คุณภาพสูง',
   description: 'ผู้เชี่ยวชาญด้านกันสาดพับเก็บได้ ระบบมือหมุนและมอเตอร์ไฟฟ้า บริการติดตั้งครบวงจร มากกว่า 10 ปีประสบการณ์',
-  url: 'https://www.siamrooftech.com',
+  url: canonicalUrl('/'),
   telephone: '+66-98-454-2455',
   email: 'contact@siamrooftech.com',
-  logo: 'https://www.siamrooftech.com/logo.png',
+  logo: canonicalUrl('/logo.png'),
   image: 'https://pub-99f8d7bf688c4c79afcc2d91f37141f2.r2.dev/siamrooftech/medium/46570',
   address: {
     '@type': 'PostalAddress',
@@ -94,18 +94,9 @@ const faqJsonLd = {
 };
 
 async function fetchProjects(): Promise<Project[]> {
-  try {
-    const projects = await projectsRepository.getAll();
-
-    if (!projects || projects.length === 0) {
-      console.warn('[Homepage] No published projects are available in the CMS');
-    }
-
-    return projects || [];
-  } catch (error) {
-    console.error('❌ [Homepage] Error fetching projects:', error);
-    return [];
-  }
+  const projects = await projectsRepository.getAll();
+  if (!projects.length) console.warn('[Homepage] No published projects are available in the CMS');
+  return projects;
 }
 
 export default async function HomePageContent() {

@@ -55,5 +55,10 @@ next-env.d.ts
 .env.local.example
 
 .github
+!.github/
+.github/*
+!.github/workflows/
+.github/workflows/*
+!.github/workflows/*.yml
 .claude
 wrangler.preview.generated.jsonc
