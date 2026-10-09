@@ -4,14 +4,15 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { EditorContent, useEditor, useEditorState } from '@tiptap/react';
 import type { Editor, JSONContent } from '@tiptap/core';
+import type { Transaction } from '@tiptap/pm/state';
 import { Popover } from '@base-ui/react/popover';
 import { Type } from 'lucide-react';
 import { ArticleDocumentSchema, type ArticleDocument } from '../document-schema';
 import { collectArticleHeadings, type ArticleHeading } from '../heading-outline';
 import { uploadImageToCloudflare } from '@/app/lib/cloudflare/uploadImage';
 import { useArticleWorkspaceTheme, useArticleWorkspaceToolbarHost } from './ArticleWorkspace';
+import { setArticleHeading } from './editor-commands';
 import { createArticleEditorExtensions } from './editor-extensions';
-import { createHeadingId } from './heading-id';
 
 interface ArticleEditorProps {
   document: ArticleDocument;
@@ -45,9 +46,16 @@ export default function ArticleEditor({ document, onChange, onOutlineChange, onA
   const selectionRange = useRef<{ from: number; to: number } | null>(null);
   const extensions = useMemo(() => createArticleEditorExtensions(), []);
 
-  const handleUpdate = useCallback(({ editor }: { editor: Editor }) => {
-    const parsed = ArticleDocumentSchema.safeParse(editor.getJSON());
-    if (!parsed.success) return;
+  const handleTransaction = useCallback(({ editor, transaction }: { editor: Editor; transaction: Transaction }) => {
+    if (!transaction.docChanged || transaction.getMeta('preventUpdate')) return;
+    const editorDocument = editor.getJSON();
+    const parsed = ArticleDocumentSchema.safeParse(editorDocument);
+    if (!parsed.success) {
+      // Keep the live outline responsive even if an unrelated unsupported
+      // attribute temporarily prevents the persistence schema from accepting it.
+      onOutlineChange(collectArticleHeadings(editorDocument as ArticleDocument));
+      return;
+    }
     onChange(parsed.data);
     onOutlineChange(collectArticleHeadings(parsed.data));
   }, [onChange, onOutlineChange]);
@@ -56,7 +64,7 @@ export default function ArticleEditor({ document, onChange, onOutlineChange, onA
     extensions,
     content: document,
     immediatelyRender: false,
-    onUpdate: handleUpdate,
+    onTransaction: handleTransaction,
     editorProps: {
       attributes: {
         class: 'article-editor-content min-h-[48rem] max-w-none px-0 py-5 outline-none sm:py-8',
@@ -213,7 +221,7 @@ export default function ArticleEditor({ document, onChange, onOutlineChange, onA
 
   const addHeading = (level: 2 | 3) => {
     if (!editor) return;
-    editor.chain().focus().insertContent({ type: 'heading', attrs: { level, id: createHeadingId() } }).run();
+    setArticleHeading(editor, level);
   };
 
   const toolbar = [

@@ -5,6 +5,7 @@ import { DOMParser as ProseMirrorDOMParser, Fragment, Slice } from '@tiptap/pm/m
 import { createArticleEditorExtensions } from './editor-extensions';
 import { ArticleDocumentSchema } from '../document-schema';
 import { collectArticleHeadings } from '../heading-outline';
+import { setArticleHeading } from './editor-commands';
 
 const idOne = 'section-11111111-1111-4111-8111-111111111111';
 const idTwo = 'section-22222222-2222-4222-8222-222222222222';
@@ -144,5 +145,32 @@ describe('Tiptap persistent heading identity', () => {
     editor.commands.insertContent('<blockquote><p>คำโปรย</p></blockquote><h2>ส่วนหลัก</h2><p>เนื้อหา</p><ul><li><p>รายการ</p></li></ul><ol start="2"><li><p>ลำดับ</p></li></ol><table><tbody><tr><th><p>ช่วงเวลา</p></th><td><p>ทันที</p></td></tr></tbody></table>');
     const parsed = ArticleDocumentSchema.safeParse(editor.getJSON());
     expect(parsed.success).toBe(true);
+  });
+
+  it('preserves highlighted text and marks when changing its paragraph to H2 or H3', () => {
+    editor = new Editor({
+      element: document.createElement('div'),
+      extensions: createArticleEditorExtensions(),
+      content: { type: 'doc', content: [{ type: 'paragraph', content: [
+        { type: 'text', text: 'ข้อความ ' },
+        { type: 'text', text: 'ที่เลือก', marks: [{ type: 'bold' }] },
+      ] }] },
+    });
+    const originalText = editor.getText();
+    editor.commands.setTextSelection({ from: 9, to: 15 });
+
+    expect(setArticleHeading(editor, 2)).toBe(true);
+
+    expect(getHeadings(editor)).toHaveLength(1);
+    expect(getHeadings(editor)[0]).toMatchObject({ attrs: { level: 2 } });
+    expect(getHeadings(editor)[0].attrs?.id).toMatch(/^section-/);
+    expect(getHeadings(editor)[0].content?.map((node) => 'text' in node ? node.text : '').join('')).toBe(originalText);
+    expect(getHeadings(editor)[0].content?.find((node) => 'text' in node && node.text === 'ที่เลือก')).toMatchObject({ text: 'ที่เลือก', marks: [{ type: 'bold' }] });
+
+    const headingId = getHeadings(editor)[0].attrs?.id;
+    expect(setArticleHeading(editor, 3)).toBe(true);
+    expect(getHeadings(editor)[0].content?.map((node) => 'text' in node ? node.text : '').join('')).toBe(originalText);
+    expect(getHeadings(editor)).toHaveLength(1);
+    expect(getHeadings(editor)[0].attrs).toEqual({ level: 3, id: headingId });
   });
 });
