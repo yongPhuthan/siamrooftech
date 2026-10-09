@@ -39,7 +39,7 @@ interface ArticleWorkspaceProps {
   metadata: ReactNode;
   issues: PublicationProblem[];
   onIssueClick: (problem: PublicationProblem) => void;
-  children: ReactNode;
+  children?: ReactNode;
 }
 
 export default function ArticleWorkspace({ title, onTitleChange, onBack, saveState, actions, outline, metadata, issues, onIssueClick, children }: ArticleWorkspaceProps) {
