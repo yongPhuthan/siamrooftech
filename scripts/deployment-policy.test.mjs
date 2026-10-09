@@ -22,13 +22,15 @@ test('staging is isolated, private from workers.dev, and noindex', () => {
   assert.throws(() => assessConfig(indexable, 'staging'), /INDEX_POLICY mismatch/);
 });
 
-test('production stays blocked until its own CMS, cache, media, and self-reference bindings exist', () => {
+test('production stays blocked until isolated resources exist and cutover readiness is verified', () => {
   assert.equal(assessConfig(config, 'production').deployReady, false);
-  assert.throws(() => assessConfig(config, 'production', { deploy: true, productionReady: true }), /not deploy-ready/);
+  assert.match(assessConfig(config, 'production').blockingReasons.join(' '), /readiness not verified/);
+  assert.equal(assessConfig(config, 'production', { productionReady: true }).deployReady, true);
+  assert.equal(assessConfig(config, 'production', { deploy: true, productionReady: true }).deployReady, true);
   assert.throws(() => assessConfig(config, 'production', { deploy: true }), /cutover is not authorized/);
   const swapped = structuredClone(config);
   swapped.env.production.d1_databases = structuredClone(config.env.staging.d1_databases);
-  assert.throws(() => assessConfig(swapped, 'production', { deploy: true, productionReady: true }), /not deploy-ready/);
+  assert.throws(() => assessConfig(swapped, 'production', { deploy: true, productionReady: true }), /database name must match its isolated target/);
 });
 
 test('unknown target fails closed', () => {

@@ -142,6 +142,30 @@
       "routes": [
         { "pattern": "www.siamrooftech.com/*", "zone_name": "siamrooftech.com" }
       ],
+      "d1_databases": [
+        {
+          "binding": "APP_DB",
+          "database_name": "siamrooftech-cms-production",
+          "database_id": "f6518829-d104-49dc-b90c-f3a1f445882b",
+          "migrations_dir": "drizzle/migrations"
+        },
+        {
+          "binding": "NEXT_TAG_CACHE_D1",
+          "database_name": "siamrooftech-cache-production",
+          "database_id": "4b2b8a5f-b12d-4beb-b575-b2cfdd5febb9",
+          "migrations_dir": "drizzle/cache-migrations"
+        }
+      ],
+      "r2_buckets": [
+        {
+          "binding": "MEDIA_BUCKET",
+          "bucket_name": "siamrooftech-media-production"
+        },
+        {
+          "binding": "NEXT_INC_CACHE_R2_BUCKET",
+          "bucket_name": "siamrooftech-opennext-cache-production"
+        }
+      ],
       "send_email": [
         { "name": "AUTH_EMAIL", "allowed_sender_addresses": ["noreply@siamrooftech.com"] }
       ],

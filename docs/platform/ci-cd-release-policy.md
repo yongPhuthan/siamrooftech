@@ -14,7 +14,13 @@ Production deploy uses the already-built `.open-next` artifact. Its manifest bin
 | --- | --- | --- | --- |
 | Local | `siamrooftech-local` | `http://localhost:3000` | Emulator bindings only |
 | Staging | `siamrooftech-staging` | `https://staging.siamrooftech.com` | D1/R2 configured; Access and custom hostname must be verified before enabling deploy |
-| Production | `siamrooftech` | `https://www.siamrooftech.com` | Intentionally blocked: production D1, cache D1, R2, and self-reference are not configured here |
+| Production | `siamrooftech` | `https://www.siamrooftech.com` | Isolated D1/R2 resources now exist and are declared; still blocked pending data/media parity, backups, runtime/release secrets, route ownership, and rollback verification |
+
+Production resources created in Cloudflare on 2026-10-09 and kept unbound from live traffic until an approved Worker release:
+
+- D1: `siamrooftech-cms-production` and `siamrooftech-cache-production` (empty at creation, APAC primary location)
+- R2: `siamrooftech-media-production` and `siamrooftech-opennext-cache-production` (empty at creation, APAC location)
+- The existing Vercel production route remains the current live/recovery route. Resource existence does not establish content or media parity.
 
 GitHub records the latest Production deployments as created by `vercel[bot]` (latest observed 2026-09-08). Keep the current Vercel route available as the live/recovery service while validating Cloudflare staging. A Vercel Preview deployment also ran for PR #1; this does not deploy to production. Do not disable the current Vercel route or route production traffic to the Worker until ownership, data parity, and rollback have been verified.
 
@@ -36,8 +42,9 @@ Staging Access and CI credentials are configured. The remaining staging step is 
 
 Still required before production can deploy:
 
-1. Add production `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_TOKEN` only after production D1/R2/cache resources, content/media parity, backup, and rollback compatibility have been checked. Production D1/cache/R2 bindings are intentionally absent. Keep `PRODUCTION_CUTOVER_READY` unset until the owner verifies those items and resolves the Vercel/Cloudflare route ownership.
-2. Inspect and disable overlapping automatic deployments only after identifying the live production route and recording the recovery path. Vercel remains the current production/recovery path; its Preview check on PR #1 is separate from the Cloudflare pipeline.
+1. Reconcile and copy the published project inventory and media from the verified live source to the isolated production resources, then verify counts/checksums and take a private backup. Do not publish an empty production inventory over the live site.
+2. Add least-privilege production `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_TOKEN` plus target-specific runtime secrets after parity and backup checks. Keep `PRODUCTION_CUTOVER_READY` unset until the owner verifies data, routing, and rollback readiness.
+3. Inspect and disable overlapping automatic deployments only after identifying the live production route and recording the recovery path. Vercel remains the current production/recovery route; its Preview checks are separate from this pipeline.
 
 Do not store database exports, OTPs, drafts, cookies, or backups in GitHub. GitHub Actions environment values are separate from Cloudflare runtime secrets. Do not infer Access, DNS, secret, or data readiness from local files.
 
