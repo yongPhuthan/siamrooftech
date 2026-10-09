@@ -67,7 +67,7 @@ jobs:
       - run: node scripts/worker-binding-qa.mjs production
       - run: yarn db:migrate:local
       - run: yarn db:migrate:cache:local
-      - run: yarn db:seed:local
+      - run: yarn db:seed:local --apply
       - run: yarn db:test:local
       - run: node scripts/release-artifact-audit.mjs
 
