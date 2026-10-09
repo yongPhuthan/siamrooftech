@@ -1,10 +1,10 @@
 # Safe CI/CD and SEO release policy
 
-Updated 2026-10-09. This document describes the implemented GitHub Actions checks and the external setup still required. It is not authorization to cut over production.
+Updated 2026-10-09. This document describes the implemented GitHub Actions checks, GitHub protections, and external setup still required. It is not authorization to cut over production.
 
 ## Release path
 
-Pull requests run three stable required-check candidates: `quality`, `environment-policy`, and `runtime-seo`. Merging to `main` runs the same checks. Staging deployment is conditional on `staging` environment variable `STAGING_DEPLOY_ENABLED=true`; this switch must stay unset until the hostname is behind Cloudflare Access and its service token works. A production release is manual and requires the exact main SHA, successful staging validation for that SHA, a production build manifest, and approval through the existing GitHub `Production` environment.
+Pull requests run the three required checks: `quality`, `environment-policy`, and `runtime-seo`. `main` requires a PR and up-to-date checks, applies protection to administrators, and blocks force pushes and deletion. Repository Actions enforce full commit-SHA pinning. Staging deployment is conditional on the `staging` environment variable `STAGING_DEPLOY_ENABLED=true`; this switch must stay unset until the hostname is behind Cloudflare Access and its service token works. A production release is manual and requires the exact main SHA, successful staging validation for that SHA, a production build manifest, and approval through the existing GitHub `Production` environment.
 
 Production deploy uses the already-built `.open-next` artifact. Its manifest binds the SHA, target, canonical origin, config digest, lockfile digest, migrations checksums, and artifact digest. D1 migrations are a separate manually dispatched workflow that requires an exact database-name confirmation. Local direct deploy commands intentionally fail.
 
@@ -16,20 +16,33 @@ Production deploy uses the already-built `.open-next` artifact. Its manifest bin
 | Staging | `siamrooftech-staging` | `https://staging.siamrooftech.com` | D1/R2 configured; Access and custom hostname must be verified before enabling deploy |
 | Production | `siamrooftech` | `https://www.siamrooftech.com` | Intentionally blocked: production D1, cache D1, R2, and self-reference are not configured here |
 
-GitHub records the latest Production deployments as created by `vercel[bot]` (latest observed 2026-09-08). Keep the current Vercel route available as the live/recovery service while validating Cloudflare staging. Do not disable it or route production traffic to the Worker until ownership, data parity, and rollback have been verified.
+GitHub records the latest Production deployments as created by `vercel[bot]` (latest observed 2026-09-08). Keep the current Vercel route available as the live/recovery service while validating Cloudflare staging. A Vercel Preview deployment also ran for PR #1; this does not deploy to production. Do not disable the current Vercel route or route production traffic to the Worker until ownership, data parity, and rollback have been verified.
 
 Check the static contract with `yarn deployment:policy`. To test a specific deploy preflight, use `node scripts/deployment-policy.mjs --target=staging --deploy` after setting `STAGING_ACCESS_READY=true`, or `--target=production --deploy`. The production command must remain blocked until isolated production resources are present. Do not copy staging resource IDs or bucket names to make it pass.
 
 Staging currently has a custom-host route in Wrangler, so set Cloudflare Access for the hostname and test both browser login and CI service-token access before setting the GitHub variable. The route is only activated by deploying the Worker. Keep `STAGING_DEPLOY_ENABLED` and `STAGING_ACCESS_READY` unset until that policy is verified.
 
-## GitHub setup still required
+## GitHub setup status and remaining work
 
-1. Push the intended code to `main` or a feature branch and verify the workflow run. This working copy can contain unrelated uncommitted changes; never stage those into this release.
+GitHub setup completed 2026-10-09:
+
+- PR #1 is open from `codex/seo-safe-cicd`. Its latest GitHub run passed `quality`, `environment-policy`, and `runtime-seo`; `staging-deployment` was skipped because `STAGING_DEPLOY_ENABLED` is unset. The PR contains six previously committed local website/CMS changes as well as the CI/CD commits because those commits were ahead of `origin/main`.
+- `main` requires PRs and the three checks above, requires the latest base branch, enforces protections for administrators, disallows force-pushes and deletion, and has no agent bypass.
+- The repository requires Actions to be pinned to full commit SHAs.
+- GitHub `Production` requires `yongPhuthan` as reviewer, permits the owner to approve their own release, is limited to `main`, and disables administrator bypass.
+- GitHub `staging` is limited to `main` and disables administrator bypass. It has no deployment secrets or enable switch configured.
+
+Still required before staging can deploy:
+
+1. Verify Cloudflare Access protects `staging.siamrooftech.com` and test both owner browser access and CI service-token access.
 2. Add staging environment variable `CLOUDFLARE_ACCOUNT_ID`, `STAGING_ACCESS_READY=true`, and `STAGING_DEPLOY_ENABLED=true`. Add staging secrets `CLOUDFLARE_API_TOKEN`, `CF_ACCESS_CLIENT_ID`, and `CF_ACCESS_CLIENT_SECRET`. Scope the Cloudflare API token to this account and Worker/D1/R2 deployment operations only.
-3. Add equivalent production `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_TOKEN` only after production D1/R2/cache resources, content/media parity, backup, and rollback compatibility have been checked. Keep `PRODUCTION_CUTOVER_READY` unset until the owner has verified those items and resolved the Vercel/Cloudflare route ownership. Do not store database exports, OTPs, drafts, cookies, or backups in GitHub.
-4. Configure `Production` with the repository owner as required reviewer and disable administrator bypass. If GitHub does not permit the intended self-approval behavior under the current repository policy, leave production deployment blocked.
-5. After a workflow has run on GitHub, set `quality`, `environment-policy`, and `runtime-seo` as required checks for `main`; require PRs, disallow force pushes, and do not grant bypass to automation.
-6. Inspect and disable overlapping Vercel/Workers Builds automatic deployments only after identifying which service currently serves production and recording the recovery path. The Actions environment variables `STAGING_DEPLOY_ENABLED` and `Production` approval are separate from Cloudflare environment variables/secrets.
+
+Still required before production can deploy:
+
+1. Add production `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_TOKEN` only after production D1/R2/cache resources, content/media parity, backup, and rollback compatibility have been checked. Production D1/cache/R2 bindings are intentionally absent. Keep `PRODUCTION_CUTOVER_READY` unset until the owner verifies those items and resolves the Vercel/Cloudflare route ownership.
+2. Inspect and disable overlapping automatic deployments only after identifying the live production route and recording the recovery path. Vercel remains the current production/recovery path; its Preview check on PR #1 is separate from the Cloudflare pipeline.
+
+Do not store database exports, OTPs, drafts, cookies, or backups in GitHub. GitHub Actions environment values are separate from Cloudflare runtime secrets. Do not infer Access, DNS, secret, or data readiness from local files.
 
 The Worker also needs target-specific Cloudflare runtime secrets before CMS/auth/API use: `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, `ADMIN_ALLOWED_EMAILS`, `REVALIDATION_SECRET_TOKEN`, `GOOGLE_GENAI_API_KEY`, `LEADS_INTAKE_TOKEN`, `CHAT_HISTORY_READ_TOKEN`, and `CHAT_HISTORY_WRITE_TOKEN`. Set `BETTER_AUTH_URL` to the target's exact origin and allow only the owner's verified mailbox in `ADMIN_ALLOWED_EMAILS`. Keep these secrets in Cloudflare, not in the build artifact or GitHub workflow variables.
 
