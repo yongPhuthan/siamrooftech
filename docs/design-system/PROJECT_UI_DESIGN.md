@@ -1,8 +1,15 @@
 # Project UI Design System
 
+The shared public token and component ownership rules live in
+[`PUBLIC_UI_DESIGN.md`](./PUBLIC_UI_DESIGN.md). This project-specific document
+extends that foundation with portfolio patterns and should not create a second
+primitive or token owner.
+
 > **Design Pattern Documentation for Project-Related Components**
 >
 > This document captures the existing design patterns used across all project-related UI components. Use this as reference when creating new features or modifying existing UI to maintain visual consistency.
+
+The code samples and detailed legacy examples below document existing behavior, not the current visual source of truth. For new or updated public UI, use the tokens, variants, Phosphor icons, and owner rules in [`PUBLIC_UI_DESIGN.md`](./PUBLIC_UI_DESIGN.md); keep this document focused on project-specific composition and interaction.
 
 ---
 
@@ -19,7 +26,10 @@
 
 ## Color Palette
 
-### Primary Colors
+### Public Colors
+Use `site-*` tokens from `PUBLIC_UI_DESIGN.md`. Historical palette values below explain legacy screenshots only and must not be used for new public UI.
+
+### Historical Primary Colors
 ```css
 /* Blue Shades - Primary Brand */
 --primary-light: #027DFF
@@ -74,12 +84,11 @@ background: linear-gradient(to bottom, #111827, #1f2937, #111827)
 
 ### Font Family
 ```typescript
-// Global CSS / Tailwind utility usage
-font-family: "Sukhumvit Set", Arial, sans-serif;
+// Shared site-wide font tokens, loaded locally by src/app/layout.tsx
+body, descriptions, article text, labels, controls: Sarabun (font-sans / font-body)
+h1-h6, titles, card and section headings: Sukhumvit Set (font-heading)
 
-// Headings
-h1-h5: '"Sukhumvit Bold"'
-h6: '"Sukhumvit Set"' with bold weight
+// Bold/italic body copy remains Sarabun; do not duplicate @font-face rules.
 ```
 
 ### UI Stack
@@ -87,7 +96,7 @@ h6: '"Sukhumvit Set"' with bold weight
 - Tailwind CSS utility classes are the source of truth for layout, spacing, color, and responsive behavior.
 - shadcn-style components live under `src/components/ui` and are configured by `components.json`.
 - DaisyUI button classes such as `btn`, `btn-primary`, and `btn-outline` exist in legacy/current UI. Prefer project-consistent Tailwind/shadcn-style composition for new reusable components.
-- Use `lucide-react` for icons.
+- Use Phosphor SSR icons through the public `PublicIcon` wrapper. Admin icon dependencies remain unchanged.
 - Do not use MUI or Emotion for new UI. Those packages are not part of the current dependency set.
 
 ### Font Sizes & Weights
@@ -651,7 +660,7 @@ className="grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
 
 ### Complete Portfolio Card
 ```tsx
-<Link href={`/portfolio/${slug}`} className="group block">
+<Link href={`/projects/${slug}`} className="group block">
   <article className="bg-white rounded-2xl overflow-hidden
     shadow-sm hover:shadow-2xl transition-all duration-500
     transform hover:-translate-y-2">
@@ -832,7 +841,7 @@ getImageTypeBadge(type) → { color, label, emoji }
 **ProjectForm.tsx**:
 - Dropdown selector per image
 - Visual badges: 🔴 before, 🟢 after, 🟡 during, 🔵 detail
-- Real-time Firestore updates
+- Published project records from the CMS
 - Warning if no before image
 
 ### Laws of UX Applied
@@ -876,8 +885,8 @@ src/app/components/section/ProjectShow.tsx       - Homepage featured project car
 src/app/components/portfolio/PortfolioCard.tsx   - Reusable portfolio card
 src/app/components/portfolio/StaticPortfolioGrid.tsx - Portfolio grid layout
 src/app/components/portfolio/PortfolioWithFilters.tsx - Filter chips & grid
-src/app/portfolio/[slug]/PortfolioDetailClient.tsx - Project detail page
-src/app/portfolio/page.tsx - Portfolio listing page
+src/app/components/projects/ProjectDetailClient.tsx - Project detail page
+src/app/projects/page.tsx - Project listing page
 src/app/components/ui/BeforeAfterSlider.tsx - 🆕 Before/After slider component
 src/app/components/portfolio/BeforeAfterGallery.tsx - 🆕 Gallery with Before/After
 src/lib/project-image-utils.ts - 🆕 Image utility functions
@@ -1068,7 +1077,7 @@ transition: border-color 0.2s;
 
 **Video grid display in portfolio detail pages**
 
-**Location**: Used in `src/app/portfolio/[slug]/PortfolioDetailClient.tsx`
+**Location**: Used in `src/app/components/projects/ProjectDetailClient.tsx`
 
 **Features**:
 - 📹 Grid layout: 1 column (mobile), 2 (tablet), 3 (desktop)

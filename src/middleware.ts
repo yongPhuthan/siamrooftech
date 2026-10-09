@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { SITE_URL } from './lib/seo-config';
+import { getCloudflareContext } from '@opennextjs/cloudflare';
+import { DEPLOYMENT_ENV, SITE_URL } from './lib/seo-config';
+import { isValidArticleSlug } from './features/articles/article-path';
 
 const CANONICAL_HOST = new URL(SITE_URL).host;
 const LEGACY_SERVICE_PATHS: Record<string, string> = {
@@ -17,6 +19,8 @@ const GOOGLE_ADS_SERVICE_PATHS = new Set([
   '/services/retractable-awning/nonthaburi',
   '/services/retractable-awning/pathum-thani',
 ]);
+
+const ARTICLE_NOT_FOUND_HTML = `<!doctype html><html lang="th"><head><meta charset="utf-8"><meta name="robots" content="noindex, follow"><meta name="viewport" content="width=device-width, initial-scale=1"><title>ไม่พบบทความ | Siamrooftech</title></head><body style="margin:0;background:#f8fafc;color:#0f172a;font-family:Arial,sans-serif"><main style="max-width:42rem;margin:15vh auto;padding:2rem"><p style="color:#2563eb;font-weight:700">SIAMROOFTECH</p><h1>ไม่พบบทความ</h1><p style="color:#64748b">บทความนี้อาจถูกยกเลิกหรือยังไม่ได้เผยแพร่</p><a href="/articles" style="color:#2563eb">ดูบทความทั้งหมด</a></main></body></html>`;
 
 function normalizeHost(host: string): string {
   if (host.startsWith('[')) {
@@ -41,7 +45,25 @@ function rewriteGoogleAdsLandingPage(request: NextRequest) {
   return NextResponse.rewrite(url);
 }
 
-export function middleware(request: NextRequest) {
+function articleNotFound() {
+  return new NextResponse(ARTICLE_NOT_FOUND_HTML, {
+    status: 404,
+    headers: { 'content-type': 'text/html; charset=utf-8' },
+  });
+}
+
+async function isPublishedContent(kind: 'article' | 'project', pathname: string): Promise<boolean> {
+  const { env } = getCloudflareContext();
+  if (!env.APP_DB) throw new Error('APP_DB binding is not configured for this deployment.');
+  const row = await env.APP_DB
+    .prepare('SELECT 1 AS published FROM published_content WHERE kind = ? AND path = ? LIMIT 1')
+    .bind(kind, pathname)
+    .first<{ published: number }>();
+
+  return row?.published === 1;
+}
+
+export async function middleware(request: NextRequest) {
   const forwardedProto = request.headers.get('x-forwarded-proto');
   const host = request.headers.get('host') || request.nextUrl.host;
   const hostname = normalizeHost(host);
@@ -64,13 +86,38 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(url, 308);
   }
 
-  if (!isLocalHost && (hostname !== CANONICAL_HOST || protocol !== 'https')) {
+  const expectedHost = new URL(SITE_URL).host;
+  if (!isLocalHost && (hostname !== expectedHost || protocol !== 'https')) {
     const url = request.nextUrl.clone();
     url.protocol = 'https';
     url.host = CANONICAL_HOST;
     url.port = '';
 
     return NextResponse.redirect(url, 308);
+  }
+
+  if (DEPLOYMENT_ENV === 'staging') {
+    const response = await continueRequest(request, decodedPathname);
+    response.headers.set('X-Robots-Tag', 'noindex, nofollow, noarchive');
+    return response;
+  }
+
+  return continueRequest(request, decodedPathname);
+}
+
+async function continueRequest(request: NextRequest, decodedPathname: string): Promise<NextResponse> {
+  if (decodedPathname.startsWith('/articles/')) {
+    const slug = decodedPathname.slice('/articles/'.length);
+    if (!isValidArticleSlug(slug)) return articleNotFound();
+    if (!(await isPublishedContent('article', `/articles/${slug}`))) {
+      return articleNotFound();
+    }
+  }
+
+  if (decodedPathname.startsWith('/projects/')) {
+    const slug = decodedPathname.slice('/projects/'.length);
+    if (!slug || slug.includes('/')) return new NextResponse('Not Found', { status: 404 });
+    if (!(await isPublishedContent('project', `/projects/${slug}`))) return new NextResponse('Not Found', { status: 404 });
   }
 
   if (shouldRewriteGoogleAdsLandingPage(request)) {
@@ -82,4 +129,5 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
+  runtime: 'experimental-edge',
 };

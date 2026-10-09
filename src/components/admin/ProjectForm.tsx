@@ -1,11 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { collection, addDoc, doc, updateDoc } from "firebase/firestore";
-import { db } from "../../lib/firebase";
 import { UploadResult, uploadImageToCloudflare } from "../../app/lib/cloudflare/uploadImage";
+import { adminFetch } from '@/lib/admin-fetch';
 import MediaUploadTabs, { LocalImageFile, LocalVideoFile } from "./MediaUploadTabs";
-import { Project, ProjectImage, ProjectProof, ProjectVideo } from "../../lib/firestore";
+import type { Project, ProjectImage, ProjectProof, ProjectVideo } from '@/features/projects/types';
 import { getAfterImages, getBeforeImages } from "../../lib/project-image-utils";
 import { uploadVideoToCloudflare } from "../../lib/cloudflare/uploadVideo";
 import PDFAutofillComponent from "./PDFAutofillComponent";
@@ -60,13 +59,6 @@ const serviceAreas = [
   "สมุทรสาคร",
 ];
 
-// ฟังก์ชันสร้าง slug จากขนาดและเวลา เพื่อป้องกันการซ้ำ
-const generateSlug = (width: number, extension: number): string => {
-  const timestamp = Date.now().toString().slice(-6); // ใช้ 6 หลักสุดท้ายของ timestamp
-  const sizeSlug = `${width}x${extension}`.replace('.', '-'); // แทนที่จุดด้วยขีด
-  return `${sizeSlug}-${timestamp}`.toLowerCase();
-};
-
 // ฟังก์ชันสร้าง title จากขนาด
 const generateTitle = (width: number, extension: number): string => {
   return `${width} x ${extension}`;
@@ -94,13 +86,8 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
   });
 
   const [submitting, setSubmitting] = useState(false);
+  const [draftRevision, setDraftRevision] = useState(project?.revision ?? 0);
   const [success, setSuccess] = useState(false);
-  const [createdProjectId, setCreatedProjectId] = useState<string | null>(null);
-  const [revalidationStatus, setRevalidationStatus] = useState<{
-    completed: boolean;
-    success: boolean;
-    details?: any;
-  } | null>(null);
   const [generatingDescription, setGeneratingDescription] = useState(false);
   const [deletingImageIndex, setDeletingImageIndex] = useState<number | null>(null);
   const [isUploadingImages, setIsUploadingImages] = useState(false);
@@ -116,6 +103,22 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
   // Video state (NEW)
   const [videos, setVideos] = useState<ProjectVideo[]>([]);
   const [localVideoFiles, setLocalVideoFiles] = useState<LocalVideoFile[]>([]);
+
+  useEffect(() => setDraftRevision(project?.revision ?? 0), [project]);
+
+  const persistProjectChanges = async (changes: Partial<Project>) => {
+    if (!project) return false;
+    const updatedProject = { ...project, ...changes, updated_at: new Date().toISOString() };
+    const response = await adminFetch(`/api/projects/${project.slug}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ expectedRevision: draftRevision, project: updatedProject }),
+    });
+    if (!response.ok) throw new Error('บันทึกฉบับร่างไม่สำเร็จ กรุณาโหลดข้อมูลใหม่ก่อนลองอีกครั้ง');
+    const saved = await response.json() as Project;
+    setDraftRevision(saved.revision ?? draftRevision + 1);
+    return true;
+  };
 
   // Initialize before/after images and videos when project is loaded
   useEffect(() => {
@@ -148,7 +151,7 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
 
   };
 
-  // Delete individual image from Firestore
+  // Delete an image from the saved draft.
   const handleDeleteImage = async (imageIndex: number) => {
     if (!project || !project.images) return;
 
@@ -164,12 +167,9 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
         updatedFeaturedImage = updatedImages.length > 0 ? updatedImages[0].original_size : '';
       }
 
-      // Update Firestore
-      const projectRef = doc(db, 'projects', project.id);
-      await updateDoc(projectRef, {
+      await persistProjectChanges({
         images: updatedImages,
         featured_image: updatedFeaturedImage,
-        updated_at: new Date()
       });
 
       // Update local state
@@ -222,13 +222,8 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
       const updatedVideos = videos.filter(v => v.id !== videoId);
       setVideos(updatedVideos);
 
-      // Update Firestore if editing existing project
       if (project && project.id) {
-        const projectRef = doc(db, 'projects', project.id);
-        await updateDoc(projectRef, {
-          videos: updatedVideos,
-          updated_at: new Date(),
-        });
+        await persistProjectChanges({ videos: updatedVideos });
 
         // Update local project state
         if (project.videos) {
@@ -243,21 +238,15 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
 
   // Handler for video type change
   const handleVideoTypeChange = (videoId: string, type: 'before' | 'after' | 'during' | 'detail') => {
-    const updatedVideos = videos.map(v =>
-      v.id === videoId ? { ...v, type } : v
-    );
-    setVideos(updatedVideos);
+      const updatedVideos = videos.map(v =>
+        v.id === videoId ? { ...v, type } : v
+      );
 
-    // Update Firestore if editing existing project
     if (project && project.id) {
-      const projectRef = doc(db, 'projects', project.id);
-      updateDoc(projectRef, {
-        videos: updatedVideos,
-        updated_at: new Date(),
-      }).catch(error => {
+      persistProjectChanges({ videos: updatedVideos }).then(() => setVideos(updatedVideos)).catch(error => {
         console.error('Error updating video type:', error);
       });
-    }
+    } else setVideos(updatedVideos);
   };
 
   // Handler for ImageUploadTabs - Delete image
@@ -273,17 +262,12 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
         setBeforeImages(updatedImages);
       }
 
-      // Update Firestore if editing existing project
       if (project && project.id) {
         const allImages = type === 'after'
           ? [...updatedImages, ...beforeImages]
           : [...afterImages, ...updatedImages];
 
-        const projectRef = doc(db, 'projects', project.id);
-        await updateDoc(projectRef, {
-          images: allImages,
-          updated_at: new Date(),
-        });
+        await persistProjectChanges({ images: allImages });
 
         // Update local project state
         if (project.images) {
@@ -306,17 +290,12 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
         setBeforeImages(images);
       }
 
-      // Update Firestore if editing existing project
       if (project && project.id) {
         const allImages = type === 'after'
           ? [...images, ...beforeImages]
           : [...afterImages, ...images];
 
-        const projectRef = doc(db, 'projects', project.id);
-        await updateDoc(projectRef, {
-          images: allImages,
-          updated_at: new Date(),
-        });
+        await persistProjectChanges({ images: allImages });
 
         // Update local project state
         if (project.images) {
@@ -463,7 +442,7 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
       }
 
       // Call the AI generation API
-      const response = await fetch('/api/genkit', {
+      const response = await adminFetch('/api/genkit', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -689,8 +668,8 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
         generatedSlug = project.slug;
         projectTitle = project.title;
       } else {
-        // Generate new slug and title for new projects
-        generatedSlug = generateSlug(finalFormData.width, finalFormData.extension);
+        // The database allocates a permanent, never-reused ordinal for new slugs.
+        generatedSlug = "";
         projectTitle = generateTitle(finalFormData.width, finalFormData.extension);
       }
 
@@ -706,11 +685,11 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
           ...finalFormData.proof,
           proofNotes: finalFormData.proof.proofNotes?.filter((note) => note.trim()),
         },
-        updated_at: new Date(),
-        ...(project ? {} : { created_at: new Date() }), // Only add created_at for new projects
+        updated_at: new Date().toISOString(),
+        ...(project ? { id: project.id } : { created_at: new Date().toISOString() }),
       };
 
-      // Validate images before saving to Firestore
+      // Validate image URLs before saving the draft.
       if (cleanedFormData.images && cleanedFormData.images.length > 0) {
         const invalidImages = cleanedFormData.images.filter((img: any) => 
           !img.small_size || !img.original_size
@@ -733,75 +712,22 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
         }
       }
 
-      let docId: string;
+      const response = project
+        ? await adminFetch(`/api/projects/${project.slug}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ expectedRevision: draftRevision, project: cleanedFormData }),
+          })
+        : await adminFetch('/api/projects', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(cleanedFormData),
+          });
+      const saved = await response.json().catch(() => null);
+      if (!response.ok) throw new Error(saved?.error || 'บันทึกฉบับร่างไม่สำเร็จ');
+      if (typeof saved?.revision === 'number') setDraftRevision(saved.revision);
 
-      if (project) {
-        // Update existing project
-        const docRef = doc(db, "projects", project.id);
-        await updateDoc(docRef, cleanedFormData);
-        docId = project.id;
-      } else {
-        // Add new project
-        const docRef = await addDoc(collection(db, "projects"), cleanedFormData);
-        docId = docRef.id;
-      }
-
-      setCreatedProjectId(generatedSlug);
       setSuccess(true);
-
-      // Enhanced cache revalidation with tag-based clearing
-      try {
-        const revalidationPayload = {
-          tags: ["projects-data", `project-data-${generatedSlug}`], // Tag-based revalidation
-          paths: [
-            "/portfolio",
-            "/works",
-            `/portfolio/${generatedSlug}`,
-            `/works/${generatedSlug}`,
-          ], // Path-based revalidation
-          debug: process.env.NODE_ENV === "development",
-          secret: process.env.REVALIDATION_SECRET_TOKEN,
-        };
-
-        const revalidateResponse = await fetch("/api/revalidate", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(revalidationPayload),
-        });
-
-        if (!revalidateResponse.ok) {
-          const errorData = await revalidateResponse.json();
-          console.error("❌ Revalidation failed:", errorData);
-          setRevalidationStatus({
-            completed: true,
-            success: false,
-            details: errorData,
-          });
-        } else {
-          const result = await revalidateResponse.json();
-          setRevalidationStatus({
-            completed: true,
-            success: true,
-            details: result,
-          });
-        }
-      } catch (revalidateError) {
-        console.error("❌ Failed to revalidate cache:", revalidateError);
-        setRevalidationStatus({
-          completed: true,
-          success: false,
-          details: {
-            error:
-              revalidateError instanceof Error
-                ? revalidateError.message
-                : "Unknown error",
-          },
-        });
-        // Don't fail the whole operation if revalidation fails
-        alert("⚠️ โปรเจคถูกบันทึกแล้ว แต่อาจต้องรอสักครู่เพื่อให้ข้อมูลอัปเดต");
-      }
 
       // Call success callback if provided (for admin panel)
       if (onSuccess) {
@@ -840,12 +766,10 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
       // Hide success message after 10 seconds
       setTimeout(() => {
         setSuccess(false);
-        setCreatedProjectId(null);
-        setRevalidationStatus(null);
       }, 10000);
     } catch (error) {
-      console.error("Error adding project: ", error);
-      alert("เกิดข้อผิดพลาดในการบันทึกข้อมูล");
+      console.error("Project draft save failed: ", error);
+      alert(error instanceof Error ? error.message : "เกิดข้อผิดพลาดในการบันทึกข้อมูล");
     } finally {
       setSubmitting(false);
       setIsUploadingImages(false);
@@ -870,56 +794,13 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
                   </svg>
                 </div>
                 <div className="text-sm leading-relaxed text-gray-900">
-                  <p className="font-semibold">บันทึกโปรเจคเรียบร้อยแล้ว</p>
-                  <p className="text-gray-600">ตรวจสอบบนหน้าเว็บไซต์เพื่อดูการอัปเดตล่าสุด</p>
+                  <p className="font-semibold">บันทึกฉบับร่างเรียบร้อยแล้ว</p>
+                  <p className="text-gray-600">กดเผยแพร่จากรายการโปรเจกต์เพื่ออัปเดตหน้าเว็บไซต์</p>
                 </div>
               </div>
-              {createdProjectId && (
-                <div className="flex w-full flex-col gap-2 text-sm sm:w-auto sm:flex-row">
-                  <a
-                    href={`/portfolio/${createdProjectId}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center rounded-lg bg-gray-900 px-4 py-2 text-white transition-colors hover:bg-gray-800"
-                  >
-                    เปิดหน้าโปรเจค
-                  </a>
-                  <a
-                    href="/portfolio"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center rounded-lg border border-gray-300 px-4 py-2 text-gray-700 transition-colors hover:bg-gray-50"
-                  >
-                    ดูผลงานทั้งหมด
-                  </a>
-                </div>
-              )}
+              <div className="text-sm text-gray-600">Revision {draftRevision}</div>
             </div>
           </div>
-
-          {revalidationStatus && (
-            <div className="rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-700">
-              <div className="flex items-start gap-2">
-                <span className="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-white border border-gray-300 text-[10px] font-semibold text-gray-600">
-                  i
-                </span>
-                <div className="space-y-0.5">
-                  <p className="font-medium text-gray-900">
-                    {revalidationStatus.success ? "อัปเดตแคชสำเร็จ" : "ไม่สามารถอัปเดตแคช"}
-                  </p>
-                  {revalidationStatus.success ? (
-                    <p className="text-xs text-gray-600">
-                      โปรเจคจะแสดงในเว็บไซต์ทันที ({revalidationStatus.details?.executionTime}ms)
-                    </p>
-                  ) : (
-                    <p className="text-xs text-gray-600">
-                      โปรเจคอาจใช้เวลาสักครู่ก่อนจะแสดงบนเว็บไซต์
-                    </p>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
         </div>
       )}
 

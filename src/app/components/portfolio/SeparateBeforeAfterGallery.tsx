@@ -2,7 +2,9 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import { Project, ProjectImage } from '@/lib/firestore';
+import { Images, MagnifyingGlassPlus } from '@phosphor-icons/react/dist/ssr';
+import { PublicIcon } from '@/components/ui/public';
+import type { Project, ProjectImage } from '@/features/projects/types';
 import ImageWatermark from '../ui/ImageWatermark';
 
 interface SeparateBeforeAfterGalleryProps {
@@ -82,7 +84,7 @@ export default function SeparateBeforeAfterGallery({
               {/* Hover overlay */}
               <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300 flex items-center justify-center">
                 <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white/90 px-4 py-2 rounded-full text-sm font-medium text-gray-800">
-                  🔍 คลิกเพื่อดูขนาดใหญ่
+                  <PublicIcon icon={MagnifyingGlassPlus} size={16} className="mr-1 inline-block" />คลิกเพื่อดูขนาดใหญ่
                 </div>
               </div>
             </div>
@@ -175,7 +177,7 @@ export default function SeparateBeforeAfterGallery({
               {/* Hover overlay */}
               <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300 flex items-center justify-center">
                 <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white/90 px-4 py-2 rounded-full text-sm font-medium text-gray-800">
-                  🔍 คลิกเพื่อดูขนาดใหญ่
+                  <PublicIcon icon={MagnifyingGlassPlus} size={16} className="mr-1 inline-block" />คลิกเพื่อดูขนาดใหญ่
                 </div>
               </div>
             </div>
@@ -229,19 +231,7 @@ export default function SeparateBeforeAfterGallery({
         <div className="text-center py-16 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
           <div className="max-w-sm mx-auto space-y-4">
             <div className="w-16 h-16 mx-auto bg-gray-100 rounded-full flex items-center justify-center">
-              <svg
-                className="w-8 h-8 text-gray-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1.5}
-                  d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                />
-              </svg>
+              <PublicIcon icon={Images} size={24} className="text-site-muted" />
             </div>
             <p className="text-gray-600 font-medium">ไม่มีรูปภาพแสดง</p>
             <p className="text-sm text-gray-500">

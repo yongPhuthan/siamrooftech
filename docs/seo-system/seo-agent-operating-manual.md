@@ -12,7 +12,7 @@ Maintain and improve Siamrooftech organic visibility for retractable awning inst
 - GA4 events and conversion reports
 - Google Business Profile visibility and action data
 - `sitemap.xml`, `robots.txt`, and SEO QA crawl output
-- Portfolio data from Firestore
+- Published project records from local D1
 - Published articles and their internal links
 - Business guardrails from `.agents/product-marketing.md`
 
@@ -37,7 +37,7 @@ Maintain and improve Siamrooftech organic visibility for retractable awning inst
 ### Weekly Checks
 
 1. Export GSC page/query data.
-2. Segment by service/local/article/portfolio.
+2. Segment by service/local/article/project.
 3. Identify:
    - high-impression low-CTR pages
    - queries where service pages are near page 1

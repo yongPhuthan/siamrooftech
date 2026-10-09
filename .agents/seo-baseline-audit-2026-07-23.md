@@ -72,7 +72,7 @@ PageSpeed Insights API could not be used because the API returned quota `429 RES
 
 **Evidence:** `src/app/sitemap.ts:15-44` has several static pages commented out. Live sitemap confirms only homepage, portfolio, and portfolio detail URLs.
 
-**Fix:** Include all canonical public pages that should rank. Add published article URLs from Firestore, article index, contact, relevant service pages, and indexable portfolio category pages only if they have enough unique value.
+**Fix:** Include all canonical public pages that should rank. Add published article URLs from the CMS, article index, contact, relevant service pages, and indexable portfolio category pages only if they have enough unique value.
 
 **Priority:** Critical.
 

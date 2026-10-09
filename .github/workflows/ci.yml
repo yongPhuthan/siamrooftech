@@ -1,0 +1,125 @@
+name: CI and staging release
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: quality
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 22
+          cache: yarn
+      - name: Confirm CI has no developer secret files
+        run: test ! -e .dev.vars && test ! -e .env.local && test ! -e .env.production
+      - run: corepack enable
+      - run: yarn install --frozen-lockfile --non-interactive
+      - run: yarn type-check
+      - run: yarn lint
+      - run: yarn test:articles
+      - run: yarn test:admin
+      - run: yarn test:seed
+      - run: yarn ui:qa
+      - run: yarn line-contact:qa
+
+  environment-policy:
+    name: environment-policy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 22
+      - run: corepack enable
+      - run: yarn install --frozen-lockfile --non-interactive
+      - run: node scripts/deployment-policy.mjs --check
+      - run: node --test scripts/deployment-policy.test.mjs
+      - run: node scripts/workflow-policy-qa.mjs
+
+  runtime-seo:
+    name: runtime-seo
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 22
+          cache: yarn
+      - name: Confirm CI has no developer secret files
+        run: test ! -e .dev.vars && test ! -e .env.local && test ! -e .env.production
+      - run: corepack enable
+      - run: yarn install --frozen-lockfile --non-interactive
+      - run: yarn cf:build:staging
+      - run: node scripts/worker-binding-qa.mjs staging
+      - run: node scripts/worker-binding-qa.mjs production
+      - run: yarn db:migrate:local
+      - run: yarn db:migrate:cache:local
+      - run: yarn db:seed:local --apply
+      - run: yarn db:test:local
+      - run: node scripts/release-artifact-audit.mjs
+
+  deploy-staging:
+    name: staging-deployment
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && vars.STAGING_DEPLOY_ENABLED == 'true'
+    needs: [quality, environment-policy, runtime-seo]
+    runs-on: ubuntu-latest
+    environment: staging
+    concurrency:
+      group: siamrooftech-staging
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      deployments: write
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 22
+          cache: yarn
+      - run: corepack enable
+      - run: yarn install --frozen-lockfile --non-interactive
+      - run: node scripts/deployment-policy.mjs --target=staging --deploy
+        env:
+          STAGING_ACCESS_READY: ${{ vars.STAGING_ACCESS_READY }}
+      - run: yarn cf:build:staging
+        env:
+          GITHUB_SHA: ${{ github.sha }}
+      - run: node scripts/release-artifact-audit.mjs
+      - run: node_modules/.bin/wrangler deploy --env staging --config wrangler.jsonc
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+      - name: Staging SEO and health check
+        run: node scripts/seo-qa.mjs --environment=staging
+        env:
+          SEO_QA_RELEASE_SHA: ${{ github.sha }}
+          CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
+          CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
+      - name: Recheck at two minutes
+        run: sleep 120 && node scripts/seo-qa.mjs --environment=staging
+        env:
+          SEO_QA_RELEASE_SHA: ${{ github.sha }}
+          CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
+          CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
+      - name: Recheck at five minutes
+        run: sleep 180 && node scripts/seo-qa.mjs --environment=staging
+        env:
+          SEO_QA_RELEASE_SHA: ${{ github.sha }}
+          CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
+          CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}

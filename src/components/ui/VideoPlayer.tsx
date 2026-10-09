@@ -1,7 +1,9 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { ProjectVideo } from '../../lib/firestore';
+import { ArrowsOut, Pause, Play, SpeakerHigh, SpeakerSlash } from '@phosphor-icons/react/dist/ssr';
+import { PublicIcon } from '@/components/ui/public';
+import type { ProjectVideo } from '@/features/projects/types';
 import { getVideoTypeBadge } from '../../lib/project-video-utils';
 import { formatVideoDuration } from '../../lib/cloudflare/uploadVideo';
 
@@ -134,7 +136,8 @@ export default function VideoPlayer({
 
   return (
     <div
-      className={`relative group rounded-xl overflow-hidden bg-black ${className}`}
+      data-site-theme
+      className={`relative group overflow-hidden rounded-site-media bg-black ${className}`}
       onMouseEnter={() => setShowControls(true)}
       onMouseLeave={() => isPlaying && setShowControls(false)}
       style={{ aspectRatio: '16/9' }}
@@ -174,7 +177,6 @@ export default function VideoPlayer({
                 : 'rgba(107, 114, 128, 0.9)',
           }}
         >
-          <span>{typeBadge.emoji}</span>
           <span>{typeBadge.label}</span>
         </div>
       </div>
@@ -195,13 +197,7 @@ export default function VideoPlayer({
           onClick={togglePlay}
         >
           <div className="w-16 h-16 sm:w-20 sm:h-20 bg-white/95 rounded-full shadow-2xl flex items-center justify-center transform hover:scale-110 transition-all duration-200">
-            <svg
-              className="w-8 h-8 sm:w-10 sm:h-10 text-gray-800 ml-1"
-              fill="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path d="M8 5v14l11-7z" />
-            </svg>
+            <PublicIcon icon={Play} size={24} className="ml-1 text-site-ink sm:size-10" />
           </div>
         </div>
       )}
@@ -238,15 +234,7 @@ export default function VideoPlayer({
                 className="text-white hover:text-blue-400 transition-colors p-1"
                 aria-label={isPlaying ? 'Pause' : 'Play'}
               >
-                {isPlaying ? (
-                  <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M6 4h4v16H6zM14 4h4v16h-4z" />
-                  </svg>
-                ) : (
-                  <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M8 5v14l11-7z" />
-                  </svg>
-                )}
+                <PublicIcon icon={isPlaying ? Pause : Play} size={24} />
               </button>
 
               <span className="text-white text-xs sm:text-sm font-medium">
@@ -261,15 +249,7 @@ export default function VideoPlayer({
                 className="text-white hover:text-blue-400 transition-colors p-1"
                 aria-label={isMuted ? 'Unmute' : 'Mute'}
               >
-                {isMuted ? (
-                  <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z" />
-                  </svg>
-                ) : (
-                  <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" />
-                  </svg>
-                )}
+                <PublicIcon icon={isMuted ? SpeakerSlash : SpeakerHigh} size={24} />
               </button>
 
               <button
@@ -277,9 +257,7 @@ export default function VideoPlayer({
                 className="text-white hover:text-blue-400 transition-colors p-1"
                 aria-label="Fullscreen"
               >
-                <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z" />
-                </svg>
+                <PublicIcon icon={ArrowsOut} size={24} />
               </button>
             </div>
           </div>

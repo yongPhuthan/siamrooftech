@@ -1,6 +1,7 @@
 import { AdsSectionHeading } from './AdsLandingPrimitives';
 import { PlugsConnected, Checks, Gear, X } from '@phosphor-icons/react/dist/ssr';
 import type { Icon as PhosphorIcon } from '@phosphor-icons/react';
+import { PublicIcon } from '@/components/ui/public';
 
 type InstallationStage = {
   icon: PhosphorIcon;
@@ -83,7 +84,7 @@ export function ElectricAwningInstallationQuality() {
           {installationStages.map(({ icon: Icon, phase, title, copy }) => (
             <li key={phase} className="grid gap-3 py-6 sm:grid-cols-[6rem_1fr] sm:gap-5 lg:py-7">
               <div className="flex items-center gap-3 pt-1 sm:flex-col sm:items-start">
-                <Icon aria-hidden="true" className="h-6 w-6 shrink-0 text-neutral-700" />
+                <PublicIcon icon={Icon} size={24} className="text-neutral-700" />
                 <p className="text-sm text-neutral-600">{phase}</p>
               </div>
               <div>

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 
 interface CacheStatus {
   timestamp: string;
-  dataSource: 'cache' | 'firestore' | 'unknown';
+  dataSource: 'd1' | 'unknown';
   requestId: string;
   executionTime: number;
   itemCount: number;
@@ -79,7 +79,7 @@ export default function CacheDebugPanel() {
       // Extract debug information from headers
       const debugInfo: CacheStatus = {
         timestamp: new Date().toISOString(),
-        dataSource: response.headers.get('x-data-source') === 'firestore-admin' ? 'firestore' : 'unknown',
+        dataSource: response.headers.get('x-data-source') === 'd1' ? 'd1' : 'unknown',
         requestId: response.headers.get('x-request-id') || 'unknown',
         executionTime,
         itemCount: parseInt(response.headers.get('x-item-count') || '0'),
@@ -114,7 +114,7 @@ export default function CacheDebugPanel() {
         },
         body: JSON.stringify({
           tags: ['projects'],
-          paths: ['/portfolio', '/works'],
+          paths: ['/projects'],
           debug: true,
           secret: process.env.REVALIDATION_SECRET_TOKEN
         }),
@@ -180,8 +180,7 @@ export default function CacheDebugPanel() {
                   <div className="flex justify-between">
                     <span>Data Source:</span>
                     <span className={`font-medium ${
-                      cacheStatus.dataSource === 'firestore' ? 'text-red-600' : 
-                      cacheStatus.dataSource === 'cache' ? 'text-green-600' : 'text-gray-600'
+                      cacheStatus.dataSource === 'd1' ? 'text-green-600' : 'text-gray-600'
                     }`}>
                       {cacheStatus.dataSource.toUpperCase()}
                     </span>
@@ -283,7 +282,7 @@ export default function CacheDebugPanel() {
             {/* Legend */}
             <div className="text-xs text-gray-500 space-y-1">
               <div><span className="text-green-600">●</span> Cache Hit - Data served from cache</div>
-              <div><span className="text-red-600">●</span> Cache Miss - Data fetched from Firestore</div>
+              <div><span className="text-blue-600">●</span> Cache Miss - Data fetched from D1</div>
               <div><span className="text-yellow-600">●</span> Stale - Data may be outdated</div>
             </div>
           </div>

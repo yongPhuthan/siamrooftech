@@ -1,322 +1,46 @@
-# Siamrooftech SEO Website - AGENTS.md
+# Siamrooftech repository rules
 
-## Project Overview
-A modern Siamrooftech website for retractable awning services, portfolio showcases, and SEO-optimized articles. Built with TypeScript + Next.js 15 App Router + Firebase. The current application code lives primarily under `src/`, with supporting packages and legacy workspace folders also present.
+## Product and stack
 
-**CRITICAL: This is an SEO-focused website. NEVER use 'use client' or client-side rendering except for admin pages. Always prioritize SSG/ISR for public pages.**
+This is an SEO-focused public website and private CMS. The app uses Next.js 15 App Router, TypeScript, Better Auth, Cloudflare D1, Drizzle, R2, and OpenNext. The LINE chat-history Worker is a separate service with its own database and access tokens.
 
-## Revenue-Critical LINE Contact Funnel
+Use `yarn` for package management. Run `yarn type-check`, `yarn lint`, and relevant tests for code changes. Use `yarn db:migrate:local` and `yarn db:seed:local` for local data; `yarn cf:preview` provides the complete local CMS with real email OTP delivery. Production deploy commands require an explicit request. Never expose environment values in output.
 
-- The LINE contact feature is owned by `src/features/line-contact/`. Read and obey its nested `AGENTS.md` before changing any LINE CTA, destination, click handling, lead intake, attribution, survey, redirect, or related QA.
-- All user-facing LINE contact links outside that folder must import its canonical `LINE_CONTACT_URL`; never hard-code, construct, wrap, or replace the destination elsewhere.
-- A working native handoff to `https://lin.ee/pPz1ZqN` takes priority over analytics and attribution. Any change that adds friction or can prevent contact is a release blocker.
+## Architecture and reuse
 
-## Tech Stack & Commands
+- Follow typed contract → pure domain policy → runtime adapter → thin route/UI composition. Keep SQL and Cloudflare bindings under server-owned data adapters; validate external JSON at runtime.
+- Before adding UI, find its owner. Reuse in this order: theme tokens → server-safe primitive → reusable site pattern → feature composition. Use `site-*` tokens, primitives under `src/components/ui/public`, and cross-site patterns under `src/components/site`; keep feature composition with its feature and avoid duplicate components.
+- Public pages must render useful content in initial HTML using server rendering, SSG, or ISR. Keep client boundaries limited to those listed in `docs/design-system/PUBLIC_CLIENT_BOUNDARIES.md`.
+- Admin UI may use client components. The browser uses same-origin APIs and HttpOnly session cookies; it never connects to D1 or R2 directly.
+- Admin registration and sign-in use email OTP through `src/features/auth/`. Only server-configured `ADMIN_ALLOWED_EMAILS` may self-register; grant admin access after verified mailbox ownership. Never enable unrestricted signup, trust browser-supplied roles, log OTPs, or bypass verification in local/staging. Protect state-changing APIs against cross-site requests. CLI user tools are optional maintenance, not an onboarding requirement.
+- Local, staging, and production are deployment environments, not per-record content attributes. Local data and bindings must never silently connect to remote resources.
+- CI/CD is the only supported Worker deployment path. The default `cf:deploy` command is intentionally disabled; keep deploy credentials in GitHub Environments and never create local shortcuts around required checks or production review.
+- Keep CMS-backed public routes runtime-rendered from the selected environment. A database/query failure must return an error, never a successful empty listing or sitemap. Release artifacts must not contain local CMS/QA records.
+- Staging must use its own D1/R2/cache resources, Cloudflare Access, a staging canonical origin, `X-Robots-Tag: noindex`, and a disallow-all robots policy. Do not route staging publicly until Access is verified.
+- Production config remains blocked until production resources and content parity are verified. Code rollback does not roll back D1, R2, or Durable Object lifecycle changes; do not restore a database automatically.
 
-### Dependencies (Current Versions)
-```json
-{
- "@base-ui/react": "^1.5.0",
- "@next/third-parties": "^15.5.9",
- "@react-spring/web": "^9.7.3",
- "@fortawesome/react-fontawesome": "^0.2.0",
- "class-variance-authority": "^0.7.1",
- "clsx": "^2.1.1",
- "firebase": "^12.0.0",
- "firebase-admin": "^13.4.0",
- "lucide-react": "^1.17.0",
- "next": "^15.5.9",
- "react": "^18",
- "react-dom": "^18",
- "shadcn": "^4.11.0",
- "swiper": "^11.0.6",
- "tailwind-merge": "^3.6.0",
- "uuid": "^11.1.0"
-}
-```
+## SEO and page lifecycle
 
-### Primary Commands
-```bash
-# Development
-yarn dev              # Start development server
-yarn build           # Build for production
-yarn start           # Start production server
-yarn type-check      # Run TypeScript type checking
-yarn lint            # Run ESLint
-yarn lint:fix        # Fix linting issues automatically
+- For every created, renamed, removed, or republished public page, update `docs/seo-system/site-page-plan.md`, the sitemap source, canonical/structured-data URLs, breadcrumbs, and internal links. Only real published, indexable canonical pages belong in the sitemap.
+- Do not create redirects for renamed or removed URLs unless the user explicitly authorizes a specific old URL and equivalent destination in the current task. Retired and unknown URLs return a real 404 without `Location`, rewrite, meta refresh, or client navigation. Do not add URLs solely to insert keywords.
+- Before publication, check meaningful content, HTTP status, initial HTML, title/description, H1, canonical, robots, structured data, incoming internal links, and sitemap eligibility. A 200 response or source code alone does not prove indexation.
+- Choose SEO QA by blast radius: focused for a few existing-template pages, template for shared rendering/metadata/navigation, and site-wide for bulk URL/indexing/sitemap changes. Use `technical-seo-audit`; route media work to `media-seo` and performance work to `core-web-vitals-audit` when relevant.
+- Keep `lastmod` tied to a known substantial content change. Local results do not establish production behavior or search-engine indexing.
 
-# Cache Management (NEW)
-npm run revalidate    # Clear Next.js cache only
-npm run revalidate:dev # Clear cache + start dev server
-npm run clear-cache   # Remove .next/cache directories
+## Public UI and contact
 
-# Documentation
-yarn docs:sync        # Download latest API docs for current versions
-yarn docs:serve       # Serve docs locally at :3001
+- Follow `docs/design-system/PUBLIC_UI_DESIGN.md` and `docs/design-system/PROJECT_UI_DESIGN.md`. Public colors, typography, radius, shadows, and motion belong in `site-*` tokens or named variants. Sarabun is the shared body font; Sukhumvit is for semantic headings and titles across public pages and admin. Keep font loading in the root layout, use the shared font tokens, and do not duplicate `@font-face` declarations. Public rounded surfaces use 4px; fully round only intentional pills/circles. Preserve admin visual tokens and component styling.
+- Use Phosphor through the public icon owner for public controls. Keep icons accessible and decorative icons hidden from assistive technology.
+- `src/features/line-contact/` owns the canonical contact destination, analytics, and lead-intake behavior. Read its nested rules before changing those flows. Outside that feature import its canonical URL; preserve a native contact handoff without waiting for analytics or API work.
 
-# Testing (TDD Approach)
-yarn test            # Run tests
-yarn test:watch      # Run tests in watch mode
-yarn test:coverage   # Run tests with coverage report
+## Content and security
 
-# Firebase
-yarn firebase:emulator    # Start Firebase emulators
-yarn firebase:deploy     # Deploy to Firebase
-yarn firebase:functions  # Deploy only functions
-```
+- `src/features/projects/` and `src/features/articles/` own their validators, publication policy, and repositories. Save drafts separately from public snapshots. Public routes, metadata, related lists, and sitemap read published records only.
+- Use revision checks for editorial mutations. Publishing and unpublishing must update the live snapshot, route reservation, and cache invalidation coherently. A failed invalidation must be observable and recoverable.
+- Store uploads in R2 through authenticated same-origin handlers. Validate type, size, and path; never report temporary browser blobs as persistent media.
+- Keep secrets out of code, arguments, fixtures, docs, logs, and committed env files. `.dev.vars.example` contains placeholders only; local secrets stay in ignored `.dev.vars`.
+- Do not send external messages, publish, deploy, or change remote services unless the user explicitly asks.
 
-### Monorepo Structure
-```
-/
-├── src/                     # Main Next.js application
-│   ├── app/                 # App Router pages, layouts, and public UI
-│   ├── components/          # Shared/admin components including shadcn-style UI
-│   └── lib/                 # Firebase, SEO, project, and upload utilities
-├── public/                  # Static assets
-├── scripts/                 # QA, SEO, and maintenance scripts
-└── docs/                    # Documentation
-```
+## Verification
 
-## Code Style & Standards
-
-### TypeScript & Next.js 15
-- **ALWAYS use App Router** (not Pages Router)
-- Use TypeScript strict mode
-- Prefer functional components with hooks
-- Use ES modules (import/export), not CommonJS
-- Destructure imports when possible: `import { Component } from 'library'`
-- Use proper TypeScript types - avoid `any`
-
-### SEO-First Architecture
-- **PUBLIC PAGES**: Use SSG or ISR only - NO client components
-- **ADMIN PAGES**: Client components allowed for admin functionality
-- Always include proper meta tags, structured data, and Open Graph
-- Optimize for Core Web Vitals
-- Use semantic HTML structure
-
-### Styling & UI
-- **Tailwind CSS utility classes** are the primary styling approach for public pages and admin UI.
-- **shadcn-style components** are configured through `components.json` with `rsc: true`, `tsx: true`, `baseColor: neutral`, and aliases such as `@/components/ui` and `@/lib/utils`.
-- **@base-ui/react** is available for accessible low-level primitives when a custom component needs robust interaction behavior.
-- **lucide-react** is the primary icon library for UI controls and navigation icons.
-- **DaisyUI classes** are still used in parts of the existing UI, especially button classes such as `btn`, `btn-primary`, and `btn-outline`.
-- **Do not introduce MUI or Emotion** for new UI. The project no longer depends on `@mui/material`, `@mui/material-nextjs`, or Emotion packages.
-
-### Design System
-**IMPORTANT: Before making UI changes to project-related components, ALWAYS consult:**
-- [`/docs/design-system/PROJECT_UI_DESIGN.md`](/docs/design-system/PROJECT_UI_DESIGN.md) - Comprehensive design patterns and component library
-
-This design system ensures consistency across:
-- **ProjectShow** (Homepage featured projects)
-- **Portfolio Grid & Cards** (Portfolio listing pages)
-- **Portfolio Detail Pages** (Individual project pages)
-- **Filter Chips** (Category filtering)
-- **Navigation Components** (Breadcrumbs, CTAs)
-
-**Key Design Principles:**
-- Color palette: Primary blues (#008AD7, #027DFF, blue-600), neutral grays
-- Typography: Sukhumvit Set font family with bold headings
-- Spacing: Consistent gaps (gap-3, gap-6, gap-8) and container widths (max-w-6xl, max-w-7xl)
-- Cards: rounded-2xl with shadow-sm → shadow-2xl on hover
-- Images: aspect-[4/3] with overlay effects
-- Animations: duration-300 for quick, duration-500 for dramatic transitions
-
-### Animations & Interactions
-- **@react-spring/web v9.7.3**: Spring-physics based animations
-- **Swiper v11.0.6**: Legacy/modal gallery usage only. Avoid adding Swiper to static public sections because it increases client JavaScript.
-
-### Firebase Integration
-- **firebase v12.0.0**: Client-side Firebase SDK
-- **firebase-admin v13.4.0**: Server-side Firebase Admin SDK for API routes
-- **Firestore**: Main database for portfolio and articles
-- **Authentication**: Admin access only
-- **Storage**: Images and PDF files
-- **Future**: Firebase AI/OCR for PDF quote processing
-- Check `src/lib/firestore.ts` for database schemas and utilities
-
-## Key Features & Workflows
-
-### 1. Portfolio Management
-- **Display**: SSG-generated portfolio pages for SEO
-- **Homepage ProjectShow**: **UPDATED** Shows 25+ individual projects (vs 6-8 categories)
-- **Limit System**: Auto-shows "ดูผลงานทั้งหมด" button when >25 projects
-- **Admin**: Client-side forms for adding/editing portfolio items
-- **Future**: PDF quote upload → AI extraction → auto-populate portfolio form
-
-### 2. Article/Blog System
-- **Display**: ISR-generated article pages with optimal SEO
-- **Admin**: Rich text editor for content management
-- **SEO**: Auto-generate meta descriptions, structured data
-
-### 3. Core Pages
-- Homepage (SSG) - **UPDATED** with enhanced ProjectShow
-- Portfolio showcase (SSG/ISR) - **NEW** Video support
-- Contact page (SSG with client form)
-- Articles/Blog (ISR)
-- Admin dashboard (Client-side)
-
-### 4. Video Feature (NEW - v1.2)
-- **Display**: Video gallery in portfolio detail pages
-- **Player**: Custom HTML5 video player with controls
-- **Modal**: Fullscreen video playback with navigation
-- **Types**: Before/After/During/Detail video categorization
-- **Upload**: Cloudflare-ready upload system (Admin UI pending)
-- **SEO**: Video schema support (future enhancement)
-
-## Database Schema (Firestore)
-
-### Collections Structure
-```typescript
-// Portfolio Items
-interface PortfolioItem {
- id: string;
- title: string;
- description: string;
- images: string[];
- category: string;
- completedDate: Date;
- location?: string;
- features: string[];
- seoTitle: string;
- seoDescription: string;
- slug: string;
-}
-
-// Articles
-interface Article {
- id: string;
- title: string;
- content: string;
- excerpt: string;
- featuredImage: string;
- author: string;
- publishedDate: Date;
- category: string;
- tags: string[];
- seoTitle: string;
- seoDescription: string;
- slug: string;
- isPublished: boolean;
-}
-```
-
-## Testing Strategy (TDD)
-
-### Test-Driven Development Workflow
-1. **Write tests first** - Always create test cases before implementation
-2. **Run tests** - Confirm they fail initially
-3. **Implement code** - Write minimal code to pass tests
-4. **Refactor** - Improve code while keeping tests green
-5. **Integration tests** - Test Firebase integration with emulators
-
-### Test Categories
-- **Unit Tests**: Components, utilities, Firebase functions
-- **Integration Tests**: API routes, database operations
-- **E2E Tests**: Critical user journeys (portfolio viewing, admin workflows)
-
-## Git & Automation
-
-### Auto-commit Workflow
-- Use conventional commit messages: `feat:`, `fix:`, `docs:`, `style:`, `refactor:`, `test:`
-- **IMPORTANT**: Always run type-check before committing
-- Auto-format code on commit
-- Run tests before push
-
-### Branch Strategy
-- `main`: Production-ready code
-- `develop`: Integration branch
-- Feature branches: `feature/portfolio-ai-extraction`
-- Hotfix branches: `hotfix/seo-meta-tags`
-
-## Important Files & Patterns
-
-### Key Files to Understand
-- `src/lib/firestore.ts` - Database utilities and schemas **UPDATED with ProjectVideo**
-- `src/lib/firestore-admin.ts` - Server-side Firebase Admin SDK
-- `src/lib/project-utils.ts` - **NEW** Data transformation for ProjectShow
-- `src/lib/project-video-utils.ts` - **NEW v1.2** Video utility functions
-- `src/lib/cloudflare/uploadVideo.ts` - **NEW v1.2** Video upload system
-- `src/lib/seo.ts` - SEO helpers and meta tag generation
-- `src/components/ui/VideoPlayer.tsx` - **NEW v1.2** Custom video player
-- `src/components/ui/VideoModal.tsx` - **NEW v1.2** Fullscreen video modal
-- `src/components/ui/` - Reusable UI components
-- `src/app/portfolio/[slug]/page.tsx` - Portfolio detail page (SSG example)
-- `src/app/admin/` - Admin dashboard (client-side)
-
-### Firebase Configuration
-- Use Firebase emulators for development
-- Environment variables in `.env.local`
-- Security rules defined in `firestore.rules`
-
-## SEO Best Practices
-
-### Meta Tags & Structured Data
-- Always include title, description, Open Graph tags
-- Implement JSON-LD structured data for business and articles
-- Use proper heading hierarchy (H1 → H2 → H3)
-- Optimize images with alt text and proper sizing
-
-### Performance
-- Use Next.js Image component for optimization
-- Implement lazy loading for portfolio items
-- Minimize bundle size - avoid unnecessary client-side code
-- Use ISR for frequently updated content (articles)
-
-## Future Roadmap
-
-### AI-Powered Quote Processing
-- PDF upload functionality
-- Firebase AI or OCR integration
-- Auto-populate portfolio forms from quote data
-- Validation and manual override capabilities
-
-## Development Workflow
-
-### Starting New Features
-1. Create feature branch
-2. Write tests for expected functionality
-3. Implement with SSG/ISR for public features
-4. Test with Firebase emulators
-5. Type-check and lint
-6. Create PR with proper description
-
-### Debugging
-- Use Firebase emulator suite for local testing
-- Check browser Network tab for SSG/ISR behavior
-- Verify SEO with browser dev tools
-- Test mobile responsiveness
-
-## Common Patterns
-
-### SSG Page Example
-```typescript
-// For static portfolio pages
-export async function generateStaticParams() {
- // Generate static paths
-}
-
-export async function generateMetadata({ params }): Promise<Metadata> {
- // Generate SEO metadata
-}
-
-export default async function PortfolioPage({ params }) {
- // Server component - no 'use client'
-}
-```
-
-### Admin Page Example
-```typescript
-'use client'; // Only for admin pages
-
-export default function AdminPortfolio() {
- // Client-side admin functionality
-}
-```
-
-## IMPORTANT REMINDERS
-- **SEO FIRST**: Public pages must be SSG/ISR - never client-side
-- **Type Safety**: Always use proper TypeScript types
-- **Testing**: Write tests before implementation (TDD)
-- **Firebase**: Use emulators for development
-- **Performance**: Optimize for Core Web Vitals
-- **Auto-commit**: Always type-check before committing changes
+Use the smallest relevant checks first, then run the required checks for the affected blast radius. For platform/content changes use `yarn test:admin`, `yarn test:articles`, `yarn db:test:local`, `yarn type-check`, `yarn build`, and `yarn cf:build` as applicable. For UI use `yarn ui:qa`; for contact use `yarn line-contact:qa`; for page changes use `yarn seo:qa` against a running local server. Report the exact environment, tested behavior, failures, and unavailable production/GSC evidence.

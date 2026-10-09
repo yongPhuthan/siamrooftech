@@ -1,0 +1,76 @@
+name: Apply reviewed D1 migrations
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: Apply to staging first; production requires a separate reviewed run
+        required: true
+        type: choice
+        options: [staging, production]
+      confirm_database_name:
+        description: Type the exact target APP_DB name shown in the runbook
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: siamrooftech-d1-${{ inputs.target }}
+  cancel-in-progress: false
+
+jobs:
+  migrate:
+    name: reviewed-d1-migration
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.target == 'production' && 'Production' || 'staging' }}
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 22
+          cache: yarn
+      - run: corepack enable
+      - run: yarn install --frozen-lockfile --non-interactive
+      - name: Confirm exact isolated database target
+        env:
+          TARGET: ${{ inputs.target }}
+          CONFIRMED_DATABASE: ${{ inputs.confirm_database_name }}
+        run: node scripts/migration-target-policy.mjs "$TARGET" "$CONFIRMED_DATABASE"
+      - name: Require explicit production data-cutover readiness
+        if: inputs.target == 'production'
+        env:
+          PRODUCTION_CUTOVER_READY: ${{ vars.PRODUCTION_CUTOVER_READY }}
+        run: test "$PRODUCTION_CUTOVER_READY" = true
+      - name: Record migration plan and checksums
+        run: |
+          {
+            echo '## D1 migration approval'
+            echo "- Target: \`${{ inputs.target }}\`"
+            echo "- Commit: \`${{ github.sha }}\`"
+            echo '- Migration checksums:'
+            sha256sum drizzle/migrations/*.sql drizzle/cache-migrations/*.sql | sed 's#  #  `#; s#$#`#'
+            echo '- No row data, backup, or secret is uploaded.'
+            echo '- Production changes require the Production environment reviewer and must be expand-only.'
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Apply CMS schema migrations
+        run: node_modules/.bin/wrangler d1 migrations apply "$CONFIRMED_DATABASE" --remote --env "$TARGET" --config wrangler.jsonc
+        env:
+          TARGET: ${{ inputs.target }}
+          CONFIRMED_DATABASE: ${{ inputs.confirm_database_name }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+      - name: Apply Next cache schema migrations
+        run: node_modules/.bin/wrangler d1 migrations apply "$CACHE_DATABASE" --remote --env "$TARGET" --config wrangler.jsonc
+        env:
+          TARGET: ${{ inputs.target }}
+          CACHE_DATABASE: ${{ inputs.target == 'staging' && 'siamrooftech-cache-staging' || 'siamrooftech-cache-production' }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}

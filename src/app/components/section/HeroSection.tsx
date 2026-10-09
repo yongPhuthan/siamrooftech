@@ -23,10 +23,10 @@ function HeroSection({ keyword }: Props) {
       <section className="bg-white ">
         <div className="grid md:pb-8 mx-auto lg:grid-cols-12">
           <div className="z-10 place-self-center order-2 lg:order-1 lg:col-span-6 text-center py-5 sm:py-12  md:py-6">
-            <p className="text-4xl text-[#002573] font_page sm:text-5xl md:text-6xl font-bold leading-tight">
+            <p className="text-4xl text-site-brand-strong font_page sm:text-5xl md:text-6xl font-bold leading-tight">
               สยามรูฟเทค
             </p>
-            <h1 className="text-2xl text-[#002573] mt-4 font_page sm:text-2xl md:text-5xl font-bold leading-snug">
+            <h1 className="text-2xl text-site-brand-strong mt-4 font_page sm:text-2xl md:text-5xl font-bold leading-snug">
               {keyword} ที่ลูกค้าไว้วางใจ
             </h1>
           </div>

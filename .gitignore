@@ -6,7 +6,6 @@
 .pnp.js
 .yarn/install-state.gz
 .yarn
-.firebase
 
 # testing
 /coverage
@@ -15,7 +14,6 @@
 # next.js
 /.next/
 /out/
-.firebaserc
 
 # cloudflare/opennext local build artifacts
 /.open-next/
@@ -29,7 +27,6 @@ workers/**/.dev.vars
 # misc
 .DS_Store
 *.pem
-service-account-key.json
 .codex/
 chrome-profile/
 build_error.log
@@ -42,6 +39,9 @@ yarn-error.log*
 # local env files
 .env*.local
 .env.production
+/.dev.vars
+/.dev.vars.*
+!/.dev.vars.example
 
 # vercel
 .vercel
@@ -54,10 +54,11 @@ next-env.d.ts
 
 .env.local.example
 
-*.firebase
 .github
-*.firebase/
-firebase-debug.log
-firebase-debug.log.*
-.firebaserc
+!.github/
+.github/*
+!.github/workflows/
+.github/workflows/*
+!.github/workflows/*.yml
 .claude
+wrangler.preview.generated.jsonc

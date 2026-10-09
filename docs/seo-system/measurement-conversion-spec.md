@@ -47,7 +47,7 @@ This spec defines what must be measured before daily SEO operations become data-
 | `/services/retractable-awning/bangkok` | local_service | retractable_awning | bangkok |
 | `/services/retractable-awning/nonthaburi` | local_service | retractable_awning | nonthaburi |
 | `/services/retractable-awning/pathum-thani` | local_service | retractable_awning | pathum_thani |
-| `/portfolio/*` | portfolio_proof | inferred_from_project | inferred_from_project |
+| `/projects/*` | portfolio_proof | inferred_from_project | inferred_from_project |
 | `/articles/*` | article | inferred_from_links | none |
 
 ## GSC Review Segments

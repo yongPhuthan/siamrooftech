@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { verifyAdminRequest, unauthorizedResponse } from '@/lib/api-auth';
 
 // Initialize Google Generative AI
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GENAI_API_KEY!);
 
 // Handle POST requests for AI description generation
 export async function POST(req: NextRequest) {
+  if (!(await verifyAdminRequest(req))) return unauthorizedResponse();
   let body: any = {};
   
   try {

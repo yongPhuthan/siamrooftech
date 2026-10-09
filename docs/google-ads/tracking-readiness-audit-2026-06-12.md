@@ -185,7 +185,7 @@ Important limitation:
 - หน้า `/contact` เอาฟอร์มออกแล้ว และปรับเป็น CTA โทร/LINE สำหรับ conversion รอบแรก
 - Event parameters จะพร้อมใน `dataLayer` แล้ว แต่ต้องยืนยัน mapping ใน GTM ก่อนนับเป็น tracking ที่สมบูรณ์
 - โค้ด attribution ล่าสุดทดสอบบน local production แล้ว แต่ยังต้อง deploy ขึ้น production ก่อนใช้กับ traffic จริง
-- Dev server ยังมี warning เรื่อง Firebase env, legacy `next/image` prop และ image sizing ซึ่งควรแยกแก้ก่อนทำ performance QA
+- Dev server ยังมี warning เรื่อง local runtime variables, legacy `next/image` prop และ image sizing ซึ่งควรแยกแก้ก่อนทำ performance QA
 - Dev server พบ `TypeError: Cannot convert argument to a ByteString...` ระหว่าง request หน้าแรก แม้ HTTP ยังตอบ `200`; ควรแยกวิเคราะห์ก่อน deploy production ถ้ายังเกิดใน build/production log
 
 ## Production Deployment Status
@@ -197,7 +197,7 @@ Important limitation:
 - `https://www.siamrooftech.com/` ตอบผ่าน Cloudflare และมี header `x-opennext: 1`
 - production มี GTM `GTM-TDXKN9MG` แล้ว
 - production deploy ล่าสุดมีโค้ด attribution `siamrooftech_attribution_v1` แล้ว
-- repo ปัจจุบันไม่มี `.firebaserc` และ Firebase CLI ไม่มี active project สำหรับ deploy
+- repository ใช้ Cloudflare/OpenNext เป็น deploy target; การ publish production ต้องใช้ release workflow ที่ตรวจ account และ environment ก่อนเสมอ
 - repo มี `wrangler.jsonc`, `open-next.config.ts` และ script deploy สำหรับ Cloudflare แล้ว
 - production path ที่ยืนยันแล้วคือ account `Siamrooftech` (`a61f30bb027ef64c9577c73f5981f073`) -> zone `siamrooftech.com` -> Worker `siamrooftech`
 - `www.siamrooftech.com` และ `siamrooftech.com` bind เป็น Workers Domains กับ Worker `siamrooftech`

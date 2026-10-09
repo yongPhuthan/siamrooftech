@@ -4,7 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
 import ImageWatermark from '../ui/ImageWatermark';
-import { Project } from '../../../lib/firestore';
+import type { Project } from '@/features/projects/types';
 import { hasVideos } from '../../../lib/project-video-utils';
 
 interface PortfolioCardProps {
@@ -27,7 +27,7 @@ export default function PortfolioCard({ project, index }: PortfolioCardProps) {
 
   return (
     <Link
-      href={`/portfolio/${project.slug || project.id}`}
+      href={project.slug ? `/projects/${project.slug}` : '/projects'}
       className="group block"
       style={{
         animationDelay: `${index * 100}ms`

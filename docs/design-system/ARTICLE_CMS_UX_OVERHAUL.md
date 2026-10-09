@@ -408,7 +408,7 @@ const saveOffline = async (article: Article) => {
 
 - Laws of UX: /laws-of-ux.md
 - Project Design System: /docs/design-system/PROJECT_UI_DESIGN.md
-- Firebase Schema: /src/lib/firestore.ts
+- Article schema and publication policy: /src/features/articles/
 
 ---
 

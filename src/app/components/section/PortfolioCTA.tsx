@@ -1,5 +1,7 @@
 'use client';
 
+import { ArrowRight, Clock, Phone } from '@phosphor-icons/react/dist/ssr';
+import { PublicIcon } from '@/components/ui/public';
 import { trackLineClick, trackPhoneClick } from '@/lib/gtag';
 import { LINE_CONTACT_URL } from '@/features/line-contact/constants';
 
@@ -26,7 +28,7 @@ export default function PortfolioCTA({ className = '' }: PortfolioCTAProps) {
   };
 
   return (
-    <section className={`relative py-16 sm:py-20 lg:py-24 bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 text-white overflow-hidden ${className}`}>
+    <section data-site-theme className={`relative overflow-hidden bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 py-16 text-white sm:py-20 lg:py-24 ${className}`}>
       {/* Background Pattern */}
       <div
         className="absolute inset-0 opacity-5"
@@ -41,12 +43,12 @@ export default function PortfolioCTA({ className = '' }: PortfolioCTAProps) {
           <div className="space-y-4 sm:space-y-6">
             <h2 className="heading-section text-white">
               <span className="block mb-2 sm:mb-3">ต้องการกันสาดพับเก็บได้</span>
-              <span className="block text-blue-400">สำหรับโปรเจกต์ของคุณ?</span>
+              <span className="block text-sky-300">สำหรับโปรเจกต์ของคุณ?</span>
             </h2>
 
             {/* Divider */}
             <div className="flex justify-center">
-              <div className="w-16 sm:w-24 h-1 bg-gradient-to-r from-blue-400 to-green-400 rounded-full" />
+              <div className="w-16 sm:w-24 h-1 rounded-full bg-gradient-to-r from-blue-400 to-sky-300" />
             </div>
           </div>
 
@@ -59,11 +61,11 @@ export default function PortfolioCTA({ className = '' }: PortfolioCTAProps) {
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={handleLineClick}
-                className="flex-1 sm:flex-none sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold rounded-xl shadow-lg transform hover:scale-105 transition-all duration-200 text-center"
+                className="flex-1 rounded-site-action bg-site-brand px-5 py-3 text-center font-semibold text-white shadow-sm transition-colors duration-[180ms] hover:bg-site-brand-strong sm:flex-none sm:px-8 sm:py-4"
               >
                 <span className="flex items-center justify-center gap-2">
                   <span>ขอใบเสนอราคาฟรี</span>
-                  <span className="text-xl">→</span>
+                  <PublicIcon icon={ArrowRight} size={20} />
                 </span>
               </a>
 
@@ -71,10 +73,10 @@ export default function PortfolioCTA({ className = '' }: PortfolioCTAProps) {
               <a
                 href="tel:0984542455"
                 onClick={handlePhoneClick}
-                className="flex-1 sm:flex-none sm:px-8 py-3 sm:py-4 border-2 border-gray-400 hover:border-white text-gray-200 hover:text-white hover:bg-white/10 font-semibold rounded-xl transition-all duration-200 text-center"
+                className="flex-1 rounded-site-action border border-white/40 px-5 py-3 text-center font-semibold text-white/90 transition-colors duration-[180ms] hover:border-white hover:bg-white/10 hover:text-white sm:flex-none sm:px-8 sm:py-4"
               >
                 <span className="flex items-center justify-center gap-2">
-                  <span className="text-xl">📞</span>
+                  <PublicIcon icon={Phone} size={20} />
                   <span>โทรปรึกษาทันที</span>
                 </span>
               </a>
@@ -82,10 +84,10 @@ export default function PortfolioCTA({ className = '' }: PortfolioCTAProps) {
 
             {/* Additional Info */}
             <div className="text-center space-y-2">
-              <p className="text-sm sm:text-base text-gray-400">
-                ⏰ <strong className="text-white">เปิดบริการ:</strong> จันทร์-เสาร์ 8:00-18:00 น.
+              <p className="text-sm text-white/70 sm:text-base">
+                <PublicIcon icon={Clock} size={16} className="mr-1 inline-block align-[-2px]" /><strong className="text-white">เปิดบริการ:</strong> จันทร์-เสาร์ 8:00-18:00 น.
               </p>
-              <p className="text-xs sm:text-sm text-gray-500">
+              <p className="text-xs text-white/60 sm:text-sm">
                 บริการครอบคลุมทั่วกรุงเทพฯ และปริมณฑล • ประสบการณ์กว่า 10 ปี
               </p>
             </div>

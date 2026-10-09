@@ -54,8 +54,6 @@ Cloudflare account ที่ไม่ใช่ production path:
 
 สิ่งที่ต้องระวัง:
 
-- `firebase.json` มีอยู่ แต่ไม่มี `.firebaserc` และ Firebase CLI ไม่พบ active project ที่ตรงกับ Siamrooftech
-- ไม่ควรใช้ `firebase deploy` สำหรับ production รอบนี้ เพราะ production ที่เห็นจริงเป็น Cloudflare/OpenNext
 - ยังมี Worker ชื่อ `siamrooftech` ซ้ำในอีก account หนึ่ง ต้องใช้ `account_id` ใน `wrangler.jsonc` เพื่อกัน deploy ผิด account
 - production deploy จะทับ Worker `siamrooftech` ใน account `Siamrooftech` โดยตรง เพราะ domain bind กับ Worker นี้อยู่แล้ว
 
@@ -88,16 +86,16 @@ Cloudflare account ที่ไม่ใช่ production path:
 
 สิ่งที่แก้ระหว่าง validation:
 
-- OpenNext build แรก fail เพราะ `firebase-admin -> jwks-rsa -> jose` ชน condition `workerd`
-- แก้ด้วยการตั้ง `config.cloudflare.useWorkerdCondition = false` ใน `open-next.config.ts`
-- Worker preview `/contact` เคยตอบ `500` เพราะหน้า contact ดึง `ContactForm` และ Firestore/client form dependency เข้ามา
+- OpenNext build แรกพบ dependency ที่ยังไม่รองรับ `workerd` condition
+- ค่า override ของ condition ถูกถอดออกจาก OpenNext config หลังย้าย runtime owner; ตรวจ `yarn cf:build` ก่อนแก้ bundling options อีกครั้ง
+- Worker preview `/contact` เคยตอบ `500` เพราะหน้า contact โหลด browser-only form dependency เข้า server render
 - แก้โดยเอา form ออกจากหน้า contact และแทนด้วย CTA โทร/LINE ที่ track ได้
 
 Warning ที่ยังเหลือ:
 
 - Wrangler dry-run ยังเตือน direct eval ใน server bundle แต่หน้า `/` และ `/contact` preview ผ่านแล้ว
 - Next build ยังมี lint warning เรื่อง `<img>` และ missing hook dependencies ในไฟล์อื่น
-- Build ยังเตือน Firebase env ไม่ครบ จึงใช้ fallback/mock data
+- Build เคยเตือน local runtime variables และ fallback data; ตรวจ binding setup ใหม่ก่อน QA ครั้งต่อไป
 
 ## Production Deploy Result
 
@@ -163,7 +161,6 @@ Reference: https://developers.cloudflare.com/workers/framework-guides/web-apps/n
 
 ## ห้ามทำ
 
-- ห้าม deploy ด้วย Firebase จนกว่าจะพิสูจน์ว่า Firebase เป็น production host จริง
 - ห้ามสร้าง Worker ใหม่แทน `siamrooftech` แล้วชี้ domain โดยไม่ตรวจ route ปัจจุบัน
 - ห้ามลบ `account_id` ออกจาก `wrangler.jsonc` เพราะมี Worker ชื่อซ้ำในอีก account
 - ห้ามเปิด Google Ads traffic จริงก่อน production tracking ผ่าน QA แล้ว

@@ -1,4 +1,4 @@
-import { Project } from './firestore';
+import type { Project } from '@/features/projects/types';
 
 // Interface สำหรับ format ที่ ProjectShow component ใช้
 export interface ProjectShowData {
@@ -19,8 +19,8 @@ export interface ProjectShowItem {
   originalSize: string;
 }
 
-// Utility function แปลงข้อมูลจาก Firestore Project เป็น format ของ ProjectShow
-export function transformFirestoreProjectsToProjectShow(
+// Transform published project records into the format used by the homepage gallery.
+export function transformProjectsToProjectShow(
   projects: Project[], 
   keyword: string,
   limit?: number
@@ -83,37 +83,10 @@ export function transformFirestoreProjectsToProjectShow(
     }
   });
 
-  // หากไม่มีข้อมูลจาก Firestore ให้ส่งข้อมูล fallback
+  // Empty CMS data should stay empty; stale hard-coded projects must not look published.
   if (projectShowData.length === 0) {
-    const fallback = getFallbackProjectShowData(keyword);
-    return { projectShowData: fallback, hasMore: false };
+    return { projectShowData: [], hasMore: false };
   }
 
   return { projectShowData, hasMore };
-}
-
-// ข้อมูล fallback ในกรณีที่ไม่มีข้อมูลจาก Firestore
-function getFallbackProjectShowData(keyword: string): ProjectShowData[] {
-  return [
-    {
-      id: 1,
-      title: [keyword + ' ', 'อาคาร-สำนักงาน'],
-      subtitle: 'สองระบบ (มือหมุน + มอเตอร์ไฟฟ้า) หน้ากว้าง 5.3 เมตร x ระยะแขนพับ 2.5 เมตร',
-      description: [
-        'สถานที่ : แขวงคลองถนน เขตสายไหม กรุงเทพมหานคร',
-        'ประเภท : กันสาด 2 ระบบ มอเตอร์รีโมทและมือหมุนในชุดเดียวกัน',
-        'ขนาด : กว้าง 530 cm * ยื่นออก 250 cm',
-        'วัสดุ : ผ้าใบอะคริลิคสเปนสีขาว'
-      ],
-      items: [
-        {
-          id: 1,
-          title: `${keyword} อาคาร-สำนักงาน`,
-          description: 'This is a fallback project',
-          smallSize: 'https://pub-99f8d7bf688c4c79afcc2d91f37141f2.r2.dev/siamrooftech/small/46570',
-          originalSize: 'https://pub-99f8d7bf688c4c79afcc2d91f37141f2.r2.dev/siamrooftech/original/46570'
-        }
-      ]
-    }
-  ];
 }

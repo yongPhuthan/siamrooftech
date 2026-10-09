@@ -1,4 +1,9 @@
-## คู่มือ Conversion Tracking (GTM-only)
+> **สถานะปัจจุบัน (2026-09):** คู่มือด้านล่างเป็นเอกสาร GTM เดิมและห้ามนำ
+> Container เดิมไปแก้ไขในการย้ายบัญชีนี้ เว็บไซต์ production ส่ง event ไปยัง
+> Google tag ของ GA4 ใหม่โดยตรงผ่าน `NEXT_PUBLIC_GA4_MEASUREMENT_ID`.
+> การตั้งค่า conversion ใหม่ต้องทำใน property/Google Ads ภายใต้ `wordcampz@gmail.com`.
+
+## คู่มือ Conversion Tracking (GTM-only — Legacy)
 
 คู่มือนี้อธิบายการติดตั้งและใช้งานระบบ Conversion Tracking สำหรับ Google Ads โดย “คุมผ่าน Google Tag Manager (GTM) อย่างเดียว” (ไม่โหลด/ไม่ยิง `gtag.js` จากแอปโดยตรง)
 
@@ -325,7 +330,7 @@ window.dataLayer?.slice(-10)
    - `position` เป็นตำแหน่งที่ถูกต้อง
 
 #### D) (Optional) Micro - Portfolio Button Click (`portfolio_view_click`)
-1) คลิกปุ่ม “ดูผลงานทั้งหมด” (เช่นปุ่มที่พาไป `/portfolio`)
+1) คลิกปุ่ม “ดูผลงานทั้งหมด” (เช่นปุ่มที่พาไป `/projects`)
 2) ใน Tag Assistant ต้องเห็น event `portfolio_view_click`
 3) ถ้าต้องการนับเป็น conversion ให้สร้าง Google Ads Conversion Tag ที่ผูกกับ trigger นี้โดยเฉพาะ (หรือใช้เป็นแค่ event สำหรับรีมาร์เก็ตติ้ง/วัด engagement)
 

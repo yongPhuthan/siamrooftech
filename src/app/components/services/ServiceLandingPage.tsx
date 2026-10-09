@@ -1,12 +1,13 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import Breadcrumbs from '../ui/Breadcrumbs';
-import FinalCTASection from '../FinalCTASection';
+import Breadcrumbs from '@/components/site/Breadcrumbs';
+import FinalCTASection from '@/components/site/FinalCTASection';
 import { ServicePage, servicePageUrl } from '@/lib/service-pages';
 import { ServiceProofProject } from '@/lib/service-project-matching';
 import { canonicalUrl } from '@/lib/seo-config';
 import type { GoogleAdsDynamicContent } from '@/lib/google-ads-dynamic-content';
 import { LINE_CONTACT_URL } from '@/features/line-contact/constants';
+import { PublicBadge } from '@/components/ui/public';
 
 type ServiceLandingPageProps = {
   page: ServicePage;
@@ -136,7 +137,7 @@ export default function ServiceLandingPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
       />
-      <main className="bg-white">
+      <main data-site-theme className="bg-white text-site-ink">
         <Breadcrumbs items={breadcrumbs} />
 
         <section className="border-b border-gray-100 bg-gradient-to-b from-white to-gray-50">
@@ -163,12 +164,9 @@ export default function ServiceLandingPage({
               )}
               <div className="mt-6 flex flex-wrap gap-2">
                 {page.secondaryKeywords.map((keyword) => (
-                  <span
-                    key={keyword}
-                    className="rounded-full border border-blue-100 bg-blue-50 px-3 py-1 text-sm font-medium text-blue-800"
-                  >
+                  <PublicBadge key={keyword} tone="brand">
                     {keyword}
-                  </span>
+                  </PublicBadge>
                 ))}
               </div>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -341,7 +339,7 @@ export default function ServiceLandingPage({
                 ))}
               </ul>
               <Link
-                href="/portfolio"
+                href="/projects"
                 className="mt-6 inline-flex rounded-lg bg-white px-4 py-2 text-sm font-semibold text-gray-900 transition-colors hover:bg-gray-100"
               >
                 ดูผลงานติดตั้งจริง

@@ -1,0 +1,927 @@
+{
+  "date": "2026-10-04",
+  "environment": "Next.js 15.5.26 dev, http://127.0.0.1:3000",
+  "scope": "Initial HTTP HTML only; no production/GSC/rendered DOM verification",
+  "sitemap": [
+    {
+      "url": "https://www.siamrooftech.com",
+      "lastmod": "2026-10-04T10:34:55.634Z"
+    },
+    {
+      "url": "https://www.siamrooftech.com/contact",
+      "lastmod": "2026-10-04T10:34:55.634Z"
+    },
+    {
+      "url": "https://www.siamrooftech.com/portfolio",
+      "lastmod": "2026-10-04T10:34:55.634Z"
+    },
+    {
+      "url": "https://www.siamrooftech.com/works",
+      "lastmod": "2026-10-04T10:34:55.634Z"
+    },
+    {
+      "url": "https://www.siamrooftech.com/articles",
+      "lastmod": "2026-10-04T10:34:55.634Z"
+    },
+    {
+      "url": "https://www.siamrooftech.com/allawning",
+      "lastmod": "2026-10-04T10:34:55.634Z"
+    },
+    {
+      "url": "https://www.siamrooftech.com/services/retractable-awning",
+      "lastmod": "2026-10-04T10:34:55.689Z"
+    },
+    {
+      "url": "https://www.siamrooftech.com/services/electric-retractable-awning",
+      "lastmod": "2026-10-04T10:34:55.689Z"
+    },
+    {
+      "url": "https://www.siamrooftech.com/services/retractable-awning/bangkok",
+      "lastmod": "2026-10-04T10:34:55.689Z"
+    },
+    {
+      "url": "https://www.siamrooftech.com/services/retractable-awning/nonthaburi",
+      "lastmod": "2026-10-04T10:34:55.689Z"
+    },
+    {
+      "url": "https://www.siamrooftech.com/services/retractable-awning/pathum-thani",
+      "lastmod": "2026-10-04T10:34:55.689Z"
+    },
+    {
+      "url": "https://www.siamrooftech.com/portfolio/5x2-520680",
+      "lastmod": "2025-10-13T17:45:20.680Z"
+    },
+    {
+      "url": "https://www.siamrooftech.com/portfolio/4-5x2-860430",
+      "lastmod": "2025-10-12T07:24:20.430Z"
+    },
+    {
+      "url": "https://www.siamrooftech.com/portfolio/3-5x1.5-744861",
+      "lastmod": "2025-10-10T12:52:24.861Z"
+    },
+    {
+      "url": "https://www.siamrooftech.com/portfolio/5x2-5-351507",
+      "lastmod": "2025-10-09T16:29:11.507Z"
+    },
+    {
+      "url": "https://www.siamrooftech.com/portfolio/4-5x2-542650",
+      "lastmod": "2025-10-08T16:39:02.650Z"
+    },
+    {
+      "url": "https://www.siamrooftech.com/portfolio/5x2-767881",
+      "lastmod": "2025-10-05T14:49:27.881Z"
+    },
+    {
+      "url": "https://www.siamrooftech.com/portfolio/2x1-5-326707",
+      "lastmod": "2025-10-05T13:18:46.707Z"
+    },
+    {
+      "url": "https://www.siamrooftech.com/portfolio/4-7x2.5-886205",
+      "lastmod": "2025-08-09T11:44:46.205Z"
+    },
+    {
+      "url": "https://www.siamrooftech.com/portfolio/2x1-5-368997",
+      "lastmod": "2025-08-09T11:36:08.997Z"
+    },
+    {
+      "url": "https://www.siamrooftech.com/portfolio/2-6x2-881761",
+      "lastmod": "2025-08-09T11:28:01.761Z"
+    },
+    {
+      "url": "https://www.siamrooftech.com/portfolio/3x2-204672",
+      "lastmod": "2025-08-09T11:16:44.672Z"
+    },
+    {
+      "url": "https://www.siamrooftech.com/portfolio/5-7x2.5-290684",
+      "lastmod": "2025-08-09T09:38:10.684Z"
+    },
+    {
+      "url": "https://www.siamrooftech.com/portfolio/5x2-5-472465",
+      "lastmod": "2025-08-09T09:24:32.465Z"
+    },
+    {
+      "url": "https://www.siamrooftech.com/portfolio/5-6x2-728032",
+      "lastmod": "2025-08-09T09:12:08.032Z"
+    },
+    {
+      "url": "https://www.siamrooftech.com/portfolio/4-5x2.5-854715",
+      "lastmod": "2025-08-09T08:57:34.715Z"
+    },
+    {
+      "url": "https://www.siamrooftech.com/portfolio/5-3x2.5-192907",
+      "lastmod": "2025-08-09T07:28:12.822Z"
+    },
+    {
+      "url": "https://www.siamrooftech.com/portfolio/category/%E0%B8%84%E0%B8%B2%E0%B9%80%E0%B8%9F%E0%B9%88",
+      "lastmod": "2026-10-04T10:34:55.689Z"
+    },
+    {
+      "url": "https://www.siamrooftech.com/portfolio/category/%E0%B8%9A%E0%B9%89%E0%B8%B2%E0%B8%99%E0%B8%9E%E0%B8%B1%E0%B8%81%E0%B8%AD%E0%B8%B2%E0%B8%A8%E0%B8%B1%E0%B8%A2",
+      "lastmod": "2026-10-04T10:34:55.689Z"
+    },
+    {
+      "url": "https://www.siamrooftech.com/portfolio/category/%E0%B8%AD%E0%B8%B7%E0%B9%88%E0%B8%99%E0%B9%86",
+      "lastmod": "2026-10-04T10:34:55.689Z"
+    },
+    {
+      "url": "https://www.siamrooftech.com/portfolio/category/%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%99%E0%B8%84%E0%B9%89%E0%B8%B2",
+      "lastmod": "2026-10-04T10:34:55.689Z"
+    },
+    {
+      "url": "https://www.siamrooftech.com/portfolio/category/%E0%B9%82%E0%B8%A3%E0%B8%87%E0%B9%81%E0%B8%A3%E0%B8%A1",
+      "lastmod": "2026-10-04T10:34:55.689Z"
+    },
+    {
+      "url": "https://www.siamrooftech.com/portfolio/category/%E0%B8%AA%E0%B8%B3%E0%B8%99%E0%B8%B1%E0%B8%81%E0%B8%87%E0%B8%B2%E0%B8%99",
+      "lastmod": "2026-10-04T10:34:55.689Z"
+    }
+  ],
+  "checks": [
+    {
+      "path": "/",
+      "sitemap": true,
+      "expected": "https://www.siamrooftech.com",
+      "status": 200,
+      "canonical": [
+        "https://www.siamrooftech.com"
+      ],
+      "robots": [
+        "index, follow",
+        "index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1"
+      ],
+      "xrobots": null,
+      "location": null,
+      "content_type": "text/html; charset=utf-8",
+      "h1": 1,
+      "title": "กันสาดพับได้ ระบบมือหมุน-มอเตอร์ไฟฟ้า คุณภาพยุโรป | Siamrooftech"
+    },
+    {
+      "path": "/contact",
+      "sitemap": true,
+      "expected": "https://www.siamrooftech.com/contact",
+      "status": 200,
+      "canonical": [
+        "https://www.siamrooftech.com/contact"
+      ],
+      "robots": [
+        "index, follow",
+        "index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1"
+      ],
+      "xrobots": null,
+      "location": null,
+      "content_type": "text/html; charset=utf-8",
+      "h1": 1,
+      "title": "ติดต่อเรา - กันสาดพับเก็บได้ | สยามรูฟเทค"
+    },
+    {
+      "path": "/portfolio",
+      "sitemap": true,
+      "expected": "https://www.siamrooftech.com/portfolio",
+      "status": 200,
+      "canonical": [
+        "https://www.siamrooftech.com/portfolio"
+      ],
+      "robots": [
+        "index, follow",
+        "index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1"
+      ],
+      "xrobots": null,
+      "location": null,
+      "content_type": "text/html; charset=utf-8",
+      "h1": 1,
+      "title": "ผลงานกันสาดพับได้ ระบบมือหมุน-มอเตอร์ไฟฟ้า | Siamrooftech"
+    },
+    {
+      "path": "/works",
+      "sitemap": true,
+      "expected": "https://www.siamrooftech.com/works",
+      "status": 200,
+      "canonical": [
+        "https://www.siamrooftech.com/works"
+      ],
+      "robots": [
+        "index, follow",
+        "index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1"
+      ],
+      "xrobots": null,
+      "location": null,
+      "content_type": "text/html; charset=utf-8",
+      "h1": 1,
+      "title": "ผลงานทั้งหมด - กันสาดพับเก็บได้ | สยามรูฟเทค"
+    },
+    {
+      "path": "/articles",
+      "sitemap": true,
+      "expected": "https://www.siamrooftech.com/articles",
+      "status": 200,
+      "canonical": [
+        "https://www.siamrooftech.com/articles"
+      ],
+      "robots": [
+        "index, follow",
+        "index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1"
+      ],
+      "xrobots": null,
+      "location": null,
+      "content_type": "text/html; charset=utf-8",
+      "h1": 1,
+      "title": "บทความกันสาดพับได้ - เทคนิค คำแนะนำ การดูแล | Siamrooftech"
+    },
+    {
+      "path": "/allawning",
+      "sitemap": true,
+      "expected": "https://www.siamrooftech.com/allawning",
+      "status": 200,
+      "canonical": [
+        "https://www.siamrooftech.com/allawning"
+      ],
+      "robots": [
+        "index, follow",
+        "index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1"
+      ],
+      "xrobots": null,
+      "location": null,
+      "content_type": "text/html; charset=utf-8",
+      "h1": 1,
+      "title": "ผลงานกันสาดพับเก็บได้ทั้งหมด | Siamrooftech"
+    },
+    {
+      "path": "/services/retractable-awning",
+      "sitemap": true,
+      "expected": "https://www.siamrooftech.com/services/retractable-awning",
+      "status": 200,
+      "canonical": [
+        "https://www.siamrooftech.com/services/retractable-awning"
+      ],
+      "robots": [
+        "index, follow",
+        "index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1"
+      ],
+      "xrobots": null,
+      "location": null,
+      "content_type": "text/html; charset=utf-8",
+      "h1": 1,
+      "title": "กันสาดพับเก็บได้ ติดตั้งมือหมุน-ไฟฟ้า | Siamrooftech"
+    },
+    {
+      "path": "/services/electric-retractable-awning",
+      "sitemap": true,
+      "expected": "https://www.siamrooftech.com/services/electric-retractable-awning",
+      "status": 200,
+      "canonical": [
+        "https://www.siamrooftech.com/services/electric-retractable-awning"
+      ],
+      "robots": [
+        "index, follow",
+        "index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1"
+      ],
+      "xrobots": null,
+      "location": null,
+      "content_type": "text/html; charset=utf-8",
+      "h1": 1,
+      "title": "กันสาดพับไฟฟ้า มอเตอร์รีโมท | Siamrooftech"
+    },
+    {
+      "path": "/services/retractable-awning/bangkok",
+      "sitemap": true,
+      "expected": "https://www.siamrooftech.com/services/retractable-awning/bangkok",
+      "status": 200,
+      "canonical": [
+        "https://www.siamrooftech.com/services/retractable-awning/bangkok"
+      ],
+      "robots": [
+        "index, follow",
+        "index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1"
+      ],
+      "xrobots": null,
+      "location": null,
+      "content_type": "text/html; charset=utf-8",
+      "h1": 1,
+      "title": "กันสาดพับเก็บได้ กรุงเทพ | Siamrooftech"
+    },
+    {
+      "path": "/services/retractable-awning/nonthaburi",
+      "sitemap": true,
+      "expected": "https://www.siamrooftech.com/services/retractable-awning/nonthaburi",
+      "status": 200,
+      "canonical": [
+        "https://www.siamrooftech.com/services/retractable-awning/nonthaburi"
+      ],
+      "robots": [
+        "index, follow",
+        "index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1"
+      ],
+      "xrobots": null,
+      "location": null,
+      "content_type": "text/html; charset=utf-8",
+      "h1": 1,
+      "title": "กันสาดพับเก็บได้ นนทบุรี | Siamrooftech"
+    },
+    {
+      "path": "/services/retractable-awning/pathum-thani",
+      "sitemap": true,
+      "expected": "https://www.siamrooftech.com/services/retractable-awning/pathum-thani",
+      "status": 200,
+      "canonical": [
+        "https://www.siamrooftech.com/services/retractable-awning/pathum-thani"
+      ],
+      "robots": [
+        "index, follow",
+        "index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1"
+      ],
+      "xrobots": null,
+      "location": null,
+      "content_type": "text/html; charset=utf-8",
+      "h1": 1,
+      "title": "กันสาดพับเก็บได้ ปทุมธานี | Siamrooftech"
+    },
+    {
+      "path": "/portfolio/5x2-520680",
+      "sitemap": true,
+      "expected": "https://www.siamrooftech.com/portfolio/5x2-520680",
+      "status": 200,
+      "canonical": [
+        "https://www.siamrooftech.com/portfolio/5x2-520680"
+      ],
+      "robots": [
+        "index, follow",
+        "index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1"
+      ],
+      "xrobots": null,
+      "location": null,
+      "content_type": "text/html; charset=utf-8",
+      "h1": 1,
+      "title": "กันสาดพับเก็บได้ ร้านกาแฟ มวลชน สาขาโรงเรียนปัญญาพิวัฒน์ | Siamrooftech"
+    },
+    {
+      "path": "/portfolio/4-5x2-860430",
+      "sitemap": true,
+      "expected": "https://www.siamrooftech.com/portfolio/4-5x2-860430",
+      "status": 200,
+      "canonical": [
+        "https://www.siamrooftech.com/portfolio/4-5x2-860430"
+      ],
+      "robots": [
+        "index, follow",
+        "index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1"
+      ],
+      "xrobots": null,
+      "location": null,
+      "content_type": "text/html; charset=utf-8",
+      "h1": 1,
+      "title": "กันสาดพับเก็บได้ กรุงเทพ | Siamrooftech"
+    },
+    {
+      "path": "/portfolio/3-5x1.5-744861",
+      "sitemap": true,
+      "expected": "https://www.siamrooftech.com/portfolio/3-5x1.5-744861",
+      "status": 200,
+      "canonical": [
+        "https://www.siamrooftech.com/portfolio/3-5x1.5-744861"
+      ],
+      "robots": [
+        "index, follow",
+        "index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1"
+      ],
+      "xrobots": null,
+      "location": null,
+      "content_type": "text/html; charset=utf-8",
+      "h1": 1,
+      "title": "กันสาดพับเก็บได้ ชลบุรี | Siamrooftech"
+    },
+    {
+      "path": "/portfolio/5x2-5-351507",
+      "sitemap": true,
+      "expected": "https://www.siamrooftech.com/portfolio/5x2-5-351507",
+      "status": 200,
+      "canonical": [
+        "https://www.siamrooftech.com/portfolio/5x2-5-351507"
+      ],
+      "robots": [
+        "index, follow",
+        "index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1"
+      ],
+      "xrobots": null,
+      "location": null,
+      "content_type": "text/html; charset=utf-8",
+      "h1": 1,
+      "title": "กันสาดพับเก็บได้ วัดทรวิหาร | Siamrooftech"
+    },
+    {
+      "path": "/portfolio/4-5x2-542650",
+      "sitemap": true,
+      "expected": "https://www.siamrooftech.com/portfolio/4-5x2-542650",
+      "status": 200,
+      "canonical": [
+        "https://www.siamrooftech.com/portfolio/4-5x2-542650"
+      ],
+      "robots": [
+        "index, follow",
+        "index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1"
+      ],
+      "xrobots": null,
+      "location": null,
+      "content_type": "text/html; charset=utf-8",
+      "h1": 1,
+      "title": "กันสาดพับเก็บได้ กรุงเทพ | Siamrooftech"
+    },
+    {
+      "path": "/portfolio/5x2-767881",
+      "sitemap": true,
+      "expected": "https://www.siamrooftech.com/portfolio/5x2-767881",
+      "status": 200,
+      "canonical": [
+        "https://www.siamrooftech.com/portfolio/5x2-767881"
+      ],
+      "robots": [
+        "index, follow",
+        "index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1"
+      ],
+      "xrobots": null,
+      "location": null,
+      "content_type": "text/html; charset=utf-8",
+      "h1": 1,
+      "title": "กันสาดพับเก็บได้ บริษัท สิทธิพงษ์จรัล | Siamrooftech"
+    },
+    {
+      "path": "/portfolio/2x1-5-326707",
+      "sitemap": true,
+      "expected": "https://www.siamrooftech.com/portfolio/2x1-5-326707",
+      "status": 200,
+      "canonical": [
+        "https://www.siamrooftech.com/portfolio/2x1-5-326707"
+      ],
+      "robots": [
+        "index, follow",
+        "index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1"
+      ],
+      "xrobots": null,
+      "location": null,
+      "content_type": "text/html; charset=utf-8",
+      "h1": 1,
+      "title": "กันสาดพับเก็บได้ ปทุมธานี | Siamrooftech"
+    },
+    {
+      "path": "/portfolio/4-7x2.5-886205",
+      "sitemap": true,
+      "expected": "https://www.siamrooftech.com/portfolio/4-7x2.5-886205",
+      "status": 200,
+      "canonical": [
+        "https://www.siamrooftech.com/portfolio/4-7x2.5-886205"
+      ],
+      "robots": [
+        "index, follow",
+        "index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1"
+      ],
+      "xrobots": null,
+      "location": null,
+      "content_type": "text/html; charset=utf-8",
+      "h1": 1,
+      "title": "กันสาดพับเก็บได้ วัดท่าพระ | Siamrooftech"
+    },
+    {
+      "path": "/portfolio/2x1-5-368997",
+      "sitemap": true,
+      "expected": "https://www.siamrooftech.com/portfolio/2x1-5-368997",
+      "status": 200,
+      "canonical": [
+        "https://www.siamrooftech.com/portfolio/2x1-5-368997"
+      ],
+      "robots": [
+        "index, follow",
+        "index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1"
+      ],
+      "xrobots": null,
+      "location": null,
+      "content_type": "text/html; charset=utf-8",
+      "h1": 1,
+      "title": "กันสาดพับเก็บได้ ร้าน Black Duck กรุงเทพมหานคร | Siamrooftech"
+    },
+    {
+      "path": "/portfolio/2-6x2-881761",
+      "sitemap": true,
+      "expected": "https://www.siamrooftech.com/portfolio/2-6x2-881761",
+      "status": 200,
+      "canonical": [
+        "https://www.siamrooftech.com/portfolio/2-6x2-881761"
+      ],
+      "robots": [
+        "index, follow",
+        "index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1"
+      ],
+      "xrobots": null,
+      "location": null,
+      "content_type": "text/html; charset=utf-8",
+      "h1": 1,
+      "title": "กันสาดพับเก็บได้ หมู่บ้านสราญสิริ ศรีวารี กรุงเทพมหานคร | Siamrooftech"
+    },
+    {
+      "path": "/portfolio/3x2-204672",
+      "sitemap": true,
+      "expected": "https://www.siamrooftech.com/portfolio/3x2-204672",
+      "status": 200,
+      "canonical": [
+        "https://www.siamrooftech.com/portfolio/3x2-204672"
+      ],
+      "robots": [
+        "index, follow",
+        "index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1"
+      ],
+      "xrobots": null,
+      "location": null,
+      "content_type": "text/html; charset=utf-8",
+      "h1": 1,
+      "title": "กันสาดพับเก็บได้ เขต.ประเวศ กรุงเทพมหานคร | Siamrooftech"
+    },
+    {
+      "path": "/portfolio/5-7x2.5-290684",
+      "sitemap": true,
+      "expected": "https://www.siamrooftech.com/portfolio/5-7x2.5-290684",
+      "status": 200,
+      "canonical": [
+        "https://www.siamrooftech.com/portfolio/5-7x2.5-290684"
+      ],
+      "robots": [
+        "index, follow",
+        "index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1"
+      ],
+      "xrobots": null,
+      "location": null,
+      "content_type": "text/html; charset=utf-8",
+      "h1": 1,
+      "title": "กันสาดพับเก็บได้ ร้าน แจ็คคิ้วสวยบอกต่อ อำเภอเมืองนครปฐม จังหวัดนครปฐม | Siamrooftech"
+    },
+    {
+      "path": "/portfolio/5x2-5-472465",
+      "sitemap": true,
+      "expected": "https://www.siamrooftech.com/portfolio/5x2-5-472465",
+      "status": 200,
+      "canonical": [
+        "https://www.siamrooftech.com/portfolio/5x2-5-472465"
+      ],
+      "robots": [
+        "index, follow",
+        "index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1"
+      ],
+      "xrobots": null,
+      "location": null,
+      "content_type": "text/html; charset=utf-8",
+      "h1": 1,
+      "title": "กันสาดพับเก็บได้ Suvarnabhumi Airport Hotel เขตลาดกระบัง กรุงเทพมหานคร | Siamrooftech"
+    },
+    {
+      "path": "/portfolio/5-6x2-728032",
+      "sitemap": true,
+      "expected": "https://www.siamrooftech.com/portfolio/5-6x2-728032",
+      "status": 200,
+      "canonical": [
+        "https://www.siamrooftech.com/portfolio/5-6x2-728032"
+      ],
+      "robots": [
+        "index, follow",
+        "index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1"
+      ],
+      "xrobots": null,
+      "location": null,
+      "content_type": "text/html; charset=utf-8",
+      "h1": 1,
+      "title": "กันสาดพับเก็บได้ หมู่บ้านการเคหะธนฯ ถ.พระราม2 | Siamrooftech"
+    },
+    {
+      "path": "/portfolio/4-5x2.5-854715",
+      "sitemap": true,
+      "expected": "https://www.siamrooftech.com/portfolio/4-5x2.5-854715",
+      "status": 200,
+      "canonical": [
+        "https://www.siamrooftech.com/portfolio/4-5x2.5-854715"
+      ],
+      "robots": [
+        "index, follow",
+        "index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1"
+      ],
+      "xrobots": null,
+      "location": null,
+      "content_type": "text/html; charset=utf-8",
+      "h1": 1,
+      "title": "กันสาดพับเก็บได้ อำเภอเมืองสมุทรปราการ จังหวัดสมุทรปราการ | Siamrooftech"
+    },
+    {
+      "path": "/portfolio/5-3x2.5-192907",
+      "sitemap": true,
+      "expected": "https://www.siamrooftech.com/portfolio/5-3x2.5-192907",
+      "status": 200,
+      "canonical": [
+        "https://www.siamrooftech.com/portfolio/5-3x2.5-192907"
+      ],
+      "robots": [
+        "index, follow",
+        "index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1"
+      ],
+      "xrobots": null,
+      "location": null,
+      "content_type": "text/html; charset=utf-8",
+      "h1": 1,
+      "title": "กันสาดพับเก็บได้ แขวงคลองถนน เขตสายไหม กรุงเทพมหานคร | Siamrooftech"
+    },
+    {
+      "path": "/portfolio/category/%E0%B8%84%E0%B8%B2%E0%B9%80%E0%B8%9F%E0%B9%88",
+      "sitemap": true,
+      "expected": "https://www.siamrooftech.com/portfolio/category/%E0%B8%84%E0%B8%B2%E0%B9%80%E0%B8%9F%E0%B9%88",
+      "status": 200,
+      "canonical": [
+        "https://www.siamrooftech.com/portfolio/category/%E0%B8%84%E0%B8%B2%E0%B9%80%E0%B8%9F%E0%B9%88"
+      ],
+      "robots": [
+        "index, follow",
+        "index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1"
+      ],
+      "xrobots": null,
+      "location": null,
+      "content_type": "text/html; charset=utf-8",
+      "h1": 1,
+      "title": "ผลงานคาเฟ่ - กันสาดพับเก็บได้ | สยามรูฟเทค"
+    },
+    {
+      "path": "/portfolio/category/%E0%B8%9A%E0%B9%89%E0%B8%B2%E0%B8%99%E0%B8%9E%E0%B8%B1%E0%B8%81%E0%B8%AD%E0%B8%B2%E0%B8%A8%E0%B8%B1%E0%B8%A2",
+      "sitemap": true,
+      "expected": "https://www.siamrooftech.com/portfolio/category/%E0%B8%9A%E0%B9%89%E0%B8%B2%E0%B8%99%E0%B8%9E%E0%B8%B1%E0%B8%81%E0%B8%AD%E0%B8%B2%E0%B8%A8%E0%B8%B1%E0%B8%A2",
+      "status": 200,
+      "canonical": [
+        "https://www.siamrooftech.com/portfolio/category/%E0%B8%9A%E0%B9%89%E0%B8%B2%E0%B8%99%E0%B8%9E%E0%B8%B1%E0%B8%81%E0%B8%AD%E0%B8%B2%E0%B8%A8%E0%B8%B1%E0%B8%A2"
+      ],
+      "robots": [
+        "index, follow",
+        "index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1"
+      ],
+      "xrobots": null,
+      "location": null,
+      "content_type": "text/html; charset=utf-8",
+      "h1": 1,
+      "title": "ผลงานบ้านพักอาศัย - กันสาดพับเก็บได้ | สยามรูฟเทค"
+    },
+    {
+      "path": "/portfolio/category/%E0%B8%AD%E0%B8%B7%E0%B9%88%E0%B8%99%E0%B9%86",
+      "sitemap": true,
+      "expected": "https://www.siamrooftech.com/portfolio/category/%E0%B8%AD%E0%B8%B7%E0%B9%88%E0%B8%99%E0%B9%86",
+      "status": 200,
+      "canonical": [
+        "https://www.siamrooftech.com/portfolio/category/%E0%B8%AD%E0%B8%B7%E0%B9%88%E0%B8%99%E0%B9%86"
+      ],
+      "robots": [
+        "index, follow",
+        "index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1"
+      ],
+      "xrobots": null,
+      "location": null,
+      "content_type": "text/html; charset=utf-8",
+      "h1": 1,
+      "title": "ผลงานอื่นๆ - กันสาดพับเก็บได้ | สยามรูฟเทค"
+    },
+    {
+      "path": "/portfolio/category/%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%99%E0%B8%84%E0%B9%89%E0%B8%B2",
+      "sitemap": true,
+      "expected": "https://www.siamrooftech.com/portfolio/category/%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%99%E0%B8%84%E0%B9%89%E0%B8%B2",
+      "status": 200,
+      "canonical": [
+        "https://www.siamrooftech.com/portfolio/category/%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%99%E0%B8%84%E0%B9%89%E0%B8%B2"
+      ],
+      "robots": [
+        "index, follow",
+        "index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1"
+      ],
+      "xrobots": null,
+      "location": null,
+      "content_type": "text/html; charset=utf-8",
+      "h1": 1,
+      "title": "ผลงานร้านค้า - กันสาดพับเก็บได้ | สยามรูฟเทค"
+    },
+    {
+      "path": "/portfolio/category/%E0%B9%82%E0%B8%A3%E0%B8%87%E0%B9%81%E0%B8%A3%E0%B8%A1",
+      "sitemap": true,
+      "expected": "https://www.siamrooftech.com/portfolio/category/%E0%B9%82%E0%B8%A3%E0%B8%87%E0%B9%81%E0%B8%A3%E0%B8%A1",
+      "status": 200,
+      "canonical": [
+        "https://www.siamrooftech.com/portfolio/category/%E0%B9%82%E0%B8%A3%E0%B8%87%E0%B9%81%E0%B8%A3%E0%B8%A1"
+      ],
+      "robots": [
+        "index, follow",
+        "index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1"
+      ],
+      "xrobots": null,
+      "location": null,
+      "content_type": "text/html; charset=utf-8",
+      "h1": 1,
+      "title": "ผลงานโรงแรม - กันสาดพับเก็บได้ | สยามรูฟเทค"
+    },
+    {
+      "path": "/portfolio/category/%E0%B8%AA%E0%B8%B3%E0%B8%99%E0%B8%B1%E0%B8%81%E0%B8%87%E0%B8%B2%E0%B8%99",
+      "sitemap": true,
+      "expected": "https://www.siamrooftech.com/portfolio/category/%E0%B8%AA%E0%B8%B3%E0%B8%99%E0%B8%B1%E0%B8%81%E0%B8%87%E0%B8%B2%E0%B8%99",
+      "status": 200,
+      "canonical": [
+        "https://www.siamrooftech.com/portfolio/category/%E0%B8%AA%E0%B8%B3%E0%B8%99%E0%B8%B1%E0%B8%81%E0%B8%87%E0%B8%B2%E0%B8%99"
+      ],
+      "robots": [
+        "index, follow",
+        "index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1"
+      ],
+      "xrobots": null,
+      "location": null,
+      "content_type": "text/html; charset=utf-8",
+      "h1": 1,
+      "title": "ผลงานสำนักงาน - กันสาดพับเก็บได้ | สยามรูฟเทค"
+    },
+    {
+      "path": "/about",
+      "sitemap": false,
+      "expected": "https://www.siamrooftech.com/about",
+      "status": 404,
+      "canonical": [],
+      "robots": [
+        "noindex",
+        "index, follow",
+        "index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1"
+      ],
+      "xrobots": null,
+      "location": null,
+      "content_type": "text/html; charset=utf-8",
+      "h1": 1,
+      "title": "404: This page could not be found.กันสาดพับได้ ระบบมือหมุน-มอเตอร์ไฟฟ้า คุณภาพยุโรป | Siamrooftech"
+    },
+    {
+      "path": "/articles/retractable-awning",
+      "sitemap": false,
+      "expected": "https://www.siamrooftech.com/articles/retractable-awning",
+      "status": 200,
+      "canonical": [],
+      "robots": [
+        "noindex",
+        "index, follow",
+        "index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1"
+      ],
+      "xrobots": null,
+      "location": null,
+      "content_type": "text/html; charset=utf-8",
+      "h1": 0,
+      "title": "ไม่พบบทความ | Siamrooftech"
+    },
+    {
+      "path": "/articles/electric-retractable-awning",
+      "sitemap": false,
+      "expected": "https://www.siamrooftech.com/articles/electric-retractable-awning",
+      "status": 200,
+      "canonical": [],
+      "robots": [
+        "noindex",
+        "index, follow",
+        "index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1"
+      ],
+      "xrobots": null,
+      "location": null,
+      "content_type": "text/html; charset=utf-8",
+      "h1": 0,
+      "title": "ไม่พบบทความ | Siamrooftech"
+    },
+    {
+      "path": "/articles/automatic-awning",
+      "sitemap": false,
+      "expected": "https://www.siamrooftech.com/articles/automatic-awning",
+      "status": 200,
+      "canonical": [],
+      "robots": [
+        "noindex",
+        "index, follow",
+        "index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1"
+      ],
+      "xrobots": null,
+      "location": null,
+      "content_type": "text/html; charset=utf-8",
+      "h1": 0,
+      "title": "ไม่พบบทความ | Siamrooftech"
+    },
+    {
+      "path": "/articles/retractable-awning-price",
+      "sitemap": false,
+      "expected": "https://www.siamrooftech.com/articles/retractable-awning-price",
+      "status": 200,
+      "canonical": [],
+      "robots": [
+        "noindex",
+        "index, follow",
+        "index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1"
+      ],
+      "xrobots": null,
+      "location": null,
+      "content_type": "text/html; charset=utf-8",
+      "h1": 0,
+      "title": "ไม่พบบทความ | Siamrooftech"
+    },
+    {
+      "path": "/articles/electric-retractable-awning-price",
+      "sitemap": false,
+      "expected": "https://www.siamrooftech.com/articles/electric-retractable-awning-price",
+      "status": 200,
+      "canonical": [],
+      "robots": [
+        "noindex",
+        "index, follow",
+        "index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1"
+      ],
+      "xrobots": null,
+      "location": null,
+      "content_type": "text/html; charset=utf-8",
+      "h1": 0,
+      "title": "ไม่พบบทความ | Siamrooftech"
+    },
+    {
+      "path": "/works/0xsjRpgMF3TUL2uBcpum",
+      "sitemap": false,
+      "expected": "https://www.siamrooftech.com/works/0xsjRpgMF3TUL2uBcpum",
+      "status": 200,
+      "canonical": [],
+      "robots": [
+        "index, follow",
+        "index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1"
+      ],
+      "xrobots": null,
+      "location": null,
+      "content_type": "text/html; charset=utf-8",
+      "h1": 1,
+      "title": "5 x 2 - ผลงานติดตั้งกันสาดพับเก็บได้ | สยามรูฟเทค"
+    },
+    {
+      "path": "/portfolio/0xsjRpgMF3TUL2uBcpum",
+      "sitemap": false,
+      "expected": "https://www.siamrooftech.com/portfolio/0xsjRpgMF3TUL2uBcpum",
+      "status": 200,
+      "canonical": [
+        "https://www.siamrooftech.com/portfolio/5x2-520680"
+      ],
+      "robots": [
+        "index, follow",
+        "index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1"
+      ],
+      "xrobots": null,
+      "location": null,
+      "content_type": "text/html; charset=utf-8",
+      "h1": 1,
+      "title": "กันสาดพับเก็บได้ ร้านกาแฟ มวลชน สาขาโรงเรียนปัญญาพิวัฒน์ | Siamrooftech"
+    },
+    {
+      "path": "/lp/google-ads/electric-awning",
+      "sitemap": false,
+      "expected": "https://www.siamrooftech.com/lp/google-ads/electric-awning",
+      "status": 200,
+      "canonical": [
+        "https://www.siamrooftech.com/services/electric-retractable-awning"
+      ],
+      "robots": [
+        "noindex, follow",
+        "noindex, follow"
+      ],
+      "xrobots": null,
+      "location": null,
+      "content_type": "text/html; charset=utf-8",
+      "h1": 1,
+      "title": "กันสาดไฟฟ้า พร้อมประเมินระบบและติดตั้ง | Siamrooftech"
+    },
+    {
+      "path": "/lp/google-ads/retractable-awning",
+      "sitemap": false,
+      "expected": "https://www.siamrooftech.com/lp/google-ads/retractable-awning",
+      "status": 200,
+      "canonical": [
+        "https://www.siamrooftech.com"
+      ],
+      "robots": [
+        "noindex, follow",
+        "noindex, follow"
+      ],
+      "xrobots": null,
+      "location": null,
+      "content_type": "text/html; charset=utf-8",
+      "h1": 1,
+      "title": "กันสาดพับได้ ระบบมือหมุน-มอเตอร์ไฟฟ้า คุณภาพยุโรป | Siamrooftech"
+    },
+    {
+      "path": "/robots.txt",
+      "sitemap": false,
+      "expected": "https://www.siamrooftech.com/robots.txt",
+      "status": 200,
+      "canonical": [],
+      "robots": [],
+      "xrobots": null,
+      "location": null,
+      "content_type": "text/plain",
+      "h1": 0,
+      "title": "",
+      "body": "User-Agent: *\nAllow: /\nDisallow: /private/\nDisallow: /admin/\nDisallow: /api/\n\nHost: https://www.siamrooftech.com\nSitemap: https://www.siamrooftech.com/sitemap.xml\n"
+    }
+  ],
+  "lastmod_changed_on_second_request": 17,
+  "seo_qa": {
+    "command": "node scripts/seo-qa.mjs --base=http://127.0.0.1:3000",
+    "exit_code": 0,
+    "result": "SEO QA passed for 9 pages"
+  }
+}

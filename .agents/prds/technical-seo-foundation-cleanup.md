@@ -43,7 +43,7 @@ This PRD covers only foundational SEO fixes. It does not create new content at s
 23. As the business owner, I want copy to avoid attracting contractor-pass-through jobs, so that SEO lead quality matches the anti-persona.
 24. As an SEO operator, I want reusable metadata patterns, so that future public pages do not accidentally inherit homepage canonicals.
 25. As a developer, I want tests or checks around metadata output, so that regressions are caught before deployment.
-26. As a developer, I want sitemap generation to handle Firestore failures safely, so that a transient data issue does not break crawl discovery for static pages.
+26. As a developer, I want sitemap generation to handle CMS data failures safely, so that a transient database issue does not break crawl discovery for static pages.
 27. As a developer, I want public SEO output validated without relying only on implementation details, so that tests reflect what crawlers actually see.
 28. As the business owner, I want this cleanup done before daily SEO automation, so that future automated tasks work from a trustworthy baseline.
 29. As an SEO agent, I want guardrails documented in the repo, so that I do not create doorway pages, spam pages, or pages targeting unwanted contractor work.
@@ -58,7 +58,7 @@ This PRD covers only foundational SEO fixes. It does not create new content at s
 - Add or correct route-level metadata for contact, articles, all-awning, portfolio, article detail, and other public SEO routes.
 - Decide the SEO role of `/allawning`: either keep as an indexable portfolio/support page with unique metadata or consolidate it into `/portfolio`/homepage to avoid duplicate intent.
 - Expand sitemap generation to include static public pages, portfolio detail pages, published article pages, and only value-bearing category/service pages.
-- Keep sitemap generation resilient: static URLs should still be returned if Firestore project or article fetches fail.
+- Keep sitemap generation resilient: static URLs should still be returned if D1 project or article reads fail.
 - Keep `/admin`, `/api`, private, static internals, and operational routes disallowed in robots.
 - Replace blanket AI crawler blocking with an intentional policy. Recommended default for this SEO strategy is to allow reputable AI crawlers on public marketing pages while still blocking private/operational routes.
 - Normalize homepage heading hierarchy to one H1. Section headings should use H2/H3 while preserving the visual design.
@@ -77,7 +77,7 @@ This PRD covers only foundational SEO fixes. It does not create new content at s
 - Add a rendered HTML check for homepage H1 count, expecting exactly one H1.
 - Add a rendered HTML or metadata check for representative portfolio detail pages, ensuring title/description lengths stay within agreed limits.
 - Add a schema validation smoke test for homepage JSON-LD to ensure Organization/LocalBusiness/Service data is parseable JSON and does not include unverified ratings unless explicitly enabled.
-- Add regression coverage around Firestore fetch failure behavior for sitemap generation, ensuring static sitemap entries still render.
+- Add regression coverage around D1 read failure behavior for sitemap generation, ensuring static sitemap entries still render.
 - Existing test seams should be preferred: Next route metadata functions, sitemap/robots functions, and rendered HTML snapshots or lightweight integration checks.
 - If no current route test harness exists, create the smallest seam possible around pure metadata/sitemap/robots functions before introducing heavier browser tests.
 - Manual verification after implementation should include live checks for:

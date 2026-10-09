@@ -1,0 +1,4 @@
+BETTER_AUTH_SECRET=replace-with-at-least-32-random-characters
+BETTER_AUTH_URL=http://localhost:3000
+ADMIN_ALLOWED_EMAILS=owner@example.com
+AUTH_EMAIL_FROM=noreply@siamrooftech.com

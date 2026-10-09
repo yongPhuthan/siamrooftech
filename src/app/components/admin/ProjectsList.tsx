@@ -1,16 +1,18 @@
 "use client";
 
 import { useState } from "react";
-import { Project } from "../../../lib/firestore";
+import type { Project } from '@/features/projects/types';
 import { getAfterImages, getBeforeImages } from "../../../lib/project-image-utils";
+import { getProjectPath } from "../../../lib/project-url";
 
 interface ProjectsListProps {
   projects: Project[];
   onEdit: (project: Project) => void;
   onDelete: (project: Project) => void;
+  onTogglePublication: (project: Project) => void;
 }
 
-export default function ProjectsList({ projects, onEdit, onDelete }: ProjectsListProps) {
+export default function ProjectsList({ projects, onEdit, onDelete, onTogglePublication }: ProjectsListProps) {
   const [deletingProject, setDeletingProject] = useState<string | null>(null);
 
   const handleDeleteClick = (project: Project) => {
@@ -73,6 +75,7 @@ export default function ProjectsList({ projects, onEdit, onDelete }: ProjectsLis
                 const afterImages = getAfterImages(project);
                 const beforeImages = getBeforeImages(project);
                 const hasBeforeImages = beforeImages.length > 0;
+                const publicPath = project.isPublished ? getProjectPath(project) : null;
 
                 return (
                   <tr key={project.id} className="hover:bg-gray-50">
@@ -136,20 +139,24 @@ export default function ProjectsList({ projects, onEdit, onDelete }: ProjectsLis
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                      <a
-                        href={`/portfolio/${project.slug}`}
+                      {publicPath ? <a
+                        href={publicPath}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center justify-center rounded-md border border-gray-200 px-3 py-1.5 text-gray-700 transition-colors hover:border-gray-300 hover:text-gray-900"
                         title="ดูโปรเจคในเว็บไซต์"
-                      >
-                        ดูหน้าเว็บ
-                      </a>
+                      >ดูหน้าเว็บ</a> : <span className="text-xs text-gray-500">ยังไม่เผยแพร่</span>}
                       <button
                         onClick={() => onEdit(project)}
                         className="inline-flex items-center justify-center rounded-md border border-gray-200 px-3 py-1.5 text-gray-700 transition-colors hover:border-gray-300 hover:text-gray-900"
                       >
                         แก้ไข
+                      </button>
+                      <button
+                        onClick={() => onTogglePublication(project)}
+                        className="inline-flex items-center justify-center rounded-md border border-gray-200 px-3 py-1.5 text-gray-700 transition-colors hover:border-gray-300 hover:text-gray-900"
+                      >
+                        {project.isPublished ? 'ยกเลิกเผยแพร่' : 'เผยแพร่'}
                       </button>
                       <button
                         onClick={() => handleDeleteClick(project)}
@@ -182,6 +189,7 @@ export default function ProjectsList({ projects, onEdit, onDelete }: ProjectsLis
           const afterImages = getAfterImages(project);
           const beforeImages = getBeforeImages(project);
           const hasBeforeImages = beforeImages.length > 0;
+          const publicPath = project.isPublished ? getProjectPath(project) : null;
 
           return (
             <div
@@ -259,20 +267,24 @@ export default function ProjectsList({ projects, onEdit, onDelete }: ProjectsLis
               {/* Action Buttons */}
               <div className="border-t border-gray-100 bg-gray-50 p-4">
                 <div className="grid gap-2">
-                  <a
-                    href={`/portfolio/${project.slug}`}
+                  {publicPath ? <a
+                    href={publicPath}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-center text-sm font-medium text-gray-700 transition-colors hover:border-gray-300 hover:text-gray-900 active:scale-[0.99]"
                     title="ดูโปรเจคในเว็บไซต์"
-                  >
-                    ดูหน้าเว็บ
-                  </a>
+                  >ดูหน้าเว็บ</a> : <span className="py-2.5 text-center text-xs text-gray-500">ยังไม่เผยแพร่</span>}
                   <button
                     onClick={() => onEdit(project)}
                     className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-center text-sm font-medium text-gray-700 transition-colors hover:border-gray-300 hover:text-gray-900 active:scale-[0.99]"
                   >
                     แก้ไขรายละเอียด
+                  </button>
+                  <button
+                    onClick={() => onTogglePublication(project)}
+                    className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-center text-sm font-medium text-gray-700 transition-colors hover:border-gray-300 hover:text-gray-900"
+                  >
+                    {project.isPublished ? 'ยกเลิกเผยแพร่' : 'เผยแพร่'}
                   </button>
                   <button
                     onClick={() => handleDeleteClick(project)}

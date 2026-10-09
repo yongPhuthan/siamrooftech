@@ -3,11 +3,11 @@ import TrustedBy from "./section/TrustedBy";
 import WhyUs from "./section/WhyUs";
 import HowItWorks from "./section/HowItWorks";
 import EndSection from "./section/EndSection";
-import FinalCTASection from "./FinalCTASection";
+import FinalCTASection from '@/components/site/FinalCTASection';
 import Whyus2 from "./section/WhyUs2";
 import DamageWarningSection from "./section/DamageWarningSection";
-import { Project } from "@/lib/firestore";
-import { transformFirestoreProjectsToProjectShow } from "@/lib/project-utils";
+import type { Project } from '@/features/projects/types';
+import { transformProjectsToProjectShow } from "@/lib/project-utils";
 import ProjectGalleryClient from "./ProjectGalleryClient";
 import LineContactButton from "@/features/line-contact/LineContactButton";
 import PortfolioButton from "./PortfolioButton";
@@ -17,11 +17,11 @@ type Props = {
   projects: Project[];
 };
 const Main = (props: Props) => {
-  const { keyword, projects: firestoreProjects } = props;
+  const { keyword, projects } = props;
 
-  // แปลงข้อมูลจาก Firestore เป็น format ที่ ProjectShow ใช้ (แสดง 25 รายการ)
-  const { projectShowData: projects, hasMore } = transformFirestoreProjectsToProjectShow(
-    firestoreProjects,
+  // Transform published projects into the homepage gallery format (up to 25 items).
+  const { projectShowData, hasMore } = transformProjectsToProjectShow(
+    projects,
     keyword,
     25
   );
@@ -35,8 +35,8 @@ const Main = (props: Props) => {
         <WhyUs keyword={keyword} />
       </div>
 
-      <div className="bg-[#fafafaff] pt-10 mt-10 ">
-        <ProjectGalleryClient projects={projects} />
+      <div className="bg-site-background pt-10 mt-10 ">
+        <ProjectGalleryClient projects={projectShowData} />
 
         {/* ปุ่มดูผลงานทั้งหมด หากมีผลงานเกิน 25 รายการ */}
         {hasMore && (

@@ -1,0 +1,174 @@
+name: Prepare and release production
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm_main_sha:
+        description: Paste the full main commit SHA to release
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: siamrooftech-production
+  cancel-in-progress: false
+
+jobs:
+  validate-release:
+    name: validate-release
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 2
+          persist-credentials: false
+      - name: Require the selected SHA to be current main
+        env:
+          REQUESTED_SHA: ${{ inputs.confirm_main_sha }}
+          RELEASE_SHA: ${{ github.sha }}
+        run: |
+          test "$REQUESTED_SHA" = "$RELEASE_SHA"
+      - name: Verify production target is deploy-ready
+        run: node scripts/deployment-policy.mjs --target=production --deploy
+        env:
+          PRODUCTION_CUTOVER_READY: ${{ vars.PRODUCTION_CUTOVER_READY }}
+
+  staging-validation:
+    name: staging-validation
+    needs: validate-release
+    runs-on: ubuntu-latest
+    environment: staging
+    concurrency:
+      group: siamrooftech-staging
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 22
+          cache: yarn
+      - run: corepack enable
+      - run: yarn install --frozen-lockfile --non-interactive
+      - run: node scripts/deployment-policy.mjs --target=staging --deploy
+        env:
+          STAGING_ACCESS_READY: ${{ vars.STAGING_ACCESS_READY }}
+      - run: yarn cf:build:staging
+        env:
+          GITHUB_SHA: ${{ github.sha }}
+      - run: node_modules/.bin/wrangler deploy --env staging --config wrangler.jsonc
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+      - run: node scripts/seo-qa.mjs --environment=staging
+        env:
+          SEO_QA_RELEASE_SHA: ${{ github.sha }}
+          CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
+          CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
+      - name: Recheck staging at two minutes
+        run: sleep 120 && node scripts/seo-qa.mjs --environment=staging
+        env:
+          SEO_QA_RELEASE_SHA: ${{ github.sha }}
+          CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
+          CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
+      - name: Recheck staging at five minutes
+        run: sleep 180 && node scripts/seo-qa.mjs --environment=staging
+        env:
+          SEO_QA_RELEASE_SHA: ${{ github.sha }}
+          CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
+          CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
+
+  prepare-production:
+    name: production-release-summary
+    needs: staging-validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 2
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 22
+          cache: yarn
+      - run: corepack enable
+      - run: yarn install --frozen-lockfile --non-interactive
+      - run: yarn cf:build:production
+        env:
+          GITHUB_SHA: ${{ github.sha }}
+      - run: node scripts/release-artifact-audit.mjs
+      - name: Create production manifest
+        run: node scripts/release-manifest.mjs production release-manifest.json
+        env:
+          GITHUB_SHA: ${{ github.sha }}
+      - name: Release summary in Thai
+        env:
+          RELEASE_SHA: ${{ github.sha }}
+        run: |
+          {
+            echo '## เตรียมปล่อย Production'
+            echo "- Commit: \`$RELEASE_SHA\` (staging ผ่านกับ SHA เดียวกัน)"
+            echo '- SEO gate: runtime HTML, canonical, robots, sitemap, 404 และ health check ผ่านบน staging'
+            echo '- Database migration: ไม่มีการรัน migration ในขั้น deploy ปกติ; checksum อยู่ใน release manifest'
+            echo '- Rollback: ใช้ Worker version ก่อนหน้าได้เมื่อ bindings/schema เข้ากันได้; ไม่ย้อน D1/R2 อัตโนมัติ'
+            echo '- การอนุมัตินี้ปล่อยเฉพาะ Worker code/assets ไม่แก้ DNS หรือส่ง sitemap ให้ Search Console'
+          } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: production-open-next-${{ github.sha }}
+          path: |
+            .open-next/
+            release-manifest.json
+          if-no-files-found: error
+          retention-days: 1
+          compression-level: 0
+
+  deploy-production:
+    name: production-deployment
+    needs: [validate-release, prepare-production]
+    runs-on: ubuntu-latest
+    environment: Production
+    permissions:
+      contents: read
+      deployments: write
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 22
+          cache: yarn
+      - run: corepack enable
+      - run: yarn install --frozen-lockfile --non-interactive
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: production-open-next-${{ github.sha }}
+      - name: Verify manifest matches the reviewed release
+        env:
+          RELEASE_SHA: ${{ github.sha }}
+        run: node scripts/verify-release-manifest.mjs production release-manifest.json
+      - run: node_modules/.bin/wrangler deploy --env production --config wrangler.jsonc
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+      - name: Verify production immediately
+        run: node scripts/seo-qa.mjs --environment=production
+        env:
+          SEO_QA_RELEASE_SHA: ${{ github.sha }}
+      - name: Recheck at two minutes
+        run: sleep 120 && node scripts/seo-qa.mjs --environment=production
+        env:
+          SEO_QA_RELEASE_SHA: ${{ github.sha }}
+      - name: Recheck at five minutes
+        run: sleep 180 && node scripts/seo-qa.mjs --environment=production
+        env:
+          SEO_QA_RELEASE_SHA: ${{ github.sha }}

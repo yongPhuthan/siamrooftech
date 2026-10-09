@@ -1,8 +1,8 @@
-import type { Project } from "../lib/firestore";
+import type { Project } from '@/features/projects/types';
 
-// Generated from Firestore project siamrooftech-d7b13 on 2026-06-13.
-// Edit this file directly when adding small numbers of portfolio items.
-// Keep image URLs verified; public pages read this data without hitting Firestore.
+// Public-project import baseline captured on 2026-06-13.
+// New work is managed as private drafts through the CMS admin interface.
+// Keep source media URLs verified; the local importer preserves these records.
 export const fileProjects = [
   {
     "id": "0xsjRpgMF3TUL2uBcpum",
@@ -64,7 +64,7 @@ export const fileProjects = [
     ],
     "featured_image": "https://assets.siamrooftech.com/original/0659fc45e69f254d-1760377505552-l038sb-jpg.jpg",
     "title": "5 x 2",
-    "slug": "5x2-520680",
+    "slug": "retractable-awning-5x2-2",
     "updated_at": "2025-10-13T17:45:20.680Z",
     "created_at": "2025-10-13T17:45:20.680Z"
   },
@@ -128,7 +128,7 @@ export const fileProjects = [
     ],
     "featured_image": "https://assets.siamrooftech.com/original/a67cc5cd774df86f-1760253853393-s4eq7z-jpg.jpg",
     "title": "4.5 x 2",
-    "slug": "4-5x2-860430",
+    "slug": "retractable-awning-4-5x2-2",
     "updated_at": "2025-10-12T07:24:20.430Z",
     "created_at": "2025-10-12T07:24:20.430Z"
   },
@@ -194,7 +194,7 @@ export const fileProjects = [
     ],
     "featured_image": "https://assets.siamrooftech.com/original/1675607e0840490b-1760100736580-f0jjmo-jpg.jpg",
     "title": "3.5 x 1.5",
-    "slug": "3-5x1.5-744861",
+    "slug": "retractable-awning-3-5x1-5-1",
     "updated_at": "2025-10-10T12:52:24.861Z",
     "created_at": "2025-10-10T12:52:24.861Z"
   },
@@ -271,7 +271,7 @@ export const fileProjects = [
     ],
     "featured_image": "https://assets.siamrooftech.com/original/3b9437fe2b515e53-1760027343022-xjjtix-jpg.jpg",
     "title": "5 x 2.5",
-    "slug": "5x2-5-351507",
+    "slug": "retractable-awning-5x2-5-2",
     "updated_at": "2025-10-09T16:29:11.507Z",
     "created_at": "2025-10-09T16:29:11.507Z"
   },
@@ -346,7 +346,7 @@ export const fileProjects = [
     ],
     "featured_image": "https://assets.siamrooftech.com/original/4bd2fbcca6c6caf2-1759941534076-xe9db5-jpg.jpg",
     "title": "4.5 x 2",
-    "slug": "4-5x2-542650",
+    "slug": "retractable-awning-4-5x2-1",
     "updated_at": "2025-10-08T16:39:02.650Z",
     "created_at": "2025-10-08T16:39:02.650Z"
   },
@@ -445,7 +445,7 @@ export const fileProjects = [
     ],
     "featured_image": "https://assets.siamrooftech.com/original/9604634351808d4e-1759675757393-zyjdv6-jpg.jpg",
     "title": "5 x 2",
-    "slug": "5x2-767881",
+    "slug": "retractable-awning-5x2-1",
     "updated_at": "2025-10-05T14:49:27.881Z",
     "created_at": "2025-10-05T14:49:27.881Z"
   },
@@ -509,7 +509,7 @@ export const fileProjects = [
     ],
     "featured_image": "https://assets.siamrooftech.com/original/e58399b30c757dc2-1759670320184-826maa-jpg.jpg",
     "title": "2 x 1.5",
-    "slug": "2x1-5-326707",
+    "slug": "retractable-awning-2x1-5-2",
     "updated_at": "2025-10-05T13:18:46.707Z",
     "created_at": "2025-10-05T13:18:46.707Z"
   },
@@ -577,7 +577,7 @@ export const fileProjects = [
     ],
     "featured_image": "https://assets.siamrooftech.com/original/12cf50f284817e55-1754739881884-7jmect-jpg.jpg",
     "title": "4.7 x 2.5",
-    "slug": "4-7x2.5-886205",
+    "slug": "retractable-awning-4-7x2-5-1",
     "updated_at": "2025-08-09T11:44:46.205Z",
     "created_at": "2025-08-09T11:44:46.205Z"
   },
@@ -644,7 +644,7 @@ export const fileProjects = [
     ],
     "featured_image": "https://assets.siamrooftech.com/original/f74eda89679b299c-1754739363740-1rj6rf-jpg.jpg",
     "title": "2 x 1.5",
-    "slug": "2x1-5-368997",
+    "slug": "retractable-awning-2x1-5-1",
     "updated_at": "2025-08-09T11:36:08.997Z",
     "created_at": "2025-08-09T11:36:08.997Z"
   },
@@ -732,7 +732,7 @@ export const fileProjects = [
     ],
     "featured_image": "https://assets.siamrooftech.com/original/90640f151a597617-1754738877596-v27zzm-jpg.jpg",
     "title": "2.6 x 2",
-    "slug": "2-6x2-881761",
+    "slug": "electric-awning-2-6x2-1",
     "updated_at": "2025-08-09T11:28:01.761Z",
     "created_at": "2025-08-09T11:28:01.761Z"
   },
@@ -788,7 +788,7 @@ export const fileProjects = [
     ],
     "featured_image": "https://assets.siamrooftech.com/original/60e40a6debb7b5aa-1754738200249-kei9c9-jpg.jpg",
     "title": "3 x 2",
-    "slug": "3x2-204672",
+    "slug": "retractable-awning-3x2-1",
     "updated_at": "2025-08-09T11:16:44.672Z",
     "created_at": "2025-08-09T11:16:44.672Z"
   },
@@ -856,7 +856,7 @@ export const fileProjects = [
     ],
     "featured_image": "https://assets.siamrooftech.com/original/97a9b6d541994307-1754732286322-0077yg-webp.webp",
     "title": "5.7 x 2.5",
-    "slug": "5-7x2.5-290684",
+    "slug": "retractable-awning-5-7x2-5-1",
     "updated_at": "2025-08-09T09:38:10.684Z",
     "created_at": "2025-08-09T09:38:10.684Z"
   },
@@ -924,7 +924,7 @@ export const fileProjects = [
     ],
     "featured_image": "https://assets.siamrooftech.com/original/a0f1c1c40dd43494-1754731467832-rnfjit-jpeg.jpeg",
     "title": "5 x 2.5",
-    "slug": "5x2-5-472465",
+    "slug": "retractable-awning-5x2-5-1",
     "updated_at": "2025-08-09T09:24:32.465Z",
     "created_at": "2025-08-09T09:24:32.465Z"
   },
@@ -992,7 +992,7 @@ export const fileProjects = [
     ],
     "featured_image": "https://assets.siamrooftech.com/original/50c7e19ed1e32e5b-1754730723346-lgj15w-webp.webp",
     "title": "5.6 x 2",
-    "slug": "5-6x2-728032",
+    "slug": "retractable-awning-5-6x2-1",
     "updated_at": "2025-08-09T09:12:08.032Z",
     "created_at": "2025-08-09T09:12:08.032Z"
   },
@@ -1060,7 +1060,7 @@ export const fileProjects = [
     ],
     "featured_image": "https://assets.siamrooftech.com/original/7581b106c26b761a-1754729850314-6mgoyn-jpg.jpg",
     "title": "4.5 x 2.5",
-    "slug": "4-5x2.5-854715",
+    "slug": "retractable-awning-4-5x2-5-1",
     "updated_at": "2025-08-09T08:57:34.715Z",
     "created_at": "2025-08-09T08:57:34.715Z"
   },
@@ -1076,7 +1076,7 @@ export const fileProjects = [
     "canvas_material": "ผ้าอะคริลิคสเปน",
     "fabric_edge": "ตัดเรียบ",
     "title": "5.3 x 2.5",
-    "slug": "5-3x2.5-192907",
+    "slug": "retractable-awning-5-3x2-5-1",
     "created_at": "2025-08-08T16:06:32.907Z",
     "description": [
       "กันสาดพับเก็บได้สองระบบ (มือหมุน + มอเตอร์ไฟฟ้า) ขนาดกว้าง 5.3 เมตร x ระยะแขนยื่นออก2.5 เมตร ติดตั้งที่สำนักงานในพื้นที่แขวงคลองถนน เขตสายไหม กรุงเทพมหานคร",

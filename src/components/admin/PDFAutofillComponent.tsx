@@ -1,5 +1,7 @@
 "use client";
 
+import { adminFetch } from "@/lib/admin-fetch";
+
 import { useState, useRef } from "react";
 
 interface PDFAutofillData {
@@ -49,7 +51,7 @@ export default function PDFAutofillComponent({ onDataExtracted, isLoading = fals
       const formData = new FormData();
       formData.append('pdf', file);
 
-      const response = await fetch('/api/pdf-autofill', {
+      const response = await adminFetch('/api/pdf-autofill', {
         method: 'POST',
         body: formData,
       });

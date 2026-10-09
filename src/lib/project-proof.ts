@@ -1,4 +1,4 @@
-import { Project } from './firestore';
+import type { Project } from '@/features/projects/types';
 
 export type NormalizedProjectProof = {
   serviceType: string;

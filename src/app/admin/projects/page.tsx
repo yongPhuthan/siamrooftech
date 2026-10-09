@@ -4,7 +4,7 @@ import dynamic from "next/dynamic";
 
 /**
  * The real content (and everything it imports - ProjectForm, adminFetch,
- * the Firebase client SDK) must load client-only. See AdminAuthGate for why.
+ * browser-only editor code loads client-side; APIs enforce access on the server.
  */
 const ProjectsAdminClient = dynamic(() => import("./ProjectsAdminClient"), { ssr: false });
 

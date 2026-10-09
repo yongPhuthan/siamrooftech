@@ -1,3 +1,4 @@
+import { verifyAdminRequest, unauthorizedResponse } from '@/lib/api-auth';
 import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
@@ -82,6 +83,7 @@ if (typeof globalThis !== 'undefined') {
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GENAI_API_KEY!);
 
 export async function POST(req: NextRequest) {
+  if (!(await verifyAdminRequest(req))) return unauthorizedResponse();
   try {
     const formData = await req.formData();
     const file = formData.get('pdf') as File;

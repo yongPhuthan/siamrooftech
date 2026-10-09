@@ -486,7 +486,7 @@ const handlePaste = (e: ClipboardEvent) => {
    - ทดสอบ
 
 2. **Update API Routes**
-   - เพิ่ม fields ใหม่ใน Firestore
+   - เพิ่ม fields ใหม่ในข้อมูล CMS
    - Update Article schema
    - Migrate ข้อมูลเก่า (optional)
 

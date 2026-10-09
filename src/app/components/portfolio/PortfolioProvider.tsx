@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { usePortfolioStore } from '../../../store/portfolioStore';
-import { Project } from '../../../lib/firestore';
+import type { Project } from '@/features/projects/types';
 
 interface PortfolioProviderProps {
   projects: Project[];

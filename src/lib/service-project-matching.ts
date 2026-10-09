@@ -1,7 +1,8 @@
 import { unstable_cache } from 'next/cache';
-import { Project } from './firestore';
-import { projectsAdminService } from './firestore-admin';
+import type { Project } from '@/features/projects/types';
+import { projectsRepository } from '@/features/projects/server/repository';
 import { getProjectProof, hasManualProjectProof } from './project-proof';
+import { getProjectPath } from './project-url';
 import { ServicePage } from './service-pages';
 import { matchesServiceLocation } from './service-linking';
 
@@ -26,7 +27,7 @@ export type ServiceProofProject = {
 export const fetchServiceProofProjects = unstable_cache(
   async (): Promise<Project[]> => {
     try {
-      const projects = await projectsAdminService.getAll();
+      const projects = await projectsRepository.getAll();
       return projects || [];
     } catch (error) {
       console.error('Error fetching service proof projects:', error);
@@ -73,7 +74,7 @@ function toServiceProofProject(project: Project): ServiceProofProject {
   return {
     id: project.id,
     title: project.title || `${project.type} ${project.location}`,
-    href: `/portfolio/${project.slug || project.id}`,
+    href: getProjectPath(project) ?? '/projects',
     image,
     imageAlt: project.images?.[0]?.alt_text || `ผลงานกันสาดพับเก็บได้ ${project.location}`,
     location: proof.location,

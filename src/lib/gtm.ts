@@ -1,6 +1,6 @@
 'use client';
 
-import { sendGTMEvent } from '@next/third-parties/google';
+import { sendGAEvent } from '@next/third-parties/google';
 
 type GTMEventPayload = Record<string, unknown>;
 type StoredAttribution = Record<string, string>;
@@ -139,11 +139,13 @@ const trackEvent = (payload: GTMEventPayload) => {
 
   const attribution = captureAttribution();
 
-  sendGTMEvent({
+  const { event, ...eventParameters } = {
     ...getCurrentPageContext(),
     ...toEventAttributionParams(attribution),
     ...payload,
-  });
+  };
+
+  sendGAEvent('event', String(event), eventParameters);
 };
 
 export const trackContactClick = (position: string = 'unknown') => {
