@@ -84,6 +84,7 @@ export function assessConfig(config, target, { deploy = false, accessReady = fal
   const blockingReasons = [...missing];
   if (target === 'local') blockingReasons.push('local deploy disabled');
   if (target === 'staging' && !accessReady) blockingReasons.push('Cloudflare Access not verified');
+  if (target === 'production' && !productionReady) blockingReasons.push('production data, routing, and rollback readiness not verified');
   return {
     target,
     worker: env.name,
