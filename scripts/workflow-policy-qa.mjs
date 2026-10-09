@@ -26,6 +26,12 @@ for (const required of ['quality', 'environment-policy', 'runtime-seo']) {
   assert.ok(ci?.jobs?.[required], `ci.yml must keep the stable ${required} required-check name`);
 }
 assert.match(ci.jobs['deploy-staging'].if, /push.*refs\/heads\/main/);
+assert.match(ci.jobs['deploy-staging'].if, /vars\.STAGING_DEPLOY_ENABLED\s*==\s*'true'/);
+assert.match(
+  await readFile('.github/workflows/ci.yml', 'utf8'),
+  /Job-level `if` runs before an environment is attached; this gate must be a repository variable\./,
+  'staging deployment gate must document its repository-variable scope',
+);
 assert.equal(ci.jobs['deploy-staging'].environment, 'staging');
 for (const job of ['quality', 'environment-policy', 'runtime-seo']) {
   assert.doesNotMatch(JSON.stringify(ci.jobs[job]), /secrets\./, `${job} must not access deployment secrets`);

@@ -73,6 +73,7 @@ jobs:
 
   deploy-staging:
     name: staging-deployment
+    # Job-level `if` runs before an environment is attached; this gate must be a repository variable.
     if: github.event_name == 'push' && github.ref == 'refs/heads/main' && vars.STAGING_DEPLOY_ENABLED == 'true'
     needs: [quality, environment-policy, runtime-seo]
     runs-on: ubuntu-latest
