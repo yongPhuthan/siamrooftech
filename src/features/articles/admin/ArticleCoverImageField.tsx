@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { ImagePlus, LoaderCircle, Replace, Trash2, Upload, X } from 'lucide-react';
 import { uploadImageToCloudflare } from '@/app/lib/cloudflare/uploadImage';
 
 interface ArticleCoverImageFieldProps {
@@ -82,16 +83,17 @@ export default function ArticleCoverImageField({ imageUrl, altText, onImageChang
             <div className="flex flex-wrap gap-2">
               {hasPendingCover ? (
                 <>
-                  <button type="button" onClick={uploadSelectedCover} disabled={uploading} className="article-editor-tool">
-                    {uploading ? 'กำลังอัปโหลด…' : 'อัปโหลดภาพปก'}
+                  <button type="button" onClick={uploadSelectedCover} disabled={uploading} className="article-cover-upload-button inline-flex min-h-10 items-center justify-center gap-2 px-4 py-2 text-sm font-semibold disabled:cursor-wait disabled:opacity-60" aria-label="อัปโหลดภาพปก" aria-busy={uploading}>
+                    {uploading ? <LoaderCircle size={17} className="animate-spin" aria-hidden="true" /> : <Upload size={17} aria-hidden="true" />}
+                    <span>{uploading ? 'กำลังอัปโหลด…' : 'อัปโหลดภาพปก'}</span>
                   </button>
-                  <button type="button" onClick={() => fileInputRef.current?.click()} disabled={uploading} className="article-editor-tool">เลือกภาพอื่น</button>
-                  <button type="button" onClick={cancelPendingCover} disabled={uploading} className="article-editor-tool">ยกเลิกการเลือก</button>
+                  <button type="button" onClick={() => fileInputRef.current?.click()} disabled={uploading} className="article-editor-tool inline-flex size-10 items-center justify-center p-0 disabled:opacity-50" aria-label="เลือกภาพอื่น" title="เลือกภาพอื่น"><ImagePlus size={17} aria-hidden="true" /></button>
+                  <button type="button" onClick={cancelPendingCover} disabled={uploading} className="article-editor-tool inline-flex size-10 items-center justify-center p-0 disabled:opacity-50" aria-label="ยกเลิกการเลือกภาพ" title="ยกเลิกการเลือกภาพ"><X size={17} aria-hidden="true" /></button>
                 </>
               ) : (
                 <>
-                  <button type="button" onClick={() => fileInputRef.current?.click()} className="article-editor-tool">เปลี่ยนภาพปก</button>
-                  <button type="button" onClick={() => { onImageChange(undefined); onAltChange(undefined); setLocalPreview(''); setError(''); }} className="article-editor-tool">นำภาพปกออก</button>
+                  <button type="button" onClick={() => fileInputRef.current?.click()} className="article-editor-tool inline-flex size-10 items-center justify-center p-0" aria-label="เปลี่ยนภาพปก" title="เปลี่ยนภาพปก"><Replace size={17} aria-hidden="true" /></button>
+                  <button type="button" onClick={() => { onImageChange(undefined); onAltChange(undefined); setLocalPreview(''); setError(''); }} className="article-editor-tool inline-flex size-10 items-center justify-center p-0" aria-label="นำภาพปกออก" title="นำภาพปกออก"><Trash2 size={17} aria-hidden="true" /></button>
                 </>
               )}
             </div>

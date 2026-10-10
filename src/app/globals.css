@@ -389,6 +389,10 @@ body {
     --article-accent-text: #1e40af;
     --article-accent-surface: #eff6ff;
     --article-accent-border: #93c5fd;
+    --article-primary-action-bg: #1d4ed8;
+    --article-primary-action-hover: #1e40af;
+    --article-primary-action-text: #ffffff;
+    --article-primary-action-focus: #2563eb;
     --article-warning: #92400e;
     --article-warning-strong: #451a03;
     --article-warning-surface: #fffbeb;
@@ -404,6 +408,9 @@ body {
   .article-editor-tool { border: 1px solid var(--article-border); border-radius: 4px; background: var(--article-surface); padding: 0.45rem 0.65rem; color: var(--article-text); font-size: 0.8125rem; }
   .article-editor-tool:hover { background: var(--article-hover); }
   .article-editor-tool:focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; }
+  .article-cover-upload-button { border: 1px solid var(--article-primary-action-bg); border-radius: 4px; background: var(--article-primary-action-bg); color: var(--article-primary-action-text); transition: background-color 150ms ease, border-color 150ms ease; }
+  .article-cover-upload-button:hover:not(:disabled) { border-color: var(--article-primary-action-hover); background: var(--article-primary-action-hover); }
+  .article-cover-upload-button:focus-visible { outline: 2px solid var(--article-primary-action-focus); outline-offset: 2px; }
   .article-editor-content { color: var(--article-text); font-family: var(--font-body); font-size: 1.0625rem; line-height: 1.85; }
   .article-editor-content :is(h2, h3) { margin-block: 2rem 0.75rem; font-family: var(--font-heading); font-weight: 700; }
   #article-title { font-family: var(--font-heading); }
@@ -434,6 +441,10 @@ body {
     --article-accent-text: #bfdbfe;
     --article-accent-surface: #172554;
     --article-accent-border: #3b82f6;
+    --article-primary-action-bg: #93c5fd;
+    --article-primary-action-hover: #bfdbfe;
+    --article-primary-action-text: #0b1220;
+    --article-primary-action-focus: #93c5fd;
     --article-warning: #fcd34d;
     --article-warning-strong: #fef3c7;
     --article-warning-surface: #422006;
@@ -467,6 +478,8 @@ body {
     background-color: var(--article-hover) !important;
   }
   [data-article-theme="dark"] .bg-blue-50 { background-color: var(--article-accent-surface) !important; }
+  [data-article-theme="dark"] .article-cover-upload-button { border-color: var(--article-primary-action-bg); background: var(--article-primary-action-bg); color: var(--article-primary-action-text); }
+  [data-article-theme="dark"] .article-cover-upload-button:hover:not(:disabled) { border-color: var(--article-primary-action-hover); background: var(--article-primary-action-hover); }
   [data-article-theme="dark"] .bg-amber-50 { background-color: var(--article-warning-surface) !important; }
   [data-article-theme="dark"] .bg-red-50 { background-color: var(--article-danger-surface) !important; }
 
