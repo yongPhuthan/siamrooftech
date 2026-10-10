@@ -12,7 +12,18 @@ export type UploadOptions = {
   watermarkText?: string | null;
 };
 
+async function uploadFailure(response: Response, sizeLabel: string): Promise<Error> {
+  const payload = await response.json().catch(() => null) as { referenceId?: unknown } | null;
+  const referenceId = typeof payload?.referenceId === 'string' ? ` · รหัส ${payload.referenceId}` : '';
+  return new Error(`อัปโหลดภาพ${sizeLabel}ไม่สำเร็จ (HTTP ${response.status}${referenceId})`);
+}
+
 const DEFAULT_WATERMARK_TEXT = 'LINE:@ROOFTECH';
+const IMAGE_SIZE_LABELS = {
+  thumbnail: 'ขนาดย่อ',
+  medium: 'ขนาดกลาง',
+  original: 'ต้นฉบับ',
+} as const;
 
 async function applyWatermark(file: File, watermarkText: string): Promise<File> {
   const formData = new FormData();
@@ -77,7 +88,8 @@ export async function uploadImageToCloudflare(
       }),
     });
 
-    if (!presignRes.ok) throw new Error('Failed to get presigned URL');
+    const sizeLabel = IMAGE_SIZE_LABELS[label as keyof typeof IMAGE_SIZE_LABELS];
+    if (!presignRes.ok) throw await uploadFailure(presignRes, `${sizeLabel} `);
 
     const { uploadUrl, publicUrl } = await presignRes.json() as { uploadUrl: string; publicUrl: string };
 
@@ -87,7 +99,7 @@ export async function uploadImageToCloudflare(
       body: resized,
     });
 
-    if (!uploadRes.ok) throw new Error('Upload to Cloudflare failed');
+    if (!uploadRes.ok) throw await uploadFailure(uploadRes, `${sizeLabel} `);
 
     console.log(`✅ Successfully uploaded ${label}: ${publicUrl}`);
 
