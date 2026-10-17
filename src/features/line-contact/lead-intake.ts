@@ -17,8 +17,25 @@ export function mintRefCode(): string {
   return `SRT-${suffix}`;
 }
 
+const VISITOR_ID_KEY = 'siamrooftech_line_visitor_id';
+
+export function getVisitorId(): string {
+  try {
+    const existing = window.localStorage.getItem(VISITOR_ID_KEY);
+    if (existing) return existing;
+    const created = crypto.randomUUID();
+    window.localStorage.setItem(VISITOR_ID_KEY, created);
+    return created;
+  } catch {
+    return crypto.randomUUID();
+  }
+}
+
 export interface LeadIntakePayload {
+  click_id?: string;
+  visitor_id?: string;
   ref_code: string;
+  email?: string;
   gclid?: string;
   gbraid?: string;
   wbraid?: string;

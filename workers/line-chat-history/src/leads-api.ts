@@ -1,14 +1,14 @@
 import { errorResponse, jsonResponse, requireBearer } from './http';
 import { fetchMessagesPage, decodeCursor } from './read-api';
 import { resolveTimeRange, utcMsToIso } from './timezone';
-import { createLead, manualMatchLead, updateLeadStatus, updateLeadValue } from './leads';
+import { createLead, manualMatchLead, updateLeadNotes, updateLeadStatus, updateLeadValue } from './leads';
 import type { LeadIntakeRequest } from './leads';
 import type { AdsSyncJobRow, Env, LeadEventRow, LeadRow, LeadStatus } from './types';
 
 const DEFAULT_LIMIT = 100;
 const MAX_LIMIT = 500;
 
-function serializeLead(row: LeadRow) {
+export function serializeLead(row: LeadRow) {
   return {
     lead_id: row.lead_id,
     ref_code: row.ref_code,
@@ -316,6 +316,23 @@ async function handleManualMatch(request: Request, env: Env, leadId: string): Pr
   return jsonResponse({ ok: true });
 }
 
+async function handleNotesUpdate(request: Request, env: Env, leadId: string): Promise<Response> {
+  let body: { notes?: string | null; actor?: string };
+  try {
+    body = await request.json();
+  } catch {
+    return errorResponse('invalid JSON', 400);
+  }
+  if (body.notes !== null && body.notes !== undefined && typeof body.notes !== 'string') {
+    return errorResponse('notes must be a string or null', 400);
+  }
+  const notes = body.notes?.trim() || null;
+  if (notes && notes.length > 4000) return errorResponse('notes must not exceed 4000 characters', 400);
+  const result = await updateLeadNotes(env, leadId, notes, body.actor || 'agent');
+  if (!result.ok) return errorResponse(result.error!, 404);
+  return jsonResponse({ ok: true });
+}
+
 export async function handleLeadsApi(request: Request, env: Env, url: URL): Promise<Response> {
   // Intake has its own bearer (LEADS_INTAKE_TOKEN) — it's called by the
   // Next.js same-origin proxy on behalf of anonymous site visitors, never
@@ -332,6 +349,7 @@ export async function handleLeadsApi(request: Request, env: Env, url: URL): Prom
   const statusMatch = /^\/leads\/([^/]+)\/status$/.exec(url.pathname);
   const valueMatch = /^\/leads\/([^/]+)\/value$/.exec(url.pathname);
   const matchMatch = /^\/leads\/([^/]+)\/match$/.exec(url.pathname);
+  const notesMatch = /^\/leads\/([^/]+)\/notes$/.exec(url.pathname);
 
   const route:
     | { handler: () => Promise<Response>; method: 'GET' | 'POST'; isWrite: boolean }
@@ -350,6 +368,8 @@ export async function handleLeadsApi(request: Request, env: Env, url: URL): Prom
                 ? { handler: () => handleValueUpdate(request, env, valueMatch[1]), method: 'POST', isWrite: true }
                 : matchMatch
                   ? { handler: () => handleManualMatch(request, env, matchMatch[1]), method: 'POST', isWrite: true }
+                  : notesMatch
+                    ? { handler: () => handleNotesUpdate(request, env, notesMatch[1]), method: 'POST', isWrite: true }
                   : leadDetailMatch
                     ? { handler: () => handleGetLead(env, leadDetailMatch[1], url), method: 'GET', isWrite: false }
                     : null;

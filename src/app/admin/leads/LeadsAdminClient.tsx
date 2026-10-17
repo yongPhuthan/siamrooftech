@@ -7,7 +7,7 @@ import { adminFetch } from "../../../lib/admin-fetch";
 // --- Types mirroring workers/line-chat-history/src/leads-api.ts serializeLead() ---
 
 type LeadStatus = "new" | "contacted" | "qualified" | "quoted" | "won" | "lost" | "disqualified";
-type AdsState = "not_sent" | "sent" | "restated" | "failed" | "skipped";
+type AdsState = "not_sent" | "pending" | "ingest_accepted" | "processing" | "succeeded" | "partial_success" | "sent" | "restated" | "failed" | "skipped";
 
 interface Lead {
   lead_id: string;
@@ -91,6 +91,11 @@ const STATUS_BADGE: Record<LeadStatus, string> = {
 
 const ADS_STATE_LABELS: Record<AdsState, string> = {
   not_sent: "ยังไม่ส่ง",
+  pending: "รอส่ง",
+  ingest_accepted: "Google รับคำขอ",
+  processing: "กำลังประมวลผล",
+  succeeded: "Google ยืนยันสำเร็จ",
+  partial_success: "สำเร็จบางส่วน",
   sent: "ส่งแล้ว",
   restated: "อัปเดตค่าแล้ว",
   failed: "ส่งไม่สำเร็จ",
@@ -99,6 +104,11 @@ const ADS_STATE_LABELS: Record<AdsState, string> = {
 
 const ADS_STATE_BADGE: Record<AdsState, string> = {
   not_sent: "bg-gray-100 text-gray-600",
+  pending: "bg-amber-100 text-amber-800",
+  ingest_accepted: "bg-amber-100 text-amber-800",
+  processing: "bg-amber-100 text-amber-800",
+  succeeded: "bg-emerald-100 text-emerald-700",
+  partial_success: "bg-red-100 text-red-700",
   sent: "bg-blue-100 text-blue-700",
   restated: "bg-emerald-100 text-emerald-700",
   failed: "bg-red-100 text-red-700",

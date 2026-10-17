@@ -12,6 +12,8 @@ export interface Env {
   // Google Ads Data Manager sync (see ads-sync.ts)
   ADS_SYNC_MODE: 'dry_run' | 'live';
   ADS_CUSTOMER_ID: string;
+  /** Parent Google Ads manager used to authorize Data Manager ingestion. */
+  ADS_LOGIN_CUSTOMER_ID: string;
   ADS_CONVERSION_ACTION_ID: string;
   GOOGLE_SA_CLIENT_EMAIL: string;
   GOOGLE_SA_PRIVATE_KEY: string;
@@ -106,7 +108,7 @@ export interface MessageRow {
   webhook_event_id: string | null;
   conversation_id: string;
   direction: 'inbound' | 'outbound';
-  actor: 'user' | 'bot';
+  actor: 'user' | 'bot' | 'staff';
   sender_user_id: string | null;
   message_type: string;
   text: string | null;
@@ -118,6 +120,9 @@ export interface MessageRow {
   edited_at: number | null;
   media_status: string | null;
   created_at: number;
+  provider_message_id: string | null;
+  client_idempotency_key: string | null;
+  send_method: 'reply' | 'push' | null;
 }
 
 export interface AttachmentRow {
@@ -148,6 +153,8 @@ export interface ConversationRow {
   last_event_at: number | null;
   message_count: number;
   is_following: number | null;
+  read_created_at: number | null;
+  read_message_id: string | null;
 }
 
 export type LeadStatus =
@@ -161,7 +168,17 @@ export type LeadStatus =
 
 export type LeadPersona = 'homeowner' | 'procurement' | 'contractor';
 
-export type AdsState = 'not_sent' | 'sent' | 'restated' | 'failed' | 'skipped';
+export type AdsState =
+  | 'not_sent'
+  | 'pending'
+  | 'ingest_accepted'
+  | 'processing'
+  | 'succeeded'
+  | 'partial_success'
+  | 'sent'
+  | 'restated'
+  | 'failed'
+  | 'skipped';
 
 export interface LeadRow {
   lead_id: string;
@@ -205,7 +222,7 @@ export interface LeadEventRow {
   lead_id: string;
   at: number;
   actor: string;
-  kind: 'match' | 'status_change' | 'value_change' | 'ads_sync';
+  kind: 'match' | 'status_change' | 'value_change' | 'notes_change' | 'ads_sync';
   from_value: string | null;
   to_value: string | null;
   reason: string | null;
@@ -220,10 +237,15 @@ export interface AdsSyncJobRow {
   conversion_value: number;
   currency: string;
   mode: 'dry_run' | 'live';
-  state: 'pending' | 'succeeded' | 'failed';
+  state: 'pending' | 'ingest_accepted' | 'processing' | 'succeeded' | 'partial_success' | 'failed';
   attempts: number;
   request_payload: string | null;
   response_body: string | null;
   error: string | null;
   completed_at: number | null;
+  google_request_id: string | null;
+  next_check_at: number | null;
+  first_accepted_at: number | null;
+  last_checked_at: number | null;
+  diagnostics_json: string | null;
 }

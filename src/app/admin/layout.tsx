@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { MessageCircleMore } from 'lucide-react';
 import { AdminWorkspaceProvider } from '@/components/admin/AdminWorkspaceContext';
 
 export default function AdminLayout({
@@ -58,6 +59,11 @@ export default function AdminLayout({
           <path strokeLinecap="round" strokeLinejoin="round" d="M12 14v3" />
         </svg>
       ),
+    },
+    {
+      name: 'แชท LINE',
+      href: '/admin/chat',
+      icon: <MessageCircleMore className="h-4 w-4" aria-hidden="true" />,
     },
     {
       name: 'Leads',
@@ -172,6 +178,8 @@ export default function AdminLayout({
         className={
           workspaceMode === 'article-editor'
             ? 'h-dvh w-full max-w-none overflow-hidden p-0'
+            : pathname.startsWith('/admin/chat')
+            ? 'h-[calc(100dvh-4rem)] w-full overflow-hidden'
             : 'mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8'
         }
       >

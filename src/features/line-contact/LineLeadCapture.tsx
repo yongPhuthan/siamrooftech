@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 import { captureAttribution } from '@/lib/gtag';
 import { LINE_CONTACT_URL } from './constants';
-import { mintRefCode, postLeadIntake, type LeadIntakePayload } from './lead-intake';
+import { getVisitorId, mintRefCode, postLeadIntake, type LeadIntakePayload } from './lead-intake';
 
 const LINE_LINK_SELECTOR = `a[href="${LINE_CONTACT_URL}"]`;
 
@@ -12,6 +12,8 @@ function recordLeadForLineClick(): void {
   const attribution = captureAttribution();
 
   const payload: LeadIntakePayload = {
+    click_id: crypto.randomUUID(),
+    visitor_id: getVisitorId(),
     ref_code: refCode,
     ...(attribution.latest_gclid && { gclid: attribution.latest_gclid }),
     ...(attribution.latest_gbraid && { gbraid: attribution.latest_gbraid }),

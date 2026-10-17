@@ -29,6 +29,11 @@ them. Every Read API response says so explicitly in its `coverage` block.
 | Queue | `line-media-fetch` (+ DLQ `line-media-fetch-dlq`) | async attachment/profile fetch with retry |
 | Queue | `line-ads-sync` (+ DLQ `line-ads-sync-dlq`) | async Google Ads Data Manager conversion sync with retry |
 
+The `staging` Wrangler environment uses fully isolated resources:
+`siamrooftech-line-chat-staging`, `siamrooftech-line-chat-media-staging`,
+`line-media-fetch-staging`, and `line-ads-sync-staging` (plus their DLQs).
+Google synchronization is forced to `dry_run` in staging.
+
 ## Local development
 
 ```bash
@@ -50,9 +55,10 @@ yarn leads:qa --channel-secret=your-local-fixture-secret \
   --intake-token=your-local-intake-token
 ```
 
-`ADS_SYNC_MODE`/`ADS_CUSTOMER_ID`/`ADS_CONVERSION_ACTION_ID`/`GOOGLE_SA_CLIENT_EMAIL`
-are plain `vars` in `wrangler.jsonc` (not secrets — no Ads account exists
-yet, so they default to `dry_run` and empty strings). See
+`ADS_SYNC_MODE`/`ADS_CUSTOMER_ID`/`ADS_LOGIN_CUSTOMER_ID`/`ADS_CONVERSION_ACTION_ID`/
+`GOOGLE_SA_CLIENT_EMAIL` are Worker secrets, never `wrangler.jsonc` vars. Both
+production and staging must be set to `dry_run` during a Google Ads-account
+migration; only change to `live` after a controlled, accepted ingestion test. See
 [docs/lead-matching/README.md#going-live-with-google-ads](../../docs/lead-matching/README.md#going-live-with-google-ads).
 
 `scripts/line-chat-history-qa.mjs` sends real (correctly signed) webhook
@@ -74,6 +80,35 @@ yarn line:migrate          # apply migrations to the REMOTE D1 database
 yarn line:deploy
 ```
 
+### Staging
+
+```bash
+npm run line:types
+npm run line:type-check
+npx wrangler deploy --dry-run --env staging --config workers/line-chat-history/wrangler.jsonc
+npm run line:migrate:staging
+npm run line:deploy:staging
+```
+
+Staging Worker URL:
+`https://siamrooftech-line-chat-history-staging.phuthan-dev.workers.dev`.
+The generated admin/intake tokens are stored locally in the ignored,
+permission-restricted `.env.chat-staging.local` file. The staging Worker still
+requires credentials from a separate LINE Messaging API test channel before
+webhook or outbound-message QA:
+
+```bash
+npx wrangler secret put LINE_CHANNEL_SECRET --env staging \
+  --config workers/line-chat-history/wrangler.jsonc
+npx wrangler secret put LINE_CHANNEL_ACCESS_TOKEN --env staging \
+  --config workers/line-chat-history/wrangler.jsonc
+```
+
+Do not reuse the production OA while testing: LINE supports one webhook URL
+per Messaging API channel, so changing it would interrupt production intake.
+`GOOGLE_SA_PRIVATE_KEY` is intentionally unnecessary while staging remains in
+`dry_run` mode.
+
 ### Secrets (production)
 
 ```bash
@@ -82,18 +117,25 @@ npx wrangler secret put LINE_CHANNEL_ACCESS_TOKEN   --config workers/line-chat-h
 npx wrangler secret put CHAT_HISTORY_READ_TOKEN     --config workers/line-chat-history/wrangler.jsonc
 npx wrangler secret put CHAT_HISTORY_WRITE_TOKEN    --config workers/line-chat-history/wrangler.jsonc
 npx wrangler secret put LEADS_INTAKE_TOKEN          --config workers/line-chat-history/wrangler.jsonc
+npx wrangler secret put ADS_SYNC_MODE               --config workers/line-chat-history/wrangler.jsonc
+npx wrangler secret put ADS_CUSTOMER_ID             --config workers/line-chat-history/wrangler.jsonc
+npx wrangler secret put ADS_LOGIN_CUSTOMER_ID       --config workers/line-chat-history/wrangler.jsonc
+npx wrangler secret put ADS_CONVERSION_ACTION_ID    --config workers/line-chat-history/wrangler.jsonc
+npx wrangler secret put GOOGLE_SA_CLIENT_EMAIL      --config workers/line-chat-history/wrangler.jsonc
 npx wrangler secret put GOOGLE_SA_PRIVATE_KEY       --config workers/line-chat-history/wrangler.jsonc
 ```
 
 `CHAT_HISTORY_READ_TOKEN` is the Bearer token the AI Agent / CLI uses against
-`/chat-history*` and `/leads*`. `CHAT_HISTORY_WRITE_TOKEN` guards
-`/internal/messages/outbound` (not yet wired to a producer — see docs) and
-the lead-mutation routes (`/leads/{id}/status|value|match`).
+`/chat-history*`, `/chat/*`, and `/leads*`. `CHAT_HISTORY_WRITE_TOKEN` guards
+chat sends, read cursors, failed Google-sync retries,
+`/internal/messages/outbound`, and the lead-mutation routes
+(`/leads/{id}/status|value|notes|match`).
 `LEADS_INTAKE_TOKEN` guards `/internal/leads/intake` and must match the
 value configured on the **main** site's Worker (see
 [docs/lead-matching/README.md](../../docs/lead-matching/README.md)).
-`GOOGLE_SA_PRIVATE_KEY` is only read in `ADS_SYNC_MODE=live` — safe to set
-to anything while `dry_run` (the current default).
+`GOOGLE_SA_PRIVATE_KEY` is only read in `ADS_SYNC_MODE=live`. Both environments
+remain `dry_run` until a controlled real conversion is accepted; the secret is
+retained so that the later live-mode test does not require a key committed to disk.
 
 **The same three tokens (`CHAT_HISTORY_READ_TOKEN`, `CHAT_HISTORY_WRITE_TOKEN`,
 `LEADS_INTAKE_TOKEN`) must also be set as secrets on the MAIN `siamrooftech`
@@ -138,13 +180,14 @@ yarn leads:unmatched
 yarn leads:ads-jobs --state=pending
 ```
 
-Dashboard: `/admin/leads` on the main site.
+Use `/admin/chat` for daily conversation work and `/admin/leads` for
+cross-customer reporting and search.
 
 ## Known limitations (MVP)
 
 - Staff replies via LINE Official Account Manager are not captured (LINE platform limitation, not a bug here).
-- No auto-reply bot exists yet, so `/internal/messages/outbound` has no caller — it exists so a future bot doesn't need a schema migration.
+- Outbound history is complete only when staff reply through `/admin/chat`; replies sent in LINE Official Account Manager remain invisible to the Worker.
 - LINE does not document how long it retains user-sent media before deleting it; attachments are fetched immediately on webhook receipt via the queue, but a sufficiently delayed retry could still find content gone (`attachments.status = 'expired'`).
 - No PDPA retention/purge tooling yet.
 - Lead matching only works if the visitor sends the LINE prefill text unedited (see docs/lead-matching/README.md); not yet verified on real iOS/Android/desktop devices.
-- `ADS_SYNC_MODE=dry_run` until a real Google Ads account and conversion action exist — no conversion has ever actually reached Google yet.
+- Both environments stay in `ADS_SYNC_MODE=dry_run`. Do not enable live Data Manager ingestion or rely on diagnostics until a controlled real conversion has completed successfully.

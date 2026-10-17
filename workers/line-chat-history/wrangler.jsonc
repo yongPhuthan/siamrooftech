@@ -3,14 +3,10 @@
   "name": "siamrooftech-line-chat-history",
   "account_id": "a61f30bb027ef64c9577c73f5981f073",
   "main": "src/index.ts",
-  "compatibility_date": "2026-06-06",
+  "compatibility_date": "2026-09-17",
   "compatibility_flags": ["nodejs_compat"],
   "vars": {
-    "MEDIA_MAX_BYTES": "26214400",
-    "ADS_SYNC_MODE": "live",
-    "ADS_CUSTOMER_ID": "1546144152",
-    "ADS_CONVERSION_ACTION_ID": "7751515179",
-    "GOOGLE_SA_CLIENT_EMAIL": "ads-data-manager@siamrooftech-tools.iam.gserviceaccount.com"
+    "MEDIA_MAX_BYTES": "26214400"
   },
   "d1_databases": [
     {
@@ -55,6 +51,9 @@
       }
     ]
   },
+  "triggers": {
+    "crons": ["*/15 * * * *"]
+  },
   "observability": {
     "enabled": true,
     "logs": {
@@ -62,6 +61,69 @@
       "head_sampling_rate": 1,
       "persist": true,
       "invocation_logs": true
+    }
+  },
+  "env": {
+    "staging": {
+      "name": "siamrooftech-line-chat-history-staging",
+      "vars": {
+        "MEDIA_MAX_BYTES": "26214400"
+      },
+      "d1_databases": [
+        {
+          "binding": "CHAT_DB",
+          "database_name": "siamrooftech-line-chat-staging",
+          "database_id": "bc85ebc5-9cec-44bc-ba18-5589dc0b76dc"
+        }
+      ],
+      "r2_buckets": [
+        {
+          "binding": "CHAT_MEDIA",
+          "bucket_name": "siamrooftech-line-chat-media-staging"
+        }
+      ],
+      "queues": {
+        "producers": [
+          {
+            "binding": "MEDIA_QUEUE",
+            "queue": "line-media-fetch-staging"
+          },
+          {
+            "binding": "ADS_QUEUE",
+            "queue": "line-ads-sync-staging"
+          }
+        ],
+        "consumers": [
+          {
+            "queue": "line-media-fetch-staging",
+            "max_batch_size": 5,
+            "max_batch_timeout": 10,
+            "max_retries": 5,
+            "max_concurrency": 2,
+            "dead_letter_queue": "line-media-fetch-staging-dlq"
+          },
+          {
+            "queue": "line-ads-sync-staging",
+            "max_batch_size": 5,
+            "max_batch_timeout": 10,
+            "max_retries": 5,
+            "max_concurrency": 1,
+            "dead_letter_queue": "line-ads-sync-staging-dlq"
+          }
+        ]
+      },
+      "triggers": {
+        "crons": ["*/15 * * * *"]
+      },
+      "observability": {
+        "enabled": true,
+        "logs": {
+          "enabled": true,
+          "head_sampling_rate": 1,
+          "persist": true,
+          "invocation_logs": true
+        }
+      }
     }
   }
 }

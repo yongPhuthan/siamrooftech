@@ -47,6 +47,22 @@ export function prepareEventStatements(
     }
     if (event.type === 'message') {
       touchedConversations.get(conversationId)!.messageCount += 1;
+
+      if (event.replyToken) {
+        statements.push(
+          db
+            .prepare(
+              `INSERT INTO line_reply_tokens (conversation_id, reply_token, captured_at, consumed_at)
+               VALUES (?, ?, ?, NULL)
+               ON CONFLICT(conversation_id) DO UPDATE SET
+                 reply_token = excluded.reply_token,
+                 captured_at = excluded.captured_at,
+                 consumed_at = NULL
+               WHERE excluded.captured_at >= line_reply_tokens.captured_at`,
+            )
+            .bind(conversationId, event.replyToken, receivedAt),
+        );
+      }
     }
 
     statements.push(

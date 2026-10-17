@@ -4,6 +4,9 @@ import { handleLeadsApi } from './leads-api';
 import { handleOutboundMessage } from './internal';
 import { processMediaQueueBatch } from './media';
 import { processAdsSyncQueueBatch } from './ads-sync';
+import { processAdsDiagnostics } from './ads-sync';
+import { handleChatApi } from './chat-api';
+import { servePublicOutboundMedia } from './outbound';
 import type { AdsSyncQueueMessage, Env, MediaQueueMessage } from './types';
 
 export default {
@@ -12,6 +15,15 @@ export default {
 
     if (url.pathname === '/line/webhook' && request.method === 'POST') {
       return handleWebhook(request, env);
+    }
+
+    const publicMedia = /^\/chat-public\/media\/([^/]+)\/(original|preview)$/.exec(url.pathname);
+    if (publicMedia && request.method === 'GET') {
+      return servePublicOutboundMedia(env, publicMedia[1], publicMedia[2]);
+    }
+
+    if (url.pathname === '/chat/conversations' || url.pathname.startsWith('/chat/conversations/')) {
+      return handleChatApi(request, env, url);
     }
 
     if (url.pathname === '/internal/messages/outbound') {
@@ -39,5 +51,9 @@ export default {
       return;
     }
     await processMediaQueueBatch(batch as MessageBatch<MediaQueueMessage>, env);
+  },
+
+  async scheduled(_controller: ScheduledController, env: Env, ctx: ExecutionContext): Promise<void> {
+    ctx.waitUntil(processAdsDiagnostics(env));
   },
 };

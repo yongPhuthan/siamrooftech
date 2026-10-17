@@ -134,8 +134,13 @@ export async function fetchMessagesPage(
     limit: number;
     timezone: string;
     includeRaw?: boolean;
+    latest?: boolean;
   },
-): Promise<{ messages: unknown[]; pagination: { has_more: boolean; next_cursor: string | null } }> {
+): Promise<{
+  messages: unknown[];
+  pagination: { has_more: boolean; next_cursor: string | null };
+  receiveCursor: { createdAt: number; messageId: string } | null;
+}> {
   const conditions = ['occurred_at >= ?', 'occurred_at < ?'];
   const binds: (string | number)[] = [params.fromMs, params.toMs];
 
@@ -152,14 +157,16 @@ export async function fetchMessagesPage(
     binds.push(params.cursor.occurredAt, params.cursor.occurredAt, params.cursor.messageId);
   }
 
-  const sql = `SELECT * FROM messages WHERE ${conditions.join(' AND ')} ORDER BY occurred_at ASC, message_id ASC LIMIT ?`;
+  const order = params.latest ? 'DESC' : 'ASC';
+  const sql = `SELECT * FROM messages WHERE ${conditions.join(' AND ')} ORDER BY occurred_at ${order}, message_id ${order} LIMIT ?`;
   const rows = await env.CHAT_DB.prepare(sql)
     .bind(...binds, params.limit + 1)
     .all<MessageRow>();
 
   const results = rows.results ?? [];
   const hasMore = results.length > params.limit;
-  const page = hasMore ? results.slice(0, params.limit) : results;
+  const limited = hasMore ? results.slice(0, params.limit) : results;
+  const page = params.latest ? limited.reverse() : limited;
 
   const messageIds = page.filter((r) => r.media_status !== null).map((r) => r.message_id);
   const attachmentsByMessageId = new Map<string, AttachmentRow>();
@@ -176,7 +183,7 @@ export async function fetchMessagesPage(
   }
 
   const nextCursor =
-    hasMore && page.length > 0
+    hasMore && page.length > 0 && !params.latest
       ? encodeCursor({
           occurredAt: page[page.length - 1].occurred_at,
           messageId: page[page.length - 1].message_id,
@@ -185,6 +192,12 @@ export async function fetchMessagesPage(
 
   return {
     pagination: { has_more: hasMore, next_cursor: nextCursor },
+    receiveCursor: page.reduce<{ createdAt: number; messageId: string } | null>((latest, row) => {
+      if (!latest || row.created_at > latest.createdAt || (row.created_at === latest.createdAt && row.message_id > latest.messageId)) {
+        return { createdAt: row.created_at, messageId: row.message_id };
+      }
+      return latest;
+    }, null),
     messages: page.map((row) => {
       const serialized = serializeMessage(row, attachmentsByMessageId.get(row.message_id) ?? null, params.timezone);
       if (params.includeRaw) {

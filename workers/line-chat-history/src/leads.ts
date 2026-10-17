@@ -273,6 +273,25 @@ export async function updateLeadValue(
   return { ok: true };
 }
 
+export async function updateLeadNotes(
+  env: Env,
+  leadId: string,
+  notes: string | null,
+  actor: string,
+): Promise<LeadUpdateResult> {
+  const lead = await env.CHAT_DB.prepare(`SELECT * FROM leads WHERE lead_id = ?`).bind(leadId).first<LeadRow>();
+  if (!lead) return { ok: false, error: 'lead not found' };
+  const now = Date.now();
+  await env.CHAT_DB.batch([
+    env.CHAT_DB.prepare(`UPDATE leads SET notes = ? WHERE lead_id = ?`).bind(notes, leadId),
+    env.CHAT_DB.prepare(
+      `INSERT INTO lead_events (lead_id, at, actor, kind, from_value, to_value, reason)
+       VALUES (?, ?, ?, 'notes_change', ?, ?, 'updated from chat profile')`,
+    ).bind(leadId, now, actor, lead.notes, notes),
+  ]);
+  return { ok: true };
+}
+
 export async function manualMatchLead(
   env: Env,
   leadId: string,
