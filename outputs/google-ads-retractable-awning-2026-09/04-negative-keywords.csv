@@ -1,0 +1,47 @@
+Campaign,Ad group,Keyword,Match type,Status,Comment
+TH_Search_ElectricAwning_Leads_2026Q3,,ผ้าใบ,Negative phrase,Removed,Remove over-broad exclusion that blocks relevant awning material intent
+TH_Search_ElectricAwning_Leads_2026Q3,,ราคา,Negative phrase,Enabled,Exclude price intent in phase one
+TH_Search_ElectricAwning_Leads_2026Q3,,ราคาถูก,Negative phrase,Enabled,Exclude price-shopping intent in phase one
+TH_Search_ElectricAwning_Leads_2026Q3,,เปรียบเทียบราคา,Negative phrase,Enabled,Exclude price-comparison intent in phase one
+TH_Search_ElectricAwning_Leads_2026Q3,,โฮมโปร,Negative phrase,Enabled,Retailer intent
+TH_Search_ElectricAwning_Leads_2026Q3,,ไทวัสดุ,Negative phrase,Enabled,Retailer intent
+TH_Search_ElectricAwning_Leads_2026Q3,,ดูโฮม,Negative phrase,Enabled,Retailer intent
+TH_Search_ElectricAwning_Leads_2026Q3,,เมกาโฮม,Negative phrase,Enabled,Retailer intent
+TH_Search_ElectricAwning_Leads_2026Q3,,วิธี,Negative phrase,Enabled,DIY intent
+TH_Search_ElectricAwning_Leads_2026Q3,,ประกอบ,Negative phrase,Enabled,DIY intent
+TH_Search_ElectricAwning_Leads_2026Q3,,DIY,Negative phrase,Enabled,DIY intent
+TH_Search_ElectricAwning_Leads_2026Q3,,สำเร็จรูป,Negative phrase,Enabled,Ready-made product intent
+TH_Search_ElectricAwning_Leads_2026Q3,,สําเร็จรูป,Negative phrase,Enabled,Ready-made product intent alternate spelling
+TH_Search_ElectricAwning_Leads_2026Q3,,มือสอง,Negative phrase,Enabled,Used-product intent
+TH_Search_ElectricAwning_Leads_2026Q3,,สมัครงาน,Negative phrase,Enabled,Job-seeker intent
+TH_Search_ElectricAwning_Leads_2026Q3,,อะไหล่,Negative phrase,Enabled,Parts intent
+TH_Search_ElectricAwning_Leads_2026Q3,,ซ่อม,Negative phrase,Enabled,Repair intent
+TH_Search_ElectricAwning_Leads_2026Q3,,ล้าง,Negative phrase,Enabled,Cleaning intent
+TH_Search_ElectricAwning_Leads_2026Q3,,แนวดิ่ง,Negative phrase,Enabled,Out-of-scope product
+TH_Search_ElectricAwning_Leads_2026Q3,,solar cell,Negative phrase,Enabled,Out-of-scope product
+TH_Search_ElectricAwning_Leads_2026Q3,,ฟรี,Negative broad,Enabled,Free-only intent
+TH_Search_RetractableAwning_Leads_2026Q3,,ราคา,Negative phrase,Enabled,Exclude price intent in phase one
+TH_Search_RetractableAwning_Leads_2026Q3,,ราคาถูก,Negative phrase,Enabled,Exclude price-shopping intent in phase one
+TH_Search_RetractableAwning_Leads_2026Q3,,เปรียบเทียบราคา,Negative phrase,Enabled,Exclude price-comparison intent in phase one
+TH_Search_RetractableAwning_Leads_2026Q3,,ไฟฟ้า,Negative phrase,Enabled,Route premium intent to Electric campaign
+TH_Search_RetractableAwning_Leads_2026Q3,,อัตโนมัติ,Negative phrase,Enabled,Route premium intent to Electric campaign
+TH_Search_RetractableAwning_Leads_2026Q3,,ออโต้,Negative phrase,Enabled,Route premium intent to Electric campaign
+TH_Search_RetractableAwning_Leads_2026Q3,,มอเตอร์,Negative phrase,Enabled,Route premium intent to Electric campaign
+TH_Search_RetractableAwning_Leads_2026Q3,,โฮมโปร,Negative phrase,Enabled,Retailer intent
+TH_Search_RetractableAwning_Leads_2026Q3,,ไทวัสดุ,Negative phrase,Enabled,Retailer intent
+TH_Search_RetractableAwning_Leads_2026Q3,,ดูโฮม,Negative phrase,Enabled,Retailer intent
+TH_Search_RetractableAwning_Leads_2026Q3,,เมกาโฮม,Negative phrase,Enabled,Retailer intent
+TH_Search_RetractableAwning_Leads_2026Q3,,วิธี,Negative phrase,Enabled,DIY intent
+TH_Search_RetractableAwning_Leads_2026Q3,,ประกอบ,Negative phrase,Enabled,DIY intent
+TH_Search_RetractableAwning_Leads_2026Q3,,DIY,Negative phrase,Enabled,DIY intent
+TH_Search_RetractableAwning_Leads_2026Q3,,สำเร็จรูป,Negative phrase,Enabled,Ready-made product intent
+TH_Search_RetractableAwning_Leads_2026Q3,,สําเร็จรูป,Negative phrase,Enabled,Ready-made product intent alternate spelling
+TH_Search_RetractableAwning_Leads_2026Q3,,มือสอง,Negative phrase,Enabled,Used-product intent
+TH_Search_RetractableAwning_Leads_2026Q3,,สมัครงาน,Negative phrase,Enabled,Job-seeker intent
+TH_Search_RetractableAwning_Leads_2026Q3,,อะไหล่,Negative phrase,Enabled,Parts intent
+TH_Search_RetractableAwning_Leads_2026Q3,,ซ่อม,Negative phrase,Enabled,Repair intent
+TH_Search_RetractableAwning_Leads_2026Q3,,ล้าง,Negative phrase,Enabled,Cleaning intent
+TH_Search_RetractableAwning_Leads_2026Q3,,แนวดิ่ง,Negative phrase,Enabled,Out-of-scope product
+TH_Search_RetractableAwning_Leads_2026Q3,,solar cell,Negative phrase,Enabled,Out-of-scope product
+TH_Search_RetractableAwning_Leads_2026Q3,,ฟรี,Negative broad,Enabled,Free-only intent
+TH_Search_RetractableAwning_Leads_2026Q3,Retractable_Core,มือหมุน,Negative phrase,Enabled,Route manual intent to Manual_Core

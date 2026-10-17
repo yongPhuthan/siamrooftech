@@ -1,0 +1,80 @@
+batch_id: Electric-Core-v1
+campaign: TH_Search_ElectricAwning_Leads_2026Q3
+ad_group: Electric_Core
+ad_group_id: "199544026989"
+landing_page_id: electric-awning
+final_url: https://www.siamrooftech.com/lp/google-ads/electric-awning
+status: Proposed
+headlines:
+  - id: H001
+    text: กันสาดไฟฟ้าสั่งทำ
+    angle: keyword_relevance
+    intent: product_aware
+    evidence_ids: []
+  - id: H002
+    text: กันสาดไฟฟ้าพับเก็บได้
+    angle: product_fit
+    intent: product_aware
+    evidence_ids: []
+  - id: H003
+    text: เปิดปิดสะดวกด้วยมอเตอร์
+    angle: practical_benefit
+    intent: solution_aware
+    evidence_ids: []
+  - id: H004
+    text: ทีมงานประสบการณ์กว่า 10 ปี
+    angle: proof
+    intent: product_aware
+    evidence_ids: [CLM-001]
+  - id: H005
+    text: รับประกันมอเตอร์ 2 ปี
+    angle: risk_reversal
+    intent: product_aware
+    evidence_ids: [CLM-003]
+  - id: H006
+    text: นัดประเมินหน้างานฟรี
+    angle: offer
+    intent: product_aware
+    evidence_ids: [CLM-002]
+  - id: H007
+    text: ดูผลงานติดตั้งจริง
+    angle: proof
+    intent: product_aware
+    evidence_ids: [CLM-004]
+  - id: H008
+    text: ออกแบบตามพื้นที่ใช้งาน
+    angle: service_benefit
+    intent: solution_aware
+    evidence_ids: []
+  - id: H009
+    text: ปรึกษาทีมงานผ่าน LINE
+    angle: call_to_action
+    intent: product_aware
+    evidence_ids: []
+  - id: H010
+    text: สำหรับบ้านและอาคาร
+    angle: customer_fit
+    intent: solution_aware
+    evidence_ids: []
+descriptions:
+  - id: D001
+    text: ออกแบบและติดตั้งกันสาดไฟฟ้าให้เหมาะกับพื้นที่ใช้งานของบ้านและอาคาร
+    angle: service_benefit
+    intent: solution_aware
+    evidence_ids: []
+  - id: D002
+    text: ทีมงานประสบการณ์กว่า 10 ปี พร้อมรับประกันมอเตอร์ 2 ปีตามเงื่อนไข
+    angle: proof_and_risk_reversal
+    intent: product_aware
+    evidence_ids: [CLM-001, CLM-003]
+  - id: D003
+    text: นัดประเมินหน้างานฟรี ส่งรูปพื้นที่เพื่อปรึกษารูปแบบผ่าน LINE
+    angle: offer_and_call_to_action
+    intent: product_aware
+    evidence_ids: [CLM-002]
+  - id: D004
+    text: ดูผลงานติดตั้งจริงก่อนเลือกขนาด สี และระบบให้เหมาะกับพื้นที่
+    angle: proof_and_choice
+    intent: product_aware
+    evidence_ids: [CLM-004]
+

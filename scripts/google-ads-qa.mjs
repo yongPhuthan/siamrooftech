@@ -228,13 +228,33 @@ await checkPage({
   ],
 });
 
+// --- Retractable/manual Google Ads landing page ------------------------------
+// Both ad groups intentionally use the homepage experience while retaining
+// distinct query parameters for attribution. The route is noindex because its
+// content is a paid-traffic duplicate of the canonical homepage.
+for (const adKeyword of ['retractable_awning', 'manual_awning']) {
+  await checkPage({
+    path: `/lp/google-ads/retractable-awning?ad_kw=${adKeyword}&ad_intent=consult`,
+    canonical: canonicalOrigin,
+    robots: 'noindex, follow',
+    shouldInclude: [
+      'data-page-content="homepage"',
+      'กันสาดพับได้',
+      'ความเสี่ยงจากกันสาดคุณภาพต่ำและการติดตั้งที่ไม่ได้มาตรฐาน',
+      'วางใจเรื่องความแข็งแรงปลอดภัย',
+      'สอบถาม-ประเมินราคาฟรี',
+    ],
+    shouldNotInclude: [adKeyword],
+  });
+}
+
 // --- P0: current pilot -- no survey-gate cookie -------------------------------
 if (args.has('landing-only')) {
   if (failures.length) {
     console.error(failures.join('\n'));
     process.exit(1);
   }
-  console.log(`Electric awning landing QA passed at ${baseUrl}`);
+  console.log(`Google Ads landing QA passed at ${baseUrl}`);
   process.exit(0);
 }
 

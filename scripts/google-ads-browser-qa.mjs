@@ -290,7 +290,7 @@ function dataLayerEventNames(client, sessionId) {
   return evaluate(
     client,
     sessionId,
-    `(window.dataLayer || []).map((e) => e.event).filter(Boolean)`,
+    `(window.dataLayer || []).map((entry) => entry?.event || (entry?.[0] === 'event' ? entry[1] : undefined)).filter(Boolean)`,
   );
 }
 
@@ -602,7 +602,7 @@ async function scenarioPaidSession(position = 'electric_awning_ads_final') {
       const lineClickEvent = await evaluate(
         client,
         sessionId,
-        `(window.dataLayer || []).find((event) => event.event === 'line_click' && event.position === ${JSON.stringify(position)})`,
+        `(() => { const entry = (window.dataLayer || []).find((item) => item?.event === 'line_click' && item.position === ${JSON.stringify(position)} || item?.[0] === 'event' && item[1] === 'line_click' && item[2]?.position === ${JSON.stringify(position)}); return entry?.[2] || entry; })()`,
       );
       if (lineClickEvent?.active_section !== 'portfolio' ||
           typeof lineClickEvent?.scroll_depth_percent !== 'number' ||
@@ -678,9 +678,20 @@ async function scenarioUtmOnlySession() {
   });
 }
 
-async function scenarioHomepageDirectLine() {
+async function scenarioHomepageDirectLine(
+  path = '/?gclid=qa-home-survey',
+  expectedAdKeyword,
+) {
   await withFreshBrowser(async (client, sessionId) => {
-    await navigateTo(client, sessionId, '/?gclid=qa-home-survey');
+    await navigateTo(client, sessionId, path);
+    const isHomepageExperience = await evaluate(
+      client,
+      sessionId,
+      `!!document.querySelector('[data-page-content="homepage"]')`,
+    );
+    if (!isHomepageExperience) {
+      fail(`Homepage experience is missing at ${path}`);
+    }
     const lineButtons = await evaluate(client, sessionId, `Array.from(document.querySelectorAll('a[href*="lin.ee"]')).map(el => ({
       label: el.textContent.trim(),
       radius: parseFloat(getComputedStyle(el).borderTopLeftRadius),
@@ -709,12 +720,17 @@ async function scenarioHomepageDirectLine() {
       fail(`Homepage LINE click must preserve the verified short link: ${JSON.stringify(navigations)}`);
     }
     const clicks = await evaluate(client, sessionId,
-      `(window.dataLayer || []).filter(e => e.event === 'line_click')`);
+      `(window.dataLayer || []).filter((entry) => entry?.event === 'line_click' || entry?.[0] === 'event' && entry[1] === 'line_click').map((entry) => entry?.[2] || entry)`);
     // The nav no longer carries its own LINE CTA, so the first `a[href*="lin.ee"]`
     // in DOM order is WhyUs2's first mobile-card button (its desktop cards
     // dropped their CTAs; see src/app/components/section/WhyUs2.tsx).
     if (clicks.length !== 1 || clicks[0].position !== 'why_us_mobile_safety') {
       fail(`Homepage must track one LINE click with its existing position: ${JSON.stringify(clicks.map(e => e.position))}`);
+    }
+    if (expectedAdKeyword &&
+        (clicks[0]?.attribution_latest_ad_kw !== expectedAdKeyword ||
+          clicks[0]?.attribution_latest_ad_intent !== 'consult')) {
+      fail(`Paid homepage mirror must preserve ad attribution on line_click: ${JSON.stringify(clicks[0])}`);
     }
   });
 }
@@ -722,6 +738,14 @@ async function scenarioHomepageDirectLine() {
 try {
   await scenarioPaidSession();
   await scenarioPaidSession('electric_awning_ads_sticky_mobile');
+  await scenarioHomepageDirectLine(
+    '/lp/google-ads/retractable-awning?gclid=qa-retractable&ad_kw=retractable_awning&ad_intent=consult',
+    'retractable_awning',
+  );
+  await scenarioHomepageDirectLine(
+    '/lp/google-ads/retractable-awning?gclid=qa-manual&ad_kw=manual_awning&ad_intent=consult',
+    'manual_awning',
+  );
   if (!args.has('landing-only')) {
     await scenarioOrganicSession();
     await scenarioUtmOnlySession();
