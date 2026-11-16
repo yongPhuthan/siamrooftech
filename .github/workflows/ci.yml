@@ -66,12 +66,12 @@ jobs:
         run: test ! -e .dev.vars && test ! -e .env.local && test ! -e .env.production
       - run: corepack enable
       - run: yarn install --frozen-lockfile --non-interactive
-      - run: yarn cf:build:staging
-      - run: node scripts/worker-binding-qa.mjs staging
-      - run: node scripts/worker-binding-qa.mjs production
       - run: yarn db:migrate:local
       - run: yarn db:migrate:cache:local
       - run: yarn db:seed:local --apply
+      - run: yarn cf:build:staging
+      - run: node scripts/worker-binding-qa.mjs staging
+      - run: node scripts/worker-binding-qa.mjs production
       - run: yarn db:test:local
       - run: node scripts/release-artifact-audit.mjs
 
