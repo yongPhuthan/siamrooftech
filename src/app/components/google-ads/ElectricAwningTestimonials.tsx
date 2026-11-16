@@ -15,16 +15,18 @@ type CustomerPhotoBoard = {
  * customer, so they render as full-width bands: there is no per-customer name
  * or quote to attach, and none is invented here.
  */
-const photoBoards: CustomerPhotoBoard[] = [
+const photoBoards: (CustomerPhotoBoard & { caption: string })[] = [
   {
     src: 'https://pub-99f8d7bf688c4c79afcc2d91f37141f2.r2.dev/siamrooftech/original/20140',
     alt: 'ภาพทีม Siamrooftech ถ่ายร่วมกับลูกค้าหน้างานกันสาดพับเก็บได้ที่ติดตั้งเสร็จแล้ว',
+    caption: '',
     width: 2844,
     height: 920,
   },
   {
     src: 'https://pub-99f8d7bf688c4c79afcc2d91f37141f2.r2.dev/siamrooftech/original/78421',
     alt: 'ภาพเจ้าของบ้านและเจ้าของร้านร่วมกับกันสาดพับเก็บได้ที่ Siamrooftech ติดตั้งให้',
+    caption: '',
     width: 2824,
     height: 1343,
   },
@@ -46,8 +48,8 @@ export function ElectricAwningTestimonials() {
             งานติดตั้งทุกงานของเราจึงคำนึงถึงความปลอดภัยและปิดทุกความเสี่ยงที่อาจเกิดขึ้นจากการติดตั้งกันสาดไฟฟ้าในพื้นที่ของคุณ
           </p>
         </div>
-        <div className="mt-12 grid gap-6">
-          {photoBoards.map(({ src, alt, width, height }) => (
+        <div className="mt-12 grid gap-8">
+          {photoBoards.map(({ src, alt, caption, width, height }) => (
             <figure key={src} className="bg-neutral-100">
               <Image
                 src={src}
@@ -57,6 +59,9 @@ export function ElectricAwningTestimonials() {
                 sizes="(max-width: 1280px) 100vw, 1280px"
                 className="h-auto w-full object-contain"
               />
+              <figcaption className="border-t border-neutral-200 bg-white px-2 pt-3 text-center text-xs text-neutral-600">
+                {caption}
+              </figcaption>
             </figure>
           ))}
         </div>
