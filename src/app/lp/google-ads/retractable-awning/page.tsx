@@ -2,8 +2,7 @@ import type { Metadata } from 'next';
 import HomePageContent from '@/app/components/HomePageContent';
 import { canonicalUrl } from '@/lib/seo-config';
 
-export const dynamic = 'force-static';
-export const revalidate = 60;
+export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   alternates: {
