@@ -65,3 +65,27 @@ Routine release does not apply D1 migrations. Use the separate manual migration 
 Worker rollback does not restore D1/R2 or reverse Durable Object class lifecycle changes. Use a compatible previous Worker version only after confirming its bindings/schema still exist. Do not run automatic database restore on a failed smoke test. Until repeated smoke failures and Cloudflare rollback compatibility are verified in staging, treat rollback as a reviewed operator procedure rather than an automatic guarantee.
 
 The production workflow runs smoke checks immediately and again at two and five minutes. A passing local build or local SEO QA does not prove staging/production behavior or Google indexation. GSC evidence is separate from HTTP/runtime checks.
+
+## Reviewed LINE Worker release (2026-10-17)
+
+The separate LINE Worker now has a manual main-only release/migration workflow in
+`.github/workflows/line-worker-release.yml`; the CMS release path above remains
+unchanged. `yarn line:policy` verifies isolated local/staging/production resources,
+Queue names and the committed live-sync-off gate. Direct LINE deploy/remote
+migration package scripts are disabled. CI quality runs CRM SQLite tests and
+Worker type checks; policy QA covers the new workflow too.
+
+The LINE workflow requires exact SHA confirmation, pinned actions, least-privilege
+Environment credentials and `LINE_RELEASE_READY=true` in each selected
+Environment. That flag is an owner-verified prerequisite, not an instruction to
+set it during validation. Verify the separate staging LINE channel, schema and
+Access setup first. Migration is a separate operation requiring the exact D1
+name; no migration runs during deployment. Production migration remains a
+reviewed operation after successful staging migration and verification.
+
+Deployments use prebuilt manifests binding SHA/config/lockfile/migrations/bundle.
+Production requires same-run authenticated staging health/CRM schema checks and
+SHA evidence plus Production review. Runtime Google uploads remain disabled even
+if an older ADS_SYNC_MODE secret says live. Worker rollback does not restore
+chat data or files. Real remote migration, release and Google activation remain
+separate explicit operations; this change does not authorize them.

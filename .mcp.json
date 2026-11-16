@@ -4,7 +4,11 @@
       "type": "stdio",
       "command": "npx",
       "args": [
-        "@playwright/mcp@latest"
+        "@playwright/mcp@latest",
+        "--browser",
+        "chrome",
+        "--user-data-dir",
+        "/Users/yong/Library/Application Support/Google/Chrome/Profile 2"
       ],
       "env": {}
     }

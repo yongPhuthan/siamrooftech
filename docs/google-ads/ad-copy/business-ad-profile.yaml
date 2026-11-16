@@ -1,0 +1,100 @@
+schema_version: 1
+business:
+  name: Siamrooftech
+  website: https://www.siamrooftech.com/
+  line_contact_url: https://lin.ee/pPz1ZqN
+  business_outcomes: [qualified_line_message, line_message_received, line_click]
+  diagnostic_metrics: [click_through_rate, ad_strength]
+
+products:
+  - id: electric-awning
+    name: กันสาดพับเก็บได้ระบบไฟฟ้า
+    positioning: premium_priority
+    audiences:
+      - เจ้าของบ้านที่ต้องการความสะดวกและงานติดตั้งครบระบบ
+      - เจ้าของอาคารหรือผู้จัดซื้อที่ต้องการกันสาดพับเก็บได้
+    search_intents: [กันสาดไฟฟ้า, กันสาดอัตโนมัติ, กันสาดพับได้ไฟฟ้า]
+    landing_pages: [electric-awning]
+  - id: retractable-awning
+    name: กันสาดพับเก็บได้ระบบมือหมุนและทั่วไป
+    positioning: broad_retractable_demand
+    audiences:
+      - เจ้าของบ้านและอาคารที่ต้องการกันสาดพับเก็บได้
+    search_intents: [กันสาดพับได้, กันสาดพับเก็บได้, กันสาดมือหมุน]
+    landing_pages: [retractable-awning]
+
+landing_pages:
+  - id: electric-awning
+    url: https://www.siamrooftech.com/lp/google-ads/electric-awning
+    supported_products: [electric-awning]
+  - id: retractable-awning
+    url: https://www.siamrooftech.com/lp/google-ads/retractable-awning
+    supported_products: [retractable-awning]
+
+brand_voice:
+  use:
+    - ภาษาไทยตรงไปตรงมาและอ่านเข้าใจง่าย
+    - ระบุสิ่งที่ลูกค้าทำต่อได้ชัดเจน
+    - เน้นงานสั่งทำ การติดตั้ง ผลงาน และคำปรึกษา
+  avoid:
+    - การกล่าวอ้างว่าเป็นอันดับหนึ่งโดยไม่มีหลักฐาน
+    - ความเร่งด่วนหรือจำนวนคิวที่สร้างขึ้นเอง
+    - ภาษากดดันหรือดูถูกลูกค้า
+
+prohibited_claims:
+  - id: PRH-001
+    text: ราคาถูกที่สุด
+    reason: ไม่มีหลักฐานเปรียบเทียบตลาดที่ตรวจสอบได้
+  - id: PRH-002
+    text: ติดตั้งเสร็จภายในหนึ่งวัน
+    reason: ระยะเวลาขึ้นกับขอบเขตและหน้างาน
+  - id: PRH-003
+    text: เหลือคิวจำนวนจำกัด
+    reason: ใช้ได้เฉพาะเมื่อมีข้อมูลกำลังการผลิตและวันหมดอายุที่ตรวจสอบได้
+
+claims:
+  - id: CLM-001
+    status: approved
+    text: ทีมงานมีประสบการณ์กว่า 10 ปี
+    applies_to: [electric-awning, retractable-awning]
+    landing_pages: [electric-awning, retractable-awning]
+    evidence_sources:
+      - docs/google-ads/electric-awning-search-pilot-implementation-plan-2026-09.md
+      - src/app/components/section/PortfolioCTA.tsx
+    last_verified_on: 2026-09-16
+  - id: CLM-002
+    status: approved
+    text: นัดประเมินหน้างานฟรี
+    applies_to: [electric-awning, retractable-awning]
+    landing_pages: [electric-awning, retractable-awning]
+    evidence_sources:
+      - docs/google-ads/electric-awning-search-pilot-implementation-plan-2026-09.md
+      - outputs/google-ads-electric-awning-2026-09/05-responsive-search-ads.csv
+    last_verified_on: 2026-09-16
+  - id: CLM-003
+    status: approved
+    text: รับประกันมอเตอร์ 2 ปีตามเงื่อนไขบริษัท
+    applies_to: [electric-awning]
+    landing_pages: [electric-awning]
+    evidence_sources:
+      - src/app/lp/google-ads/electric-awning/page.tsx
+      - src/app/components/google-ads/ElectricAwningWhyUs.tsx
+    last_verified_on: 2026-09-16
+  - id: CLM-004
+    status: approved
+    text: มีผลงานติดตั้งจริงให้ตรวจสอบ
+    applies_to: [electric-awning, retractable-awning]
+    landing_pages: [electric-awning, retractable-awning]
+    evidence_sources:
+      - src/app/page.tsx
+      - src/app/components/HomePageContent.tsx
+    last_verified_on: 2026-09-16
+  - id: CLM-005
+    status: approved
+    text: ให้บริการติดตั้งในกรุงเทพฯ นนทบุรี และปทุมธานี
+    applies_to: [electric-awning, retractable-awning]
+    landing_pages: [electric-awning, retractable-awning]
+    evidence_sources:
+      - docs/google-ads/electric-awning-search-pilot-implementation-plan-2026-09.md
+    last_verified_on: 2026-09-18
+    note: เจ้าของยืนยันพื้นที่นำร่องทั้งสามจังหวัดสำหรับข้อความโฆษณาและ geo targeting

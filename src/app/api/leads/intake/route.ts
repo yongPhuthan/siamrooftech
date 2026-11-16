@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { readJsonBody } from '@/features/lead-crm/json-body';
+import { adsTouchSchema } from '@/features/lead-crm/contracts';
 
 /**
  * Public, unauthenticated proxy: forwards lead-intake payloads from
@@ -12,14 +14,23 @@ import { NextRequest, NextResponse } from 'next/server';
  * server-to-server call to the actual Cloudflare Worker.
  */
 export async function POST(request: NextRequest) {
+  const receivedAt = Date.now();
+  try {
+    const origin = request.headers.get('origin');
+    if (!origin || new URL(origin).host !== request.headers.get('host')) {
+      return NextResponse.json({ error: 'invalid origin' }, { status: 403 });
+    }
+  } catch { return NextResponse.json({ error: 'invalid origin' }, { status: 403 }); }
   let body: unknown;
   try {
-    body = await request.json();
+    body = await readJsonBody(request);
   } catch {
     return NextResponse.json({ error: 'invalid JSON' }, { status: 400 });
   }
 
   const workerUrl = process.env.LINE_CHAT_HISTORY_WORKER_URL;
+  const parsed = adsTouchSchema.safeParse(body);
+  if (!parsed.success) return NextResponse.json({ error: 'invalid attribution' }, { status: 400 });
   const token = process.env.LEADS_INTAKE_TOKEN;
   if (!workerUrl || !token) {
     console.error('LINE_CHAT_HISTORY_WORKER_URL or LEADS_INTAKE_TOKEN not configured');
@@ -32,8 +43,9 @@ export async function POST(request: NextRequest) {
       headers: {
         'content-type': 'application/json',
         authorization: `Bearer ${token}`,
+        'x-crm-click-at': String(receivedAt),
       },
-      body: JSON.stringify(body),
+      body: JSON.stringify(parsed.data),
     });
 
     const data = await res.json();

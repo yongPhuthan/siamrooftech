@@ -28,3 +28,10 @@ The exact files currently carrying a `use client` directive are:
 - `src/app/components/portfolio/PortfolioGrid.tsx` (no current consumers)
 - `src/app/components/portfolio/BeforeAfterGallery.tsx` (no current consumers)
 - `src/app/components/projects/ProjectDetailClient.tsx`
+
+CRM attribution update (2026-10-17): `src/features/line-contact/LineLeadCapture.tsx`
+retains its existing boundary under Suspense. It snapshots current URL parameters
+only on the shared Ads landing registry, expires that page session after 30
+minutes, and never blocks native navigation. General-site analytics remain owned
+by AttributionCapture; they no longer create CRM clicks globally. CRM review and
+history components are private admin client surfaces, not public page boundaries.

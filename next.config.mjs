@@ -32,6 +32,13 @@ if (!siteOrigin || !workerVars?.DEPLOY_ENV) {
 const ga4MeasurementId =
     process.env.NEXT_PUBLIC_GA4_MEASUREMENT_ID ??
     workerVars?.NEXT_PUBLIC_GA4_MEASUREMENT_ID;
+// Only explicit local builds may target a separate test OA. Never read LINE secrets here.
+const localLineContactUrl = workerEnvironment === 'local'
+    ? process.env.LOCAL_LINE_CONTACT_URL || ''
+    : '';
+if (localLineContactUrl && !/^https:\/\/lin\.ee\/[A-Za-z0-9]+$/.test(localLineContactUrl)) {
+    throw new Error('LOCAL_LINE_CONTACT_URL must be a LINE short link.');
+}
 
 const nextConfig = {
     env: {
@@ -39,6 +46,7 @@ const nextConfig = {
         SITE_ORIGIN: siteOrigin,
         RELEASE_SHA: process.env.GITHUB_SHA || process.env.RELEASE_SHA || 'local-development',
         NEXT_PUBLIC_GA4_MEASUREMENT_ID: ga4MeasurementId || '',
+        NEXT_PUBLIC_LINE_TEST_CONTACT_URL: localLineContactUrl,
     },
     experimental: {
         // Keep generation concurrency bounded for routes that remain static.

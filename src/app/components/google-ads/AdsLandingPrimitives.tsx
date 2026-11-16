@@ -32,7 +32,7 @@ export function AdsLineCta({
       rel="noopener noreferrer"
       data-analytics-type="line"
       data-analytics-position={analyticsPosition}
-      className={`inline-flex min-h-12 items-center justify-center gap-2 px-5 py-3 text-center text-sm font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${fullWidth ? 'w-full' : ''} ${
+      className={`inline-flex min-h-12 items-center justify-center gap-2 px-5 py-3 text-center font-heading text-sm font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${fullWidth ? 'w-full' : ''} ${
         inverted
           ? 'rounded-site-action bg-white text-site-brand-strong hover:bg-site-brand-soft focus-visible:ring-white'
           : 'rounded-site-action bg-site-brand text-white shadow-lg shadow-site-card hover:bg-site-brand-strong focus-visible:ring-site-brand'

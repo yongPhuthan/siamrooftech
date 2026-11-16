@@ -1,0 +1,17 @@
+﻿Campaign,Ad group,Keyword,Match type,Comment
+TH_Search_ElectricAwning_Leads_2026Q3,,โฮมโปร,Negative phrase,High-confidence retailer intent
+TH_Search_ElectricAwning_Leads_2026Q3,,ไทวัสดุ,Negative phrase,High-confidence retailer intent
+TH_Search_ElectricAwning_Leads_2026Q3,,ดูโฮม,Negative phrase,High-confidence retailer intent
+TH_Search_ElectricAwning_Leads_2026Q3,,เมกาโฮม,Negative phrase,High-confidence retailer intent
+TH_Search_ElectricAwning_Leads_2026Q3,,วิธี,Negative phrase,DIY/how-to intent
+TH_Search_ElectricAwning_Leads_2026Q3,,ประกอบ,Negative phrase,DIY/assembly intent
+TH_Search_ElectricAwning_Leads_2026Q3,,DIY,Negative phrase,DIY intent
+TH_Search_ElectricAwning_Leads_2026Q3,,สำเร็จรูป,Negative phrase,Prefabricated-product intent
+TH_Search_ElectricAwning_Leads_2026Q3,,สําเร็จรูป,Negative phrase,Orthographic variant
+TH_Search_ElectricAwning_Leads_2026Q3,,มือสอง,Negative phrase,Used-product intent
+TH_Search_ElectricAwning_Leads_2026Q3,,ฟรี,Negative broad,Free-product intent; estimate offer remains allowed
+TH_Search_ElectricAwning_Leads_2026Q3,,สมัครงาน,Negative phrase,Employment intent
+TH_Search_ElectricAwning_Leads_2026Q3,Electric_Core,ราคา,Negative phrase,Route price intent to Electric_Price
+TH_Search_ElectricAwning_Leads_2026Q3,Electric_Price,กันสาดไฟฟ้า,Negative exact,Route non-price exact intent to Electric_Core
+TH_Search_ElectricAwning_Leads_2026Q3,Electric_Price,กันสาดอัตโนมัติ,Negative exact,Route non-price exact intent to Electric_Core
+TH_Search_ElectricAwning_Leads_2026Q3,Electric_Price,กันสาดพับไฟฟ้า,Negative exact,Route non-price exact intent to Electric_Core

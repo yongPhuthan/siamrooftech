@@ -8,6 +8,7 @@ interface FinalCTASectionProps {
   analyticsPosition?: string;
   title?: string;
   subtitle?: string;
+  serviceAreaText?: string;
   projectTitle?: string;
 }
 
@@ -16,6 +17,7 @@ export default function FinalCTASection({
   analyticsPosition = 'final_cta',
   title = 'ต้องการกันสาดพับเก็บได้',
   subtitle = 'สำหรับโปรเจกต์ของคุณ?',
+  serviceAreaText = 'บริการครอบคลุมทั่วกรุงเทพฯ และปริมณฑล • ประสบการณ์กว่า 10 ปี',
 }: FinalCTASectionProps) {
   return (
     <section data-site-theme className="relative isolate overflow-hidden bg-slate-900 py-16 text-white sm:py-20 lg:py-24">
@@ -32,17 +34,17 @@ export default function FinalCTASection({
           <div className="flex flex-col gap-6 sm:gap-8">
             <div className="mx-auto flex w-full max-w-lg flex-col justify-center gap-4 sm:flex-row sm:gap-5">
               {compactLineButton ? <LineContactButton analyticsPosition={analyticsPosition} /> : (
-                <a href={LINE_CONTACT_URL} target="_blank" rel="noopener noreferrer" data-analytics-type="line" data-analytics-position={analyticsPosition} className="inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-site-action bg-site-brand px-5 py-3 text-center font-semibold text-white shadow-sm transition-colors duration-[180ms] hover:bg-site-brand-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900 sm:flex-none sm:px-8 sm:py-4">
+                <a href={LINE_CONTACT_URL} target="_blank" rel="noopener noreferrer" data-analytics-type="line" data-analytics-position={analyticsPosition} className="inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-site-action bg-site-brand px-5 py-3 text-center font-heading font-semibold text-white shadow-sm transition-colors duration-[180ms] hover:bg-site-brand-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900 sm:flex-none sm:px-8 sm:py-4">
                   <span>ขอใบเสนอราคาฟรี</span><PublicIcon icon={ArrowRight} size={20} />
                 </a>
               )}
-              <a href="tel:0984542455" data-analytics-type="phone" data-analytics-position={analyticsPosition} className={`inline-flex min-h-12 flex-1 items-center justify-center gap-2 border-2 border-slate-400 px-5 py-3 font-semibold text-slate-100 transition-colors duration-[180ms] hover:border-white hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white ${compactLineButton ? 'rounded-site-action' : 'rounded-xl'} sm:flex-none sm:px-8 sm:py-4`}>
+              <a href="tel:0984542455" data-analytics-type="phone" data-analytics-position={analyticsPosition} className={`inline-flex min-h-12 flex-1 items-center justify-center gap-2 border-2 border-slate-400 px-5 py-3 font-heading font-semibold text-slate-100 transition-colors duration-[180ms] hover:border-white hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white ${compactLineButton ? 'rounded-site-action' : 'rounded-xl'} sm:flex-none sm:px-8 sm:py-4`}>
                 <PublicIcon icon={Phone} size={20} />โทรสอบถาม
               </a>
             </div>
             <div className="flex flex-col gap-2 text-center">
               <p className="text-sm text-slate-300 sm:text-base"><PublicIcon icon={Clock} size={16} className="mr-1 inline-block align-[-2px]" /><strong className="text-white">เปิดบริการ:</strong> จันทร์-เสาร์ 8:00-18:00 น.</p>
-              <p className="text-xs text-slate-400 sm:text-sm">บริการครอบคลุมทั่วกรุงเทพฯ และปริมณฑล • ประสบการณ์กว่า 10 ปี</p>
+              <p className="text-xs text-slate-400 sm:text-sm">{serviceAreaText}</p>
             </div>
           </div>
         </div>
