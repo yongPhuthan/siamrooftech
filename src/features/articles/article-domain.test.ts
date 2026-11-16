@@ -39,6 +39,27 @@ describe('article document and TOC', () => {
     expect(validateForPublication(validMetadata, outline).map(({ field }) => field)).toContain('document#section-22222222-2222-4222-8222-222222222222');
   });
 
+  it('allows draft markers when saving a draft but blocks publication until resolved', () => {
+    const draftMetadata: ArticleMetadata = {
+      ...validMetadata,
+      excerpt: '[[เติม: สรุปปัญหาหน้างานจริง 1 ประโยค]]',
+    };
+    const draftDocument: ArticleDocument = {
+      type: 'doc',
+      content: [
+        heading(2, 'section-11111111-1111-4111-8111-111111111111', 'สำรวจหน้างาน'),
+        p('ทีมช่างต้องตรวจคานเดิม [[เติม: จุดที่ต้องเช็กเป็นพิเศษในบ้านทาวน์โฮม]]'),
+        { type: 'image', attrs: { src: '/images/example.webp', alt: '[[เลือก: ภาพหน้าบ้าน / ภาพหลังคาเดิม]]' } },
+      ],
+    };
+    expect(validateDraft(draftMetadata, draftDocument)).toEqual([]);
+    const problems = validateForPublication(draftMetadata, draftDocument);
+    expect(problems).toEqual(expect.arrayContaining([
+      expect.objectContaining({ field: 'metadata.excerpt' }),
+      expect.objectContaining({ field: 'document#section-11111111-1111-4111-8111-111111111111' }),
+    ]));
+  });
+
   it('allows identical heading labels while keeping persistent IDs distinct', () => {
     const repeated: ArticleDocument = { type: 'doc', content: [heading(2, 'section-11111111-1111-4111-8111-111111111111', 'รายละเอียด'), p('เนื้อหาแรก'), heading(2, 'section-22222222-2222-4222-8222-222222222222', 'รายละเอียด'), p('เนื้อหาที่สอง')] };
     expect(ArticleDocumentSchema.safeParse(repeated).success).toBe(true);

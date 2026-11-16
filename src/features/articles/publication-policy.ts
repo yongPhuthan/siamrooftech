@@ -1,6 +1,34 @@
-import { ArticleMetadata, ArticleMetadataSchema, ArticleDocument, ArticleDocumentSchema, ArticleSeoSettings } from './document-schema';
+import { ArticleMetadata, ArticleMetadataSchema, ArticleDocument, ArticleDocumentSchema, ArticleNode, ArticleSeoSettings } from './document-schema';
 import { collectArticleHeadings } from './heading-outline';
 import { isValidArticleSlug } from './article-path';
+
+const DRAFT_MARKER = /\[\[[^\]]*\]\]/;
+
+function collectDraftMarkerFields(document: ArticleDocument): string[] {
+  const fields = new Set<string>();
+  let activeHeadingId: string | undefined;
+
+  const visit = (node: ArticleNode, headingId?: string) => {
+    const ownerId = node.type === 'heading' ? node.attrs.id : headingId;
+    if (node.type === 'text' && DRAFT_MARKER.test(node.text)) {
+      fields.add(ownerId ? `document#${ownerId}` : 'document');
+    } else if (node.type === 'image') {
+      const attrs = [node.attrs.alt, node.attrs.title, node.attrs.caption];
+      if (attrs.some((value) => typeof value === 'string' && DRAFT_MARKER.test(value))) {
+        fields.add(ownerId ? `document#${ownerId}` : 'document');
+      }
+    }
+    if ('content' in node && node.content) {
+      for (const child of node.content) visit(child, ownerId);
+    }
+  };
+
+  for (const node of document.content) {
+    if (node.type === 'heading') activeHeadingId = node.attrs.id;
+    visit(node, activeHeadingId);
+  }
+  return [...fields];
+}
 
 export interface ArticleSnapshot {
   schemaVersion: 1;
@@ -70,6 +98,32 @@ export function validateForPublication(metadata: unknown, document: unknown): Pu
   for (const heading of headings) {
     if (heading.incomplete) problems.push({ field: `document#${heading.id}`, message: `เติมเนื้อหาในส่วน “${heading.text || 'หัวข้อยังไม่มีชื่อ'}” ก่อนเผยแพร่` });
     if (!heading.text) problems.push({ field: `document#${heading.id}`, message: 'หัวข้อที่เผยแพร่ต้องมีชื่อ' });
+  }
+
+  const markerMessage = 'ยังมีจุด [[เติม / เลือก / ลบได้]] ค้างอยู่ — แก้ให้ครบก่อนเผยแพร่';
+  const metadataFields: [string, string | undefined][] = [
+    ['metadata.title', validMetadata.title],
+    ['metadata.slug', validMetadata.slug],
+    ['metadata.excerpt', validMetadata.excerpt],
+    ['metadata.category', validMetadata.category],
+    ['metadata.authorName', validMetadata.authorName],
+    ['metadata.reviewerName', validMetadata.reviewerName],
+    ['metadata.topic', validMetadata.topic],
+    ['metadata.seoTitle', validMetadata.seoTitle],
+    ['metadata.seoDescription', validMetadata.seoDescription],
+    ['metadata.coverAlt', validMetadata.coverAlt],
+  ];
+  for (const [field, value] of metadataFields) {
+    if (value && DRAFT_MARKER.test(value)) problems.push({ field, message: markerMessage });
+  }
+  if (validMetadata.tags.some((tag) => DRAFT_MARKER.test(tag))) {
+    problems.push({ field: 'metadata.tags', message: markerMessage });
+  }
+  if (validMetadata.sources.some((source) => DRAFT_MARKER.test(source.label))) {
+    problems.push({ field: 'metadata.sources', message: markerMessage });
+  }
+  for (const field of collectDraftMarkerFields(validDocument)) {
+    problems.push({ field, message: markerMessage });
   }
   return problems;
 }
