@@ -1,0 +1,213 @@
+name: Reviewed LINE Worker release
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        required: true
+        type: choice
+        options: [staging, production]
+      operation:
+        required: true
+        type: choice
+        options: [deploy, migrate]
+      confirm_main_sha:
+        required: true
+        type: string
+      confirm_database_name:
+        description: Exact target CHAT_DB name; required for migrations
+        required: false
+        type: string
+      confirm_staging_database_name:
+        description: Also required before production migration; type the isolated staging CHAT_DB name
+        required: false
+        type: string
+permissions:
+  contents: read
+concurrency:
+  group: line-release-${{ inputs.target }}
+  cancel-in-progress: false
+jobs:
+  validate:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22
+          cache: yarn
+      - name: Require exact main SHA
+        env:
+          REQUESTED_SHA: ${{ inputs.confirm_main_sha }}
+        run: test "$REQUESTED_SHA" = "$GITHUB_SHA"
+      - run: corepack enable
+      - run: yarn install --frozen-lockfile --non-interactive
+      - run: yarn type-check
+      - run: yarn lint
+      - run: yarn test:admin
+      - run: yarn test:articles
+      - run: yarn test:crm
+      - run: yarn line:type-check
+      - run: yarn line:policy
+      - run: yarn line-contact:qa
+      - run: yarn ui:qa
+      - run: yarn deployment:policy
+      - run: node --test scripts/deployment-policy.test.mjs scripts/migration-target-policy.test.mjs scripts/line-worker-policy.test.mjs
+      - run: node scripts/workflow-policy-qa.mjs
+      - run: yarn cf:build:staging
+      - name: Bundle both isolated LINE targets without credentials
+        run: |
+          node_modules/.bin/wrangler deploy --dry-run --env staging --config workers/line-chat-history/wrangler.jsonc --outdir .line-release/staging
+          node scripts/line-release-manifest.mjs create staging .line-release/staging
+          node_modules/.bin/wrangler deploy --dry-run --env production --config workers/line-chat-history/wrangler.jsonc --outdir .line-release/production
+          node scripts/line-release-manifest.mjs create production .line-release/production
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: line-release-${{ github.sha }}
+          path: .line-release
+          include-hidden-files: true
+          retention-days: 7
+  migrate-staging:
+    if: inputs.operation == 'migrate'
+    needs: validate
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22
+          cache: yarn
+      - run: corepack enable
+      - run: yarn install --frozen-lockfile --non-interactive
+      - name: Verify target and release readiness
+        env:
+          TARGET: staging
+          DATABASE_NAME: ${{ inputs.target == 'staging' && inputs.confirm_database_name || inputs.confirm_staging_database_name }}
+          LINE_READY: ${{ vars.LINE_RELEASE_READY }}
+        run: |
+          test "$LINE_READY" = true
+          test -n "$DATABASE_NAME"
+          node scripts/line-worker-policy.mjs "$TARGET" "$DATABASE_NAME"
+          sha256sum workers/line-chat-history/migrations/*.sql
+      - name: Apply reviewed expand-only LINE migrations
+        env:
+          TARGET: staging
+          DATABASE_NAME: ${{ inputs.target == 'staging' && inputs.confirm_database_name || inputs.confirm_staging_database_name }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: node_modules/.bin/wrangler d1 migrations apply "$DATABASE_NAME" --remote --env "$TARGET" --config workers/line-chat-history/wrangler.jsonc
+  migrate-production:
+    if: inputs.operation == 'migrate' && inputs.target == 'production'
+    needs: [validate, migrate-staging]
+    runs-on: ubuntu-latest
+    environment: Production
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22
+          cache: yarn
+      - run: corepack enable
+      - run: yarn install --frozen-lockfile --non-interactive
+      - name: Verify target and release readiness
+        env:
+          TARGET: production
+          DATABASE_NAME: ${{ inputs.confirm_database_name }}
+          LINE_READY: ${{ vars.LINE_RELEASE_READY }}
+        run: |
+          test "$LINE_READY" = true
+          test -n "$DATABASE_NAME"
+          node scripts/line-worker-policy.mjs "$TARGET" "$DATABASE_NAME"
+          sha256sum workers/line-chat-history/migrations/*.sql
+      - name: Apply reviewed expand-only LINE migrations
+        env:
+          TARGET: production
+          DATABASE_NAME: ${{ inputs.confirm_database_name }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: node_modules/.bin/wrangler d1 migrations apply "$DATABASE_NAME" --remote --env "$TARGET" --config workers/line-chat-history/wrangler.jsonc
+  deploy-staging:
+    if: inputs.operation == 'deploy'
+    needs: validate
+    runs-on: ubuntu-latest
+    environment: staging
+    permissions:
+      contents: read
+      deployments: write
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22
+          cache: yarn
+      - run: corepack enable
+      - run: yarn install --frozen-lockfile --non-interactive
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: line-release-${{ github.sha }}
+          path: .line-release
+      - name: Require verified staging Access, test LINE channel and schema readiness
+        env:
+          LINE_READY: ${{ vars.LINE_RELEASE_READY }}
+        run: test "$LINE_READY" = true
+      - run: node scripts/line-release-manifest.mjs verify staging .line-release/staging
+      - name: Deploy prebuilt staging bundle
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: node_modules/.bin/wrangler deploy .line-release/staging/index.js --no-bundle --env staging --config workers/line-chat-history/wrangler.jsonc --var RELEASE_SHA:$GITHUB_SHA
+      - name: Verify authenticated staging health and exact SHA
+        env:
+          LINE_WORKER_SMOKE_URL: ${{ vars.LINE_WORKER_SMOKE_URL }}
+          CHAT_HISTORY_READ_TOKEN: ${{ secrets.CHAT_HISTORY_READ_TOKEN }}
+          CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
+          CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
+        run: node scripts/line-worker-smoke.mjs
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: line-staging-verified-${{ github.sha }}
+          path: .line-staging-verified.json
+          include-hidden-files: true
+          retention-days: 7
+  deploy-production:
+    if: inputs.operation == 'deploy' && inputs.target == 'production'
+    needs: [validate, deploy-staging]
+    runs-on: ubuntu-latest
+    environment: Production
+    permissions:
+      contents: read
+      deployments: write
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22
+          cache: yarn
+      - run: corepack enable
+      - run: yarn install --frozen-lockfile --non-interactive
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: line-release-${{ github.sha }}
+          path: .line-release
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: line-staging-verified-${{ github.sha }}
+          path: .
+      - name: Require production readiness and matching staging receipt
+        env:
+          LINE_READY: ${{ vars.LINE_RELEASE_READY }}
+        run: |
+          test "$LINE_READY" = true
+          node -e "const r=require('./.line-staging-verified.json'); if(r.verified_sha!==process.env.GITHUB_SHA) process.exit(1)"
+      - run: node scripts/line-release-manifest.mjs verify production .line-release/production
+      - name: Deploy reviewed prebuilt production bundle without migrations
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: node_modules/.bin/wrangler deploy .line-release/production/index.js --no-bundle --env production --config workers/line-chat-history/wrangler.jsonc --var RELEASE_SHA:$GITHUB_SHA
+      - name: Verify production health and exact SHA
+        env:
+          LINE_WORKER_SMOKE_URL: ${{ vars.LINE_WORKER_SMOKE_URL }}
+          CHAT_HISTORY_READ_TOKEN: ${{ secrets.CHAT_HISTORY_READ_TOKEN }}
+        run: node scripts/line-worker-smoke.mjs

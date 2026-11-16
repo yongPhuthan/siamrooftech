@@ -9,7 +9,11 @@ test('staging requires exact DB confirmation and isolated CMS/cache bindings', (
   assert.throws(() => getMigrationTarget(config, 'staging', 'siamrooftech-cms-production'), /confirmation mismatch/);
 });
 test('production migration stays blocked until production databases are explicitly configured', () => {
-  assert.throws(() => getMigrationTarget(config, 'production', 'siamrooftech-cms-production'), /APP_DB is not configured/);
+  const unconfigured = structuredClone(config);
+  unconfigured.env.production.d1_databases = [];
+  assert.throws(() => getMigrationTarget(unconfigured, 'production', 'siamrooftech-cms-production'), /APP_DB is not configured/);
+  assert.equal(getMigrationTarget(config, 'production', 'siamrooftech-cms-production').target, 'production');
+  assert.throws(() => getMigrationTarget(config, 'production', 'siamrooftech-cms-staging'), /confirmation mismatch/);
 });
 test('local and unknown targets cannot run through the remote migration workflow', () => {
   assert.throws(() => getMigrationTarget(config, 'local', 'siamrooftech-cms-local'), /only for staging or production/);

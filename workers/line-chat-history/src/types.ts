@@ -17,6 +17,8 @@ export interface Env {
   ADS_CONVERSION_ACTION_ID: string;
   GOOGLE_SA_CLIENT_EMAIL: string;
   GOOGLE_SA_PRIVATE_KEY: string;
+  CRM_ADS_LIVE_ENABLED?: string;
+  RELEASE_SHA?: string;
 }
 
 export type MediaQueueMessage =
@@ -158,6 +160,8 @@ export interface ConversationRow {
 }
 
 export type LeadStatus =
+  | 'pending'
+  | 'assessment'
   | 'new'
   | 'contacted'
   | 'qualified'
@@ -169,6 +173,7 @@ export type LeadStatus =
 export type LeadPersona = 'homeowner' | 'procurement' | 'contractor';
 
 export type AdsState =
+  | 'dry_run'
   | 'not_sent'
   | 'pending'
   | 'ingest_accepted'
@@ -203,7 +208,7 @@ export interface LeadRow {
   attribution_raw: string | null;
   conversation_id: string | null;
   matched_at: number | null;
-  match_method: 'ref_code' | 'manual' | null;
+  match_method: 'ref_code' | 'manual' | 'timestamp' | 'follow_timestamp' | null;
   status: LeadStatus;
   status_updated_at: number | null;
   persona_value: number | null;
@@ -215,6 +220,12 @@ export interface LeadRow {
   ads_last_sent_at: number | null;
   ads_last_error: string | null;
   notes: string | null;
+  model_version?: number;
+  revision?: number;
+  touch_id?: string | null;
+  first_message_at?: number | null;
+  review_state?: string;
+  review_json?: string | null;
 }
 
 export interface LeadEventRow {
@@ -248,4 +259,10 @@ export interface AdsSyncJobRow {
   first_accepted_at: number | null;
   last_checked_at: number | null;
   diagnostics_json: string | null;
+  review_id?: string | null;
+  payload_snapshot?: string | null;
+  sequence?: number | null;
+  last_dispatch_at?: number | null;
+  lease_until?: number;
+  is_simulation?: number;
 }

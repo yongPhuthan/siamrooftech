@@ -1,7 +1,18 @@
 import { verifyLineSignature } from './signature';
 import { prepareEventStatements, conversationIdFor } from './normalize';
-import { extractRefCode, matchLeadByRefCode } from './leads';
+import { ensureOpportunity } from './crm';
 import type { Env, LineWebhookBody } from './types';
+import { z } from 'zod';
+
+const eventSchema = z.object({
+  type: z.string().min(1).max(64), timestamp: z.number().int().positive(),
+  webhookEventId: z.string().min(1).max(200),
+  deliveryContext: z.object({ isRedelivery: z.boolean() }),
+  source: z.object({ type: z.enum(['user', 'group', 'room']), userId: z.string().max(200).optional(),
+    groupId: z.string().max(200).optional(), roomId: z.string().max(200).optional() }).optional(),
+  message: z.object({ id: z.string().min(1).max(200), type: z.string().min(1).max(64), text: z.string().max(20000).optional() }).passthrough().optional(),
+}).passthrough().refine((event) => event.type !== 'message' || Boolean(event.message), 'message required');
+const webhookSchema = z.object({ destination: z.string().max(200).optional(), events: z.array(eventSchema).max(1000) });
 
 export async function handleWebhook(request: Request, env: Env): Promise<Response> {
   const rawBody = await request.text();
@@ -14,7 +25,9 @@ export async function handleWebhook(request: Request, env: Env): Promise<Respons
 
   let body: LineWebhookBody;
   try {
-    body = JSON.parse(rawBody);
+    const parsed = webhookSchema.safeParse(JSON.parse(rawBody));
+    if (!parsed.success) return new Response('invalid webhook', { status: 400 });
+    body = parsed.data as LineWebhookBody;
   } catch {
     return new Response('invalid JSON', { status: 400 });
   }
@@ -23,10 +36,10 @@ export async function handleWebhook(request: Request, env: Env): Promise<Respons
   const events = body.events ?? [];
 
   const deliveryResult = await env.CHAT_DB.prepare(
-    `INSERT INTO webhook_deliveries (received_at, destination, signature_ok, event_count, raw_body, status)
-     VALUES (?, ?, 1, ?, ?, 'stored') RETURNING id`,
+    `INSERT INTO webhook_deliveries (received_at, destination, signature_ok, event_count, raw_body, status, retention_event_at)
+     VALUES (?, ?, 1, ?, ?, 'stored', ?) RETURNING id`,
   )
-    .bind(receivedAt, body.destination ?? null, events.length, rawBody)
+    .bind(receivedAt, body.destination ?? null, events.length, rawBody, events.length ? Math.min(...events.map((event) => event.timestamp)) : receivedAt)
     .first<{ id: number }>();
 
   const deliveryId = deliveryResult!.id;
@@ -38,33 +51,17 @@ export async function handleWebhook(request: Request, env: Env): Promise<Respons
       await env.CHAT_DB.batch(statements);
     }
 
+
+
+    // Reconcile persisted events, including delayed/replayed follow/message events.
+    const conversations = new Set(events.map((event) => conversationIdFor(event.source)).filter((id): id is string => Boolean(id)));
+    for (const conversationId of conversations) await ensureOpportunity(env, conversationId);
     for (const message of queueMessages) {
       await env.MEDIA_QUEUE.send(message);
     }
 
-    // Legacy/manual flows may still supply a ref code in an inbound text
-    // message. The public CTA now preserves the verified lin.ee short link,
-    // so normal clicks require manual matching rather than risking a broken
-    // contact handoff or an inferred match to the wrong gclid.
-    for (const event of events) {
-      if (event.type !== 'message') continue;
-      const message = (event as any).message;
-      if (message?.type !== 'text') continue;
-
-      const refCode = extractRefCode(message.text);
-      if (!refCode) continue;
-
-      const conversationId = conversationIdFor(event.source);
-      if (!conversationId) continue;
-
-      try {
-        await matchLeadByRefCode(env, refCode, conversationId, event.timestamp);
-      } catch (error) {
-        console.error('lead matching failed', refCode, error);
-      }
-    }
   }
 
-  // Always 200 within a few ms so LINE does not treat this as a failure and redeliver.
+  // Acknowledge persisted events; failures propagate so LINE can redeliver.
   return new Response('OK', { status: 200 });
 }

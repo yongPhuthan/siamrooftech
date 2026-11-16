@@ -33,7 +33,7 @@ export function serializeMessage(row: MessageRow, attachment: AttachmentRow | nu
     direction: row.direction,
     actor: row.actor,
     type: row.message_type,
-    text: row.text,
+    text: row.is_unsent === 1 ? null : row.text,
     quoted_message_id: row.quoted_message_id,
     occurred_at: utcMsToIso(row.occurred_at),
     occurred_at_local: utcMsToLocalIso(row.occurred_at, timezone),
@@ -142,7 +142,7 @@ export async function fetchMessagesPage(
   receiveCursor: { createdAt: number; messageId: string } | null;
 }> {
   const conditions = ['occurred_at >= ?', 'occurred_at < ?'];
-  const binds: (string | number)[] = [params.fromMs, params.toMs];
+  const binds: (string | number)[] = [Math.max(params.fromMs, Date.now() - 365 * 86400_000), params.toMs];
 
   if (params.conversationId) {
     conditions.push('conversation_id = ?');
@@ -200,7 +200,7 @@ export async function fetchMessagesPage(
     }, null),
     messages: page.map((row) => {
       const serialized = serializeMessage(row, attachmentsByMessageId.get(row.message_id) ?? null, params.timezone);
-      if (params.includeRaw) {
+      if (params.includeRaw && row.is_unsent !== 1) {
         return { ...serialized, raw: JSON.parse(row.payload) };
       }
       return serialized;
@@ -248,8 +248,9 @@ async function handleListConversations(request: Request, env: Env, url: URL): Pr
 
 async function handleMedia(env: Env, messageId: string, url: URL): Promise<Response> {
   const variant = url.searchParams.get('variant');
-  const attachment = await env.CHAT_DB.prepare(`SELECT * FROM attachments WHERE message_id = ?`)
-    .bind(messageId)
+  const attachment = await env.CHAT_DB.prepare(`SELECT a.* FROM attachments a JOIN messages m ON m.message_id = a.message_id
+      WHERE a.message_id = ? AND m.occurred_at >= ? AND m.is_unsent = 0`)
+    .bind(messageId, Date.now() - 365 * 86400_000)
     .first<AttachmentRow>();
 
   if (!attachment || attachment.status !== 'stored') {
@@ -266,10 +267,14 @@ async function handleMedia(env: Env, messageId: string, url: URL): Promise<Respo
     return errorResponse('media not available', 404);
   }
 
+  const contentType = object.httpMetadata?.contentType ?? 'application/octet-stream';
+  const inline = /^(image\/(png|jpeg|webp|gif)|video\/mp4|audio\/(mpeg|mp4|ogg|wav))$/i.test(contentType.split(';')[0]);
   return new Response(object.body, {
     headers: {
-      'content-type': object.httpMetadata?.contentType ?? 'application/octet-stream',
-      'cache-control': 'private, max-age=86400',
+      'content-type': contentType,
+      'content-disposition': inline ? 'inline' : 'attachment',
+      'x-content-type-options': 'nosniff',
+      'cache-control': 'private, no-store',
     },
   });
 }
@@ -294,6 +299,7 @@ async function handleHealth(env: Env): Promise<Response> {
 
   return jsonResponse({
     status: 'ok',
+    release_sha: env.RELEASE_SHA ?? 'unknown',
     attachments: attachmentCounts,
     signature_failures: signatureFailures?.count ?? 0,
     latest_event_at: latestEvent?.max_occurred_at ? utcMsToIso(latestEvent.max_occurred_at) : null,

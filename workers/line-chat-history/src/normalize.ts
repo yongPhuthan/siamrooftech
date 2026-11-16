@@ -31,7 +31,7 @@ export function prepareEventStatements(
   const queueMessages: MediaQueueMessage[] = [];
   const touchedConversations = new Map<
     string,
-    { sourceType: string; lineUserId: string | null; messageCount: number }
+    { sourceType: string; lineUserId: string | null; messageCount: number; firstAt: number; lastAt: number }
   >();
 
   for (const event of events) {
@@ -43,8 +43,13 @@ export function prepareEventStatements(
         sourceType: event.source!.type,
         lineUserId: event.source!.userId ?? null,
         messageCount: 0,
+        firstAt: event.timestamp, lastAt: event.timestamp,
       });
     }
+    const touched = touchedConversations.get(conversationId)!;
+    touched.firstAt = Math.min(touched.firstAt, event.timestamp);
+    touched.lastAt = Math.max(touched.lastAt, event.timestamp);
+
     if (event.type === 'message') {
       touchedConversations.get(conversationId)!.messageCount += 1;
 
@@ -87,6 +92,7 @@ export function prepareEventStatements(
           receivedAt,
         ),
     );
+
 
     if (event.type === 'message') {
       const msg = (event as any).message;
@@ -159,7 +165,7 @@ export function prepareEventStatements(
           .prepare(
             `INSERT INTO conversations (conversation_id, source_type, line_user_id, first_event_at, last_event_at, is_following)
              VALUES (?, ?, ?, ?, ?, ?)
-             ON CONFLICT(conversation_id) DO UPDATE SET is_following = excluded.is_following, last_event_at = excluded.last_event_at`,
+             ON CONFLICT(conversation_id) DO UPDATE SET is_following = excluded.is_following, last_event_at = MAX(conversations.last_event_at, excluded.last_event_at)`,
           )
           .bind(
             conversationId,
@@ -182,9 +188,9 @@ export function prepareEventStatements(
            ON CONFLICT(conversation_id) DO UPDATE SET
              last_event_at = MAX(conversations.last_event_at, excluded.last_event_at),
              first_event_at = MIN(COALESCE(conversations.first_event_at, excluded.first_event_at), excluded.first_event_at),
-             message_count = conversations.message_count + excluded.message_count`,
+             message_count = (SELECT COUNT(*) FROM messages WHERE conversation_id = excluded.conversation_id)`,
         )
-        .bind(conversationId, info.sourceType, info.lineUserId, receivedAt, receivedAt, info.messageCount),
+        .bind(conversationId, info.sourceType, info.lineUserId, info.firstAt, info.lastAt, info.messageCount),
     );
 
     if (info.lineUserId) {

@@ -1,110 +1,42 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import worker from '../src/index';
-import type { AdsSyncJobRow, Env, LeadRow } from '../src/types';
+import { fixture } from './d1-fixture';
+import { recordTouch, ensureOpportunity, saveReview, getCrmLead } from '../src/crm';
 
-const lead: LeadRow = {
-  lead_id: 'lead-qualified-line-message',
-  ref_code: 'SRT-TEST',
-  created_at: Date.UTC(2026, 8, 11, 9, 0, 0),
-  gclid: 'test-gclid',
-  gbraid: null,
-  wbraid: null,
-  lead_persona: 'homeowner',
-  lead_quality_score: 80,
-  utm_source: 'google',
-  utm_medium: 'cpc',
-  utm_campaign: null,
-  utm_term: null,
-  utm_content: null,
-  srt_campaignid: null,
-  srt_adgroupid: null,
-  srt_keyword: null,
-  srt_matchtype: null,
-  srt_device: null,
-  landing_page: null,
-  attribution_raw: null,
-  conversation_id: 'user:test-line-user',
-  matched_at: Date.UTC(2026, 8, 11, 9, 1, 0),
-  match_method: 'manual',
-  status: 'qualified',
-  status_updated_at: null,
-  persona_value: null,
-  estimated_value: null,
-  actual_value: null,
-  currency: 'THB',
-  ads_state: 'not_sent',
-  ads_last_value: null,
-  ads_last_sent_at: null,
-  ads_last_error: null,
-  notes: null,
-};
-
-const job: AdsSyncJobRow = {
-  job_id: 'job-qualified-line-message',
-  lead_id: lead.lead_id,
-  created_at: lead.created_at,
-  kind: 'initial',
-  conversion_value: 1,
-  currency: 'THB',
-  // A job may have been queued while the previous deployment was live. The
-  // current environment must still prevent it from being sent during cutover.
-  mode: 'live',
-  state: 'pending',
-  attempts: 0,
-  request_payload: null,
-  response_body: null,
-  error: null,
-  completed_at: null,
-};
-
-test('line-ads-sync forces a previously live job to dry-run during cutover', async () => {
-  let persistedPayload = '';
-  let acknowledged = false;
-
-  const env = {
-    ADS_SYNC_MODE: 'dry_run',
-    ADS_CUSTOMER_ID: '1234567890',
-    ADS_LOGIN_CUSTOMER_ID: '0987654321',
-    ADS_CONVERSION_ACTION_ID: '1111111111',
-    CHAT_DB: {
-      prepare(sql: string) {
-        return {
-          bind(...values: unknown[]) {
-            return {
-              first: async () => (sql.includes('FROM ads_sync_jobs') ? job : sql.includes('FROM leads') ? lead : null),
-              run: async () => {
-                if (sql.includes('SET request_payload')) persistedPayload = String(values[0]);
-                return {};
-              },
-            };
-          },
-        };
-      },
-      batch: async () => [],
-    },
-  } as unknown as Env;
-
-  const queueBatch = {
-    queue: 'line-ads-sync',
-    messages: [
-      {
-        body: { jobId: job.job_id },
-        attempts: 1,
-        ack: () => {
-          acknowledged = true;
-        },
-        retry: () => assert.fail('dry-run job should not retry'),
-      },
-    ],
-  } as unknown as MessageBatch<{ jobId: string }>;
-
-  await worker.queue(queueBatch, env);
-
-  const payload = JSON.parse(persistedPayload);
-  assert.equal(payload.events[0].eventSource, 'MESSAGE');
-  assert.equal(payload.events[0].adIdentifiers.gclid, 'test-gclid');
-  assert.equal(payload.destinations[0].operatingAccount.accountId, '1234567890');
-  assert.equal(payload.destinations[0].loginAccount.accountId, '0987654321');
-  assert.equal(acknowledged, true);
+for (const queue of ['line-ads-sync', 'line-ads-sync-staging', 'line-ads-sync-local']) {
+  test(`${queue} routes reviewed conversions to dry-run without a Google request`, async (t) => {
+    const f = fixture(); t.after(f.close);
+    const now = Date.now();
+    await recordTouch(f.env, { click_id: crypto.randomUUID(), session_id: crypto.randomUUID(), landing_id: 'electric-awning',
+      landing_path: '/lp/google-ads/electric-awning', attribution: { gclid: 'fixture' } });
+    f.sqlite.prepare(`INSERT INTO conversations (conversation_id, source_type) VALUES ('user:queue', 'user')`).run();
+    f.sqlite.prepare(`INSERT INTO messages (message_id, conversation_id, direction, actor, message_type, payload, occurred_at, created_at)
+      VALUES ('queue-message', 'user:queue', 'inbound', 'user', 'text', '{}', ?, ?)`).run(now + 1000, now);
+    await ensureOpportunity(f.env, 'user:queue');
+    const lead = await getCrmLead(f.env, String(f.sqlite.prepare('SELECT lead_id FROM leads').get()!.lead_id));
+    await saveReview(f.env, lead.lead_id, { revision: lead.revision, stage: 'qualified', service: 'pass', area: 'pass', intent: 'pass',
+      reason: 'fixture', probability: .25, expected_profit: 2000, value: null, actual_profit: null, valuation_version_id: null,
+      approve: true, confirm_match: true, confirm_final_zero: false }, 'admin:fixture');
+    const job = f.sqlite.prepare('SELECT job_id FROM ads_sync_jobs').get()!;
+    // Simulate an old live-mode secret/job. The independent release gate still wins.
+    f.env.ADS_SYNC_MODE = 'live'; f.sqlite.prepare("UPDATE ads_sync_jobs SET mode = 'live'").run();
+    t.mock.method(globalThis, 'fetch', async () => assert.fail('dry-run must not contact Google'));
+    let acked = 0;
+    await worker.queue({ queue, messages: [{ body: { jobId: String(job.job_id) }, attempts: 1,
+      ack() { acked++; }, retry() { assert.fail('reviewed dry-run must not retry'); } }] } as any, f.env);
+    assert.equal(acked, 1); assert.equal(f.sqlite.prepare('SELECT ads_state FROM leads').get()!.ads_state, 'dry_run');
+    const payload = JSON.parse(String(f.sqlite.prepare('SELECT request_payload FROM ads_sync_jobs').get()!.request_payload));
+    assert.equal(payload.events[0].eventTimestamp, new Date(now + 1000).toISOString());
+    assert.equal(payload.events[0].eventSource, 'MESSAGE');
+  });
+}
+test('legacy pending jobs are quarantined instead of being uploaded', async (t) => {
+  const f = fixture(); t.after(f.close);
+  f.sqlite.prepare(`INSERT INTO leads (lead_id, ref_code, created_at, currency) VALUES ('legacy', 'SRT-OLD', ?, 'THB')`).run(Date.now());
+  f.sqlite.prepare(`INSERT INTO ads_sync_jobs (job_id, lead_id, created_at, kind, conversion_value, currency, mode, state)
+    VALUES ('legacy-job', 'legacy', ?, 'initial', 1, 'THB', 'live', 'pending')`).run(Date.now());
+  t.mock.method(globalThis, 'fetch', async () => assert.fail('legacy must never upload'));
+  await worker.queue({ queue: 'line-ads-sync', messages: [{ body: { jobId: 'legacy-job' }, attempts: 1, ack() {}, retry() { assert.fail(); } }] } as any, f.env);
+  assert.equal(f.sqlite.prepare('SELECT state FROM ads_sync_jobs').get()!.state, 'failed');
 });

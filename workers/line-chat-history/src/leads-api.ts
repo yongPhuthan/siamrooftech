@@ -1,9 +1,7 @@
 import { errorResponse, jsonResponse, requireBearer } from './http';
 import { fetchMessagesPage, decodeCursor } from './read-api';
 import { resolveTimeRange, utcMsToIso } from './timezone';
-import { createLead, manualMatchLead, updateLeadNotes, updateLeadStatus, updateLeadValue } from './leads';
-import type { LeadIntakeRequest } from './leads';
-import type { AdsSyncJobRow, Env, LeadEventRow, LeadRow, LeadStatus } from './types';
+import type { AdsSyncJobRow, Env, LeadEventRow, LeadRow } from './types';
 
 const DEFAULT_LIMIT = 100;
 const MAX_LIMIT = 500;
@@ -11,6 +9,7 @@ const MAX_LIMIT = 500;
 export function serializeLead(row: LeadRow) {
   return {
     lead_id: row.lead_id,
+    model_version: row.model_version ?? 1,
     ref_code: row.ref_code,
     created_at: utcMsToIso(row.created_at),
     attribution: {
@@ -52,22 +51,6 @@ export function serializeLead(row: LeadRow) {
     },
     notes: row.notes,
   };
-}
-
-async function handleIntake(request: Request, env: Env): Promise<Response> {
-  const authError = await requireBearer(request, env.LEADS_INTAKE_TOKEN);
-  if (authError) return authError;
-  if (request.method !== 'POST') return errorResponse('method not allowed', 405);
-
-  let body: LeadIntakeRequest;
-  try {
-    body = await request.json();
-  } catch {
-    return errorResponse('invalid JSON', 400);
-  }
-
-  const { lead_id, ref_code } = await createLead(env, body);
-  return jsonResponse({ lead_id, ref_code }, 201);
 }
 
 async function handleListLeads(env: Env, url: URL): Promise<Response> {
@@ -264,122 +247,17 @@ async function handleAdsSyncJobs(env: Env, url: URL): Promise<Response> {
   });
 }
 
-const VALID_STATUSES: LeadStatus[] = ['new', 'contacted', 'qualified', 'quoted', 'won', 'lost', 'disqualified'];
-
-async function handleStatusUpdate(request: Request, env: Env, leadId: string): Promise<Response> {
-  let body: { status?: string; reason?: string; actor?: string };
-  try {
-    body = await request.json();
-  } catch {
-    return errorResponse('invalid JSON', 400);
-  }
-  if (!body.status || !VALID_STATUSES.includes(body.status as LeadStatus)) {
-    return errorResponse(`status must be one of: ${VALID_STATUSES.join(', ')}`, 400);
-  }
-
-  const result = await updateLeadStatus(env, leadId, body.status as LeadStatus, body.actor || 'agent', body.reason ?? null);
-  if (!result.ok) return errorResponse(result.error!, result.error === 'lead not found' ? 404 : 400);
-  return jsonResponse({ ok: true });
-}
-
-async function handleValueUpdate(request: Request, env: Env, leadId: string): Promise<Response> {
-  let body: { value?: number; field?: string; status?: string; reason?: string; actor?: string };
-  try {
-    body = await request.json();
-  } catch {
-    return errorResponse('invalid JSON', 400);
-  }
-  if (typeof body.value !== 'number') return errorResponse('value must be a number', 400);
-  const field = body.field === 'estimated_value' ? 'estimated_value' : 'actual_value';
-
-  const result = await updateLeadValue(env, leadId, body.value, field, body.actor || 'agent', body.reason ?? null);
-  if (!result.ok) return errorResponse(result.error!, result.error === 'lead not found' ? 404 : 400);
-
-  if (body.status && VALID_STATUSES.includes(body.status as LeadStatus)) {
-    await updateLeadStatus(env, leadId, body.status as LeadStatus, body.actor || 'agent', body.reason ?? null);
-  }
-
-  return jsonResponse({ ok: true });
-}
-
-async function handleManualMatch(request: Request, env: Env, leadId: string): Promise<Response> {
-  let body: { conversation_id?: string; actor?: string };
-  try {
-    body = await request.json();
-  } catch {
-    return errorResponse('invalid JSON', 400);
-  }
-  if (!body.conversation_id) return errorResponse('conversation_id is required', 400);
-
-  const result = await manualMatchLead(env, leadId, body.conversation_id, body.actor || 'admin');
-  if (!result.ok) return errorResponse(result.error!, result.error === 'lead not found' ? 404 : 400);
-  return jsonResponse({ ok: true });
-}
-
-async function handleNotesUpdate(request: Request, env: Env, leadId: string): Promise<Response> {
-  let body: { notes?: string | null; actor?: string };
-  try {
-    body = await request.json();
-  } catch {
-    return errorResponse('invalid JSON', 400);
-  }
-  if (body.notes !== null && body.notes !== undefined && typeof body.notes !== 'string') {
-    return errorResponse('notes must be a string or null', 400);
-  }
-  const notes = body.notes?.trim() || null;
-  if (notes && notes.length > 4000) return errorResponse('notes must not exceed 4000 characters', 400);
-  const result = await updateLeadNotes(env, leadId, notes, body.actor || 'agent');
-  if (!result.ok) return errorResponse(result.error!, 404);
-  return jsonResponse({ ok: true });
-}
 
 export async function handleLeadsApi(request: Request, env: Env, url: URL): Promise<Response> {
-  // Intake has its own bearer (LEADS_INTAKE_TOKEN) — it's called by the
-  // Next.js same-origin proxy on behalf of anonymous site visitors, never
-  // directly by a browser, so it must not accept the read/write tokens.
-  if (url.pathname === '/internal/leads/intake') {
-    return handleIntake(request, env);
-  }
-
-  // Route table so a matched path with the wrong verb returns 405 (like
-  // read-api.ts's handleReadApi), rather than falling through to a
-  // misleading 404.
-  const leadDetailMatch = /^\/leads\/([^/]+)$/.exec(url.pathname);
-  const transcriptMatch = /^\/leads\/([^/]+)\/transcript$/.exec(url.pathname);
-  const statusMatch = /^\/leads\/([^/]+)\/status$/.exec(url.pathname);
-  const valueMatch = /^\/leads\/([^/]+)\/value$/.exec(url.pathname);
-  const matchMatch = /^\/leads\/([^/]+)\/match$/.exec(url.pathname);
-  const notesMatch = /^\/leads\/([^/]+)\/notes$/.exec(url.pathname);
-
-  const route:
-    | { handler: () => Promise<Response>; method: 'GET' | 'POST'; isWrite: boolean }
-    | null =
-    url.pathname === '/leads'
-      ? { handler: () => handleListLeads(env, url), method: 'GET', isWrite: false }
-      : url.pathname === '/leads/unmatched'
-        ? { handler: () => handleUnmatchedLeads(env, url), method: 'GET', isWrite: false }
-        : url.pathname === '/ads-sync/jobs'
-          ? { handler: () => handleAdsSyncJobs(env, url), method: 'GET', isWrite: false }
-          : transcriptMatch
-            ? { handler: () => handleTranscript(env, transcriptMatch[1], url), method: 'GET', isWrite: false }
-            : statusMatch
-              ? { handler: () => handleStatusUpdate(request, env, statusMatch[1]), method: 'POST', isWrite: true }
-              : valueMatch
-                ? { handler: () => handleValueUpdate(request, env, valueMatch[1]), method: 'POST', isWrite: true }
-                : matchMatch
-                  ? { handler: () => handleManualMatch(request, env, matchMatch[1]), method: 'POST', isWrite: true }
-                  : notesMatch
-                    ? { handler: () => handleNotesUpdate(request, env, notesMatch[1]), method: 'POST', isWrite: true }
-                  : leadDetailMatch
-                    ? { handler: () => handleGetLead(env, leadDetailMatch[1], url), method: 'GET', isWrite: false }
-                    : null;
-
-  if (!route) return errorResponse('not found', 404);
-
-  const authError = await requireBearer(request, route.isWrite ? env.CHAT_HISTORY_WRITE_TOKEN : env.CHAT_HISTORY_READ_TOKEN);
-  if (authError) return authError;
-
-  if (request.method !== route.method) return errorResponse('method not allowed', 405);
-
-  return route.handler();
+  const auth = await requireBearer(request, request.method === 'GET' ? env.CHAT_HISTORY_READ_TOKEN : env.CHAT_HISTORY_WRITE_TOKEN);
+  if (auth) return auth;
+  if (request.method !== 'GET') return errorResponse('Legacy API is read-only; use reviewed CRM', 409);
+  if (url.pathname === '/leads') return handleListLeads(env, url);
+  if (url.pathname === '/leads/unmatched') return handleUnmatchedLeads(env, url);
+  if (url.pathname === '/ads-sync/jobs') return handleAdsSyncJobs(env, url);
+  const transcript = /^\/leads\/([^/]+)\/transcript$/.exec(url.pathname);
+  if (transcript) return handleTranscript(env, transcript[1], url);
+  const detail = /^\/leads\/([^/]+)$/.exec(url.pathname);
+  if (detail) return handleGetLead(env, detail[1], url);
+  return errorResponse('not found', 404);
 }

@@ -21,7 +21,7 @@ function decodeListCursor(raw: string | null): { lastEventAt: number; conversati
 function leadHealth(row: any): { state: string; label: string } {
   const state = row.lead_ads_state ?? 'skipped';
   const labels: Record<string, string> = {
-    not_sent: 'ยังไม่พร้อม', pending: 'รอส่ง', ingest_accepted: 'Google รับคำขอ', processing: 'กำลังประมวลผล',
+    dry_run: 'จำลองแล้ว (ไม่ได้ส่ง Google)', not_sent: 'ยังไม่พร้อม', pending: 'รอส่ง', ingest_accepted: 'Google รับคำขอ', processing: 'กำลังประมวลผล',
     succeeded: 'สำเร็จ', partial_success: 'สำเร็จบางส่วน', failed: 'ล้มเหลว', skipped: 'Organic / Unknown',
     sent: 'ส่งแล้ว (legacy)', restated: 'ส่งมูลค่าใหม่แล้ว (legacy)',
   };
@@ -69,14 +69,14 @@ async function listConversations(env: Env, url: URL): Promise<Response> {
        (SELECT COUNT(*) FROM messages m WHERE m.conversation_id = c.conversation_id AND ${unreadExpression}) AS unread_count
      FROM conversations c
      LEFT JOIN messages lm ON lm.message_id = (
-       SELECT message_id FROM messages WHERE conversation_id = c.conversation_id
+       SELECT message_id FROM messages WHERE conversation_id = c.conversation_id AND is_unsent = 0 AND occurred_at >= ?
        ORDER BY occurred_at DESC, message_id DESC LIMIT 1
      )
      LEFT JOIN ranked_leads l ON l.conversation_id = c.conversation_id AND l.rn = 1
      ${where}
      ORDER BY COALESCE(c.last_event_at, 0) DESC, c.conversation_id ASC LIMIT ?`,
   )
-    .bind(...binds, limit + 1)
+    .bind(Date.now() - 365 * 86400_000, ...binds, limit + 1)
     .all<any>();
   const rows = result.results ?? [];
   const hasMore = rows.length > limit;
@@ -189,32 +189,8 @@ async function markRead(request: Request, env: Env, conversationId: string): Pro
   return jsonResponse({ ok: true });
 }
 
-async function retryAds(request: Request, env: Env, conversationId: string): Promise<Response> {
-  const body: { job_id?: string; confirmed?: boolean } = await request
-    .json<{ job_id?: string; confirmed?: boolean }>()
-    .catch(() => ({}));
-  if (!body.confirmed || !body.job_id) return errorResponse('confirmed job_id is required', 400);
-  const job = await env.CHAT_DB.prepare(
-    `SELECT j.* FROM ads_sync_jobs j JOIN leads l ON l.lead_id = j.lead_id
-     WHERE j.job_id = ? AND l.conversation_id = ?`,
-  ).bind(body.job_id, conversationId).first<AdsSyncJobRow>();
-  if (!job) return errorResponse('job not found', 404);
-  if (job.state !== 'failed') return errorResponse('only failed jobs can be retried', 409);
-  const now = Date.now();
-  await env.CHAT_DB.batch([
-    env.CHAT_DB.prepare(
-      `INSERT INTO ads_sync_attempts (job_id, lead_id, attempted_at, kind, outcome, google_request_id)
-       VALUES (?, ?, ?, 'manual_retry', 'queued', ?)`,
-    ).bind(job.job_id, job.lead_id, now, job.google_request_id),
-    env.CHAT_DB.prepare(
-      `UPDATE ads_sync_jobs SET state = 'pending', error = NULL, completed_at = NULL,
-       google_request_id = NULL, next_check_at = NULL, last_checked_at = NULL, diagnostics_json = NULL
-       WHERE job_id = ?`,
-    ).bind(job.job_id),
-    env.CHAT_DB.prepare(`UPDATE leads SET ads_state = 'pending', ads_last_error = NULL WHERE lead_id = ?`).bind(job.lead_id),
-  ]);
-  await env.ADS_QUEUE.send({ jobId: job.job_id });
-  return jsonResponse({ ok: true, state: 'pending' });
+async function retryAds(): Promise<Response> {
+  return errorResponse('use reviewed CRM retry with revision', 409);
 }
 
 export async function handleChatApi(request: Request, env: Env, url: URL): Promise<Response> {
@@ -230,6 +206,6 @@ export async function handleChatApi(request: Request, env: Env, url: URL): Promi
   if (detail && request.method === 'GET') return conversationDetail(env, decodeURIComponent(detail[1]));
   if (read && request.method === 'POST') return markRead(request, env, decodeURIComponent(read[1]));
   if (messages && request.method === 'POST') return sendConversationMessage(request, env, decodeURIComponent(messages[1]), url.origin);
-  if (retry && request.method === 'POST') return retryAds(request, env, decodeURIComponent(retry[1]));
+  if (retry && request.method === 'POST') return retryAds();
   return errorResponse('not found', 404);
 }

@@ -26,7 +26,8 @@ try {
   failures.push(`${canonicalModule}: canonical LINE contact module is missing`);
 }
 
-if (!canonicalSource.includes(`export const LINE_CONTACT_URL = '${verifiedLineUrl}' as const;`)) {
+if (!canonicalSource.includes(`export const PRODUCTION_LINE_CONTACT_URL = '${verifiedLineUrl}' as const;`)
+    || !canonicalSource.includes("process.env.DEPLOY_ENV === 'local'")) {
   failures.push(`${canonicalModule}: must export the independently verified URL ${verifiedLineUrl}`);
 }
 

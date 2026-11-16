@@ -80,6 +80,8 @@ async function processAttachment(
   attachmentKind: 'image' | 'video' | 'audio' | 'file',
   env: Env,
 ): Promise<void> {
+  const message = await env.CHAT_DB.prepare('SELECT occurred_at FROM messages WHERE message_id = ?').bind(messageId).first<{ occurred_at: number }>();
+  if (!message || message.occurred_at < Date.now() - 365 * 86400_000) return;
   if (attachmentKind === 'video' || attachmentKind === 'audio') {
     const transcodingRes = await fetch(`${LINE_DATA_API}/message/${messageId}/content/transcoding`, {
       headers: lineAuthHeaders(env),

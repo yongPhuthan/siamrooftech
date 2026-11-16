@@ -4,9 +4,13 @@
   "account_id": "a61f30bb027ef64c9577c73f5981f073",
   "main": "src/index.ts",
   "compatibility_date": "2026-09-17",
-  "compatibility_flags": ["nodejs_compat"],
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
   "vars": {
-    "MEDIA_MAX_BYTES": "26214400"
+    "MEDIA_MAX_BYTES": "26214400",
+    "CRM_ADS_LIVE_ENABLED": "false",
+    "RELEASE_SHA": "local"
   },
   "d1_databases": [
     {
@@ -52,7 +56,9 @@
     ]
   },
   "triggers": {
-    "crons": ["*/15 * * * *"]
+    "crons": [
+      "*/15 * * * *"
+    ]
   },
   "observability": {
     "enabled": true,
@@ -67,7 +73,9 @@
     "staging": {
       "name": "siamrooftech-line-chat-history-staging",
       "vars": {
-        "MEDIA_MAX_BYTES": "26214400"
+        "MEDIA_MAX_BYTES": "26214400",
+        "CRM_ADS_LIVE_ENABLED": "false",
+        "RELEASE_SHA": "unset"
       },
       "d1_databases": [
         {
@@ -113,7 +121,139 @@
         ]
       },
       "triggers": {
-        "crons": ["*/15 * * * *"]
+        "crons": [
+          "*/15 * * * *"
+        ]
+      },
+      "observability": {
+        "enabled": true,
+        "logs": {
+          "enabled": true,
+          "head_sampling_rate": 1,
+          "persist": true,
+          "invocation_logs": true
+        }
+      }
+    },
+    "production": {
+      "name": "siamrooftech-line-chat-history",
+      "vars": {
+        "MEDIA_MAX_BYTES": "26214400",
+        "CRM_ADS_LIVE_ENABLED": "false",
+        "RELEASE_SHA": "unset"
+      },
+      "d1_databases": [
+        {
+          "binding": "CHAT_DB",
+          "database_name": "siamrooftech-line-chat",
+          "database_id": "7e5bdc15-53e4-4b87-b074-04b06308ff3b"
+        }
+      ],
+      "r2_buckets": [
+        {
+          "binding": "CHAT_MEDIA",
+          "bucket_name": "siamrooftech-line-chat-media"
+        }
+      ],
+      "queues": {
+        "producers": [
+          {
+            "binding": "MEDIA_QUEUE",
+            "queue": "line-media-fetch"
+          },
+          {
+            "binding": "ADS_QUEUE",
+            "queue": "line-ads-sync"
+          }
+        ],
+        "consumers": [
+          {
+            "queue": "line-media-fetch",
+            "max_batch_size": 5,
+            "max_batch_timeout": 10,
+            "max_retries": 5,
+            "max_concurrency": 2,
+            "dead_letter_queue": "line-media-fetch-dlq"
+          },
+          {
+            "queue": "line-ads-sync",
+            "max_batch_size": 5,
+            "max_batch_timeout": 10,
+            "max_retries": 5,
+            "max_concurrency": 1,
+            "dead_letter_queue": "line-ads-sync-dlq"
+          }
+        ]
+      },
+      "triggers": {
+        "crons": [
+          "*/15 * * * *"
+        ]
+      },
+      "observability": {
+        "enabled": true,
+        "logs": {
+          "enabled": true,
+          "head_sampling_rate": 1,
+          "persist": true,
+          "invocation_logs": true
+        }
+      }
+    },
+    "local": {
+      "name": "siamrooftech-line-chat-history-local",
+      "vars": {
+        "MEDIA_MAX_BYTES": "26214400",
+        "CRM_ADS_LIVE_ENABLED": "false",
+        "RELEASE_SHA": "local"
+      },
+      "d1_databases": [
+        {
+          "binding": "CHAT_DB",
+          "database_name": "siamrooftech-line-chat-local",
+          "database_id": "00000000-0000-4000-8000-000000000005"
+        }
+      ],
+      "r2_buckets": [
+        {
+          "binding": "CHAT_MEDIA",
+          "bucket_name": "siamrooftech-line-chat-media-local"
+        }
+      ],
+      "queues": {
+        "producers": [
+          {
+            "binding": "MEDIA_QUEUE",
+            "queue": "line-media-fetch-local"
+          },
+          {
+            "binding": "ADS_QUEUE",
+            "queue": "line-ads-sync-local"
+          }
+        ],
+        "consumers": [
+          {
+            "queue": "line-media-fetch-local",
+            "max_batch_size": 5,
+            "max_batch_timeout": 10,
+            "max_retries": 5,
+            "max_concurrency": 2,
+            "dead_letter_queue": "line-media-fetch-dlq-local"
+          },
+          {
+            "queue": "line-ads-sync-local",
+            "max_batch_size": 5,
+            "max_batch_timeout": 10,
+            "max_retries": 5,
+            "max_concurrency": 1,
+            "dead_letter_queue": "line-ads-sync-dlq-local"
+          }
+        ]
+      },
+      "triggers": {
+        "crons": [
+          "*/15 * * * *"
+        ]
       },
       "observability": {
         "enabled": true,
