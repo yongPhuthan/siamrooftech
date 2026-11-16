@@ -1,51 +1,30 @@
 'use client';
 
 import { useEffect } from 'react';
-import { captureAttribution } from '@/lib/gtag';
+import { usePathname, useSearchParams } from 'next/navigation';
+import { LANDING_REGISTRY } from '@/features/lead-crm/attribution';
+import { buildAdsTouch, postLeadIntake } from './lead-intake';
 import { LINE_CONTACT_URL } from './constants';
-import { getVisitorId, mintRefCode, postLeadIntake, type LeadIntakePayload } from './lead-intake';
 
-const LINE_LINK_SELECTOR = `a[href="${LINE_CONTACT_URL}"]`;
-
-function recordLeadForLineClick(): void {
-  const refCode = mintRefCode();
-  const attribution = captureAttribution();
-
-  const payload: LeadIntakePayload = {
-    click_id: crypto.randomUUID(),
-    visitor_id: getVisitorId(),
-    ref_code: refCode,
-    ...(attribution.latest_gclid && { gclid: attribution.latest_gclid }),
-    ...(attribution.latest_gbraid && { gbraid: attribution.latest_gbraid }),
-    ...(attribution.latest_wbraid && { wbraid: attribution.latest_wbraid }),
-    ...(attribution.latest_utm_source && { utm_source: attribution.latest_utm_source }),
-    ...(attribution.latest_utm_medium && { utm_medium: attribution.latest_utm_medium }),
-    ...(attribution.latest_utm_campaign && { utm_campaign: attribution.latest_utm_campaign }),
-    ...(attribution.latest_utm_term && { utm_term: attribution.latest_utm_term }),
-    ...(attribution.latest_utm_content && { utm_content: attribution.latest_utm_content }),
-    ...(attribution.latest_srt_campaignid && { srt_campaignid: attribution.latest_srt_campaignid }),
-    ...(attribution.latest_srt_adgroupid && { srt_adgroupid: attribution.latest_srt_adgroupid }),
-    ...(attribution.latest_srt_keyword && { srt_keyword: attribution.latest_srt_keyword }),
-    ...(attribution.latest_srt_matchtype && { srt_matchtype: attribution.latest_srt_matchtype }),
-    ...(attribution.latest_srt_device && { srt_device: attribution.latest_srt_device }),
-    ...(attribution.first_landing_page && { landing_page: attribution.first_landing_page }),
-  };
-
-  postLeadIntake(payload);
-}
-
-/** Records diagnostics without taking ownership of the anchor navigation. */
+/** Page-scoped attribution: never reuses the global analytics localStorage. */
 export default function LineLeadCapture() {
+  const pathname = usePathname();
+  const query = useSearchParams().toString();
   useEffect(() => {
-    const handleLineClick = (event: MouseEvent) => {
+    if (!Object.values(LANDING_REGISTRY).some((path) => path === pathname)) return;
+    const sessionId = crypto.randomUUID();
+    const openedAt = Date.now();
+    const record = (event: MouseEvent) => {
       const target = event.target instanceof Element ? event.target : null;
-      const anchor = target?.closest<HTMLAnchorElement>(LINE_LINK_SELECTOR);
-      if (anchor) recordLeadForLineClick();
+      if (!target?.closest(`a[href="${LINE_CONTACT_URL}"]`)) return;
+      if (Date.now() - openedAt > 30 * 60_000) return;
+      try {
+        const payload = buildAdsTouch(pathname, query, sessionId);
+        if (payload) postLeadIntake(payload);
+      } catch { /* Native navigation is independent of diagnostics. */ }
     };
-
-    document.addEventListener('click', handleLineClick, true);
-    return () => document.removeEventListener('click', handleLineClick, true);
-  }, []);
-
+    document.addEventListener('click', record, true);
+    return () => document.removeEventListener('click', record, true);
+  }, [pathname, query]);
   return null;
 }

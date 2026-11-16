@@ -1,267 +1,198 @@
-# Lead Matching + Dashboard + Google Ads Conversion Feedback
+# Reviewed LINE CRM and offline conversion
 
-Status: **verified LINE short-link handoff shipped, `ADS_SYNC_MODE=live`**.
-Scope: bind a LINE conversation to the ad click that produced it, count the
-first matched inbound message as the real initial conversion, and allow staff
-to restate its value once the outcome is known. No survey or persona question
-is shown before LINE opens.
+Implementation: local code and tests, **not a production activation record**.
+Budget context: THB 8,000/month, no measured current lead volume. No bidding or
+campaign settings are changed by this implementation.
 
-Builds directly on [docs/line-chat-history/README.md](../line-chat-history/README.md)
-— same Worker, same D1 database, same account. Read that doc first for the
-webhook/ingestion side; this doc covers everything added on top: leads,
-matching, the dashboard, and the Google Ads adapter.
+## Ownership and flow
 
-## The problem this solves
+The standalone LINE Worker owns D1 CRM data, R2 attachments, media processing,
+and the Ads outbox. Next.js owns authenticated same-origin admin proxies.
 
-Before this, `gclid` never left the browser and the LINE buttons across the
-site all pointed at the same bare `https://lin.ee/pPz1ZqN` link with no
-parameters. There was no way to connect *which* ad click produced *which*
-LINE conversation. Lead attribution now lives in the LINE chat-history
-Worker's own D1 database so attribution, matching, and chat history share one
-transaction boundary without coupling those records to the website CMS.
+`registered Ads LP → Ads touch → native LINE link → inbound message → opportunity
+→ timestamp match → admin review → approved outbox → Data Manager diagnostics`
 
-## Why gclid-only matching, not phone number
+A click creates only an `ads_touches` row, never a lead/conversion. The first
+inbound direct-user message creates one pending opportunity. Follow events and
+subsequent messages do not create conversions. Closed work is reused until an
+admin explicitly starts a separate opportunity; that new work waits for a new
+message after its creation. Legacy records remain read-only and are not replayed.
 
-The obvious alternative — collect the customer's phone number and let
-Google's Enhanced Conversions for Leads match it against ad-click data —
-was considered and rejected for this system. The reason: **the phone
-number a lead gives mid-chat is often not their own**. A `procurement`
-persona (someone at a company searching on behalf of the business) commonly
-hands over a site contractor's or coordinator's number instead of their
-own. If that other person also happens to have clicked the same ad
-campaign — plausible for someone at the same company — Google would
-silently attribute the conversion to the wrong person's click, corrupting
-the bidding signal with no way to detect it. It's also a PDPA problem:
-uploading a third party's phone number to Google without their consent.
-`gclid` doesn't have this failure mode — it identifies a *click*, not a
-*person*, so there's no "wrong person" to attribute to.
+## Attribution contract
 
-So: **only `gclid`/`gbraid`/`wbraid` are ever used to match or sent to
-Google. No phone numbers are collected, stored, or uploaded by this
-system.**
+The shared registry and runtime schemas live in
+`src/features/lead-crm/contracts.ts`. Initially only the existing
+`/lp/google-ads/electric-awning` and `/lp/google-ads/retractable-awning` paths
+record CRM touches. Other public routes retain their analytics but do not enter
+the CRM click intake. URLs/dynamic content tokens are not a user identifier.
 
-## How matching actually works
+The browser snapshots only current-page parameters, never the old global
+analytics localStorage. The page session expires after 30 minutes. Next.js
+stamps click receipt before forwarding; the token-protected Worker accepts this
+server timestamp only within 30 seconds and separately stores Worker receipt.
+Requests without that header use Worker receipt. Native navigation never waits
+for intake, analytics, authentication or a survey. LINE URL is unchanged.
 
-LINE gives no reliable way to attach click metadata to an inbound message.
-The production contact contract therefore prioritizes the verified
-`https://lin.ee/pPz1ZqN` short link over message-prefill attribution:
+Each click has an idempotent UUID. Runtime validation rejects unregistered
+landing paths and unexpected fields. GCLID/GBRAID/WBRAID, UTM, campaign/ad-group/
+ad IDs, keyword, match type, device, network, location and approved `ad_*` tokens
+are preserved when present. No identifier means no click-attributed upload.
+Keyword is not a person's search term; exact ad-click time/CPC are unavailable.
 
-1. Every click on a LINE button (`src/features/line-contact/LineLeadCapture.tsx`)
-   mints an 8-character ref code client-side (`SRT-K3F9QA2M`, using a
-   Crockford-style alphabet without `0/O/1/I/L/U` — see
-   `src/features/line-contact/lead-intake.ts`), fires a `POST /api/leads/intake` beacon with
-   the ref code plus whatever attribution is in `localStorage` at that
-   moment (gclid and utm_*). It does **not** rewrite the anchor destination.
-2. The lead is minted **client-side**, not server-round-tripped first — the
-   intake POST is fire-and-forget (`keepalive: true`) while the browser opens
-   `https://lin.ee/pPz1ZqN` natively. A failed intake never blocks LINE.
-3. Legacy or manually supplied LINE messages may still contain a ref code. The webhook
-   (`workers/line-chat-history/src/webhook.ts`) scans every inbound text
-   message for the `SRT-XXXXXXXX` pattern and, on a hit, binds
-   `leads.conversation_id` to that LINE conversation
-   (`matchLeadByRefCode` in `leads.ts`).
-4. Normal short-link clicks contain no ref code and are not automatically
-   matched. They show up in `GET /leads/unmatched` with time-window
-   candidates (LINE conversations that started within ±15 minutes) for a
-   human to confirm manually in the dashboard. Automatic matching is
-   deliberately exact-ref-only — a wrong *automatic* guess would silently
-   attach a conversion to the wrong gclid with no way to notice, which is
-   the same failure mode phone-number matching has. A wrong *manual* match
-   is at least a decision a human made on purpose.
+## Matching policy
 
-The short link must be rechecked on real iOS, Android, and desktop devices
-after contact-flow changes. A generic `line.me` landing page is a release blocker.
+Only clicks before the first message qualify. Nearest within 10 minutes may be
+automatically attached as a **timestamp inference**. Candidates from 10–30 minutes
+require admin selection. If no direct candidate exists, a persisted follow event
+can supply an anchor: click precedes follow by at most 30 minutes, and follow
+precedes first message. Follow evidence always requires review. No historical
+friend-add timestamp is invented.
 
-## Two-layer value model
+Ties, already-claimed clicks and truncated candidate sets never auto-attach.
+The UI exposes candidates and evidence; one touch can belong to one opportunity.
+Review uses revisions and rechecks automatic timing evidence. A late intake or
+follow can reconcile pending work. Approved conversion attribution is locked;
+IDs/destinations/time are preserved for subsequent adjustments.
 
-The first matched inbound LINE message creates an initial conversion with a
-1 THB technical placeholder. This is not revenue. Once staff knows the
-outcome, `actual_value` (or an interim `estimated_value`) can be set through
-the dashboard or `yarn leads:value`, restating the same transaction ID.
-Historical persona fields remain nullable for backward compatibility.
+## Review and value
 
-`updateLeadValue` refuses any value `<= 0`: Data Manager treats a restatement
-to 0 as a permanent retraction that cannot later be restored.
+`/admin/leads`: queues, review, search, history/export, formula versions/cohorts.
+`/admin/chat`: the same review panel in the customer drawer, with an explicit
+new-opportunity action. No CLI is needed for this workflow.
 
-## Google Ads side: Data Manager API, not `UploadClickConversions`
+The UI presents four main stages: Lead, Qualified Lead, Site Visit Completed
+(ดูหน้างานแล้ว), and Converted Lead. The completed visit is a distinct stage;
+an old booked assessment never implies a completed visit.
+Quoted/assessment remain optional progress under Qualified Lead, preserving their
+stored stages and formula assignments. Lost/disqualified are separate end-of-work
+outcomes. No historical stages are rewritten when opening the screen.
 
-This matters because it's a **2026 platform change**, not a design choice:
-**`ConversionUploadService.UploadClickConversions` on the Google Ads API
-stopped accepting new adopters on June 15, 2026** — the allowlist is based
-on developer tokens that were already actively uploading conversions
-between December 2025 and May 2026. Siamrooftech's token has never done
-this, so calling that endpoint today would fail with
-`CUSTOMER_NOT_ALLOWLISTED_FOR_THIS_FEATURE`. Google's own migration
-guidance points everyone — allowlisted or not — to the newer
-**Data Manager API** (`POST https://datamanager.googleapis.com/v1/events:ingest`)
-instead.
+The form separates estimated profit before sale from actual sales results.
+Probability inputs display percentages (30 means 30%); the API stores 0–1.
+Converted Lead requires `sales_amount` and `actual_profit`, with profit no greater
+than sales. Actual profit may be negative. Sales is stored in the validated review
+JSON, atomically with its audit history; no new table or migration is needed.
+Legacy won records remain readable without invented sales; the next edit must
+supply sales and profit. Cohort sales totals include only recorded sales amounts.
+Google Conversion Value uses actual profit (floored at zero), never sales revenue.
+Before sale it uses the shared status probability × the individual job
+estimated profit. There is no per-lead probability or manual EV override.
 
-Practical implications of that API, reflected in `workers/line-chat-history/src/ads-sync.ts`:
+“บันทึกข้อมูลลูกค้า” saves customer status/financial inputs in CRM without
+creating an upload. A separate Google Ads section previews the Conversion Value.
+“ใช้มูลค่านี้กับ Google Ads” opens confirmation, and “บันทึกและยืนยันมูลค่า”
+saves the inputs and queues the selected value. A mode notice explains dry-run;
+test/live mode is never hidden in a button's action label.
 
-- **Auth is a plain service account, no developer token needed** — add the
-  service account's email as a user on the Google Ads account
-  (Tools & Settings → Access and security) and grant it
-  `https://www.googleapis.com/auth/datamanager`. `google-auth.ts` mints the
-  JWT and exchanges it for an access token using only `crypto.subtle`
-  (Workers-compatible, no Node crypto).
-- `adIdentifiers.gclid`/`gbraid`/`wbraid` are still first-class fields —
-  gclid matching is not being deprecated by this API change.
-- **Restating a value is just re-sending the same `transactionId`** (this
-  system uses the lead's `lead_id` as the transactionId) with a new
-  `conversionValue` — no separate "adjustment" call needed, unlike the old
-  Ads API's conversion-adjustment upload.
-- The API has a built-in `validateOnly` dry-run flag, but this system's own
-  `ADS_SYNC_MODE=dry_run` (the current default) is a level above that: it
-  never calls Google's network at all, and only records the exact payload
-  that *would* be sent. There's no live Ads account or conversion action to
-  validate against yet, so calling Google at all — even with
-  `validateOnly` — would just fail on an empty `ADS_CUSTOMER_ID`.
+Confirmation wakes the Queue immediately after the transaction commits. A Queue
+failure leaves the approved job in D1 for scheduled recovery. While processing,
+the panel refreshes status without resetting unsaved fields. Google acceptance,
+processing and success remain distinct. The mode comes from authenticated
+`/crm/health`, using the same two server gates as job creation. A client control
+cannot activate live delivery.
 
-## Architecture
+Gate: service/problem, supported area/scope, and next-step intent, each
+pass/fail/unknown. Qualified, quoted, assessment, site_visit_completed and won require all three passes.
+Pending is never automatically converted to lost/zero after seven days.
 
-```
-Ad click (?gclid=...)
-   │  AttributionCapture stores click attribution in localStorage
-   ▼
-LINE button click ── LineLeadCapture.tsx ─────► POST /api/leads/intake (Next.js proxy)
-   │  preserves https://lin.ee/pPz1ZqN                │
-   │                                                   ▼
-   │                                    Worker: POST /internal/leads/intake
-   │                                       └─► D1 leads (gclid, persona, ref_code, ...)
-   ▼
-Opens the verified LINE OA short link
-   │
-   ▼
-Visitor taps send ──► LINE webhook (existing /line/webhook)
-                          └─► normalize.ts finds SRT-XXXXXXXX in the text
-                                └─► leads.matchLeadByRefCode()
-                                      ├─ UPDATE leads SET conversation_id, matched_at
-                                      └─ enqueue ADS_QUEUE {kind: initial}
-                                            └─► ads-sync.ts → Data Manager events:ingest
-                                                  (or just records the payload, in dry_run)
+The owner-approved initial probabilities are Lead 10%, Qualified Lead 25%,
+Site Visit Completed 75%, and Converted Lead 100%. They do not decay with time.
+`EV = shared status probability × expected profit before advertising costs`.
+Admin can revise a status probability centrally, with reason/actor/history.
+Quoted and booked assessment share Qualified probability; Converted always uses
+100% and actual profit. Legacy formula profit defaults never overwrite a job's
+estimated profit. Unknown estimated profit leaves the value unset.
+The Worker resolves probability independently of browser inputs and rejects
+stale setting versions. The settings guard is checked atomically with the review
+and outbox. Existing saved values and queue snapshots do not change until an
+explicit review; no settings change automatically sends anything to Google.
+No persona scores or THB 1/20 placeholders are seeded.
+Won uses actual profit; financial outcome, estimate, input probabilities, formula
+version, reason, actor and revision are retained separately. Changing a formula
+never bulk-revalues historical leads. Cohorts expose won/lost/disqualified/open,
+age and recorded actual profit rather than treating open deals as losses.
 
-Staff / AI Agent ──► yarn leads:show <id> --with-transcript
-                  ──► yarn leads:value <id> --value=45000 --status=won
-                        └─► enqueue ADS_QUEUE {kind: restatement, same transactionId}
+Saving a review does not upload unless approve + confirmed match + a value are
+provided. Unmatched/no-click-ID work stays in CRM. Zero before an initial upload
+is held. Zero after an initial upload requires explicit final confirmation;
+confirmed Google retraction is terminal and reopening CRM cannot restore it.
 
-Dashboard: /admin/leads ──► /api/admin/lead-proxy/* (server-session gated) ──► Worker /leads*
-```
+## Delivery semantics
 
-## Schema
+Review, immutable snapshot, audit and outbox commit in one D1 transaction. A
+scheduled dispatcher retries undispatched pending work; queue delivery is only a
+wakeup. Jobs claim leases and wait for earlier revisions to succeed. Retries
+reuse the transaction ID and snapshot. Google acceptance is not success:
+request ID, processing, diagnostics success/partial/failure remain distinct.
+A failed job with a Google request ID retries diagnostics, not blind ingestion.
 
-`workers/line-chat-history/migrations/0002_leads.sql`: `leads` (attribution
-snapshot + match + status + two-layer value + ads-sync state),
-`lead_events` (append-only audit trail — every match/status/value/ads-sync
-change), `ads_sync_jobs` (one row per Data Manager call attempt, storing
-the exact request payload and response for every job regardless of mode).
+`CRM_ADS_LIVE_ENABLED=false` is committed for every target, independently of any
+old `ADS_SYNC_MODE` secret. Dry-run makes no Google request and is visibly marked
+as simulation. It does not establish the initial live event. Later activation
+requires a fresh admin review against configured real destinations, not replaying
+simulation jobs. This repository policy intentionally blocks live activation;
+changing it requires a separate reviewed change and controlled ingestion test.
 
-## Read/Write API + CLI
+## History, export and retention
 
-See `workers/line-chat-history/src/leads-api.ts` for the full route table.
-Reads (`GET /leads`, `/leads/{id}`, `/leads/{id}/transcript`,
-`/leads/unmatched`, `/ads-sync/jobs`) require `CHAT_HISTORY_READ_TOKEN`;
-writes (`POST /leads/{id}/status|value|match`) require
-`CHAT_HISTORY_WRITE_TOKEN` — the same two tokens the chat-history Read API
-already uses. `POST /internal/leads/intake` has its own
-`LEADS_INTAKE_TOKEN`, held only by the Next.js server (never the browser).
+Messages can be searched by Thai substring, globally or per conversation, using
+cursor pagination. Presets 1/3/7/30/45 count Bangkok calendar days including today.
+Custom dates are inclusive calendar dates. TXT/JSONL exports stream all pages;
+unsent text is redacted. Inbound attachments use authenticated media reads;
+untrusted document MIME types download as attachments with nosniff.
 
-CLI (`scripts/leads.mjs`, same no-dependency `.mjs` shape as
-`scripts/line-chat-history.mjs`):
+Coverage: only webhook-observed customer messages and locally logged outbound
+messages exist here. Staff replies in LINE OA Manager are not captured. There is
+no backfill of conversations before webhook capture began.
 
-```bash
-yarn leads:list --date=2026-08-26 --status=new
-yarn leads:show <lead_id> --with-transcript     # the command an AI Agent uses
-yarn leads:value <lead_id> --value=45000 --status=won --reason="ปิดงานแล้ว"
-yarn leads:match <lead_id> --conversation=user:U4af49...
-yarn leads:unmatched
-yarn leads:ads-jobs --state=pending
-```
+365-day retention applies to message bodies, files, and raw copies, including
+late redeliveries. Reads exclude expired data while bounded purge batches delete
+R2 first, then message records, and redact raw events/deliveries. Purge runs record
+success/failure without message text. Deal/value outcomes remain separate from
+transcripts. A file deletion failure preserves its keys for a subsequent retry.
 
-## Dashboard
+## APIs
 
-`/admin/leads` follows the exact conventions of `/admin/projects` /
-`/admin/articles` — `page.tsx` dynamic-imports the client component with
-`{ ssr: false }` to keep browser-only editor code out of server rendering,
-wrapped in `AdminAuthGate`. **Unlike the existing
-articles/projects admin routes, `GET` is also gated** behind
-`verifyAdminRequest` here (`src/app/api/admin/lead-proxy/[...path]/route.ts`)
-— lead data carries gclid and other attribution that shouldn't be openly
-readable the way draft articles currently are.
+- `POST /internal/leads/intake`: strict AdsTouch, intake bearer, optional trusted
+  `x-crm-click-at` from Next.js.
+- `GET /crm/leads`: q, queue, cursor; ordered by latest conversation activity.
+- `GET /crm/leads/:id`: review, matching evidence, touch, job and value history.
+- `POST /crm/leads/:id/review|match|retry`: revision-checked admin mutation.
+- `GET /crm/conversations/:id` and
+  `POST /crm/conversations/:id/opportunities`: explicitly create separate work.
+- `GET|POST /crm/valuations`: immutable versions; replacing an enabled version
+  requires its `supersedes_id`, preventing stale concurrent activation.
+- `GET /crm/summary`: outcomes by first-message cohort, with open work separate.
+- `GET /crm/messages|export`: days/from/to, conversation_id, q; messages support
+  cursor and export supports `format=txt|jsonl`.
 
-## Verification
+Admin browsers use `/api/admin/crm/*`. Better Auth verifies the owner session and
+same-origin writes. The proxy derives the actor from that session and ignores
+browser actor headers; Worker reads/writes require separate server tokens.
 
-`yarn leads:qa` (`scripts/leads-qa.mjs`) exercises: intake, ref-code
-matching, idempotency under webhook redelivery, the unmatched-lead listing,
-refusing a `value <= 0`, restatement using the same `transactionId`,
-payload recording in dry-run mode, auth on every route, timezone
-windowing, and the transcript endpoint. It polls rather than sleeping a
-fixed amount, since the ads-sync queue consumer runs asynchronously (up to
-`max_batch_timeout` in `wrangler.jsonc`).
+## Validation and release
 
-`yarn ads:qa` and `yarn ads:browser-qa` verify the direct handoff: one click
-opens exactly `https://lin.ee/pPz1ZqN` through native anchor navigation,
-records one intake and one diagnostic `line_click`, emits no survey events,
-and still opens the original LINE URL if JavaScript or intake fails.
+`yarn test:crm` runs against real in-memory SQLite migrations. `yarn leads:qa`
+exercises actual local workerd with fixture-only credentials and rejects remote
+hosts. `yarn line:qa` checks webhook signatures, replay and read API behavior.
+See `workers/line-chat-history/README.md` and
+`docs/platform/ci-cd-release-policy.md` for isolated local setup and CI releases.
+Local success establishes neither production activation nor Google attribution.
 
-**Manual verification still required before relying on the match rate:**
+## Local test OA
 
-- Click a LINE button on a real phone, both **iOS and Android**, both as a
-  first-time visitor (not yet a friend of the OA) and as an existing friend.
-  Confirm the Siamrooftech OA opens rather than the generic LINE homepage.
-  Normal short-link conversations require manual matching because no ref-code
-  is prefilled into LINE.
-- Same check on desktop (LINE desktop client / browser fallback).
+An explicitly approved test OA can be selected with
+`LOCAL_LINE_CONTACT_URL=https://lin.ee/<test-link> yarn cf:build`.
+The override is compiled only for `CMS_BUILD_ENV=local`; staging/production
+ignore it and retain the verified production link. Both server-rendered anchors
+and click capture use the same destination. Run local browser checks with the
+same `LOCAL_LINE_CONTACT_URL`; the QA script refuses this override on remote
+hosts. The default build continues to use the production link.
 
-## Going live with Google Ads
-
-Nothing in this system can be exercised against a real Google Ads account
-yet — none exists (see `docs/google-ads/growth-stack-infrastructure-2026-08.md`).
-When one does:
-
-1. Create a **new service account** scoped only to `datamanager` (don't
-   reuse `growth-stack-setup@...`, which only has GTM/GA4 scopes and no
-   reason to also hold Ads write access).
-2. Add its email as a user on the Google Ads account, grant it access.
-3. Create a conversion action of the appropriate type for Data Manager
-   ingestion; note its ID.
-4. Set on the Worker: `wrangler secret put GOOGLE_SA_PRIVATE_KEY`, and
-   update the `vars` in `workers/line-chat-history/wrangler.jsonc`:
-   `ADS_CUSTOMER_ID`, `ADS_CONVERSION_ACTION_ID`, `GOOGLE_SA_CLIENT_EMAIL`.
-5. Flip `ADS_SYNC_MODE` to `"live"` and redeploy.
-6. Re-run `yarn leads:qa` against production-like config before trusting it
-   with a real lead — the QA script is mode-agnostic and will exercise a
-   real (non-`validateOnly`) call if pointed at a `live` Worker.
-
-## Environment variables (main site)
-
-The Next.js proxies (`/api/leads/intake`, `/api/admin/lead-proxy/*`) need,
-on the **main** `siamrooftech` Worker (not the chat-history one):
-
-- `LINE_CHAT_HISTORY_WORKER_URL` — set in `wrangler.jsonc` `vars` (not
-  secret, just a URL)
-- `LEADS_INTAKE_TOKEN`, `CHAT_HISTORY_READ_TOKEN`, `CHAT_HISTORY_WRITE_TOKEN`
-  — set via `wrangler secret put <NAME>` on the main site's Worker, with
-  the exact same values configured on the chat-history Worker (see
-  `workers/line-chat-history/README.md`)
-
-For local `next dev`, export these three token vars in your shell (no
-`.dev.vars` equivalent exists for the main Next.js app — see
-`workers/line-chat-history/.dev.vars` for the matching values used by the
-Worker's own local dev server).
-
-## MVP vs. later
-
-**Shipped:** click intake without rewriting the verified LINE short link, legacy exact-ref matching in the webhook,
-`leads`/`lead_events`/`ads_sync_jobs` schema, `/admin/leads` dashboard,
-Read/Write API + CLI, Data Manager adapter with `dry_run` default, manual
-match for unmatched leads with time-window candidate suggestions.
-
-**Deferred:** a reliable privacy-safe attribution mechanism that works with
-the verified LINE short link, smarter automatic-match heuristics beyond exact ref
-code, retention/purge tooling for PDPA, campaign/keyword-level reporting
-rollups.
-
-**Deliberately excluded, not just deferred:** collecting or uploading any
-phone number or other third-party PII as a Google Ads match key (see
-"Why gclid-only matching" above) — if this is revisited later, it needs an
-explicit decision, not a quiet re-introduction.
+Keep test channel secret/access token in ignored local secret files, never in
+build variables. The local Worker must use those credentials, with emulator
+D1/R2 and Google live sync disabled. A temporary HTTPS tunnel may expose a local
+gateway that forwards only `POST /line/webhook`; do not expose the CRM routes.
+Configure only the test channel's webhook URL, then Verify and enable webhook
+in LINE Developers. Quick Tunnel URLs change when restarted. No production
+webhook or OA settings need to change for this test.

@@ -30,7 +30,7 @@ async function proxy(request: NextRequest, context: RouteContext, method: 'GET' 
       cache: 'no-store',
     });
     const outgoingHeaders = new Headers();
-    for (const name of ['content-type', 'content-length', 'cache-control', 'x-content-type-options']) {
+    for (const name of ['content-type', 'content-length', 'content-disposition', 'cache-control', 'x-content-type-options']) {
       const value = response.headers.get(name);
       if (value) outgoingHeaders.set(name, value);
     }

@@ -1,4 +1,4 @@
-export type LeadStage = 'new' | 'contacted' | 'qualified' | 'quoted' | 'won' | 'lost' | 'disqualified';
+export type LeadStage = 'site_visit_completed' | 'pending' | 'assessment' | 'new' | 'contacted' | 'qualified' | 'quoted' | 'won' | 'lost' | 'disqualified';
 
 export interface GoogleHealth {
   state: string;

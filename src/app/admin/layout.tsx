@@ -77,7 +77,7 @@ export default function AdminLayout({
   ];
 
   const isActive = (href: string) =>
-    pathname === href || pathname.startsWith(`${href}/`);
+    pathname === href || (href !== '/admin' && pathname.startsWith(`${href}/`));
 
   return (
     <AdminWorkspaceProvider value={{ workspaceMode, setWorkspaceMode }}>

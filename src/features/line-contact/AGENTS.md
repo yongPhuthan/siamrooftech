@@ -9,6 +9,10 @@ this feature's public contract.
 - Every user-facing LINE contact CTA must render a normal anchor whose exact
   destination is `https://lin.ee/pPz1ZqN`, exported as `LINE_CONTACT_URL` from
   `constants.ts`.
+- User-authorized local OA testing may set `LOCAL_LINE_CONTACT_URL` at build
+  time. `next.config.mjs` restricts this override to the local environment;
+  staging and production keep the verified production destination. Local QA
+  must explicitly supply the expected test URL. This is not release approval.
 - Never send a contact click to `line.me/en`, `www.line.me/en`,
   `line.me/R/oaMessage`, a generated LINE deep link, an internal redirect, or a
   measurement proxy. The generic LINE homepage is always a P0 failure.
