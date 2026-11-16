@@ -1,3 +1,9 @@
+> CRM update (2026-10-17): This document's LINE click/persona conversion
+> recommendations are historical. The reviewed CRM starts from a received LINE
+> message, holds uploads until admin review, and ships with Google sync disabled.
+> See `docs/lead-matching/README.md` for the current implementation contract.
+> Existing Google Ads settings have not been changed by this code update.
+
 # Measurement + Conversion Tracking Spec
 
 ## Scope

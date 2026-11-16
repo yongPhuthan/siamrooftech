@@ -15,6 +15,12 @@ const args = new Map(
 const baseUrl = String(
   args.get('base') || process.env.ADS_BROWSER_QA_BASE_URL || 'http://localhost:3000',
 );
+const localTestLineUrl = process.env.LOCAL_LINE_CONTACT_URL;
+if (localTestLineUrl && (!['localhost', '127.0.0.1', '[::1]'].includes(new URL(baseUrl).hostname)
+    || !/^https:\/\/lin\.ee\/[A-Za-z0-9]+$/.test(localTestLineUrl))) {
+  throw new Error('Test OA browser QA is restricted to localhost and a valid LINE short link.');
+}
+const expectedLineUrl = localTestLineUrl || 'https://lin.ee/pPz1ZqN';
 // Development servers may need to compile a route on its first request.
 const pageLoadTimeoutMs = Number(args.get('page-load-timeout') || 30000);
 const chromePath = String(
@@ -582,15 +588,18 @@ async function scenarioPaidSession(position = 'electric_awning_ads_final') {
     }
 
     const lineNavigations = await evaluate(client, sessionId, 'window.__lineNavigations');
-    if (lineNavigations.length !== 1 || lineNavigations[0] !== 'https://lin.ee/pPz1ZqN') {
+    if (lineNavigations.length !== 1 || lineNavigations[0] !== expectedLineUrl) {
       fail(`Paid session: expected the verified LINE short link without client-side rewriting; got: ${JSON.stringify(lineNavigations)}`);
     }
 
     const leadIntakes = await evaluate(client, sessionId, 'window.__leadIntakes');
-    if (leadIntakes.length !== 1 || leadIntakes[0].gclid !== gclid ||
-        !/^SRT-[23456789ABCDEFGHJKMNPQRSTVWXYZ]{8}$/.test(leadIntakes[0].ref_code) ||
+    if (leadIntakes.length !== 1 || leadIntakes[0].attribution?.gclid !== gclid ||
+        leadIntakes[0].landing_id !== 'electric-awning' ||
+        leadIntakes[0].landing_path !== '/lp/google-ads/electric-awning' ||
+        !/^[0-9a-f-]{36}$/.test(leadIntakes[0].click_id) ||
+        !/^[0-9a-f-]{36}$/.test(leadIntakes[0].session_id) || leadIntakes[0].ref_code !== undefined ||
         leadIntakes[0].lead_persona !== undefined || leadIntakes[0].lead_quality_score !== undefined) {
-      fail(`Paid session: expected one persona-free lead intake with the paid-click attribution; got: ${JSON.stringify(leadIntakes)}`);
+      fail(`Paid session: expected one page-scoped Ads touch with fresh paid attribution; got: ${JSON.stringify(leadIntakes)}`);
     }
 
     events = await dataLayerEventNames(client, sessionId);
@@ -716,7 +725,7 @@ async function scenarioHomepageDirectLine(
     await wait(300);
     if (await dialogVisible(client, sessionId)) fail('Homepage LINE click must not open a survey');
     const navigations = await evaluate(client, sessionId, 'window.__homeLineNavigations');
-    if (navigations.length !== 1 || navigations[0] !== 'https://lin.ee/pPz1ZqN') {
+    if (navigations.length !== 1 || navigations[0] !== expectedLineUrl) {
       fail(`Homepage LINE click must preserve the verified short link: ${JSON.stringify(navigations)}`);
     }
     const clicks = await evaluate(client, sessionId,

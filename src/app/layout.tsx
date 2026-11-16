@@ -146,7 +146,7 @@ export default function RootLayout({
         <Suspense fallback={null}>
           <AttributionCapture />
         </Suspense>
-        <LineLeadCapture />
+        <Suspense fallback={null}><LineLeadCapture /></Suspense>
         <Navigation />
         <Suspense>{children}</Suspense>
         <SiteFooter />

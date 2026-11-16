@@ -30,6 +30,8 @@ jobs:
       - run: yarn type-check
       - run: yarn lint
       - run: yarn test:articles
+      - run: yarn test:crm
+      - run: yarn line:type-check
       - run: yarn test:admin
       - run: yarn test:seed
       - run: yarn ui:qa
@@ -47,6 +49,8 @@ jobs:
       - run: yarn install --frozen-lockfile --non-interactive
       - run: node scripts/deployment-policy.mjs --check
       - run: node --test scripts/deployment-policy.test.mjs
+      - run: yarn line:policy
+      - run: node --test scripts/line-worker-policy.test.mjs
       - run: node scripts/workflow-policy-qa.mjs
 
   runtime-seo:
