@@ -4,7 +4,7 @@ Updated 2026-10-09. This document describes the implemented GitHub Actions check
 
 ## Release path
 
-Pull requests run the three required checks: `quality`, `environment-policy`, and `runtime-seo`. `main` requires a PR and up-to-date checks, applies protection to administrators, and blocks force pushes and deletion. Repository Actions enforce full commit-SHA pinning. Staging deployment is conditional on the repository variable `STAGING_DEPLOY_ENABLED=true`. It must be repository-scoped because GitHub evaluates a job-level `if` before attaching the job's environment, so staging Environment variables are unavailable there. `STAGING_ACCESS_READY` remains scoped to the staging environment and is checked after the job starts. A production release is manual and requires the exact main SHA, successful staging validation for that SHA, a production build manifest, and approval through the existing GitHub `Production` environment.
+Pull requests run the three required checks: `quality`, `environment-policy`, and `runtime-seo`. `main` requires a PR and up-to-date checks, applies protection to administrators, and blocks force pushes and deletion. Repository Actions enforce full commit-SHA pinning. Staging deployment is conditional on the repository variable `STAGING_DEPLOY_ENABLED=true`. It must be repository-scoped because GitHub evaluates a job-level `if` before attaching the job's environment, so staging Environment variables are unavailable there. `STAGING_ACCESS_READY` remains scoped to the staging environment and is checked after the job starts. A production release is manual and requires the exact main SHA, a successful `staging-deployment` job from the push-to-main run for that same SHA (the release waits for it if it is still running, then confirms staging still serves that SHA instead of rebuilding and redeploying it), a production build manifest, and approval through the existing GitHub `Production` environment.
 
 Production deploy uses the already-built `.open-next` artifact. Its manifest binds the SHA, target, canonical origin, config digest, lockfile digest, migrations checksums, and artifact digest. D1 migrations are a separate manually dispatched workflow that requires an exact database-name confirmation. Local direct deploy commands intentionally fail.
 
@@ -64,7 +64,7 @@ Routine release does not apply D1 migrations. Use the separate manual migration 
 
 Worker rollback does not restore D1/R2 or reverse Durable Object class lifecycle changes. Use a compatible previous Worker version only after confirming its bindings/schema still exist. Do not run automatic database restore on a failed smoke test. Until repeated smoke failures and Cloudflare rollback compatibility are verified in staging, treat rollback as a reviewed operator procedure rather than an automatic guarantee.
 
-The production workflow runs smoke checks immediately and again at two and five minutes. A passing local build or local SEO QA does not prove staging/production behavior or Google indexation. GSC evidence is separate from HTTP/runtime checks.
+Staging and production deployments run smoke checks immediately and again at five minutes. A passing local build or local SEO QA does not prove staging/production behavior or Google indexation. GSC evidence is separate from HTTP/runtime checks.
 
 ## Reviewed LINE Worker release (2026-10-17)
 

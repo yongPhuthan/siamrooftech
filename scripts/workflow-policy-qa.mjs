@@ -39,5 +39,9 @@ for (const job of ['quality', 'environment-policy', 'runtime-seo']) {
 const release = workflows.get('production-release.yml');
 assert.equal(release?.jobs?.['deploy-production']?.environment, 'Production');
 assert.ok(release?.jobs?.['deploy-production']?.needs?.includes('prepare-production'), 'production deploy must require the prebuilt manifest artifact');
+const stagingValidation = JSON.stringify(release?.jobs?.['staging-validation'] ?? {});
+assert.match(stagingValidation, /staging-deployment/, 'production release must require the staging-deployment job evidence for its SHA');
+assert.doesNotMatch(stagingValidation, /wrangler deploy/, 'production release must reuse the staging deployment, not redeploy staging');
+assert.ok(release?.jobs?.['prepare-production']?.needs?.includes('staging-validation'), 'production build must wait for staging evidence');
 assert.ok(workflows.get('database-migrations.yml')?.jobs?.migrate, 'D1 migrations use a separate explicit workflow');
 console.log(`Workflow policy passed for ${files.length} workflow files: pinned actions, read-only defaults, and no pull_request_target.`);

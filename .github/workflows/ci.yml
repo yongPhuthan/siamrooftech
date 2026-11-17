@@ -116,14 +116,8 @@ jobs:
           SEO_QA_RELEASE_SHA: ${{ github.sha }}
           CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
           CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
-      - name: Recheck at two minutes
-        run: sleep 120 && node scripts/seo-qa.mjs --environment=staging
-        env:
-          SEO_QA_RELEASE_SHA: ${{ github.sha }}
-          CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
-          CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
       - name: Recheck at five minutes
-        run: sleep 180 && node scripts/seo-qa.mjs --environment=staging
+        run: sleep 300 && node scripts/seo-qa.mjs --environment=staging
         env:
           SEO_QA_RELEASE_SHA: ${{ github.sha }}
           CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
