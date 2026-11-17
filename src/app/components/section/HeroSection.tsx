@@ -1,51 +1,62 @@
-import React from 'react';
 import Image from 'next/image';
+import { CheckCircle } from '@phosphor-icons/react/dist/ssr';
+import { PublicContainer, PublicIcon } from '@/components/ui/public';
+import LineContactButton from '@/features/line-contact/LineContactButton';
 
 type Props = {
   keyword: string;
 };
 
+const assurances = [
+  'สำรวจหน้างานก่อนเสนอราคา',
+  'ออกแบบตามผนังและพื้นที่จริง',
+  'ดูแลหลังการติดตั้ง',
+] as const;
+
+/** Homepage first viewport: offer, primary LINE action and one real installation photo. */
 function HeroSection({ keyword }: Props) {
   return (
-    <>
- <div className="relative w-full h-full">
-      <Image
-        src={"/images/bananer-กันสาดพับเก็บได้.webp"}
-        fill
-        style={{ objectFit: "cover", objectPosition: "center" }}
-        priority
-        className="opacity-10"
-        alt="กันสาดพับเก็บได้ Siamrooftech - ภาพพื้นหลัง"
-        sizes="100vw"
-      />
-      {/* เนื้อหาอื่นๆ ที่คุณต้องการให้อยู่เหนือภาพ background  */}
-    </div>
-      <section className="bg-white ">
-        <div className="grid md:pb-8 mx-auto lg:grid-cols-12">
-          <div className="z-10 place-self-center order-2 lg:order-1 lg:col-span-6 text-center py-5 sm:py-12  md:py-6">
-            <p className="text-4xl text-site-brand-strong font_page sm:text-5xl md:text-6xl font-bold leading-tight">
-              สยามรูฟเทค
-            </p>
-            <h1 className="text-2xl text-site-brand-strong mt-4 font_page sm:text-2xl md:text-5xl font-bold leading-snug">
-              {keyword} ที่ลูกค้าไว้วางใจ
-            </h1>
+    <section className="bg-gradient-to-b from-site-brand-soft to-white">
+      <PublicContainer width="wide" className="grid items-center gap-10 py-10 sm:py-12 lg:grid-cols-12 lg:gap-14 lg:py-16">
+        <div className="lg:col-span-6">
+          <p className="eyebrow font-heading inline-flex items-center rounded-site-badge bg-white px-3 py-1 text-site-brand-strong ring-1 ring-site-border">
+            ระบบมือหมุน · มอเตอร์ไฟฟ้า
+          </p>
+          <h1 className="heading-display mt-5 text-site-ink">
+            สยามรูฟเทค{' '}
+            <span className="block text-site-brand">รับออกแบบติดตั้ง<span className="whitespace-nowrap">{keyword}</span></span>
+          </h1>
+          <p className="body-lead font-heading mt-5 max-w-xl text-site-muted">
+            ทั้งระบบมือหมุนและมอเตอร์ไฟฟ้า สำหรับบ้าน ร้านค้า คาเฟ่ ร้านอาหาร และสำนักงาน
+          </p>
+          {/* Phones already show the sticky LINE bar; avoid two identical actions in one viewport. */}
+          <div className="mt-8 hidden sm:flex">
+            <LineContactButton analyticsPosition="homepage_hero" />
           </div>
+          <ul className="mt-8 font-heading flex flex-col gap-2 text-sm text-site-ink sm:flex-row sm:flex-wrap sm:gap-x-6">
+            {assurances.map((item) => (
+              <li key={item} className="flex items-center gap-2">
+                <PublicIcon icon={CheckCircle} size={20} className="text-site-brand" />
+                <span>{item}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
 
-          <div className="order-1  lg:order-2 lg:mt-0 lg:col-span-6 ml-5 sm:ml-4 lg:flex">
-            <div className="relative w-full h-40 pb-[56.25%] lg:pb-[20] lg:h-full">
-              <Image
-                src={"/images/bananer-กันสาดพับเก็บได้.webp"}
-                alt={`${keyword} - ผลงานการติดตั้งโดย Siamrooftech`}
-                fill
-                style={{ objectFit: "cover" }}
-                className="z-10"
-                sizes="(max-width: 768px) 100vw, 50vw"
-              />
-            </div>
+        <div className="lg:col-span-6">
+          <div className="relative aspect-[4/3] overflow-hidden rounded-site-media bg-site-subtle shadow-site-card-hover">
+            <Image
+              src="/images/bananer-กันสาดพับเก็บได้.webp"
+              alt={`${keyword} ติดตั้งใต้ชายคาบ้าน ผลงานโดย Siamrooftech`}
+              fill
+              priority
+              sizes="(max-width: 1024px) 100vw, 50vw"
+              className="object-cover"
+            />
           </div>
         </div>
-      </section>
-    </>
+      </PublicContainer>
+    </section>
   );
 }
 
