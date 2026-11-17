@@ -133,6 +133,7 @@
         "AUTH_EMAIL_DELIVERY": "live",
         "AUTH_EMAIL_FROM": "noreply@siamrooftech.com",
         "NEXT_PUBLIC_GA4_MEASUREMENT_ID": "",
+        "NEXT_PUBLIC_OPENAI_PIXEL_ID": "",
         "LINE_CHAT_HISTORY_WORKER_URL": ""
       }
     },
@@ -188,6 +189,7 @@
         "AUTH_EMAIL_DELIVERY": "live",
         "AUTH_EMAIL_FROM": "noreply@siamrooftech.com",
         "NEXT_PUBLIC_GA4_MEASUREMENT_ID": "G-49Q49WM381",
+        "NEXT_PUBLIC_OPENAI_PIXEL_ID": "CXx4Njj3BUmjXMcbnmRsdC",
         "LINE_CHAT_HISTORY_WORKER_URL": "https://siamrooftech-line-chat-history.phuthan-dev.workers.dev"
       }
     }

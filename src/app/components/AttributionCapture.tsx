@@ -8,6 +8,8 @@ import {
   trackLineClick,
   trackPhoneClick,
 } from '@/lib/gtag';
+import { measureOpenAICustom, measureOpenAIPageView } from '@/features/openai-ads/measure';
+import { OPENAI_CUSTOM_EVENTS } from '@/features/openai-ads/pixel-config';
 
 export default function AttributionCapture() {
   const pathname = usePathname();
@@ -16,6 +18,7 @@ export default function AttributionCapture() {
 
   useEffect(() => {
     captureAttribution();
+    measureOpenAIPageView();
   }, [pathname, queryString]);
 
   useEffect(() => {
@@ -32,12 +35,14 @@ export default function AttributionCapture() {
 
       if (type === 'line') {
         trackLineClick(position);
+        measureOpenAICustom(OPENAI_CUSTOM_EVENTS.lineClick);
         return;
       }
 
       if (type === 'phone') {
         const phoneNumber = link.href.replace(/^tel:/, '') || '0984542455';
         trackPhoneClick(phoneNumber, position);
+        measureOpenAICustom(OPENAI_CUSTOM_EVENTS.phoneClick);
         return;
       }
 
