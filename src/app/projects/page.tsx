@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { unstable_cache } from "next/cache";
 import Breadcrumbs from '@/components/site/Breadcrumbs';
 import FinalCTASection from '@/components/site/FinalCTASection';
 import ProjectsIndex from "../components/projects/ProjectsIndex";
@@ -30,14 +29,8 @@ export const metadata: Metadata = {
   },
 };
 
-const fetchProjects = unstable_cache(
-  async (): Promise<Project[]> => projectsRepository.getAll(),
-  ["projects-data"],
-  { revalidate: 300, tags: ['projects'] },
-);
-
 export default async function ProjectsPage() {
-  const projects = (await fetchProjects()).sort((a, b) => {
+  const projects = (await projectsRepository.getAll()).sort((a, b) => {
     const dateA = a.completionDate ? new Date(a.completionDate).getTime() : new Date(Number(a.year), 0).getTime();
     const dateB = b.completionDate ? new Date(b.completionDate).getTime() : new Date(Number(b.year), 0).getTime();
     return dateB - dateA;
