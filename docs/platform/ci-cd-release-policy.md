@@ -89,3 +89,8 @@ SHA evidence plus Production review. Runtime Google uploads remain disabled even
 if an older ADS_SYNC_MODE secret says live. Worker rollback does not restore
 chat data or files. Real remote migration, release and Google activation remain
 separate explicit operations; this change does not authorize them.
+
+## Worker compatibility flags
+
+`wrangler.jsonc` sets `no_handle_cross_request_promise_resolution` for every environment. With the behavior enabled by the current `compatibility_date`, a promise shared across concurrent requests in one isolate (Next.js/OpenNext lazy initialization and cache de-duplication) never settles once the request that created it ends. Production then cancels the waiting request with "Worker's code had hung and would never generate a response". Remove the flag only after confirming OpenNext no longer shares promises across requests. Keep `wrangler.jsonc` strict JSON: deployment scripts and `next.config.mjs` parse it with `JSON.parse`, so comments break the build.
+
