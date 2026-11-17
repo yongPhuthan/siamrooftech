@@ -10,7 +10,7 @@ const WhyUs2 = ({ keyword }: Props) => {
   return (
     <>
       {/* Desktop Version - Visible on MD screens and above */}
-      <div className="hidden md:block max-w-6xl mx-auto px-6 py-0">
+      <div className="hidden md:block max-w-6xl mx-auto px-6">
         <div className="flex justify-center items-center gap-3 mb-10">
           <h2 className="text-3xl text-blue-600 font-bold text-center">
             {keyword}
@@ -110,7 +110,7 @@ const WhyUs2 = ({ keyword }: Props) => {
       </div>
 
       {/* Mobile Version - Visible below MD screens */}
-      <div className="block md:hidden px-4 py-8">
+      <div className="block md:hidden px-4">
         <div className="mb-6 mt-2">
           <h2 className="text-2xl text-blue-600 font-bold text-center mb-1">
             ทำไม{keyword}

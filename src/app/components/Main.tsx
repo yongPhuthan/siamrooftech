@@ -11,6 +11,7 @@ import { transformProjectsToProjectShow } from "@/lib/project-utils";
 import ProjectGalleryClient from "./ProjectGalleryClient";
 import LineContactButton from "@/features/line-contact/LineContactButton";
 import PortfolioButton from "./PortfolioButton";
+import { PublicContainer } from "@/components/ui/public";
 
 type Props = {
   keyword: string;
@@ -29,18 +30,25 @@ const Main = (props: Props) => {
 
   return (
     <>
-      <div className="bg-white ">
-        <HeroSection keyword={keyword} />
-        <TrustedBy />
-        <WhyUs keyword={keyword} />
+      <HeroSection keyword="กันสาดไฟฟ้า" />
+
+      <div className="border-y border-site-border bg-white py-6">
+        <TrustedBy animated />
       </div>
 
-      <div className="bg-site-background pt-10 mt-10 ">
+      <section className="bg-white py-12 md:py-16">
+        <WhyUs keyword={keyword} />
+      </section>
+
+      <section className="bg-site-background py-12 md:py-16">
+        <PublicContainer className="mb-8 text-center md:mb-10">
+          <h2 className="heading-section text-site-ink">ตัวอย่างงานติดตั้ง{keyword}</h2>
+        </PublicContainer>
         <ProjectGalleryClient projects={projectShowData} />
 
         {/* ปุ่มดูผลงานทั้งหมด หากมีผลงานเกิน 25 รายการ */}
         {hasMore && (
-          <div className="flex justify-center py-8">
+          <div className="flex justify-center pt-4">
             <PortfolioButton
               position="homepage_project_gallery_more"
               className="btn btn-primary px-8 py-3 text-lg font-semibold hover:shadow-lg transition-all duration-300 bg-blue-600 hover:bg-blue-700 text-white border-none rounded-[4px]"
@@ -49,23 +57,23 @@ const Main = (props: Props) => {
             </PortfolioButton>
           </div>
         )}
-      </div>
-      <DamageWarningSection />
-      <Whyus2 keyword={keyword} />
-      <div className="flex flex-col items-center justify-center gap-4 w-full">
-        <HowItWorks keyword={keyword} />
+      </section>
 
+      <DamageWarningSection />
+
+      <section className="bg-site-background py-12 md:py-16">
+        <Whyus2 keyword={keyword} />
+      </section>
+
+      <section className="flex w-full flex-col items-center gap-6 bg-white py-12 md:py-16">
+        <HowItWorks keyword={keyword} />
         <div className="flex w-full items-center justify-center px-4">
           <LineContactButton analyticsPosition="bottom" />
         </div>
-      </div>
+      </section>
 
-      <div className="bg-gradient-to-br pt-20 mx-auto  from-gray-100 to-gray-200">
-
-
-        <FinalCTASection compactLineButton />
-        <EndSection />
-      </div>
+      <FinalCTASection compactLineButton />
+      <EndSection />
     </>
   );
 };

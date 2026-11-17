@@ -42,6 +42,7 @@
   --background-image-gradient-conic: conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops));
 
   --animate-marquee: marquee 40s linear infinite;
+  --animate-logo-slide-in: logo-slide-in 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 /* Bridge legacy public palette utilities onto the public theme, scoped away
@@ -131,6 +132,17 @@
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+}
+
+@keyframes logo-slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(48px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
   }
 }
 

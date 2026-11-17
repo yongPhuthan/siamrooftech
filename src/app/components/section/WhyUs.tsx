@@ -1,59 +1,45 @@
-import React, { useState } from 'react';
 import Image from 'next/image';
+import { PublicContainer } from '@/components/ui/public';
 
 function WhyUs({keyword}: {keyword: string}) {
   return (
-    <>
-<div className="mt-2 md:px-12 lg:px-24 mx-auto">
-    <div className="md:flex md:justify-center md:items-center mb-2 md:space-x-4">
-        <h2 className="text-3xl text-site-brand md:text-4xl font_page font-bold text-center">
-            {keyword}
+    <PublicContainer>
+      <div className="mx-auto max-w-3xl text-center">
+        <h2 className="heading-section text-site-ink">
+          {keyword}ที่ออกแบบให้เหมาะกับหน้างาน
         </h2>
-        <h2 className="text-3xl md:text-4xl font_page font-bold text-center ">
-            ไว้ใจสยามรูฟเทค
-        </h2>
-    </div>
-    {/* description */}
-    <div className=" md:px-24 rounded-lg ">
-        <p className="text-center font-sans text-[16px] px-5 md:text-lg leading-relaxed">
-            เราผ่านประสบการณ์ติดตั้งกันสาดมานาน ทำให้เราเข้าใจถึงปัญหาและความเสี่ยงที่ลูกค้าอาจจะได้เจอจากการติดตั้งกันสาดที่ไม่มีคุณภาพ 
+        <div className="body-copy mt-6 space-y-4 text-base text-site-muted md:text-lg">
+          <p>
+            เราผ่านประสบการณ์ติดตั้งกันสาดมานาน ทำให้เราเข้าใจถึงปัญหาและความเสี่ยงที่ลูกค้าอาจจะได้เจอจากการติดตั้งกันสาดที่ไม่มีคุณภาพ
+          </p>
+          <p>
+            ดังนั้นงานติดตั้งทุกงานของเราจึงคำนึงถึงความปลอดภัยในเคสการใช้งานกับพื้นผิวและวัสดุของพื้นที่หน้างานต่างๆ
+            รวมถึงการออกแบบอุปกรณ์เสริมสำหรับหน้างาน ทั้งกันสาดพับเก็บได้แบบ Manual และกันสาดพับเก็บได้แบบมอเตอร์ไฟฟ้า
+          </p>
+        </div>
+      </div>
 
-        </p>
-        <p className="text-center font-sans text-[16px] px-5 md:text-lg leading-relaxed">
-            ดังนั้นงานติดตั้งทุกงานของเราจึงคำนึงถึงความปลอดภัยในเคสการใช้งานกับพื้นผิวและวัสดุของพื้นที่หน้างานต่างๆ 
-        </p>
-        <p className="text-center font-sans text-[16px] px-5 md:text-lg leading-relaxed">
-            รวมถึงการออกแบบอุปกรณ์เสริมสำหรับหน้างานทั้งกันสาดพับเก็บได้แบบManualและกันสาดพับเก็บได้แบบมอเตอร์ไฟฟ้า
-        </p>
-    </div>
-</div>
-
-
-      <div
-        className={`flex flex-wrap justify-center md:px-12 lg:px-24 mt-5 md:mt-8 items-center mb-5 `}
-      >
+      <div className="mx-auto mt-8 flex max-w-5xl flex-col gap-6 md:mt-10">
         <Image
-          className={`w-full md:w-4/5 lg:w-4/5 mb-4 md:mb-0`}
+          className="h-auto w-full rounded-site-media"
           src="https://pub-99f8d7bf688c4c79afcc2d91f37141f2.r2.dev/siamrooftech/original/20140"
-          alt="Group"
-          sizes="(max-width: 400px) 400px, (max-width: 900px) 900px, 1000px"
+          alt={`${keyword} ตัวอย่างงานติดตั้งหน้างานจริง`}
+          sizes="(max-width: 1024px) 100vw, 1024px"
           width={500}
           height={500}
-          loading='lazy'
+          loading="lazy"
         />
         <Image
-          className={`w-full md:w-4/5 lg:w-4/5 mb-4 md:mb-0 `}
+          className="h-auto w-full rounded-site-media"
           src="https://pub-99f8d7bf688c4c79afcc2d91f37141f2.r2.dev/siamrooftech/original/78421"
-          alt="Group"
-          sizes="(max-width: 400px) 400px, (max-width: 900px) 900px, 1000px"
+          alt={`${keyword} อุปกรณ์และรายละเอียดงานติดตั้ง`}
+          sizes="(max-width: 1024px) 100vw, 1024px"
           width={500}
           height={500}
-          
-          loading='lazy'
-
+          loading="lazy"
         />
       </div>
-    </>
+    </PublicContainer>
   );
 }
 

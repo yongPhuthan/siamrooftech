@@ -4,7 +4,7 @@ import Image from "next/image";
 
 function HowItWorks({keyword}: {keyword: string}) {
   return (
-    <div className="px-4 md:px-24 sm:pt-5  md:py-10 bg-white">
+    <div className="w-full px-4 md:px-24">
       <div className="flex flex-col md:flex-row justify-center items-center mx-auto mb-10 text-center">
         <h2 className="text-3xl mt-2 font_page text-site-brand mb-2">ติดตั้ง{keyword}ง่ายๆ</h2>
         <h3 className="text-4xl ml-3 text-site-brand font_page font-bold">3 ขั้นตอน</h3>

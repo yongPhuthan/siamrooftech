@@ -33,7 +33,7 @@ const warningCards = [
 
 function DamageWarningSection() {
   return (
-    <section className="bg-gradient-to-b from-white via-gray-50 to-gray-100 border border-gray-200 rounded-md mt-12 px-6 py-12 shadow-lg">
+    <section className="bg-white px-4 py-12 sm:px-6 md:py-16">
       <div className="max-w-6xl mx-auto space-y-10">
         <div className="text-center mb-8 space-y-3">
           <h2 className="text-3xl md:text-4xl font-semibold text-gray-900 mt-3">

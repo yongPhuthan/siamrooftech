@@ -41,13 +41,7 @@ export default function Navigation() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-20 items-center justify-between lg:h-24">
           <Link href="/" className="flex items-center gap-3" aria-label="สยามรูฟเทค หน้าแรก">
-            <span className="hidden shrink-0 sm:block">
-              <Image src="/images/logo/IMG_1149.jpg" alt="Siamrooftech Logo กันสาดพับเก็บได้" width={80} height={80} className="rounded-lg object-contain" style={{ width: 'clamp(64px, 5vw, 80px)', height: 'clamp(64px, 5vw, 80px)', minWidth: '100px', minHeight: '100px' }} priority />
-            </span>
-            <span className="flex flex-col">
-              <span className="text-xl font-bold text-site-brand-strong lg:text-2xl">สยามรูฟเทค</span>
-              <span className="hidden text-xs text-site-muted sm:block lg:text-sm">กันสาดพับเก็บได้</span>
-            </span>
+            <Image src="/images/logo/IMG_1149.jpg" alt="" width={800} height={303} className="h-10 w-auto animate-logo-slide-in rounded-lg object-contain sm:h-14 lg:h-16" priority />
           </Link>
           <div className="hidden items-center gap-1 lg:flex">
             {showNavLinks && navItems.map((item) => (
