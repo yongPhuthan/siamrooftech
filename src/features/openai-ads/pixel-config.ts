@@ -37,8 +37,15 @@ export function isValidCustomEventName(name: string): boolean {
     && !(STANDARD_EVENT_NAMES as readonly string[]).includes(name);
 }
 
+/**
+ * Phase A optimization goal: a LINE CTA click is reported as the standard
+ * `lead_created` event, because Conversion campaigns can only optimize toward
+ * a standard event. Phase B replaces it with a server-side `lead_created` for
+ * a matched LINE message in a new campaign (see AGENTS.md).
+ */
+export const OPENAI_LEAD_EVENT = 'lead_created' as const;
+
 /** Secondary diagnostic signals only; never a campaign's optimization goal. */
 export const OPENAI_CUSTOM_EVENTS = {
-  lineClick: 'line_click',
   phoneClick: 'phone_click',
 } as const;

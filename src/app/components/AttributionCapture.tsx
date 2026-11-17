@@ -8,8 +8,9 @@ import {
   trackLineClick,
   trackPhoneClick,
 } from '@/lib/gtag';
-import { measureOpenAICustom, measureOpenAIPageView } from '@/features/openai-ads/measure';
+import { measureOpenAICustom, measureOpenAILead, measureOpenAIPageView } from '@/features/openai-ads/measure';
 import { OPENAI_CUSTOM_EVENTS } from '@/features/openai-ads/pixel-config';
+import { LINE_CONTACT_URL } from '@/features/line-contact/constants';
 
 export default function AttributionCapture() {
   const pathname = usePathname();
@@ -35,7 +36,6 @@ export default function AttributionCapture() {
 
       if (type === 'line') {
         trackLineClick(position);
-        measureOpenAICustom(OPENAI_CUSTOM_EVENTS.lineClick);
         return;
       }
 
@@ -51,10 +51,21 @@ export default function AttributionCapture() {
       }
     };
 
+    // OpenAI Ads lead signal: every LINE CTA, tagged or not, by its canonical
+    // href. Passive and fire-and-forget; it never touches the native handoff.
+    const handleOpenAILeadClick = (event: MouseEvent) => {
+      const target = event.target instanceof Element ? event.target : null;
+      if (target?.closest(`a[href="${LINE_CONTACT_URL}"], a[data-analytics-type="line"]`)) {
+        measureOpenAILead();
+      }
+    };
+
     document.addEventListener('click', handleTrackedContactClick);
+    document.addEventListener('click', handleOpenAILeadClick);
 
     return () => {
       document.removeEventListener('click', handleTrackedContactClick);
+      document.removeEventListener('click', handleOpenAILeadClick);
     };
   }, []);
 

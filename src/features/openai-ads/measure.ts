@@ -1,4 +1,4 @@
-import { isValidCustomEventName } from './pixel-config';
+import { isValidCustomEventName, OPENAI_LEAD_EVENT } from './pixel-config';
 
 type OaiqFn = (...args: unknown[]) => void;
 declare global {
@@ -32,4 +32,28 @@ export function measureOpenAICustom(name: string, eventId?: string): void {
       ...(eventId ? { event_id: eventId } : {}),
     });
   } catch { /* Measurement is secondary. */ }
+}
+
+/**
+ * Fire-and-forget standard `lead_created` (customer_action) with a unique
+ * `event_id`, so a later server event for the same action can deduplicate.
+ * Returns the event_id, or null when the Pixel is not installed.
+ */
+export function measureOpenAILead(eventId: string = newEventId()): string | null {
+  try {
+    const fn = oaiq();
+    if (!fn) return null;
+    fn('measure', OPENAI_LEAD_EVENT, { type: 'customer_action' }, { event_id: eventId });
+    return eventId;
+  } catch {
+    return null;
+  }
+}
+
+function newEventId(): string {
+  try {
+    return `line_${crypto.randomUUID()}`;
+  } catch {
+    return `line_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`;
+  }
 }

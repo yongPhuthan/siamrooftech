@@ -1,6 +1,30 @@
 import { describe, expect, it, vi } from 'vitest';
 import { buildPixelBootstrap, isValidCustomEventName, normalizePixelId } from './pixel-config';
 import { buildConversionsBody, sendConversions } from './conversions-api';
+import { measureOpenAILead } from './measure';
+
+describe('OpenAI Pixel lead measurement', () => {
+  it('is a no-op without the Pixel', () => {
+    vi.stubGlobal('window', {});
+    expect(measureOpenAILead('line_x')).toBeNull();
+    vi.unstubAllGlobals();
+  });
+
+  it('sends a standard lead_created with an event_id', () => {
+    const oaiq = vi.fn();
+    vi.stubGlobal('window', { oaiq });
+    expect(measureOpenAILead('line_x')).toBe('line_x');
+    expect(oaiq).toHaveBeenCalledWith('measure', 'lead_created', { type: 'customer_action' }, { event_id: 'line_x' });
+    expect(measureOpenAILead()).toMatch(/^line_/);
+    vi.unstubAllGlobals();
+  });
+
+  it('never throws when the SDK throws', () => {
+    vi.stubGlobal('window', { oaiq: () => { throw new Error('sdk'); } });
+    expect(measureOpenAILead('line_y')).toBeNull();
+    vi.unstubAllGlobals();
+  });
+});
 
 describe('OpenAI Pixel config', () => {
   it('accepts only safe pixel IDs', () => {
