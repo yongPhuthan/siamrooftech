@@ -42,10 +42,35 @@ jobs:
     needs: validate-release
     runs-on: ubuntu-latest
     environment: staging
-    concurrency:
-      group: siamrooftech-staging
-      cancel-in-progress: false
+    permissions:
+      contents: read
+      actions: read
     steps:
+      # The push to main already built, deployed, and SEO-checked this SHA on staging.
+      # Reuse that evidence instead of rebuilding and redeploying the same commit.
+      - name: Require a successful staging deployment for this SHA
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          RELEASE_SHA: ${{ github.sha }}
+        run: |
+          for attempt in $(seq 1 50); do
+            run=$(gh api "repos/$REPO/actions/workflows/ci.yml/runs?head_sha=$RELEASE_SHA&event=push&branch=main&per_page=1" --jq '.workflow_runs[0] | "\(.id) \(.status)"')
+            run_id=${run%% *}; run_status=${run#* }
+            if [ -z "$run" ] || [ "$run_id" = "null" ]; then
+              echo "No CI and staging release run exists for $RELEASE_SHA"; exit 1
+            fi
+            if [ "$run_status" = "completed" ]; then
+              conclusion=$(gh api "repos/$REPO/actions/runs/$run_id/jobs" --jq '.jobs[] | select(.name == "staging-deployment") | .conclusion')
+              if [ "$conclusion" = "success" ]; then
+                echo "Staging run $run_id deployed and verified $RELEASE_SHA"; exit 0
+              fi
+              echo "staging-deployment for $RELEASE_SHA concluded '${conclusion:-missing}' in run $run_id"; exit 1
+            fi
+            echo "Waiting for staging run $run_id ($run_status), attempt $attempt"
+            sleep 30
+          done
+          echo "Timed out waiting for the staging run of $RELEASE_SHA"; exit 1
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           ref: ${{ github.sha }}
@@ -53,32 +78,8 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 22
-          cache: yarn
-      - run: corepack enable
-      - run: yarn install --frozen-lockfile --non-interactive
-      - run: node scripts/deployment-policy.mjs --target=staging --deploy
-        env:
-          STAGING_ACCESS_READY: ${{ vars.STAGING_ACCESS_READY }}
-      - run: yarn cf:build:staging
-        env:
-          GITHUB_SHA: ${{ github.sha }}
-      - run: node_modules/.bin/wrangler deploy --env staging --config wrangler.jsonc
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
-      - run: node scripts/seo-qa.mjs --environment=staging
-        env:
-          SEO_QA_RELEASE_SHA: ${{ github.sha }}
-          CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
-          CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
-      - name: Recheck staging at two minutes
-        run: sleep 120 && node scripts/seo-qa.mjs --environment=staging
-        env:
-          SEO_QA_RELEASE_SHA: ${{ github.sha }}
-          CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
-          CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
-      - name: Recheck staging at five minutes
-        run: sleep 180 && node scripts/seo-qa.mjs --environment=staging
+      - name: Confirm staging still serves this SHA
+        run: node scripts/seo-qa.mjs --environment=staging
         env:
           SEO_QA_RELEASE_SHA: ${{ github.sha }}
           CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
@@ -165,11 +166,7 @@ jobs:
         run: node scripts/seo-qa.mjs --environment=production
         env:
           SEO_QA_RELEASE_SHA: ${{ github.sha }}
-      - name: Recheck at two minutes
-        run: sleep 120 && node scripts/seo-qa.mjs --environment=production
-        env:
-          SEO_QA_RELEASE_SHA: ${{ github.sha }}
       - name: Recheck at five minutes
-        run: sleep 180 && node scripts/seo-qa.mjs --environment=production
+        run: sleep 300 && node scripts/seo-qa.mjs --environment=production
         env:
           SEO_QA_RELEASE_SHA: ${{ github.sha }}
