@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { verifyAdminRequest, unauthorizedResponse } from '@/lib/api-auth';
 import { getAdminProjectBySlug, unpublishProject } from '@/features/projects/server/repository';
-import { revalidatePath, revalidateTag } from 'next/cache';
+import { revalidatePublicContent } from '@/lib/public-content-revalidation';
 
 export async function POST(request: Request, { params }: { params: Promise<{ slug: string }> }) {
   if (!(await verifyAdminRequest(request))) return unauthorizedResponse();
@@ -12,9 +12,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
   if (!project) return NextResponse.json({ error: 'Project not found' }, { status: 404 });
   try {
     const result = await unpublishProject(project.id, body.expectedRevision);
-    revalidateTag('projects');
-    revalidatePath('/projects');
-    revalidatePath(`/projects/${slug}`);
+    revalidatePublicContent('project', [`/projects/${slug}`]);
     return NextResponse.json(result, { headers: { 'Cache-Control': 'private, no-store' } });
   } catch (error) {
     const status = error instanceof Error && error.message === 'REVISION_CONFLICT' ? 409 : 503;

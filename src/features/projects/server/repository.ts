@@ -1,4 +1,5 @@
 import 'server-only';
+import { unstable_cache } from 'next/cache';
 import { randomUUID, createHash } from 'node:crypto';
 import { getCmsRuntimeEnv } from '@/lib/database/runtime';
 import { NewProjectPayloadSchema, ProjectPayloadSchema } from '../project-schema';
@@ -12,11 +13,16 @@ function parseProject(payload: string, entryId: string, path: string): Project |
   return parsed.data as Project;
 }
 
+// Public reads are cached and tagged so D1 is only queried after a publish,
+// unpublish, or delete (revalidatePublicContent) or once the hour expires.
+// Thrown errors are never cached, so a D1 failure still surfaces as an error.
+const PUBLIC_READ_CACHE = { tags: ['projects'], revalidate: 3600 };
+
 function contentHash(project: Project) {
   return createHash('sha256').update(JSON.stringify(project)).digest('hex');
 }
 
-export async function listPublishedProjects(): Promise<Project[]> {
+async function readPublishedProjects(): Promise<Project[]> {
   const { APP_DB } = await getCmsRuntimeEnv();
   const { results } = await APP_DB.prepare("SELECT id, path, payload_json FROM published_content WHERE kind = 'project' ORDER BY content_modified_at DESC, id").all<{ id: string; path: string; payload_json: string }>();
   return results.flatMap((row) => {
@@ -25,11 +31,14 @@ export async function listPublishedProjects(): Promise<Project[]> {
   });
 }
 
-export async function getPublishedProjectBySlug(slug: string): Promise<Project | null> {
+async function readPublishedProjectBySlug(slug: string): Promise<Project | null> {
   const { APP_DB } = await getCmsRuntimeEnv();
   const row = await APP_DB.prepare("SELECT id, path, payload_json FROM published_content WHERE kind = 'project' AND path = ? LIMIT 1").bind(`/projects/${slug}`).first<{ id: string; path: string; payload_json: string }>();
   return row ? parseProject(row.payload_json, row.id, row.path) : null;
 }
+
+export const listPublishedProjects = unstable_cache(readPublishedProjects, ['published-projects'], PUBLIC_READ_CACHE);
+export const getPublishedProjectBySlug = unstable_cache(readPublishedProjectBySlug, ['published-project-by-slug'], PUBLIC_READ_CACHE);
 
 export async function getPublishedProjectById(id: string): Promise<Project | null> {
   const { APP_DB } = await getCmsRuntimeEnv();
@@ -150,7 +159,8 @@ export async function deleteProject(id: string, expectedRevision: number): Promi
 }
 
 export async function incrementProjectViewCount(slug: string): Promise<boolean> {
-  const project = await getPublishedProjectBySlug(slug);
+  // Read-modify-write: use the uncached row so concurrent increments are not lost.
+  const project = await readPublishedProjectBySlug(slug);
   if (!project) return false;
   const { APP_DB } = await getCmsRuntimeEnv();
   const next = { ...project, viewCount: (project.viewCount || 0) + 1, lastViewedAt: new Date().toISOString() };

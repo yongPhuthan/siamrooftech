@@ -1,3 +1,4 @@
+import { revalidatePublicContent } from '@/lib/public-content-revalidation';
 import { NextResponse } from 'next/server';
 import { verifyAdminRequest, unauthorizedResponse } from '@/lib/api-auth';
 import { getPublishedProjectBySlug, getAdminProjectBySlug, saveProjectDraft, deleteProjectBySlug } from '@/features/projects/server/repository';
@@ -42,6 +43,7 @@ export async function DELETE(request: Request, { params }: Context) {
   if (!body || typeof body.expectedRevision !== 'number') return NextResponse.json({ error: 'Expected revision is required' }, { status: 400 });
   try {
     await deleteProjectBySlug(slug, body.expectedRevision);
+    revalidatePublicContent('project', [`/projects/${slug}`]);
     return NextResponse.json({ success: true }, { headers: { 'Cache-Control': 'private, no-store' } });
   } catch (error) {
     const code = error instanceof Error ? error.message : '';

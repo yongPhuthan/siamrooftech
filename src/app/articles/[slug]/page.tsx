@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { cache } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -16,12 +17,19 @@ import { canonicalUrl } from '@/lib/seo-config';
 
 interface Props { params: Promise<{ slug: string }> }
 
-export const dynamic = 'force-dynamic';
+// ISR: rendered on the first request from the deployment's own D1, then cached
+// until a publish/unpublish invalidates it (see revalidatePublicContent).
+// generateStaticParams returns [] so no CMS data is baked in at build time.
+export const revalidate = 3600;
+export const dynamicParams = true;
+export function generateStaticParams() {
+  return [];
+}
 
-async function getArticle(slug: string): Promise<ArticleSnapshot | null> {
+const getArticle = cache(async (slug: string): Promise<ArticleSnapshot | null> => {
   if (!isValidArticleSlug(slug)) return null;
   return getPublishedArticleBySlug(slug);
-}
+});
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;

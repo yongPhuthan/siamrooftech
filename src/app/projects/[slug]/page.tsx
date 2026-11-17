@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { cache } from "react";
 import { notFound } from "next/navigation";
 import ProjectDetailClient from "../../components/projects/ProjectDetailClient";
 import type { Project } from '@/features/projects/types';
@@ -10,12 +11,19 @@ interface ProjectPageProps {
   params: Promise<{ slug: string }>;
 }
 
-export const dynamic = 'force-dynamic';
+// ISR: rendered on the first request from the deployment's own D1, then cached
+// until a publish/unpublish invalidates it (see revalidatePublicContent).
+// generateStaticParams returns [] so no CMS data is baked in at build time.
+export const revalidate = 3600;
 export const dynamicParams = true;
-
-async function getProject(slug: string): Promise<Project | null> {
-  return getPublishedProjectBySlug(slug);
+export function generateStaticParams() {
+  return [];
 }
+
+const RELATED_PROJECT_LIMIT = 3;
+
+// generateMetadata and the page run in the same request; share one D1 read.
+const getProject = cache(async (slug: string): Promise<Project | null> => getPublishedProjectBySlug(slug));
 
 export async function generateMetadata({ params }: ProjectPageProps): Promise<Metadata> {
   const { slug } = await params;
@@ -49,14 +57,15 @@ export async function generateMetadata({ params }: ProjectPageProps): Promise<Me
 
 export default async function ProjectPage({ params }: ProjectPageProps) {
   const { slug } = await params;
-  const [projects, project] = await Promise.all([projectsRepository.getAll(), getPublishedProjectBySlug(slug)]);
+  const [projects, project] = await Promise.all([projectsRepository.getAll(), getProject(slug)]);
   if (!project || !getProjectPath(project)) notFound();
 
   const relatedProjects = [...projects].sort((a, b) => {
     if (a.category === project.category && b.category !== project.category) return -1;
     if (b.category === project.category && a.category !== project.category) return 1;
     return 0;
-  });
+  }).filter((related) => related.id !== project.id).slice(0, RELATED_PROJECT_LIMIT);
 
+  // Only the related cards cross the client boundary, keeping the RSC payload small.
   return <ProjectDetailClient project={project} allProjects={relatedProjects} />;
 }

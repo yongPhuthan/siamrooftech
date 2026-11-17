@@ -1,4 +1,5 @@
 import 'server-only';
+import { unstable_cache } from 'next/cache';
 import { createHash, randomUUID } from 'node:crypto';
 import { getCmsRuntimeEnv } from '@/lib/database/runtime';
 import type { AdminArticleSummary } from '../admin-types';
@@ -177,14 +178,14 @@ export async function unpublishArticle(id: string, expectedRevision: number): Pr
   return { schemaVersion: 1, id, revision: expectedRevision + 1, draft: current.draft };
 }
 
-export async function getPublishedArticleBySlug(slug: string): Promise<ArticleSnapshot | null> {
+async function readPublishedArticleBySlug(slug: string): Promise<ArticleSnapshot | null> {
   const { APP_DB } = await getCmsRuntimeEnv();
   const row = await APP_DB.prepare("SELECT id,path,payload_json FROM published_content WHERE kind='article' AND path=? LIMIT 1").bind(`/articles/${slug}`).first<{ id: string; path: string; payload_json: string }>();
   if (!row) return null;
   try { return parsedSnapshot(JSON.parse(row.payload_json), row.id) ?? null; } catch { return null; }
 }
 
-export async function getPublishedArticles(): Promise<ArticleSnapshot[]> {
+async function readPublishedArticles(): Promise<ArticleSnapshot[]> {
   const { APP_DB } = await getCmsRuntimeEnv();
   const { results } = await APP_DB.prepare("SELECT id,payload_json FROM published_content WHERE kind='article' ORDER BY first_published_at DESC,id").all<{ id: string; payload_json: string }>();
   return results.flatMap((row) => {
@@ -194,3 +195,10 @@ export async function getPublishedArticles(): Promise<ArticleSnapshot[]> {
     } catch { return []; }
   });
 }
+
+// Public reads are cached and tagged so D1 is only queried after a publish,
+// unpublish, or delete (revalidatePublicContent) or once the hour expires.
+// Thrown errors are never cached, so a D1 failure still surfaces as an error.
+const PUBLIC_READ_CACHE = { tags: ['articles'], revalidate: 3600 };
+export const getPublishedArticleBySlug = unstable_cache(readPublishedArticleBySlug, ['published-article-by-slug'], PUBLIC_READ_CACHE);
+export const getPublishedArticles = unstable_cache(readPublishedArticles, ['published-articles'], PUBLIC_READ_CACHE);

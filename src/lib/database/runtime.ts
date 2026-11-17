@@ -13,6 +13,11 @@ export interface CmsRuntimeEnv {
 }
 
 export async function getCmsRuntimeEnv(): Promise<CmsRuntimeEnv> {
+  // `next build` binds the local (seeded) D1. Reading it would bake local/QA
+  // records into prerendered pages and the release cache, so refuse outright.
+  if (process.env.NEXT_PHASE === 'phase-production-build') {
+    throw new Error('CMS data must not be read during next build');
+  }
   const { env } = await getCloudflareContext({ async: true });
   if (!env.APP_DB || !env.MEDIA_BUCKET) throw new Error('Local CMS bindings are not configured');
   return env as CmsRuntimeEnv;

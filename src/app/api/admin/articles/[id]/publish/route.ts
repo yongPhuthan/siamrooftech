@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { revalidatePath, revalidateTag } from 'next/cache';
+import { revalidatePublicContent } from '@/lib/public-content-revalidation';
 import { verifyAdminRequest, unauthorizedResponse } from '@/lib/api-auth';
 import { getAdminArticle, publishArticle } from '@/features/articles/server/repository';
 
@@ -15,15 +15,10 @@ export async function POST(request: NextRequest, { params }: Context) {
     const { id } = await params;
     const beforePublish = await getAdminArticle(id);
     const article = await publishArticle(id, Number(body.expectedRevision));
-    revalidateTag('articles');
-    revalidateTag(`article-${article.published?.metadata.slug}`);
-    revalidatePath('/articles');
-    revalidatePath('/sitemap.xml');
-    if (beforePublish?.published && beforePublish.published.metadata.slug !== article.published?.metadata.slug) {
-      revalidatePath(`/articles/${beforePublish.published.metadata.slug}`);
-      revalidateTag(`article-${beforePublish.published.metadata.slug}`);
-    }
-    if (article.published) revalidatePath(`/articles/${article.published.metadata.slug}`);
+    revalidatePublicContent('article', [
+      beforePublish?.published && `/articles/${beforePublish.published.metadata.slug}`,
+      article.published && `/articles/${article.published.metadata.slug}`,
+    ]);
     return NextResponse.json(article, { headers: { 'Cache-Control': 'private, no-store' } });
   } catch (error) {
     const message = error instanceof Error ? error.message : '';
