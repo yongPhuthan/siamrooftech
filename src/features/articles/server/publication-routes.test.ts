@@ -23,6 +23,8 @@ it('invalidates the sitemap and public content after explicit unpublication', as
   expect(revalidatePath).toHaveBeenCalledWith('/sitemap.xml');
   expect(revalidatePath).toHaveBeenCalledWith('/articles');
   expect(revalidatePath).toHaveBeenCalledWith('/articles/example-article');
+  expect(revalidatePath).toHaveBeenCalledWith('/articles/[slug]', 'page');
+  expect(revalidatePath).toHaveBeenCalledWith('/');
 });
 
 it('does not mutate publication state or caches without administrative authorization', async () => {

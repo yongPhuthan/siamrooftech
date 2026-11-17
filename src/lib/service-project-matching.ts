@@ -35,7 +35,7 @@ export const fetchServiceProofProjects = unstable_cache(
     }
   },
   ['service-proof-projects'],
-  { revalidate: 3600 }
+  { revalidate: 3600, tags: ['projects'] }
 );
 
 export function getMatchingProofProjects(

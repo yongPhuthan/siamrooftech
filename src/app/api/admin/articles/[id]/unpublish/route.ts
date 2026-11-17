@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { revalidatePath, revalidateTag } from 'next/cache';
+import { revalidatePublicContent } from '@/lib/public-content-revalidation';
 import { verifyAdminRequest, unauthorizedResponse } from '@/lib/api-auth';
 import { getAdminArticle, unpublishArticle } from '@/features/articles/server/repository';
 
@@ -14,11 +14,7 @@ export async function POST(request: NextRequest, { params }: Context) {
     const existing = await getAdminArticle(id);
     if (!existing) return NextResponse.json({ error: 'Article not found' }, { status: 404 });
     const result = await unpublishArticle(id, Number(body.expectedRevision));
-    revalidateTag('articles');
-    revalidateTag(`article-${existing.published?.metadata.slug}`);
-    revalidatePath('/articles');
-    revalidatePath('/sitemap.xml');
-    if (existing.published) revalidatePath(`/articles/${existing.published.metadata.slug}`);
+    revalidatePublicContent('article', [existing.published && `/articles/${existing.published.metadata.slug}`]);
     return NextResponse.json(result, { headers: { 'Cache-Control': 'private, no-store' } });
   } catch (error) {
     const message = error instanceof Error ? error.message : '';
