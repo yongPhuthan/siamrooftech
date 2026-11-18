@@ -2,6 +2,7 @@
 export const LANDING_REGISTRY = {
   'electric-awning': '/lp/google-ads/electric-awning',
   'retractable-awning': '/lp/google-ads/retractable-awning',
+  'chatgpt-electric-awning': '/lp/chatgpt-ads/electric-awning',
 } as const;
 export type LandingId = keyof typeof LANDING_REGISTRY;
 export const ATTRIBUTION_KEYS = [

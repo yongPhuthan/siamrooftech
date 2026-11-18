@@ -81,7 +81,7 @@ for (const routeFile of [
   'src/app/articles/[slug]/page.tsx',
   'src/app/contact/page.tsx',
   'src/app/projects/page.tsx',
-  'src/app/lp/google-ads/electric-awning/page.tsx',
+  'src/app/components/google-ads/ElectricAwningAdsLanding.tsx',
 ]) {
   const path = join(root, routeFile);
   if (existsSync(path) && !readFileSync(path, 'utf8').includes('data-site-theme')) {

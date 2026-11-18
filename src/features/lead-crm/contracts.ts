@@ -10,7 +10,7 @@ export const attributionSchema = z.object(attributionShape).strict();
 export const adsTouchSchema = z.object({
   click_id: z.string().uuid(),
   session_id: z.string().uuid(),
-  landing_id: z.enum(['electric-awning', 'retractable-awning']),
+  landing_id: z.enum(['electric-awning', 'retractable-awning', 'chatgpt-electric-awning']),
   landing_path: z.string().max(256),
   attribution: attributionSchema,
 }).strict().refine((value) => LANDING_REGISTRY[value.landing_id] === value.landing_path, 'landing does not match registry');
