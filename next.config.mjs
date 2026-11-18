@@ -32,6 +32,15 @@ if (!siteOrigin || !workerVars?.DEPLOY_ENV) {
 const ga4MeasurementId =
     process.env.NEXT_PUBLIC_GA4_MEASUREMENT_ID ??
     workerVars?.NEXT_PUBLIC_GA4_MEASUREMENT_ID;
+// OpenAI Ads Pixel ID is public (it ships in page HTML). Like the GA4 ID it is
+// read from the production Wrangler vars; staging never measures, and local
+// builds measure only when NEXT_PUBLIC_OPENAI_PIXEL_ID is set explicitly.
+const openaiPixelId = workerEnvironment === 'staging'
+    ? ''
+    : (process.env.NEXT_PUBLIC_OPENAI_PIXEL_ID ?? workerVars?.NEXT_PUBLIC_OPENAI_PIXEL_ID ?? '').trim();
+if (openaiPixelId && !/^[A-Za-z0-9_-]{1,128}$/.test(openaiPixelId)) {
+    throw new Error('NEXT_PUBLIC_OPENAI_PIXEL_ID has an unexpected format.');
+}
 // Only explicit local builds may target a separate test OA. Never read LINE secrets here.
 const localLineContactUrl = workerEnvironment === 'local'
     ? process.env.LOCAL_LINE_CONTACT_URL || ''
@@ -47,6 +56,7 @@ const nextConfig = {
         RELEASE_SHA: process.env.GITHUB_SHA || process.env.RELEASE_SHA || 'local-development',
         NEXT_PUBLIC_GA4_MEASUREMENT_ID: ga4MeasurementId || '',
         NEXT_PUBLIC_LINE_TEST_CONTACT_URL: localLineContactUrl,
+        NEXT_PUBLIC_OPENAI_PIXEL_ID: openaiPixelId,
     },
     experimental: {
         // Keep generation concurrency bounded for routes that remain static.

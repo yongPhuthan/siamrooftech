@@ -7,6 +7,7 @@ import AttributionCapture from "./components/AttributionCapture";
 import Navigation from '@/components/site/Navigation';
 import LineButtonsLayout from "@/features/line-contact/LineButtonsLayout";
 import LineLeadCapture from "@/features/line-contact/LineLeadCapture";
+import OpenAIPixel from "@/features/openai-ads/OpenAIPixel";
 import SiteFooter from "./components/SiteFooter";
 import { cn } from "@/lib/utils";
 import { DEPLOYMENT_ENV, SITE_URL } from "@/lib/seo-config";
@@ -136,6 +137,7 @@ export default function RootLayout({
     <html lang="th" className={cn(bodyFont.variable, headingFont.variable)}>
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+        <OpenAIPixel />
       </head>
       {process.env.NODE_ENV === "production" && process.env.NEXT_PUBLIC_GA4_MEASUREMENT_ID ? (
         <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA4_MEASUREMENT_ID} />
