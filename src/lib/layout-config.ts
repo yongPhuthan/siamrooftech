@@ -29,6 +29,10 @@ const AD_LANDING_POSITIONS: Record<string, LineCtaPositions> = {
     stickyDesktop: 'electric_awning_ads_sticky_desktop',
     stickyMobile: 'electric_awning_ads_sticky_mobile',
   },
+  '/lp/chatgpt-ads/electric-awning': {
+    stickyDesktop: 'chatgpt_electric_awning_sticky_desktop',
+    stickyMobile: 'chatgpt_electric_awning_sticky_mobile',
+  },
 };
 
 export function isAdLandingPage(pathname: string | null | undefined): boolean {
