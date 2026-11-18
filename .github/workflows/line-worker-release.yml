@@ -57,9 +57,9 @@ jobs:
       - run: yarn cf:build:staging
       - name: Bundle both isolated LINE targets without credentials
         run: |
-          node_modules/.bin/wrangler deploy --dry-run --env staging --config workers/line-chat-history/wrangler.jsonc --outdir .line-release/staging
+          node_modules/.bin/wrangler deploy --dry-run --env staging --config workers/line-chat-history/wrangler.jsonc --outdir "$GITHUB_WORKSPACE/.line-release/staging"
           node scripts/line-release-manifest.mjs create staging .line-release/staging
-          node_modules/.bin/wrangler deploy --dry-run --env production --config workers/line-chat-history/wrangler.jsonc --outdir .line-release/production
+          node_modules/.bin/wrangler deploy --dry-run --env production --config workers/line-chat-history/wrangler.jsonc --outdir "$GITHUB_WORKSPACE/.line-release/production"
           node scripts/line-release-manifest.mjs create production .line-release/production
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
@@ -156,7 +156,7 @@ jobs:
         env:
           CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-        run: node_modules/.bin/wrangler deploy .line-release/staging/index.js --no-bundle --env staging --config workers/line-chat-history/wrangler.jsonc --var RELEASE_SHA:$GITHUB_SHA
+        run: node_modules/.bin/wrangler deploy "$GITHUB_WORKSPACE/.line-release/staging/index.js" --no-bundle --env staging --config workers/line-chat-history/wrangler.jsonc --var RELEASE_SHA:$GITHUB_SHA
       - name: Verify authenticated staging health and exact SHA
         env:
           LINE_WORKER_SMOKE_URL: ${{ vars.LINE_WORKER_SMOKE_URL }}
@@ -205,7 +205,7 @@ jobs:
         env:
           CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-        run: node_modules/.bin/wrangler deploy .line-release/production/index.js --no-bundle --env production --config workers/line-chat-history/wrangler.jsonc --var RELEASE_SHA:$GITHUB_SHA
+        run: node_modules/.bin/wrangler deploy "$GITHUB_WORKSPACE/.line-release/production/index.js" --no-bundle --env production --config workers/line-chat-history/wrangler.jsonc --var RELEASE_SHA:$GITHUB_SHA
       - name: Verify production health and exact SHA
         env:
           LINE_WORKER_SMOKE_URL: ${{ vars.LINE_WORKER_SMOKE_URL }}
