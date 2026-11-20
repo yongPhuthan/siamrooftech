@@ -20,6 +20,16 @@ export default function AttributionCapture() {
   useEffect(() => {
     captureAttribution();
     measureOpenAIPageView();
+    // Google Ads repeat-click guard: on an ad landing (gclid/gbraid/wbraid), tell the
+    // ip-block edge Worker (route www.siamrooftech.com/__ipb*, run by google-ads-manager).
+    // The Worker reads the IP itself and keeps only an IPv6 /64; nothing is stored here.
+    if (
+      window.location.hostname === 'www.siamrooftech.com' &&
+      /[?&](gclid|gbraid|wbraid)=/.test(window.location.search) &&
+      typeof navigator.sendBeacon === 'function'
+    ) {
+      navigator.sendBeacon('/__ipb', window.location.href);
+    }
   }, [pathname, queryString]);
 
   useEffect(() => {
