@@ -1,3 +1,4 @@
 {
-  "doc_allowed_prefixes": ["docs/", "outputs/", ".claude/", ".agents/", ".codex/", ".gemini/", ".github/", ".serena/"]
+  "doc_allowed_prefixes": ["docs/", "outputs/", ".claude/", ".agents/", ".codex/", ".gemini/", ".github/", ".serena/"],
+  "strict_version_prefixes": ["src/", "scripts/", "workers/"]
 }
