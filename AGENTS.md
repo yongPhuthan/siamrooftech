@@ -6,6 +6,13 @@ This is an SEO-focused public website and private CMS. The app uses Next.js 15 A
 
 Use `yarn` for package management. Run `yarn type-check`, `yarn lint`, and relevant tests for code changes. Use `yarn db:migrate:local` for local data. Projects live only on production: local reads production's published projects through `PROJECTS_SOURCE_URL` and cannot create or edit them, so never add test projects locally; `yarn cf:preview` provides the complete local CMS with real email OTP delivery. Production deploy commands require an explicit request. Never expose environment values in output.
 
+## Scoped rules and working files
+
+- Before you create or edit a file, read each `AGENTS.md` from the repository root down to that file's folder; the nearest one wins on conflict. `docs/AGENTS.md` covers documentation and decision records. `src/AGENTS.md` covers code comments for application code, and `scripts/` and `workers/` follow it too. Feature folders add their own rules.
+- Edit the existing file in place. Git keeps earlier versions, so one file per module is enough.
+- Report results in chat. Create a new document only when the user asks for one, under `docs/` or the folder the user names.
+- Put experiments and throwaway scripts in the system temp or session scratchpad directory, and delete any scratch file you created inside the repo before you finish.
+
 ## Architecture and reuse
 
 - Follow typed contract → pure domain policy → runtime adapter → thin route/UI composition. Keep SQL and Cloudflare bindings under server-owned data adapters; validate external JSON at runtime.

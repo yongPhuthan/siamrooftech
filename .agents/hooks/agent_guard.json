@@ -1,0 +1,3 @@
+{
+  "doc_allowed_prefixes": ["docs/", "outputs/", ".claude/", ".agents/", ".codex/", ".gemini/", ".github/", ".serena/"]
+}
