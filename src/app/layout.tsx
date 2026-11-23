@@ -1,6 +1,7 @@
 import { GoogleAnalytics } from "@next/third-parties/google";
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import Script from "next/script";
 import { Suspense } from "react";
 import "./globals.css";
 import AttributionCapture from "./components/AttributionCapture";
@@ -141,6 +142,11 @@ export default function RootLayout({
       </head>
       {process.env.NODE_ENV === "production" && process.env.NEXT_PUBLIC_GA4_MEASUREMENT_ID ? (
         <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA4_MEASUREMENT_ID} />
+      ) : null}
+      {process.env.NODE_ENV === "production" && process.env.NEXT_PUBLIC_GOOGLE_ADS_ID ? (
+        <Script id="google-ads-config" strategy="afterInteractive">
+          {`window.dataLayer = window.dataLayer || []; window.gtag = window.gtag || function gtag(){window.dataLayer.push(arguments);}; window.gtag('config', ${JSON.stringify(process.env.NEXT_PUBLIC_GOOGLE_ADS_ID)});`}
+        </Script>
       ) : null}
       {/* Bottom padding clears the mobile sticky LINE bar; the desktop
           floating button is a small pill and needs no reserved space. */}

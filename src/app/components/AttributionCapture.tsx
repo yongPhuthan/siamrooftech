@@ -70,12 +70,12 @@ export default function AttributionCapture() {
       }
     };
 
-    document.addEventListener('click', handleTrackedContactClick);
-    document.addEventListener('click', handleOpenAILeadClick);
+    document.addEventListener('click', handleTrackedContactClick, true);
+    document.addEventListener('click', handleOpenAILeadClick, true);
 
     return () => {
-      document.removeEventListener('click', handleTrackedContactClick);
-      document.removeEventListener('click', handleOpenAILeadClick);
+      document.removeEventListener('click', handleTrackedContactClick, true);
+      document.removeEventListener('click', handleOpenAILeadClick, true);
     };
   }, []);
 
