@@ -166,8 +166,26 @@ export const trackLineClick = (position: string = 'unknown') => {
     lead_type: 'line',
     conversion_priority: 'secondary',
     position,
+    transport_type: 'beacon',
     ...getFunnelContext(),
   });
+
+  const adsId = process.env.NEXT_PUBLIC_GOOGLE_ADS_ID;
+  const lineLabel = process.env.NEXT_PUBLIC_GOOGLE_ADS_LINE_CONVERSION_LABEL;
+  if (typeof window !== 'undefined' && adsId && lineLabel) {
+    const payload = {
+      send_to: `${adsId}/${lineLabel}`,
+      value: 1,
+      currency: 'THB',
+      transport_type: 'beacon',
+    };
+    const w = window as Window & { gtag?: (...args: unknown[]) => void };
+    if (typeof w.gtag === 'function') {
+      w.gtag('event', 'conversion', payload);
+    } else {
+      sendGAEvent('event', 'conversion', payload);
+    }
+  }
 };
 
 export const trackPhoneClick = (phoneNumber: string, position: string = 'unknown') => {
@@ -179,6 +197,7 @@ export const trackPhoneClick = (phoneNumber: string, position: string = 'unknown
     conversion_priority: 'secondary',
     phone_number: phoneNumber,
     position,
+    transport_type: 'beacon',
     value: 1,
   });
 };
