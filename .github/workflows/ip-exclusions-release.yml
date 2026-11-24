@@ -1,0 +1,119 @@
+name: Release Siamrooftech IP exclusions
+run-name: IP exclusions ${{ inputs.mode }} ${{ github.sha }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm_main_sha:
+        required: true
+        type: string
+        description: Full main commit SHA with a successful staging release
+      mode:
+        required: true
+        type: choice
+        options: [audit, live, off]
+      campaign_ids:
+        required: true
+        type: string
+        description: Comma-separated approved Siamrooftech Search campaign IDs
+
+permissions:
+  contents: read
+
+concurrency:
+  group: siamrooftech-ip-exclusions
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Verify release inputs and staging evidence
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REQUESTED_SHA: ${{ inputs.confirm_main_sha }}
+          MODE: ${{ inputs.mode }}
+          CAMPAIGN_IDS: ${{ inputs.campaign_ids }}
+        run: |
+          test "$REQUESTED_SHA" = "$GITHUB_SHA"
+          [[ "$CAMPAIGN_IDS" =~ ^[1-9][0-9]*(,[1-9][0-9]*){5}$ ]]
+          test "$(tr ',' '\n' <<< "$CAMPAIGN_IDS" | sort -u | wc -l | tr -d ' ')" = 6
+          run=$(gh api "repos/$GITHUB_REPOSITORY/actions/workflows/ci.yml/runs?branch=main&event=push&status=success&head_sha=$GITHUB_SHA&per_page=1" --jq '.workflow_runs[0].id')
+          test -n "$run"
+          result=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$run/jobs" --jq '.jobs[] | select(.name == "staging-deployment") | .conclusion')
+          test "$result" = success
+          if [ "$MODE" = live ]; then
+            audit=$(gh api "repos/$GITHUB_REPOSITORY/actions/workflows/ip-exclusions-release.yml/runs?branch=main&event=workflow_dispatch&status=success&head_sha=$GITHUB_SHA" --jq '.workflow_runs[] | select(.display_title == ("IP exclusions audit " + .head_sha)) | .id' | head -1)
+            test -n "$audit"
+          fi
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22
+          cache: yarn
+      - run: corepack enable
+      - run: yarn install --frozen-lockfile --non-interactive
+      - run: node --test workers/ip-exclusions/*.test.mjs
+      - run: |
+          yarn wrangler deploy --dry-run -c workers/ip-exclusions/blocker.wrangler.jsonc
+          yarn wrangler deploy --dry-run -c workers/ip-exclusions/edge.wrangler.jsonc
+
+  deploy:
+    needs: validate
+    runs-on: ubuntu-latest
+    environment: Production
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22
+          cache: yarn
+      - run: corepack enable
+      - run: yarn install --frozen-lockfile --non-interactive
+      - name: Deploy approved worker mode
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          MODE: ${{ inputs.mode }}
+          CAMPAIGN_IDS: ${{ inputs.campaign_ids }}
+        run: |
+          settings="https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/workers/scripts/siamrooftech-ip-block-google/settings"
+          read_settings() {
+            curl --fail --silent --show-error --max-time 20 -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" "$settings"
+          }
+          if [ "$MODE" = live ]; then
+            read_settings | jq -e --arg ids "$CAMPAIGN_IDS" '
+              .result.bindings
+              | any(.name == "IP_EXCLUSIONS_MODE" and .text == "audit")
+              and any(.name == "CAMPAIGN_IDS" and .text == $ids)
+            ' > /dev/null
+          fi
+          yarn wrangler deploy -c workers/ip-exclusions/blocker.wrangler.jsonc --keep-vars \
+            --var "IP_EXCLUSIONS_MODE:$MODE" --var "CAMPAIGN_IDS:$CAMPAIGN_IDS"
+          read_settings | jq -e --arg mode "$MODE" --arg ids "$CAMPAIGN_IDS" '
+            .result.bindings
+            | any(.name == "IP_EXCLUSIONS_MODE" and .text == $mode)
+            and any(.name == "CAMPAIGN_IDS" and .text == $ids)
+            and any(.name == "CUSTOMER_ID")
+            and any(.name == "GOOGLE_ADS_REFRESH_TOKEN" and .type == "secret_text")
+          ' > /dev/null
+          if [ "$MODE" = audit ]; then
+            yarn wrangler deploy -c workers/ip-exclusions/edge.wrangler.jsonc
+          fi
+      - name: Check the live route with an empty POST
+        run: |
+          headers=$(mktemp)
+          status=$(curl --fail --silent --show-error --max-time 15 --dump-header "$headers" --output /dev/null \
+            -H 'Origin: https://www.siamrooftech.com' --data '' --write-out '%{http_code}' \
+            https://www.siamrooftech.com/__ipb)
+          test "$status" = 204
+          grep -qi '^x-ipb-version: verified-click-v1' "$headers"
+          grep -qi '^x-ipb: no-click-id' "$headers"

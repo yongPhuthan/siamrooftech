@@ -33,6 +33,7 @@ jobs:
       - run: yarn test:crm
       - run: yarn line:type-check
       - run: yarn test:admin
+      - run: node --test workers/ip-exclusions/*.test.mjs
       - run: yarn test:seed
       - run: yarn ui:qa
       - run: yarn line-contact:qa
