@@ -1,0 +1,15 @@
+{
+  "name": "siamrooftech-ip-block-google",
+  "main": "blocker.mjs",
+  "compatibility_date": "2025-09-01",
+  "workers_dev": false,
+  "preview_urls": false,
+  "keep_vars": true,
+  "observability": { "enabled": true },
+  "triggers": { "crons": ["0 20 * * *"] },
+  "durable_objects": {
+    "bindings": [{ "name": "CLICK_LEDGER", "class_name": "ClickLedger" }]
+  },
+  "migrations": [{ "tag": "ip-exclusions-v1", "new_sqlite_classes": ["ClickLedger"] }],
+  "vars": { "IP_EXCLUSIONS_MODE": "off", "VALIDATE_ONLY": "true" }
+}

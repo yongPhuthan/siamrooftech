@@ -90,6 +90,14 @@ if an older ADS_SYNC_MODE secret says live. Worker rollback does not restore
 chat data or files. Real remote migration, release and Google activation remain
 separate explicit operations; this change does not authorize them.
 
+## Reviewed Google Ads IP exclusions release
+
+`ip-exclusions-release.yml` is a manual, main-only GitHub Actions release for the two standalone IP exclusion Workers. It takes the exact SHA that passed staging and six distinct approved Search campaign IDs. The Production Environment review applies to each release. The public Worker serves the existing `/__ipb` route and the private Worker reuses its Cloudflare-held Google Ads credentials. To roll back creation, dispatch `off` with the reviewed SHA and campaign list. Expiration of criteria that the Worker already owns continues in that mode.
+
+Start with `audit`, which checks click IDs and calculates candidate exclusions. Review `ip_exclusions_verified` events in the private Worker's Cloudflare logs before dispatching `live` with the same SHA and campaign list. The release verifies the existing audit mode and campaign list before promotion. The empty POST smoke verifies route ownership. Google Ads criteria or a successful API response establish that an exclusion was written.
+
+The Worker accepts a `gclid` from the current paid landing page, verifies it in the account's ClickView, and evaluates only the approved campaigns that are still enabled Search campaigns. In live mode it creates individual public IPv6 exclusions for 30 days. The queue caps new submissions and retries for at most six hours. The ledger stores Google Ads criterion resource names for expiry and drops raw click IDs and IP addresses when processing ends. It expires only criteria whose creation was acknowledged by Google Ads and recorded in the ledger. If an external write succeeds but its response or local record is lost, reconcile the uncertain entry in Google Ads before removing it. The previous Worker version's `VALIDATE_ONLY` flag remains true to keep its expiry routine in trial mode if that version is restored.
+
 ## Worker compatibility flags
 
 `wrangler.jsonc` sets `no_handle_cross_request_promise_resolution` for every environment. With the behavior enabled by the current `compatibility_date`, a promise shared across concurrent requests in one isolate (Next.js/OpenNext lazy initialization and cache de-duplication) never settles once the request that created it ends. Production then cancels the waiting request with "Worker's code had hung and would never generate a response". Remove the flag only after confirming OpenNext no longer shares promises across requests. Keep `wrangler.jsonc` strict JSON: deployment scripts and `next.config.mjs` parse it with `JSON.parse`, so comments break the build.
