@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import edge from './edge.mjs';
 import { createAdsClient } from './google-ads.mjs';
-import { bangkokDate, candidatesFor, landingClick, publicIpv6, retentionMs, retryAt } from './policy.mjs';
+import { bangkokDate, candidatesFor, ipv6RateKey, landingClick, publicIpv6, retentionMs, retryAt } from './policy.mjs';
 
 const landing = 'https://www.siamrooftech.com/lp/google-ads/electric-awning';
 const clickId = 'ExampleGoogleClickId12345';
@@ -18,6 +18,8 @@ test('accepts one Google click ID on the paid landing page', () => {
 
 test('keeps a single public IPv6 address and skips shared IPv4', () => {
   assert.equal(publicIpv6('2405:1234:0000:0000::0088'), ip);
+  assert.equal(ipv6RateKey(ip), ipv6RateKey('2405:1234::99'));
+  assert.equal(ipv6RateKey('2405::3:4:5:6:7'), '2405:0:0:3');
   for (const input of ['2405:1234::/64', '192.0.2.15', '::ffff:c000:20f', 'fd00::1', '2001:db8::1']) {
     assert.equal(publicIpv6(input), null, input);
   }
@@ -27,10 +29,13 @@ test('keeps a single public IPv6 address and skips shared IPv4', () => {
 test('same-origin beacons enqueue an exact address and plain website visits do not', async () => {
   const enqueued = [];
   const pending = [];
-  const env = { RATE_LIMITER: { limit: async () => ({ success: true }) },
+  const env = { RATE_LIMITER: { limit: async ({ key }) => {
+    assert.equal(key, '2405:1234:0:0');
+    return { success: true };
+  } },
     BLOCKER: { add: async (signal) => enqueued.push(signal) } };
   const dispatch = (body, origin = 'https://www.siamrooftech.com') => edge.fetch(new Request(
-    'https://www.siamrooftech.com/__ipb', { method: 'POST', body, headers: { Origin: origin, 'CF-Connecting-IP': ip } },
+    'https://www.siamrooftech.com/__ipb', { method: 'POST', body, headers: { Origin: origin, 'CF-Connecting-IP': ip, 'CF-Connecting-IPv6': '2405:9999::99' } },
   ), env, { waitUntil: (job) => pending.push(job) });
   assert.equal((await dispatch(landing)).headers.get('x-ipb'), 'no-click-id');
   assert.equal((await dispatch(`${landing}?gclid=${clickId}`, 'https://other.example')).headers.get('x-ipb'), 'origin-skipped');

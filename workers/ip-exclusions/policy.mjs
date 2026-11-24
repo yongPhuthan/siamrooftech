@@ -28,6 +28,14 @@ export function publicIpv6(raw) {
   }
 }
 
+export function ipv6RateKey(ip) {
+  const [first, last] = ip.split('::');
+  const head = first.split(':');
+  const tail = last ? last.split(':') : [];
+  const omitted = Array(8 - head.length - tail.length).fill('0');
+  return [...head, ...omitted, ...tail].slice(0, 4).join(':');
+}
+
 export function isClickId(value) {
   return typeof value === 'string' && clickIdPattern.test(value);
 }

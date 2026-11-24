@@ -1,4 +1,4 @@
-import { landingClick, publicIpv6 } from './policy.mjs';
+import { landingClick, publicIpv6, ipv6RateKey } from './policy.mjs';
 
 const path = '/__ipb';
 const origin = 'https://www.siamrooftech.com';
@@ -34,10 +34,9 @@ export default {
     }
     const gclid = landingClick(body + decoder.decode());
     if (!gclid) return done('no-click-id');
-    const ip = publicIpv6(request.headers.get('CF-Connecting-IPv6') ||
-      request.headers.get('CF-Connecting-IP'));
+    const ip = publicIpv6(request.headers.get('CF-Connecting-IP'));
     if (!ip) return done('not-ipv6');
-    const { success } = await env.RATE_LIMITER.limit({ key: ip });
+    const { success } = await env.RATE_LIMITER.limit({ key: ipv6RateKey(ip) });
     if (!success) return done('rate-limited');
     ctx.waitUntil(env.BLOCKER.add({ ip, gclid }).catch(() => {
       console.error('ip_exclusions_enqueue_failed');
