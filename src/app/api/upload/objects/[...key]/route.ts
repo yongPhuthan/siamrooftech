@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { verifyAdminRequest, unauthorizedResponse } from '@/lib/api-auth';
+import { unauthorizedResponse } from '@/lib/api-auth';
+import { verifyProjectEditorRequest } from '@/lib/projects-agent-auth';
 import { getCmsRuntimeEnv } from '@/lib/database/runtime';
 
 const MAX_IMAGE_BYTES = 35 * 1024 * 1024;
@@ -29,7 +30,7 @@ async function readFixedSizeBody(body: ReadableStream<Uint8Array>, expectedSize:
 }
 
 export async function PUT(request: Request, { params }: { params: Promise<{ key: string[] }> }) {
-  if (!(await verifyAdminRequest(request))) return unauthorizedResponse();
+  if (!(await verifyProjectEditorRequest(request))) return unauthorizedResponse();
   const { key: parts } = await params;
   const key = parts.join('/');
   const [variant, filename] = parts;

@@ -1,10 +1,11 @@
 import { NextResponse } from 'next/server';
-import { verifyAdminRequest, unauthorizedResponse } from '@/lib/api-auth';
+import { unauthorizedResponse } from '@/lib/api-auth';
+import { verifyProjectEditorRequest } from '@/lib/projects-agent-auth';
 import { getAdminProjectBySlug, publishProject } from '@/features/projects/server/repository';
 import { revalidatePublicContent } from '@/lib/public-content-revalidation';
 
 export async function POST(request: Request, { params }: { params: Promise<{ slug: string }> }) {
-  if (!(await verifyAdminRequest(request))) return unauthorizedResponse();
+  if (!(await verifyProjectEditorRequest(request))) return unauthorizedResponse();
   const { slug } = await params;
   const body = await request.json().catch(() => null) as { expectedRevision?: unknown } | null;
   if (!body || typeof body.expectedRevision !== 'number') return NextResponse.json({ error: 'Expected revision is required' }, { status: 400 });
