@@ -48,7 +48,7 @@ Still required before production can deploy:
 
 Do not store database exports, OTPs, drafts, cookies, or backups in GitHub. GitHub Actions environment values are separate from Cloudflare runtime secrets. Do not infer Access, DNS, secret, or data readiness from local files.
 
-The Worker also needs target-specific Cloudflare runtime secrets before CMS/auth/API use: `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, `ADMIN_ALLOWED_EMAILS`, `REVALIDATION_SECRET_TOKEN`, `GOOGLE_GENAI_API_KEY`, `LEADS_INTAKE_TOKEN`, `CHAT_HISTORY_READ_TOKEN`, and `CHAT_HISTORY_WRITE_TOKEN`. Set `BETTER_AUTH_URL` to the target's exact origin and allow only the owner's verified mailbox in `ADMIN_ALLOWED_EMAILS`. Keep these secrets in Cloudflare, not in the build artifact or GitHub workflow variables.
+The Worker also needs target-specific Cloudflare runtime secrets before CMS/auth/API use: `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, `ADMIN_ALLOWED_EMAILS`, `REVALIDATION_SECRET_TOKEN`, `GOOGLE_GENAI_API_KEY`, `LEADS_INTAKE_TOKEN`, `CHAT_HISTORY_READ_TOKEN`, and `CHAT_HISTORY_WRITE_TOKEN`. Set `BETTER_AUTH_URL` to the target's exact origin and allow only the owner's verified mailbox in `ADMIN_ALLOWED_EMAILS`. Keep these secrets in Cloudflare, not in the build artifact or GitHub workflow variables. `PROJECTS_AGENT_TOKEN` is optional: when set (at least 32 characters), the owner's local projects agent may create, edit, publish and unpublish projects and upload images with `Authorization: Bearer`, and nothing else; leave it unset to disable that access, and rotate it by replacing the secret.
 
 Do not infer Access, DNS, required reviewer, secret, or build status from local files. Verify each in the actual service before enabling a deploy switch.
 

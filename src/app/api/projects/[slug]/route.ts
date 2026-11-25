@@ -1,6 +1,7 @@
 import { revalidatePublicContent } from '@/lib/public-content-revalidation';
 import { NextResponse } from 'next/server';
 import { verifyAdminRequest, unauthorizedResponse } from '@/lib/api-auth';
+import { verifyProjectEditorRequest } from '@/lib/projects-agent-auth';
 import { getPublishedProjectBySlug, getAdminProjectBySlug, saveProjectDraft, deleteProjectBySlug } from '@/features/projects/server/repository';
 
 export const dynamic = 'force-dynamic';
@@ -20,7 +21,7 @@ export async function GET(_request: Request, { params }: Context) {
 }
 
 export async function PATCH(request: Request, { params }: Context) {
-  if (!(await verifyAdminRequest(request))) return unauthorizedResponse();
+  if (!(await verifyProjectEditorRequest(request))) return unauthorizedResponse();
   const { slug } = await params;
   const current = await getAdminProjectBySlug(slug);
   if (!current) return NextResponse.json({ error: 'Project not found' }, { status: 404 });

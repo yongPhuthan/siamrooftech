@@ -1,11 +1,12 @@
-import { verifyAdminRequest, unauthorizedResponse } from '@/lib/api-auth';
+import { unauthorizedResponse } from '@/lib/api-auth';
+import { verifyProjectEditorRequest } from '@/lib/projects-agent-auth';
 import { NextResponse } from 'next/server';
 import sharp from 'sharp';
 
 const WATERMARK_TEXT = 'LINE:@ROOFTECH';
 
 export async function POST(request: Request) {
-  if (!(await verifyAdminRequest(request))) return unauthorizedResponse();
+  if (!(await verifyProjectEditorRequest(request))) return unauthorizedResponse();
   try {
     const formData = await request.formData();
     const file = formData.get('file');
