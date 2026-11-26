@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import type { Project, ProjectImage } from '@/features/projects/types';
-import { displayProjectImages, projectName } from '@/features/projects/project-presentation';
+import { orderedProjectImages, projectName } from '@/features/projects/project-presentation';
 import { getProjectPath } from '@/lib/project-url';
 
 type ProjectShowcaseProps = {
@@ -38,7 +38,7 @@ function MoreOverlay({ count }: { count: number }) {
 export default function ProjectShowcase({ projects }: ProjectShowcaseProps) {
   const rows = projects.flatMap((project) => {
     const href = getProjectPath(project);
-    const images = displayProjectImages(project);
+    const images = orderedProjectImages(project);
     return href && images.length ? [{ project, href, images, heading: projectName(project) }] : [];
   });
 

@@ -10,11 +10,11 @@ import ProjectVideos from "../../components/projects/ProjectVideos";
 import type { Project } from '@/features/projects/types';
 import { projectsRepository, getPublishedProjectBySlug } from "@/features/projects/server/repository";
 import {
-  displayProjectImages,
   projectCover,
   projectDescriptionText,
   projectHeading,
   projectMetaDescription,
+  orderedProjectImages,
   projectSize,
 } from "@/features/projects/project-presentation";
 import { getServiceLinksForProject } from "@/lib/service-linking";
@@ -79,7 +79,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
   if (!project || !projectPath) notFound();
 
   const heading = projectHeading(project);
-  const images = displayProjectImages(project);
+  const images = orderedProjectImages(project);
   const description = projectDescriptionText(project);
   const size = projectSize(project);
   const videos = sortVideos(getVideos(project));

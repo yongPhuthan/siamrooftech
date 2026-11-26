@@ -19,6 +19,9 @@ export function assessConfig(config, target, { deploy = false, accessReady = fal
   assert.equal(env.vars?.DEPLOY_ENV, target, `${target}: DEPLOY_ENV mismatch`);
   assert.equal(env.vars?.SITE_ORIGIN, expected.origin, `${target}: SITE_ORIGIN mismatch`);
   assert.equal(env.vars?.INDEX_POLICY, expected.index, `${target}: INDEX_POLICY mismatch`);
+  // Projects are edited only on production; local reads production's published projects instead of its own.
+  if (target === 'production') assert.equal(env.vars?.PROJECTS_SOURCE_URL, undefined, 'production must read its own projects');
+  if (target === 'local') assert.equal(env.vars?.PROJECTS_SOURCE_URL, EXPECTED.production.origin, 'local must read projects from production');
   if (target === 'production' && deploy && !productionReady) {
     throw new Error('Production cutover is not authorized yet: complete the data, media, backup, routing, and rollback readiness checks first.');
   }

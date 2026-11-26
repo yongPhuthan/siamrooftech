@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import { verifyAdminRequest, unauthorizedResponse } from '@/lib/api-auth';
 import { verifyProjectEditorRequest } from '@/lib/projects-agent-auth';
 import { getPublishedProjectBySlug, getAdminProjectBySlug, saveProjectDraft, deleteProjectBySlug } from '@/features/projects/server/repository';
+import { projectsReadOnly, projectsReadOnlyResponse, publicProject } from '@/features/projects/server/source';
 
 export const dynamic = 'force-dynamic';
 
@@ -13,7 +14,7 @@ export async function GET(_request: Request, { params }: Context) {
     const { slug } = await params;
     const project = await getPublishedProjectBySlug(slug);
     if (!project) return NextResponse.json({ error: 'Project not found' }, { status: 404 });
-    return NextResponse.json(project, { headers: { 'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=3600' } });
+    return NextResponse.json(publicProject(project), { headers: { 'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=3600' } });
   } catch (error) {
     console.error('Project API read failed', error);
     return NextResponse.json({ error: 'Project data is unavailable' }, { status: 503 });
@@ -21,6 +22,7 @@ export async function GET(_request: Request, { params }: Context) {
 }
 
 export async function PATCH(request: Request, { params }: Context) {
+  if (projectsReadOnly()) return projectsReadOnlyResponse();
   if (!(await verifyProjectEditorRequest(request))) return unauthorizedResponse();
   const { slug } = await params;
   const current = await getAdminProjectBySlug(slug);
@@ -38,6 +40,7 @@ export async function PATCH(request: Request, { params }: Context) {
 }
 
 export async function DELETE(request: Request, { params }: Context) {
+  if (projectsReadOnly()) return projectsReadOnlyResponse();
   if (!(await verifyAdminRequest(request))) return unauthorizedResponse();
   const { slug } = await params;
   const body = await request.json().catch(() => null) as { expectedRevision?: unknown } | null;

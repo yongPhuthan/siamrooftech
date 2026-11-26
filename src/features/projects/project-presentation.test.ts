@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { ProjectPayloadSchema } from './project-schema';
-import { displayProjectImages, projectHeading, projectMetaDescription, projectName, projectSlugBase } from './project-presentation';
+import { orderedProjectImages, projectHeading, projectMetaDescription, projectName, projectSlugBase } from './project-presentation';
 
 const image = (id: string, type: 'after' | 'before' | 'detail', order: number) => ({
   id, project_id: 'p1', title: '', order_index: order, type,
@@ -34,9 +34,8 @@ describe('photo-first projects', () => {
     expect(projectMetaDescription({ category: 'คาเฟ่', type: 'สองระบบ (มือหมุน + มอเตอร์ไฟฟ้า)' })).toBe('ผลงานติดตั้งกันสาดสองระบบ (มือหมุน + มอเตอร์ไฟฟ้า) ที่คาเฟ่');
   });
 
-  it('shows after-photos first and renders same-site uploads by path', () => {
-    const images = displayProjectImages({ images: [image('b', 'before', 0), image('a', 'after', 1)] });
+  it('shows after-photos first', () => {
+    const images = orderedProjectImages({ images: [image('b', 'before', 0), image('a', 'after', 1)] });
     expect(images.map((item) => item.id)).toEqual(['a', 'b']);
-    expect(images[0].original_size).toBe('/media/original/a.jpg');
   });
 });

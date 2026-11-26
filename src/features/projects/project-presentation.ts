@@ -77,34 +77,10 @@ export function projectSortTime(project: Pick<Project, 'year' | 'created_at'>): 
   return project.created_at ? new Date(project.created_at).getTime() : 0;
 }
 
-const SITE_MEDIA_HOSTS = new Set(['www.siamrooftech.com', 'siamrooftech.com', '127.0.0.1', 'localhost']);
-
-/**
- * Uploads are served by this site under /media/ and saved as absolute URLs. next/image only optimizes configured
- * remote hosts, so a same-site media URL is rendered by its path; other hosts pass through unchanged.
- */
-export function projectImageSrc(url: string): string {
-  try {
-    const parsed = new URL(url);
-    return SITE_MEDIA_HOSTS.has(parsed.hostname) && parsed.pathname.startsWith('/media/') ? parsed.pathname : url;
-  } catch {
-    return url;
-  }
-}
-
-/** The images in display order with every size made renderable by next/image. */
-export function displayProjectImages(project: Pick<Project, 'images'>): Project['images'] {
-  return orderedProjectImages(project).map((image) => ({
-    ...image,
-    small_size: projectImageSrc(image.small_size),
-    original_size: projectImageSrc(image.original_size),
-    ...(image.medium_size ? { medium_size: projectImageSrc(image.medium_size) } : {}),
-  }));
-}
 
 /** The cover photo to show in cards: the saved featured image, else the first photo in display order. */
 export function projectCover(project: Pick<Project, 'images' | 'featured_image'>): string | undefined {
   const [first] = orderedProjectImages(project);
   const cover = project.featured_image || first?.medium_size || first?.original_size;
-  return cover ? projectImageSrc(cover) : undefined;
+  return cover || undefined;
 }
