@@ -3,8 +3,10 @@ import { unauthorizedResponse } from '@/lib/api-auth';
 import { verifyProjectEditorRequest } from '@/lib/projects-agent-auth';
 import { getAdminProjectBySlug, unpublishProject } from '@/features/projects/server/repository';
 import { revalidatePublicContent } from '@/lib/public-content-revalidation';
+import { projectsReadOnly, projectsReadOnlyResponse } from '@/features/projects/server/source';
 
 export async function POST(request: Request, { params }: { params: Promise<{ slug: string }> }) {
+  if (projectsReadOnly()) return projectsReadOnlyResponse();
   if (!(await verifyProjectEditorRequest(request))) return unauthorizedResponse();
   const { slug } = await params;
   const body = await request.json().catch(() => null) as { expectedRevision?: unknown } | null;

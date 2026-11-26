@@ -4,6 +4,7 @@ import { useState } from "react";
 import type { Project } from '@/features/projects/types';
 import { getAfterImages, getBeforeImages } from "../../../lib/project-image-utils";
 import { getProjectPath } from "../../../lib/project-url";
+import { projectHeading, projectSize } from '@/features/projects/project-presentation';
 
 interface ProjectsListProps {
   projects: Project[];
@@ -102,7 +103,7 @@ export default function ProjectsList({ projects, onEdit, onDelete, onTogglePubli
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900">
-                        {project.width} x {project.extension} เมตร
+                        {projectSize(project) ?? '—'}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -111,10 +112,10 @@ export default function ProjectsList({ projects, onEdit, onDelete, onTogglePubli
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {project.location}
+                      {project.location || '—'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {project.year}
+                      {project.year || '—'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className="inline-flex rounded-md border border-gray-200 px-2 py-0.5 text-xs font-medium text-gray-700">
@@ -210,7 +211,7 @@ export default function ProjectsList({ projects, onEdit, onDelete, onTogglePubli
                   )}
                   <div className="min-w-0 flex-1">
                     <h3 className="truncate text-md font-medium text-gray-900">
-               หน้ากว้าง {project.width} ม. x ยื่นออก {project.extension} ม.
+                      {projectHeading(project)}
                     </h3>
                     {/* <p className="truncate text-sm text-gray-500">{project.slug}</p> */}
 
@@ -236,16 +237,16 @@ export default function ProjectsList({ projects, onEdit, onDelete, onTogglePubli
                   <div>
                     <span className="text-gray-500">ขนาด:</span>
                     <span className="ml-1 font-medium text-gray-900">
-                      {project.width} x {project.extension} ม.
+                      {projectSize(project) ?? '—'}
                     </span>
                   </div>
                   <div>
                     <span className="text-gray-500">ปี:</span>
-                    <span className="ml-1 font-medium text-gray-900">{project.year}</span>
+                    <span className="ml-1 font-medium text-gray-900">{project.year || '—'}</span>
                   </div>
                   <div>
                     <span className="text-gray-500">สถานที่:</span>
-                    <span className="ml-1 font-medium text-gray-900">{project.location}</span>
+                    <span className="ml-1 font-medium text-gray-900">{project.location || '—'}</span>
                   </div>
                   <div>
                     <span className="text-gray-500">ประเภท:</span>

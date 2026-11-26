@@ -59,6 +59,7 @@
   "vars": {
     "DEPLOY_ENV": "local",
     "SITE_ORIGIN": "http://localhost:3000",
+    "PROJECTS_SOURCE_URL": "https://www.siamrooftech.com",
     "INDEX_POLICY": "noindex",
     "AUTH_EMAIL_DELIVERY": "disabled",
     "AUTH_EMAIL_FROM": "noreply@siamrooftech.com",

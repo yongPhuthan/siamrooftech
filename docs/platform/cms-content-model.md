@@ -31,7 +31,7 @@ The public-project baseline is imported from `src/data/projects.ts`. It contains
 
 1. Install with the pinned Yarn version and copy `.dev.vars.example` to `.dev.vars`.
 2. Generate a local `BETTER_AUTH_SECRET` of at least 32 characters and set `BETTER_AUTH_URL=http://localhost:3000`.
-3. Apply CMS and cache migrations with `yarn db:migrate:local` and `yarn db:migrate:cache:local`, then import published baseline projects with `yarn db:seed:local`.
+3. Apply CMS and cache migrations with `yarn db:migrate:local` and `yarn db:migrate:cache:local`, Local pages read projects from production (`PROJECTS_SOURCE_URL` in `wrangler.jsonc`, served by `/api/projects/published`) and the project API is read-only there; `yarn db:seed:local` is only for CI's database tests.
 4. Configure `ADMIN_ALLOWED_EMAILS` and the native email binding, then register the first administrator through the email OTP form. See `docs/security/admin-access.md`.
 5. Run `yarn dev` and open an admin page to register through email OTP. D1/R2 stay local; the explicitly configured email binding sends real verification emails.
 

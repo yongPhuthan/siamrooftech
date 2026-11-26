@@ -3,16 +3,18 @@ import { z } from 'zod';
 export const ProjectPayloadSchema = z.object({
   id: z.string().min(1),
   title: z.string().min(1).max(160),
-  width: z.number().positive(),
-  extension: z.number().positive(),
-  description: z.union([z.string(), z.array(z.string())]),
   category: z.string().min(1).max(80),
-  location: z.string().min(1).max(180),
-  year: z.string().regex(/^\d{4}$/),
-  type: z.enum(['ระบบมือหมุน', 'มอเตอร์ไฟฟ้า', 'สองระบบ (มือหมุน + มอเตอร์ไฟฟ้า)']),
-  arms_count: z.enum(['2', '3', '4', '5']),
-  canvas_material: z.enum(['ผ้าอะคริลิคสเปน', 'ผ้าอะคริลิค']),
-  fabric_edge: z.enum(['ตัดเรียบ', 'โค้งลอน', 'ตัดเรียบ + พิมพ์ Logo', 'โค้งลอน + พิมพ์ Logo']),
+  // Photo-first: only category and photos are required. The fields below are optional so a project can be
+  // published from photos alone; older projects keep the values they already have.
+  type: z.enum(['ระบบมือหมุน', 'มอเตอร์ไฟฟ้า', 'สองระบบ (มือหมุน + มอเตอร์ไฟฟ้า)']).optional(),
+  fabric_edge: z.enum(['ตัดเรียบ', 'โค้งลอน', 'ตัดเรียบ + พิมพ์ Logo', 'โค้งลอน + พิมพ์ Logo']).optional(),
+  width: z.number().positive().optional(),
+  extension: z.number().positive().optional(),
+  description: z.union([z.string(), z.array(z.string())]).optional(),
+  location: z.string().max(180).optional(),
+  year: z.string().regex(/^\d{4}$/).optional(),
+  arms_count: z.enum(['2', '3', '4', '5']).optional(),
+  canvas_material: z.enum(['ผ้าอะคริลิคสเปน', 'ผ้าอะคริลิค']).optional(),
   images: z.array(z.object({
     id: z.string().min(1), project_id: z.string().min(1), title: z.string(),
     small_size: z.string().url(), medium_size: z.string().url().optional(), original_size: z.string().url(),
@@ -29,13 +31,7 @@ export const ProjectPayloadSchema = z.object({
   featured_video: z.string().url().optional(),
   created_at: z.string().optional(), updated_at: z.string().optional(),
   proof: z.object({}).passthrough().optional(),
-  timeline: z.array(z.object({}).passthrough()).optional(),
-  testimonial: z.object({}).passthrough().optional(),
-  technicalSpecs: z.object({}).passthrough().optional(),
-  relatedProjects: z.array(z.string()).optional(),
-  client: z.string().optional(), completionDate: z.string().optional(),
-  seoTitle: z.string().optional(), seoDescription: z.string().optional(), seoKeywords: z.array(z.string()).optional(),
-  viewCount: z.number().optional(), lastViewedAt: z.string().optional(),
+  viewCount: z.number().optional(),
 }).passthrough();
 
 export const NewProjectPayloadSchema = ProjectPayloadSchema.omit({ id: true, slug: true }).passthrough();

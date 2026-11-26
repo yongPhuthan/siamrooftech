@@ -2,10 +2,12 @@ import { NextResponse } from 'next/server';
 import { unauthorizedResponse } from '@/lib/api-auth';
 import { verifyProjectEditorRequest } from '@/lib/projects-agent-auth';
 import { createProjectDraft, listAdminProjects } from '@/features/projects/server/repository';
+import { projectsReadOnly, projectsReadOnlyResponse } from '@/features/projects/server/source';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
+  if (projectsReadOnly()) return projectsReadOnlyResponse();
   if (!(await verifyProjectEditorRequest(request))) return unauthorizedResponse();
   try {
     return NextResponse.json(await listAdminProjects(), { headers: { 'Cache-Control': 'private, no-store' } });
@@ -16,6 +18,7 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
+  if (projectsReadOnly()) return projectsReadOnlyResponse();
   if (!(await verifyProjectEditorRequest(request))) return unauthorizedResponse();
   const body = await request.json().catch(() => null);
   try {

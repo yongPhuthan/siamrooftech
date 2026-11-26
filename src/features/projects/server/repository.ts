@@ -4,6 +4,8 @@ import { randomUUID, createHash } from 'node:crypto';
 import { getCmsRuntimeEnv } from '@/lib/database/runtime';
 import { NewProjectPayloadSchema, ProjectPayloadSchema } from '../project-schema';
 import type { Project } from '../types';
+import { projectSlugBase } from '../project-presentation';
+import { fetchSourceProjects, projectsSourceUrl } from './source';
 
 function parseProject(payload: string, entryId: string, path: string): Project | null {
   let raw: unknown;
@@ -18,11 +20,18 @@ function parseProject(payload: string, entryId: string, path: string): Project |
 // Thrown errors are never cached, so a D1 failure still surfaces as an error.
 const PUBLIC_READ_CACHE = { tags: ['projects'], revalidate: 3600 };
 
+/** The D1 for project writes and admin reads; refused where projects come from production. */
+async function editableDatabase() {
+  if (projectsSourceUrl()) throw new Error('PROJECTS_READ_ONLY');
+  return getCmsRuntimeEnv();
+}
+
 function contentHash(project: Project) {
   return createHash('sha256').update(JSON.stringify(project)).digest('hex');
 }
 
-async function readPublishedProjects(): Promise<Project[]> {
+/** Production's own published projects. The public feed serves these; local and staging never read their D1 for projects. */
+async function readDatabaseProjects(): Promise<Project[]> {
   const { APP_DB } = await getCmsRuntimeEnv();
   const { results } = await APP_DB.prepare("SELECT id, path, payload_json FROM published_content WHERE kind = 'project' ORDER BY content_modified_at DESC, id").all<{ id: string; path: string; payload_json: string }>();
   return results.flatMap((row) => {
@@ -31,23 +40,31 @@ async function readPublishedProjects(): Promise<Project[]> {
   });
 }
 
+async function readPublishedProjects(): Promise<Project[]> {
+  const source = projectsSourceUrl();
+  return source ? fetchSourceProjects(source) : readDatabaseProjects();
+}
+
 async function readPublishedProjectBySlug(slug: string): Promise<Project | null> {
+  if (projectsSourceUrl()) return (await listPublishedProjects()).find((project) => project.slug === slug) ?? null;
   const { APP_DB } = await getCmsRuntimeEnv();
   const row = await APP_DB.prepare("SELECT id, path, payload_json FROM published_content WHERE kind = 'project' AND path = ? LIMIT 1").bind(`/projects/${slug}`).first<{ id: string; path: string; payload_json: string }>();
   return row ? parseProject(row.payload_json, row.id, row.path) : null;
 }
 
+export const listDatabaseProjects = unstable_cache(readDatabaseProjects, ['database-projects'], PUBLIC_READ_CACHE);
 export const listPublishedProjects = unstable_cache(readPublishedProjects, ['published-projects'], PUBLIC_READ_CACHE);
 export const getPublishedProjectBySlug = unstable_cache(readPublishedProjectBySlug, ['published-project-by-slug'], PUBLIC_READ_CACHE);
 
 export async function getPublishedProjectById(id: string): Promise<Project | null> {
+  if (projectsSourceUrl()) return (await listPublishedProjects()).find((project) => project.id === id) ?? null;
   const { APP_DB } = await getCmsRuntimeEnv();
   const row = await APP_DB.prepare("SELECT id, path, payload_json FROM published_content WHERE kind = 'project' AND id = ? LIMIT 1").bind(id).first<{ id: string; path: string; payload_json: string }>();
   return row ? parseProject(row.payload_json, row.id, row.path) : null;
 }
 
 export async function listAdminProjects() {
-  const { APP_DB } = await getCmsRuntimeEnv();
+  const { APP_DB } = await editableDatabase();
   const { results } = await APP_DB.prepare("SELECT e.id, e.revision, d.payload_json AS draft_json, d.proposed_path, p.payload_json AS published_json, p.path AS published_path FROM content_entries e JOIN content_drafts d ON d.entry_id=e.id LEFT JOIN content_publications p ON p.entry_id=e.id WHERE e.kind='project' AND e.deleted_at IS NULL ORDER BY d.saved_at DESC, e.id").all<{ id: string; revision: number; draft_json: string; proposed_path: string | null; published_json: string | null; published_path: string | null }>();
   return results.flatMap((row) => {
     const project = parseProject(row.draft_json, row.id, row.proposed_path || `/projects/${JSON.parse(row.draft_json).slug}`);
@@ -59,11 +76,9 @@ export async function listAdminProjects() {
 export async function createProjectDraft(input: unknown): Promise<Project> {
   const parsed = NewProjectPayloadSchema.safeParse(input);
   if (!parsed.success) throw new Error('INVALID_PROJECT');
-  const { APP_DB } = await getCmsRuntimeEnv();
+  const { APP_DB } = await editableDatabase();
   const now = new Date().toISOString();
-  const prefix = parsed.data.type === 'มอเตอร์ไฟฟ้า' ? 'electric-awning' : 'retractable-awning';
-  const size = `${parsed.data.width}x${parsed.data.extension}`.replaceAll('.', '-');
-  const base = `${prefix}-${size}`;
+  const base = projectSlugBase(parsed.data);
   const sequence = await APP_DB.prepare('INSERT INTO project_slug_sequences (base, high_water_mark) VALUES (?, 1) ON CONFLICT(base) DO UPDATE SET high_water_mark=high_water_mark+1 RETURNING high_water_mark').bind(base).first<{ high_water_mark: number }>();
   if (!sequence) throw new Error('SLUG_ALLOCATION_FAILED');
   const project = { ...parsed.data, id: randomUUID(), slug: `${base}-${sequence.high_water_mark}`, created_at: now, updated_at: now } as Project;
@@ -81,7 +96,7 @@ export async function createProjectDraft(input: unknown): Promise<Project> {
 export async function saveProjectDraft(id: string, expectedRevision: number, input: unknown): Promise<Project> {
   const parsed = ProjectPayloadSchema.safeParse(input);
   if (!parsed.success || parsed.data.id !== id) throw new Error('INVALID_PROJECT');
-  const { APP_DB } = await getCmsRuntimeEnv();
+  const { APP_DB } = await editableDatabase();
   const current = await APP_DB.prepare("SELECT e.revision, d.proposed_path, p.path AS published_path FROM content_entries e JOIN content_drafts d ON d.entry_id=e.id LEFT JOIN content_publications p ON p.entry_id=e.id WHERE e.id=? AND e.kind='project' AND e.deleted_at IS NULL").bind(id).first<{ revision: number; proposed_path: string | null; published_path: string | null }>();
   if (!current) throw new Error('PROJECT_NOT_FOUND');
   if (current.revision !== expectedRevision) throw new Error('REVISION_CONFLICT');
@@ -99,7 +114,7 @@ export async function saveProjectDraft(id: string, expectedRevision: number, inp
 }
 
 export async function publishProject(id: string, expectedRevision: number) {
-  const { APP_DB } = await getCmsRuntimeEnv();
+  const { APP_DB } = await editableDatabase();
   const current = await APP_DB.prepare("SELECT e.revision, d.payload_json, d.proposed_path FROM content_entries e JOIN content_drafts d ON d.entry_id=e.id WHERE e.id=? AND e.kind='project' AND e.deleted_at IS NULL").bind(id).first<{ revision: number; payload_json: string; proposed_path: string | null }>();
   if (!current) throw new Error('PROJECT_NOT_FOUND');
   if (current.revision !== expectedRevision) throw new Error('REVISION_CONFLICT');
@@ -136,7 +151,7 @@ export async function publishProject(id: string, expectedRevision: number) {
 }
 
 export async function unpublishProject(id: string, expectedRevision: number) {
-  const { APP_DB } = await getCmsRuntimeEnv();
+  const { APP_DB } = await editableDatabase();
   const now = new Date().toISOString();
   const results = await APP_DB.batch([
     APP_DB.prepare('UPDATE content_entries SET revision=revision+1 WHERE id=? AND revision=? AND deleted_at IS NULL').bind(id, expectedRevision),
@@ -148,7 +163,7 @@ export async function unpublishProject(id: string, expectedRevision: number) {
 }
 
 export async function deleteProject(id: string, expectedRevision: number): Promise<void> {
-  const { APP_DB } = await getCmsRuntimeEnv();
+  const { APP_DB } = await editableDatabase();
   const now = new Date().toISOString();
   const results = await APP_DB.batch([
     APP_DB.prepare('UPDATE content_entries SET revision=revision+1, deleted_at=? WHERE id=? AND revision=? AND deleted_at IS NULL').bind(now, id, expectedRevision),
@@ -159,11 +174,12 @@ export async function deleteProject(id: string, expectedRevision: number): Promi
 }
 
 export async function incrementProjectViewCount(slug: string): Promise<boolean> {
+  if (projectsSourceUrl()) return false;
   // Read-modify-write: use the uncached row so concurrent increments are not lost.
   const project = await readPublishedProjectBySlug(slug);
   if (!project) return false;
   const { APP_DB } = await getCmsRuntimeEnv();
-  const next = { ...project, viewCount: (project.viewCount || 0) + 1, lastViewedAt: new Date().toISOString() };
+  const next = { ...project, viewCount: (project.viewCount || 0) + 1 };
   const result = await APP_DB.prepare('UPDATE content_publications SET payload_json=?, content_hash=? WHERE entry_id=? AND path=?').bind(JSON.stringify(next), contentHash(next), project.id, `/projects/${slug}`).run();
   return result.meta.changes === 1;
 }
@@ -175,7 +191,7 @@ export async function getRelatedProjects(ids: string[]) {
 }
 
 export async function deleteProjectBySlug(slug: string, expectedRevision?: number): Promise<void> {
-  const { APP_DB } = await getCmsRuntimeEnv();
+  const { APP_DB } = await editableDatabase();
   const entry = await APP_DB.prepare("SELECT e.id, e.revision FROM content_entries e JOIN content_drafts d ON d.entry_id=e.id WHERE e.kind='project' AND d.proposed_path=? AND e.deleted_at IS NULL").bind(`/projects/${slug}`).first<{ id: string; revision: number }>();
   if (!entry) throw new Error('PROJECT_NOT_FOUND');
   if (expectedRevision !== undefined && entry.revision !== expectedRevision) throw new Error('REVISION_CONFLICT');

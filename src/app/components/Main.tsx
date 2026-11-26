@@ -7,8 +7,7 @@ import FinalCTASection from '@/components/site/FinalCTASection';
 import Whyus2 from "./section/WhyUs2";
 import DamageWarningSection from "./section/DamageWarningSection";
 import type { Project } from '@/features/projects/types';
-import { transformProjectsToProjectShow } from "@/lib/project-utils";
-import ProjectGalleryClient from "./ProjectGalleryClient";
+import ProjectShowcase from "./projects/ProjectShowcase";
 import LineContactButton from "@/features/line-contact/LineContactButton";
 import PortfolioButton from "./PortfolioButton";
 import { PublicContainer } from "@/components/ui/public";
@@ -20,13 +19,10 @@ type Props = {
 const Main = (props: Props) => {
   const { keyword, projects } = props;
 
-  // Transform published projects into the homepage gallery format (up to 25 items).
-  const { projectShowData, hasMore } = transformProjectsToProjectShow(
-    projects,
-    keyword,
-    25
-  );
-
+  // The latest projects, one per row; the rest are on /projects.
+  const HOME_PROJECTS = 6;
+  const shownProjects = projects.slice(0, HOME_PROJECTS);
+  const hasMore = projects.length > HOME_PROJECTS;
 
   return (
     <>
@@ -44,11 +40,12 @@ const Main = (props: Props) => {
         <PublicContainer className="mb-8 text-center md:mb-10">
           <h2 className="heading-section text-site-ink">ตัวอย่างงานติดตั้ง{keyword}</h2>
         </PublicContainer>
-        <ProjectGalleryClient projects={projectShowData} />
+        <PublicContainer>
+          <ProjectShowcase projects={shownProjects} />
+        </PublicContainer>
 
-        {/* ปุ่มดูผลงานทั้งหมด หากมีผลงานเกิน 25 รายการ */}
         {hasMore && (
-          <div className="flex justify-center pt-4">
+          <div className="flex justify-center pt-8">
             <PortfolioButton
               position="homepage_project_gallery_more"
               className="btn btn-primary px-8 py-3 text-lg font-semibold hover:shadow-lg transition-all duration-300 bg-blue-600 hover:bg-blue-700 text-white border-none rounded-[4px]"

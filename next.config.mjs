@@ -76,6 +76,12 @@ const nextConfig = {
                 protocol: 'https',
                 hostname: 'assets.siamrooftech.com',
             },
+            {
+                // Project photos uploaded through the site; local and staging show production's.
+                protocol: 'https',
+                hostname: 'www.siamrooftech.com',
+                pathname: '/media/**',
+            },
         ],
         formats: ['image/avif', 'image/webp'],
     },

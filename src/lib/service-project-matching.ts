@@ -1,7 +1,7 @@
 import { unstable_cache } from 'next/cache';
 import type { Project } from '@/features/projects/types';
 import { projectsRepository } from '@/features/projects/server/repository';
-import { getProjectProof, hasManualProjectProof } from './project-proof';
+import { orderedProjectImages, projectCover, projectHeading, projectName } from '@/features/projects/project-presentation';
 import { getProjectPath } from './project-url';
 import { ServicePage } from './service-pages';
 import { matchesServiceLocation } from './service-linking';
@@ -12,16 +12,7 @@ export type ServiceProofProject = {
   href: string;
   image: string;
   imageAlt: string;
-  location: string;
-  category: string;
-  type: string;
-  dimensions: string;
-  material: string;
-  problem: string;
-  solution: string;
-  outcome: string;
-  proofNotes: string[];
-  hasManualProof: boolean;
+  chips: string[];
 };
 
 export const fetchServiceProofProjects = unstable_cache(
@@ -53,7 +44,7 @@ function matchesServicePage(page: ServicePage, project: Project): boolean {
   if (!hasUsableImage(project)) return false;
 
   if (page.slug === '/services/electric-retractable-awning') {
-    return project.type?.includes('มอเตอร์') || project.type?.includes('ไฟฟ้า');
+    return Boolean(project.type?.includes('มอเตอร์') || project.type?.includes('ไฟฟ้า'));
   }
 
   if (page.location) {
@@ -68,24 +59,14 @@ function hasUsableImage(project: Project): boolean {
 }
 
 function toServiceProofProject(project: Project): ServiceProofProject {
-  const proof = getProjectProof(project);
-  const image = project.featured_image || project.images?.[0]?.original_size || '/images/default-project.jpg';
-
+  const [cover] = orderedProjectImages(project);
+  const title = projectName(project);
   return {
     id: project.id,
-    title: project.title || `${project.type} ${project.location}`,
+    title,
     href: getProjectPath(project) ?? '/projects',
-    image,
-    imageAlt: project.images?.[0]?.alt_text || `ผลงานกันสาดพับเก็บได้ ${project.location}`,
-    location: proof.location,
-    category: proof.category,
-    type: proof.serviceType,
-    dimensions: proof.dimensions,
-    material: proof.material,
-    problem: proof.problem,
-    solution: proof.solution,
-    outcome: proof.outcome,
-    proofNotes: proof.notes,
-    hasManualProof: hasManualProjectProof(project),
+    image: projectCover(project) || '/images/default-project.jpg',
+    imageAlt: cover?.alt_text || projectHeading(project),
+    chips: project.type ? [project.type] : [],
   };
 }
