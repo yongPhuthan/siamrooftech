@@ -8,6 +8,7 @@ import type { Project, ProjectImage, ProjectProof, ProjectVideo } from '@/featur
 import { getAfterImages, getBeforeImages } from "../../lib/project-image-utils";
 import { uploadVideoToCloudflare } from "../../lib/cloudflare/uploadVideo";
 import PDFAutofillComponent from "./PDFAutofillComponent";
+import { PROJECT_CATEGORY_LABELS, projectHeading } from "@/features/projects/project-presentation";
 
 interface ProjectFormData {
   width: number;
@@ -16,10 +17,11 @@ interface ProjectFormData {
   category: string;
   location: string;
   year: string;
-  type: "ระบบมือหมุน" | "มอเตอร์ไฟฟ้า" | "สองระบบ (มือหมุน + มอเตอร์ไฟฟ้า)";
-  arms_count: "2" | "3" | "4" | "5"; // จำนวนแขนพับ
-  canvas_material: "ผ้าอะคริลิคสเปน" | "ผ้าอะคริลิค"; // วัสดุผ้าใบ
-  fabric_edge: "ตัดเรียบ" | "โค้งลอน" | "ตัดเรียบ + พิมพ์ Logo" | "โค้งลอน + พิมพ์ Logo"; // ชายผ้า
+  // "" means not known; it is left out of the saved project.
+  type: "" | "ระบบมือหมุน" | "มอเตอร์ไฟฟ้า" | "สองระบบ (มือหมุน + มอเตอร์ไฟฟ้า)";
+  arms_count: "" | "2" | "3" | "4" | "5"; // จำนวนแขนพับ
+  canvas_material: "" | "ผ้าอะคริลิคสเปน" | "ผ้าอะคริลิค"; // วัสดุผ้าใบ
+  fabric_edge: "" | "ตัดเรียบ" | "โค้งลอน" | "ตัดเรียบ + พิมพ์ Logo" | "โค้งลอน + พิมพ์ Logo"; // ชายผ้า
   featured_image?: string;
   slug?: string; // จะถูกสร้างอัตโนมัติจากขนาด
   images: ProjectImage[];
@@ -27,18 +29,7 @@ interface ProjectFormData {
   proof: ProjectProof;
 }
 
-const categories = [
-  "ร้านอาหาร",
-  "โรงแรม",
-  "คาเฟ่",
-  "บ้านพักอาศัย",
-  "สำนักงาน",
-  "ร้านค้า",
-  "โรงงาน",
-  "สถานศึกษา",
-  "โรงพยาบาล",
-  "อื่นๆ",
-];
+const categories = PROJECT_CATEGORY_LABELS;
 
 const currentYear = new Date().getFullYear();
 const years = Array.from({ length: 10 }, (_, i) => currentYear - i);
@@ -59,9 +50,9 @@ const serviceAreas = [
   "สมุทรสาคร",
 ];
 
-// ฟังก์ชันสร้าง title จากขนาด
-const generateTitle = (width: number, extension: number): string => {
-  return `${width} x ${extension}`;
+// The saved title: the size when known (as existing projects have), otherwise the public heading.
+const generateTitle = (data: Pick<ProjectFormData, "width" | "extension" | "category" | "location">): string => {
+  return data.width > 0 && data.extension > 0 ? `${data.width} x ${data.extension}` : projectHeading(data);
 };
 
 interface ProjectFormProps {
@@ -76,11 +67,11 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
     description: [""],
     category: "",
     location: "",
-    year: currentYear.toString(),
-    type: "ระบบมือหมุน",
-    arms_count: "2",
-    canvas_material: "ผ้าอะคริลิคสเปน",
-    fabric_edge: "ตัดเรียบ",
+    year: "",
+    type: "",
+    arms_count: "",
+    canvas_material: "",
+    fabric_edge: "",
     images: [],
     proof: {},
   });
@@ -206,8 +197,8 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
       small_size: result.thumbnailUrl || result.mediumUrl || result.originalUrl || '',
       medium_size: result.mediumUrl || result.originalUrl || result.thumbnailUrl || '',
       original_size: result.originalUrl || result.mediumUrl || result.thumbnailUrl || '',
-      alt_text: `กันสาดพับได้ ${generateTitle(formData.width, formData.extension)} - ${type === 'after' ? 'หลังติดตั้ง' : 'ก่อนติดตั้ง'} รูปที่ ${startIndex + index + 1}`,
-      title: `กันสาดพับได้ ${generateTitle(formData.width, formData.extension)}`,
+      alt_text: `กันสาดพับได้ ${generateTitle(formData)} - ${type === 'after' ? 'หลังติดตั้ง' : 'ก่อนติดตั้ง'} รูปที่ ${startIndex + index + 1}`,
+      title: `กันสาดพับได้ ${generateTitle(formData)}`,
       caption: '',
       type: type,
       order_index: startIndex + index,
@@ -317,11 +308,11 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
         description: Array.isArray(project.description) ? project.description : [project.description || ""],
         category: project.category || "",
         location: project.location || "",
-        year: project.year || currentYear.toString(),
-        type: project.type || "ระบบมือหมุน",
-        arms_count: project.arms_count || "2",
-        canvas_material: project.canvas_material || "ผ้าอะคริลิคสเปน",
-        fabric_edge: project.fabric_edge || "ตัดเรียบ",
+        year: project.year || "",
+        type: project.type || "",
+        arms_count: project.arms_count || "",
+        canvas_material: project.canvas_material || "",
+        fabric_edge: project.fabric_edge || "",
         featured_image: project.featured_image,
         slug: project.slug,
         images: project.images || [],
@@ -502,11 +493,7 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
   const validateBasicFields = (): { valid: boolean; errors: string[] } => {
     const errors: string[] = [];
 
-    if (formData.width <= 0) errors.push("กรุณากรอกความกว้าง");
-    if (formData.extension <= 0) errors.push("กรุณากรอกระยะยื่นออก");
     if (!formData.category) errors.push("กรุณาเลือกหมวดหมู่");
-    if (!formData.location.trim()) errors.push("กรุณากรอกสถานที่");
-    if (!formData.year) errors.push("กรุณาเลือกปี");
 
     return { valid: errors.length === 0, errors };
   };
@@ -514,17 +501,7 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
   const validateForm = (): { valid: boolean; errors: string[] } => {
     const errors: string[] = [];
 
-    if (formData.width <= 0) errors.push("กรุณากรอกความกว้าง");
-    if (formData.extension <= 0) errors.push("กรุณากรอกระยะยื่นออก");
     if (!formData.category) errors.push("กรุณาเลือกหมวดหมู่");
-    if (!formData.location.trim()) errors.push("กรุณากรอกสถานที่");
-    if (!formData.year) errors.push("กรุณาเลือกปี");
-    if (formData.description.every((desc) => !desc.trim())) {
-      errors.push("กรุณากรอกรายละเอียดอย่างน้อย 1 รายการ");
-    }
-    if (!formData.proof.problem?.trim()) errors.push("กรุณากรอกโจทย์ก่อนติดตั้ง");
-    if (!formData.proof.solution?.trim()) errors.push("กรุณากรอกวิธีแก้หรือสิ่งที่ติดตั้ง");
-    if (!formData.proof.outcome?.trim()) errors.push("กรุณากรอกผลลัพธ์หลังติดตั้ง");
 
     // Check for images (uploaded + local preview files)
     const hasUploadedImages = afterImages.length > 0 || beforeImages.length > 0;
@@ -588,7 +565,7 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
               uploadedVideos.push({
                 id: `video-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
                 project_id: project?.id || '',
-                title: generateTitle(formData.width, formData.extension),
+                title: generateTitle(formData),
                 video_url: result.videoUrl,
                 thumbnail_url: result.thumbnailUrl,
                 duration: result.duration,
@@ -670,12 +647,21 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
       } else {
         // The database allocates a permanent, never-reused ordinal for new slugs.
         generatedSlug = "";
-        projectTitle = generateTitle(finalFormData.width, finalFormData.extension);
+        projectTitle = generateTitle(finalFormData);
       }
 
       // Filter out empty descriptions และเพิ่ม title และ slug
+      const { width, extension, location, year, type, arms_count, canvas_material, fabric_edge, ...requiredFields } = finalFormData;
       const cleanedFormData = {
-        ...finalFormData,
+        ...requiredFields,
+        // Unknown values are left out instead of saved as 0 or an empty string.
+        ...(width > 0 && extension > 0 ? { width, extension } : {}),
+        ...(location.trim() ? { location: location.trim() } : {}),
+        ...(year ? { year } : {}),
+        ...(type ? { type } : {}),
+        ...(arms_count ? { arms_count } : {}),
+        ...(canvas_material ? { canvas_material } : {}),
+        ...(fabric_edge ? { fabric_edge } : {}),
         title: projectTitle,
         slug: generatedSlug,
         description: finalFormData.description.filter(
@@ -825,7 +811,7 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div>
               <label className="block text-sm font-semibold text-gray-900 mb-2">
-                ขนาด *
+                ขนาด (ไม่บังคับ)
               </label>
               <div className="grid grid-cols-2 gap-3">
                 <div>
@@ -841,7 +827,6 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
                     name="width"
                     value={formData.width || ""}
                     onChange={(e) => setFormData((prev) => ({ ...prev, width: Number(e.target.value) || 0 }))}
-                    required
                     min="0"
                     step="0.1"
                     className={inputClass}
@@ -861,7 +846,6 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
                     name="extension"
                     value={formData.extension || ""}
                     onChange={(e) => setFormData((prev) => ({ ...prev, extension: Number(e.target.value) || 0 }))}
-                    required
                     min="0"
                     step="0.1"
                     className={inputClass}
@@ -900,7 +884,7 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
                 htmlFor="location"
                 className="block text-sm font-semibold text-gray-900 mb-2"
               >
-                สถานที่ *
+                สถานที่ (ไม่บังคับ)
               </label>
               <input
                 type="text"
@@ -908,7 +892,6 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
                 name="location"
                 value={formData.location}
                 onChange={handleInputChange}
-                required
                 className={inputClass}
                 placeholder="เช่น กรุงเทพฯ, ชลบุรี"
               />
@@ -919,16 +902,16 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
                 htmlFor="year"
                 className="block text-sm font-semibold text-gray-900 mb-2"
               >
-                ปีที่ดำเนินการ *
+                ปีที่ดำเนินการ (ไม่บังคับ)
               </label>
               <select
                 id="year"
                 name="year"
                 value={formData.year}
                 onChange={handleInputChange}
-                required
                 className={inputClass}
               >
+                <option value="">ไม่ระบุ</option>
                 {years.map((year) => (
                   <option key={year} value={year.toString()}>
                     {year}
@@ -941,9 +924,20 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
           {/* System Type */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-3">
-              ประเภทระบบ *
+              ประเภทระบบ (ไม่บังคับ)
             </label>
             <div className="flex flex-col gap-3">
+              <label className="flex items-center justify-between rounded-xl border border-gray-200 px-3 py-2 text-sm text-gray-700">
+                <input
+                  type="radio"
+                  name="type"
+                  value=""
+                  checked={formData.type === ""}
+                  onChange={handleInputChange}
+                  className="h-4 w-4 accent-gray-900"
+                />
+                <span className="ml-3 flex-1">ไม่ระบุ</span>
+              </label>
               <label className="flex items-center justify-between rounded-xl border border-gray-200 px-3 py-2 text-sm text-gray-700">
                 <input
                   type="radio"
@@ -987,16 +981,16 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
                 htmlFor="arms_count"
                 className="block text-sm font-semibold text-gray-900 mb-2"
               >
-                จำนวนแขนพับ *
+                จำนวนแขนพับ (ไม่บังคับ)
               </label>
               <select
                 id="arms_count"
                 name="arms_count"
                 value={formData.arms_count}
                 onChange={handleInputChange}
-                required
                 className={inputClass}
               >
+                <option value="">ไม่ระบุ</option>
                 <option value="2">2 แขน</option>
                 <option value="3">3 แขน</option>
                 <option value="4">4 แขน</option>
@@ -1009,16 +1003,16 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
                 htmlFor="canvas_material"
                 className="block text-sm font-semibold text-gray-900 mb-2"
               >
-                วัสดุผ้าใบ *
+                วัสดุผ้าใบ (ไม่บังคับ)
               </label>
               <select
                 id="canvas_material"
                 name="canvas_material"
                 value={formData.canvas_material}
                 onChange={handleInputChange}
-                required
                 className={inputClass}
               >
+                <option value="">ไม่ระบุ</option>
                 <option value="ผ้าอะคริลิคสเปน">ผ้าอะคริลิคสเปน</option>
                 <option value="ผ้าอะคริลิค">ผ้าอะคริลิค</option>
               </select>
@@ -1029,16 +1023,16 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
                 htmlFor="fabric_edge"
                 className="block text-sm font-semibold text-gray-900 mb-2"
               >
-                ชายผ้า *
+                ชายผ้า (ไม่บังคับ)
               </label>
               <select
                 id="fabric_edge"
                 name="fabric_edge"
                 value={formData.fabric_edge}
                 onChange={handleInputChange}
-                required
                 className={inputClass}
               >
+                <option value="">ไม่ระบุ</option>
                 <option value="ตัดเรียบ">ตัดเรียบ</option>
                 <option value="โค้งลอน">โค้งลอน</option>
                 <option value="ตัดเรียบ + พิมพ์ Logo">ตัดเรียบ + พิมพ์ Logo</option>
@@ -1051,10 +1045,10 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
           <div className="rounded-lg border border-emerald-100 bg-emerald-50 p-5">
             <div className="mb-5">
               <h2 className="text-base font-semibold text-gray-900">
-                ข้อมูลหลักฐาน SEO สำหรับผลงาน *
+                บันทึกหน้างาน (ไม่บังคับ)
               </h2>
               <p className="mt-1 text-sm text-gray-600">
-                ข้อมูลนี้จะแสดงบนหน้า portfolio และถูกดึงไปใช้เป็น proof บนหน้า service/local page
+                ไม่แสดงบนหน้าผลงาน ใช้เก็บข้อมูลไว้อ้างอิงภายใน
               </p>
             </div>
 
@@ -1133,7 +1127,6 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
                   value={formData.proof.problem || ""}
                   onChange={(e) => handleProofChange("problem", e.target.value)}
                   rows={5}
-                  required
                   className={textareaClass}
                   placeholder="เช่น แดดบ่ายส่องหน้าร้าน ลูกค้านั่งไม่ได้ และไม่ต้องการหลังคาถาวร"
                 />
@@ -1151,7 +1144,6 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
                   value={formData.proof.solution || ""}
                   onChange={(e) => handleProofChange("solution", e.target.value)}
                   rows={5}
-                  required
                   className={textareaClass}
                   placeholder="เช่น ติดตั้งกันสาดพับไฟฟ้า กว้าง 5 เมตร ยื่น 2 เมตร ใช้ผ้าอะคริลิคสเปน"
                 />
@@ -1169,7 +1161,6 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
                   value={formData.proof.outcome || ""}
                   onChange={(e) => handleProofChange("outcome", e.target.value)}
                   rows={5}
-                  required
                   className={textareaClass}
                   placeholder="เช่น ใช้พื้นที่หน้าร้านได้มากขึ้น กางพับสะดวก และภาพหน้าร้านดูเรียบร้อย"
                 />
@@ -1226,7 +1217,7 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps = {
           <div className="border border-gray-200 rounded-lg p-5 bg-gray-50">
             <div className="flex items-center justify-between mb-4">
               <label className="block text-base font-semibold text-gray-900">
-                รายละเอียดโปรเจค *
+                รายละเอียดโปรเจค (ไม่บังคับ)
               </label>
               {/* TODO: Enable when AI system is ready */}
               {/* <button

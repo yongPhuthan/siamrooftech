@@ -228,8 +228,7 @@ export function resolveGoogleAdsDynamicContent(
     },
     proofEyebrow: 'ผลงานที่ตรงกับแคมเปญ',
     proofTitle: `ตัวอย่างงาน${serviceLabel}${headlineTail ? ` ${headlineTail}` : ''}`,
-    proofIntro:
-      'ตัวอย่างด้านล่างดึงจาก portfolio จริง เพื่อให้ผู้ใช้เห็นหลักฐานประกอบก่อนติดต่อ LINE หรือโทรศัพท์',
+    proofIntro: 'รูปจากงานที่เราติดตั้งเอง กดดูรูปทั้งหมดของแต่ละงานได้',
   };
 }
 

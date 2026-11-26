@@ -13,7 +13,6 @@ The exact files currently carrying a `use client` directive are:
 - `src/app/components/SiteFooter.tsx`
 - `src/app/components/portfolio/PortfolioWithFilters.tsx`
 - `src/app/components/AttributionCapture.tsx`
-- `src/app/components/portfolio/SeparateBeforeAfterGallery.tsx`
 - `src/app/components/section/PortfolioCTA.tsx`
 - `src/app/components/section/ImageGalleryModal.tsx`
 - `src/app/components/portfolio/PortfolioSearchFilters.tsx`
@@ -27,7 +26,8 @@ The exact files currently carrying a `use client` directive are:
 - `src/app/components/portfolio/PortfolioCard.tsx`
 - `src/app/components/portfolio/PortfolioGrid.tsx` (no current consumers)
 - `src/app/components/portfolio/BeforeAfterGallery.tsx` (no current consumers)
-- `src/app/components/projects/ProjectDetailClient.tsx`
+- `src/app/components/projects/ProjectGallery.tsx`
+- `src/app/components/projects/ProjectVideos.tsx`
 
 CRM attribution update (2026-10-17): `src/features/line-contact/LineLeadCapture.tsx`
 retains its existing boundary under Suspense. It snapshots current URL parameters

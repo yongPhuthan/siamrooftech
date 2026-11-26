@@ -118,11 +118,8 @@ export default function ServiceLandingPage({
   const ctaLabel = dynamicContent?.ctaLabel || 'ส่งรูปให้ประเมินทาง LINE';
   const ctaContext = dynamicContent?.ctaContext;
   const proofEyebrow = dynamicContent?.proofEyebrow || 'ผลงานที่เกี่ยวข้อง';
-  const proofTitle =
-    dynamicContent?.proofTitle || 'ตัวอย่างงานติดตั้งที่ใช้เป็นหลักฐานประกอบการตัดสินใจ';
-  const proofIntro =
-    dynamicContent?.proofIntro ||
-    'บล็อกนี้ดึงจากผลงานจริงในระบบ portfolio เพื่อให้หน้า service ไม่เป็นแค่ข้อความทั่วไป และช่วยเชื่อมโยง intent ระหว่างบริการ พื้นที่ และผลงานติดตั้ง';
+  const proofTitle = dynamicContent?.proofTitle || 'ผลงานติดตั้งจริง';
+  const proofIntro = dynamicContent?.proofIntro || 'รูปจากงานที่เราติดตั้งเอง กดดูรูปทั้งหมดของแต่ละงานได้';
   const breadcrumbs = page.location
     ? [
         { name: 'หน้าแรก', href: '/' },
@@ -329,7 +326,7 @@ export default function ServiceLandingPage({
         <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
           <div className="grid gap-8 lg:grid-cols-[1fr_1fr]">
             <div className="rounded-2xl bg-gray-900 p-6 text-white">
-              <h2 className="text-2xl font-bold">หลักฐานที่ควรใช้ตัดสินใจ</h2>
+              <h2 className="text-2xl font-bold">เกี่ยวกับงานของเรา</h2>
               <ul className="mt-5 space-y-3">
                 {page.proofPoints.map((point) => (
                   <li key={point} className="flex gap-3 text-sm leading-relaxed text-gray-100">
@@ -389,55 +386,17 @@ export default function ServiceLandingPage({
                         className="object-cover transition-transform duration-500 group-hover:scale-105"
                       />
                     </div>
-                    <div className="space-y-3 p-5">
-                      <div className="flex flex-wrap gap-2 text-xs">
-                        <span className="rounded-full bg-blue-50 px-2.5 py-1 font-medium text-blue-800">
-                          {project.location}
-                        </span>
-                        <span className="rounded-full bg-gray-100 px-2.5 py-1 font-medium text-gray-700">
-                          {project.type}
-                        </span>
-                        {project.hasManualProof && (
-                          <span className="rounded-full bg-emerald-50 px-2.5 py-1 font-medium text-emerald-800">
-                            ข้อมูลหน้างานจริง
-                          </span>
-                        )}
-                      </div>
-                      <h3 className="line-clamp-2 text-lg font-semibold leading-snug text-gray-950 group-hover:text-blue-700">
+                    <div className="space-y-2 p-5">
+                      <h3 className="heading-card line-clamp-2 text-gray-950 group-hover:text-blue-700">
                         {project.title}
                       </h3>
-                      <dl className="grid gap-2 text-sm text-gray-600">
-                        <div>
-                          <dt className="font-semibold text-gray-900">ประเภทงาน</dt>
-                          <dd>{project.category}</dd>
-                        </div>
-                        <div>
-                          <dt className="font-semibold text-gray-900">ขนาด</dt>
-                          <dd>{project.dimensions}</dd>
-                        </div>
-                        <div>
-                          <dt className="font-semibold text-gray-900">วัสดุ</dt>
-                          <dd>{project.material}</dd>
-                        </div>
-                        <div>
-                          <dt className="font-semibold text-gray-900">โจทย์หน้างาน</dt>
-                          <dd>{project.problem}</dd>
-                        </div>
-                        <div>
-                          <dt className="font-semibold text-gray-900">วิธีแก้/สิ่งที่ติดตั้ง</dt>
-                          <dd>{project.solution}</dd>
-                        </div>
-                        <div>
-                          <dt className="font-semibold text-gray-900">ผลลัพธ์</dt>
-                          <dd>{project.outcome}</dd>
-                        </div>
-                        {project.proofNotes.length > 0 && (
-                          <div>
-                            <dt className="font-semibold text-gray-900">หลักฐานเสริม</dt>
-                            <dd>{project.proofNotes.join(', ')}</dd>
-                          </div>
-                        )}
-                      </dl>
+                      <div className="flex flex-wrap gap-2 text-xs">
+                        {project.chips.map((chip) => (
+                          <span key={chip} className="rounded-full bg-gray-100 px-2.5 py-1 font-medium text-gray-700">
+                            {chip}
+                          </span>
+                        ))}
+                      </div>
                     </div>
                   </Link>
                 ))}

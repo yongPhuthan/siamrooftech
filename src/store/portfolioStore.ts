@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 import sift from 'sift';
 import type { Project } from '@/features/projects/types';
+import { projectSortTime } from '@/features/projects/project-presentation';
 
 interface FilterState {
   activeCategory: string;
@@ -122,8 +123,8 @@ export const usePortfolioStore = create<PortfolioStore>()(
               break;
             case 'newest':
             case 'oldest':
-              aValue = a.completionDate ? new Date(a.completionDate).getTime() : new Date(Number(a.year), 0).getTime();
-              bValue = b.completionDate ? new Date(b.completionDate).getTime() : new Date(Number(b.year), 0).getTime();
+              aValue = projectSortTime(a);
+              bValue = projectSortTime(b);
               break;
             default:
               return 0;
@@ -168,6 +169,7 @@ export const usePortfolioStore = create<PortfolioStore>()(
       getRelatedProjects: (project: Project, limit = 4) => {
         const { projects } = get();
         
+        const placeWord = project.location?.split(' ')[0]?.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
         // Use Sift to find related projects with sophisticated matching
         const relatedQuery = {
           $and: [
@@ -176,7 +178,7 @@ export const usePortfolioStore = create<PortfolioStore>()(
               $or: [
                 { category: project.category }, // Same category
                 { type: project.type }, // Same type
-                { location: { $regex: new RegExp(project.location.split(' ')[0], 'i') } }, // Similar location
+                ...(placeWord ? [{ location: { $regex: new RegExp(placeWord, 'i') } }] : []), // Similar location
               ]
             }
           ]
@@ -194,8 +196,8 @@ export const usePortfolioStore = create<PortfolioStore>()(
           if (a.type === project.type) scoreA += 2;
           if (b.type === project.type) scoreB += 2;
           
-          if (a.location.includes(project.location.split(' ')[0])) scoreA += 1;
-          if (b.location.includes(project.location.split(' ')[0])) scoreB += 1;
+          if (placeWord && a.location?.includes(placeWord)) scoreA += 1;
+          if (placeWord && b.location?.includes(placeWord)) scoreB += 1;
           
           return scoreB - scoreA;
         });

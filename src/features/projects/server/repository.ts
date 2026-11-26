@@ -4,6 +4,7 @@ import { randomUUID, createHash } from 'node:crypto';
 import { getCmsRuntimeEnv } from '@/lib/database/runtime';
 import { NewProjectPayloadSchema, ProjectPayloadSchema } from '../project-schema';
 import type { Project } from '../types';
+import { projectSlugBase } from '../project-presentation';
 
 function parseProject(payload: string, entryId: string, path: string): Project | null {
   let raw: unknown;
@@ -61,9 +62,7 @@ export async function createProjectDraft(input: unknown): Promise<Project> {
   if (!parsed.success) throw new Error('INVALID_PROJECT');
   const { APP_DB } = await getCmsRuntimeEnv();
   const now = new Date().toISOString();
-  const prefix = parsed.data.type === 'มอเตอร์ไฟฟ้า' ? 'electric-awning' : 'retractable-awning';
-  const size = `${parsed.data.width}x${parsed.data.extension}`.replaceAll('.', '-');
-  const base = `${prefix}-${size}`;
+  const base = projectSlugBase(parsed.data);
   const sequence = await APP_DB.prepare('INSERT INTO project_slug_sequences (base, high_water_mark) VALUES (?, 1) ON CONFLICT(base) DO UPDATE SET high_water_mark=high_water_mark+1 RETURNING high_water_mark').bind(base).first<{ high_water_mark: number }>();
   if (!sequence) throw new Error('SLUG_ALLOCATION_FAILED');
   const project = { ...parsed.data, id: randomUUID(), slug: `${base}-${sequence.high_water_mark}`, created_at: now, updated_at: now } as Project;
@@ -163,7 +162,7 @@ export async function incrementProjectViewCount(slug: string): Promise<boolean> 
   const project = await readPublishedProjectBySlug(slug);
   if (!project) return false;
   const { APP_DB } = await getCmsRuntimeEnv();
-  const next = { ...project, viewCount: (project.viewCount || 0) + 1, lastViewedAt: new Date().toISOString() };
+  const next = { ...project, viewCount: (project.viewCount || 0) + 1 };
   const result = await APP_DB.prepare('UPDATE content_publications SET payload_json=?, content_hash=? WHERE entry_id=? AND path=?').bind(JSON.stringify(next), contentHash(next), project.id, `/projects/${slug}`).run();
   return result.meta.changes === 1;
 }

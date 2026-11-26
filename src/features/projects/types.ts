@@ -1,16 +1,16 @@
 export interface Project {
   id: string;
   title: string;
-  width: number;
-  extension: number;
-  description: string[] | string;
   category: string;
-  location: string;
-  year: string;
-  type: 'ระบบมือหมุน' | 'มอเตอร์ไฟฟ้า' | 'สองระบบ (มือหมุน + มอเตอร์ไฟฟ้า)';
-  arms_count: '2' | '3' | '4' | '5';
-  canvas_material: 'ผ้าอะคริลิคสเปน' | 'ผ้าอะคริลิค';
-  fabric_edge: 'ตัดเรียบ' | 'โค้งลอน' | 'ตัดเรียบ + พิมพ์ Logo' | 'โค้งลอน + พิมพ์ Logo';
+  type?: 'ระบบมือหมุน' | 'มอเตอร์ไฟฟ้า' | 'สองระบบ (มือหมุน + มอเตอร์ไฟฟ้า)';
+  fabric_edge?: 'ตัดเรียบ' | 'โค้งลอน' | 'ตัดเรียบ + พิมพ์ Logo' | 'โค้งลอน + พิมพ์ Logo';
+  width?: number;
+  extension?: number;
+  description?: string[] | string;
+  location?: string;
+  year?: string;
+  arms_count?: '2' | '3' | '4' | '5';
+  canvas_material?: 'ผ้าอะคริลิคสเปน' | 'ผ้าอะคริลิค';
   featured_image?: string;
   images: ProjectImage[];
   videos?: ProjectVideo[];
@@ -18,18 +18,8 @@ export interface Project {
   created_at?: string;
   updated_at?: string;
   slug: string;
-  timeline?: ProjectTimeline[];
-  testimonial?: ProjectTestimonial;
-  technicalSpecs?: ProjectTechnicalSpecs;
   proof?: ProjectProof;
-  relatedProjects?: string[];
-  client?: string;
-  completionDate?: string;
-  seoTitle?: string;
-  seoDescription?: string;
-  seoKeywords?: string[];
   viewCount?: number;
-  lastViewedAt?: string;
   revision?: number;
   isPublished?: boolean;
 }
@@ -42,33 +32,6 @@ export interface ProjectProof {
   solution?: string;
   outcome?: string;
   proofNotes?: string[];
-}
-
-export interface ProjectTimeline {
-  id: string;
-  phase: string;
-  description: string;
-  images: string[];
-  date?: string;
-  order_index: number;
-}
-
-export interface ProjectTestimonial {
-  quote: string;
-  clientName: string;
-  position?: string;
-  company?: string;
-  rating?: number;
-  date?: string;
-}
-
-export interface ProjectTechnicalSpecs {
-  materials: string[];
-  dimensions: string;
-  installation: string;
-  warranty: string;
-  features?: string[];
-  certifications?: string[];
 }
 
 export interface ProjectImage {

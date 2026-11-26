@@ -881,11 +881,11 @@ getImageTypeBadge(type) → { color, label, emoji }
 ## Component Locations
 
 ```
-src/app/components/section/ProjectShow.tsx       - Homepage featured project cards
+src/app/components/projects/ProjectShowcase.tsx - Homepage projects, one per row, photos only
 src/app/components/portfolio/PortfolioCard.tsx   - Reusable portfolio card
 src/app/components/portfolio/StaticPortfolioGrid.tsx - Portfolio grid layout
 src/app/components/portfolio/PortfolioWithFilters.tsx - Filter chips & grid
-src/app/components/projects/ProjectDetailClient.tsx - Project detail page
+src/app/components/projects/ProjectGallery.tsx - Project detail photo gallery
 src/app/projects/page.tsx - Project listing page
 src/app/components/ui/BeforeAfterSlider.tsx - 🆕 Before/After slider component
 src/app/components/portfolio/BeforeAfterGallery.tsx - 🆕 Gallery with Before/After

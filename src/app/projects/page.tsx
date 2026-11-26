@@ -4,6 +4,7 @@ import Breadcrumbs from '@/components/site/Breadcrumbs';
 import FinalCTASection from '@/components/site/FinalCTASection';
 import ProjectsIndex from "../components/projects/ProjectsIndex";
 import type { Project } from '@/features/projects/types';
+import { projectHeading, projectSortTime } from '@/features/projects/project-presentation';
 import { projectsRepository } from "@/features/projects/server/repository";
 import { canonicalUrl } from "@/lib/seo-config";
 import { getProjectPath } from "@/lib/project-url";
@@ -30,11 +31,7 @@ export const metadata: Metadata = {
 };
 
 export default async function ProjectsPage() {
-  const projects = (await projectsRepository.getAll()).sort((a, b) => {
-    const dateA = a.completionDate ? new Date(a.completionDate).getTime() : new Date(Number(a.year), 0).getTime();
-    const dateB = b.completionDate ? new Date(b.completionDate).getTime() : new Date(Number(b.year), 0).getTime();
-    return dateB - dateA;
-  });
+  const projects = (await projectsRepository.getAll()).sort((a, b) => projectSortTime(b) - projectSortTime(a));
   const projectPaths = projects.map((project) => ({ project, path: getProjectPath(project) })).filter(
     (item): item is { project: Project; path: string } => item.path !== null,
   );
@@ -52,7 +49,7 @@ export default async function ProjectsPage() {
       itemListElement: projectPaths.map(({ project, path }, index) => ({
         "@type": "ListItem",
         position: index + 1,
-        name: project.title,
+        name: projectHeading(project),
         url: canonicalUrl(path),
       })),
     },

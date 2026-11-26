@@ -19,9 +19,6 @@ const strictLocationAliases: Record<string, string[]> = {
 };
 
 function projectDate(project: Project): number {
-  if (project.completionDate) {
-    return new Date(project.completionDate).getTime();
-  }
   if (project.created_at) {
     return new Date(project.created_at).getTime();
   }
@@ -78,7 +75,7 @@ export function validateFileProjects(projects: Project[] = fileProjects): void {
       if (
         aliases &&
         !aliases.some((alias) =>
-          project.location.toLowerCase().includes(alias.toLowerCase())
+          (project.location ?? '').toLowerCase().includes(alias.toLowerCase())
         )
       ) {
         errors.push(

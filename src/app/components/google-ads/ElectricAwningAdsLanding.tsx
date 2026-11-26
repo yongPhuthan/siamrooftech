@@ -26,6 +26,7 @@ import { ElectricAwningProcess } from '@/app/components/google-ads/ElectricAwnin
 import TrustedBy from '@/app/components/section/TrustedBy';
 import { fileProjects } from '@/data/projects';
 import { getProjectProof } from '@/lib/project-proof';
+import { projectImageSrc } from '@/features/projects/project-presentation';
 import { canonicalUrl } from '@/lib/seo-config';
 import EndSection from '@/app/components/section/EndSection';
 import FinalCTASection from '@/components/site/FinalCTASection';
@@ -261,7 +262,7 @@ export function ElectricAwningAdsLanding({ source }: { source: ElectricAwningAdS
             {projects.map(({ project, proof, chosenImage }) => (
               <article key={project.id} className="min-w-0 border-b border-neutral-300 pb-6 text-left">
                 <Image
-                  src={chosenImage?.original_size || project.featured_image || project.images[0].original_size}
+                  src={projectImageSrc(chosenImage?.original_size || project.featured_image || project.images[0].original_size)}
                   alt={chosenImage?.alt_text || project.images[0]?.alt_text || `ผลงานกันสาดไฟฟ้า ${proof.category}`}
                   width={900}
                   height={675}
