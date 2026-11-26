@@ -1,9 +1,19 @@
 import { z } from 'zod';
 
+/** Category names that were merged or renamed; stored projects keep the old value and read as the new one. */
+export const LEGACY_PROJECT_CATEGORIES: Readonly<Record<string, string>> = {
+  'ร้านอาหาร': 'ร้านอาหารและคาเฟ่',
+  'คาเฟ่': 'ร้านอาหารและคาเฟ่',
+};
+
+export function currentProjectCategory(category: string): string {
+  return LEGACY_PROJECT_CATEGORIES[category] ?? category;
+}
+
 export const ProjectPayloadSchema = z.object({
   id: z.string().min(1),
   title: z.string().min(1).max(160),
-  category: z.string().min(1).max(80),
+  category: z.string().min(1).max(80).transform(currentProjectCategory),
   // Photo-first: only category and photos are required. The fields below are optional so a project can be
   // published from photos alone; older projects keep the values they already have.
   type: z.enum(['ระบบมือหมุน', 'มอเตอร์ไฟฟ้า', 'สองระบบ (มือหมุน + มอเตอร์ไฟฟ้า)']).optional(),
