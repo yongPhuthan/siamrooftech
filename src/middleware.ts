@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getCloudflareContext } from '@opennextjs/cloudflare';
 import { DEPLOYMENT_ENV, SITE_URL } from './lib/seo-config';
 import { isValidArticleSlug } from './features/articles/article-path';
+import { PROJECTS_FEED_PATH, projectsSourceUrl } from './features/projects/server/source';
 
 const CANONICAL_HOST = new URL(SITE_URL).host;
 const LEGACY_SERVICE_PATHS: Record<string, string> = {
@@ -70,6 +71,22 @@ async function isPublishedContent(kind: 'article' | 'project', pathname: string)
   return row?.published === 1;
 }
 
+const SOURCE_PATHS_TTL_MS = 5 * 60 * 1000;
+let sourceProjectPaths: { readAt: number; paths: Set<string> } | null = null;
+
+/** Where projects come from production (PROJECTS_SOURCE_URL), production's feed decides what is published, not this D1. */
+async function isPublishedProject(pathname: string): Promise<boolean> {
+  const source = projectsSourceUrl();
+  if (!source) return isPublishedContent('project', pathname);
+  if (!sourceProjectPaths || Date.now() - sourceProjectPaths.readAt > SOURCE_PATHS_TTL_MS) {
+    const response = await fetch(`${source}${PROJECTS_FEED_PATH}`, { headers: { accept: 'application/json' } });
+    if (!response.ok) throw new Error(`Project source answered ${response.status}`);
+    const projects = (await response.json()) as { slug?: unknown }[];
+    sourceProjectPaths = { readAt: Date.now(), paths: new Set(projects.map((project) => `/projects/${String(project.slug)}`)) };
+  }
+  return sourceProjectPaths.paths.has(pathname);
+}
+
 export async function middleware(request: NextRequest) {
   const forwardedProto = request.headers.get('x-forwarded-proto');
   const host = request.headers.get('host') || request.nextUrl.host;
@@ -134,7 +151,7 @@ async function continueRequest(request: NextRequest, decodedPathname: string): P
   if (decodedPathname.startsWith('/projects/')) {
     const slug = decodedPathname.slice('/projects/'.length);
     if (!slug || slug.includes('/')) return new NextResponse('Not Found', { status: 404 });
-    if (!(await isPublishedContent('project', `/projects/${slug}`))) return new NextResponse('Not Found', { status: 404 });
+    if (!(await isPublishedProject(`/projects/${slug}`))) return new NextResponse('Not Found', { status: 404 });
   }
 
   if (shouldRewriteGoogleAdsLandingPage(request)) {
