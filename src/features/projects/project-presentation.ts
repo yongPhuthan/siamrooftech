@@ -1,16 +1,17 @@
+import { currentProjectCategory } from './project-schema';
 import type { Project } from './types';
 
 /** Place types a project can be filed under, with the URL word each one uses when a project has no size. */
 export const PROJECT_CATEGORIES = [
-  { label: 'ร้านอาหาร', slug: 'restaurant' },
+  { label: 'ร้านอาหารและคาเฟ่', slug: 'restaurant-cafe' },
   { label: 'โรงแรม', slug: 'hotel' },
-  { label: 'คาเฟ่', slug: 'cafe' },
   { label: 'บ้านพักอาศัย', slug: 'home' },
   { label: 'สำนักงาน', slug: 'office' },
   { label: 'ร้านค้า', slug: 'shop' },
   { label: 'โรงงาน', slug: 'factory' },
   { label: 'สถานศึกษา', slug: 'school' },
   { label: 'โรงพยาบาล', slug: 'hospital' },
+  { label: 'วัดและศาสนสถาน', slug: 'temple' },
   { label: 'อื่นๆ', slug: 'other' },
 ] as const;
 
@@ -25,7 +26,7 @@ type SlugInput = Pick<Project, 'type' | 'width' | 'extension' | 'category'>;
 export function projectSlugBase(project: SlugInput): string {
   const prefix = project.type === 'มอเตอร์ไฟฟ้า' ? 'electric-awning' : 'retractable-awning';
   if (project.width && project.extension) return `${prefix}-${`${project.width}x${project.extension}`.replaceAll('.', '-')}`;
-  const category = PROJECT_CATEGORIES.find((item) => item.label === project.category)?.slug ?? 'other';
+  const category = PROJECT_CATEGORIES.find((item) => item.label === currentProjectCategory(project.category))?.slug ?? 'other';
   return `${prefix}-${category}`;
 }
 
@@ -34,7 +35,8 @@ export function projectSlugBase(project: SlugInput): string {
  * Location and size never go into a name. "อื่นๆ" names no place, so it gives none.
  */
 function projectPlace(project: Pick<Project, 'category'>): string {
-  return project.category === 'อื่นๆ' ? '' : project.category;
+  const category = currentProjectCategory(project.category);
+  return category === 'อื่นๆ' ? '' : category;
 }
 
 /** The page's H1 and title. */
