@@ -5,7 +5,6 @@ import Image from 'next/image';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { PublicIcon } from '@/components/ui/public';
 import type { ProjectImage } from '@/features/projects/types';
-import ImageWatermark from '../ui/ImageWatermark';
 
 type ProjectGalleryProps = {
   images: ProjectImage[];
@@ -57,9 +56,7 @@ export default function ProjectGallery({ images, title }: ProjectGalleryProps) {
       {/* Wide screens: lead photo with up to two side tiles; the last tile carries the remaining count. */}
       <div className={`hidden gap-2 md:grid ${sideTiles.length ? 'md:grid-cols-3' : ''} ${sideTiles.length === SIDE_TILES ? 'md:grid-rows-2' : ''}`}>
         <button type="button" onClick={() => openAt(0)} className={`relative overflow-hidden rounded-site-media bg-site-subtle focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-site-focus ${sideTiles.length ? `col-span-2 aspect-[4/3] ${sideTiles.length === SIDE_TILES ? 'row-span-2' : ''}` : 'aspect-[16/9]'}`} aria-label={`เปิดรูปที่ 1 จาก ${count}`}>
-          <ImageWatermark className="block h-full w-full">
-            <Image src={images[0].original_size} alt={altFor(images[0], title, 0)} fill priority sizes="(min-width: 1280px) 860px, 66vw" className="object-cover" />
-          </ImageWatermark>
+          <Image src={images[0].original_size} alt={altFor(images[0], title, 0)} fill priority sizes="(min-width: 1280px) 860px, 66vw" className="object-cover" />
           <BeforeBadge image={images[0]} />
         </button>
         {sideTiles.map((image, offset) => {
@@ -78,9 +75,7 @@ export default function ProjectGallery({ images, title }: ProjectGalleryProps) {
       {/* Phones: the selected photo, then a thumbnail strip. */}
       <div className="md:hidden">
         <button type="button" onClick={() => setOpen(true)} className="relative block aspect-[4/3] w-full overflow-hidden rounded-site-media bg-site-subtle" aria-label={`เปิดรูปที่ ${active + 1} จาก ${count}`}>
-          <ImageWatermark className="block h-full w-full">
-            <Image src={current.original_size} alt={altFor(current, title, active)} fill priority sizes="100vw" className="object-cover" />
-          </ImageWatermark>
+          <Image src={current.original_size} alt={altFor(current, title, active)} fill priority sizes="100vw" className="object-cover" />
           <BeforeBadge image={current} />
           {count > 1 && <span className="absolute bottom-2 right-2 z-30 rounded-site-badge bg-site-surface px-2 py-0.5 text-xs font-semibold text-site-ink">{active + 1}/{count}</span>}
         </button>
