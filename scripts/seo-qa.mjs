@@ -58,7 +58,7 @@ function getAttr(html, patterns) {
 async function fetchPath(path, options = {}) {
   // Pace remote checks slightly so 90+ rapid QA requests do not hit Cloudflare Worker burst limits.
   if (environment !== 'local') {
-    await new Promise((resolve) => setTimeout(resolve, 120));
+    await new Promise((resolve) => setTimeout(resolve, 25));
   }
   try {
     return await fetch(new URL(path, baseUrl), {
