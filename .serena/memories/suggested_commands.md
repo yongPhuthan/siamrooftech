@@ -1,6 +1,6 @@
 - Local app: `yarn dev`
 - Platform build: `yarn cf:build`
 - Checks: `yarn type-check`, `yarn lint`, `yarn test:admin`, `yarn test:articles`
-- Local CMS: `yarn db:migrate:local`, `yarn db:seed:local`, `yarn db:test:local`
+- Local CMS: `yarn db:migrate:local`, `yarn db:test:local`
 - Clear local Next cache: `yarn clear-cache`
 - LINE Worker tasks: use scripts and separate Wrangler configuration under `workers/line-chat-history/`

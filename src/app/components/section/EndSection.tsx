@@ -9,7 +9,7 @@ function EndSection() {
       loading='lazy'
       width={1800}
       height={500}
-      src="https://pub-99f8d7bf688c4c79afcc2d91f37141f2.r2.dev/siamrooftech/large/47192"
+      src="https://assets.siamrooftech.com/site/roof-outline.webp"
       />
     </div>
   )

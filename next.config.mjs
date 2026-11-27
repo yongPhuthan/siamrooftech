@@ -53,6 +53,8 @@ const nextConfig = {
     env: {
         DEPLOY_ENV: workerVars.DEPLOY_ENV,
         SITE_ORIGIN: siteOrigin,
+        // Local and staging read production's published projects; production leaves it empty and reads its own D1.
+        PROJECTS_SOURCE_URL: workerVars.PROJECTS_SOURCE_URL || '',
         RELEASE_SHA: process.env.GITHUB_SHA || process.env.RELEASE_SHA || 'local-development',
         NEXT_PUBLIC_GA4_MEASUREMENT_ID: ga4MeasurementId || '',
         NEXT_PUBLIC_LINE_TEST_CONTACT_URL: localLineContactUrl,

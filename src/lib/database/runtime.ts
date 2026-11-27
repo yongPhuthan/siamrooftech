@@ -9,7 +9,8 @@ export interface CmsRuntimeEnv {
   AUTH_EMAIL?: SendEmail;
   AUTH_EMAIL_FROM?: string;
   AUTH_EMAIL_DELIVERY?: string;
-  MEDIA_BUCKET: R2Bucket;
+  /** Bound on production only: media is uploaded there and nowhere else. */
+  MEDIA_BUCKET?: R2Bucket;
 }
 
 export async function getCmsRuntimeEnv(): Promise<CmsRuntimeEnv> {
@@ -19,8 +20,14 @@ export async function getCmsRuntimeEnv(): Promise<CmsRuntimeEnv> {
     throw new Error('CMS data must not be read during next build');
   }
   const { env } = await getCloudflareContext({ async: true });
-  if (!env.APP_DB || !env.MEDIA_BUCKET) throw new Error('Local CMS bindings are not configured');
+  if (!env.APP_DB) throw new Error('Local CMS bindings are not configured');
   return env as CmsRuntimeEnv;
+}
+
+export async function getMediaBucket(): Promise<R2Bucket> {
+  const { MEDIA_BUCKET } = await getCmsRuntimeEnv();
+  if (!MEDIA_BUCKET) throw new Error('Media storage is unavailable');
+  return MEDIA_BUCKET;
 }
 
 export async function getCmsDatabase() {

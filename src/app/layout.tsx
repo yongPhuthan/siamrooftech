@@ -106,13 +106,13 @@ export const metadata: Metadata = {
     siteName: "Siamrooftech",
     images: [
       {
-        url: "https://pub-99f8d7bf688c4c79afcc2d91f37141f2.r2.dev/siamrooftech/medium/46570",
+        url: "https://assets.siamrooftech.com/site/awning-house.webp",
         width: 800,
         height: 600,
         alt: "กันสาดพับได้ Siamrooftech - ผู้เชี่ยวชาญด้านกันสาดพับได้คุณภาพสูง",
       },
       {
-        url: "https://pub-99f8d7bf688c4c79afcc2d91f37141f2.r2.dev/siamrooftech/original/46570",
+        url: "https://assets.siamrooftech.com/site/awning-house.webp",
         width: 1200,
         height: 630,
         alt: "กันสาดพับได้ Siamrooftech - ผลงานการติดตั้งกันสาดพับได้คุณภาพ",
@@ -125,7 +125,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "กันสาดพับได้ ระบบมือหมุน-มอเตอร์ไฟฟ้า คุณภาพยุโรป | Siamrooftech",
     description: "ผู้เชี่ยวชาญกันสาดพับได้ ระบบมือหมุน-มอเตอร์ไฟฟ้า คุณภาพยุโรป ประสบการณ์ 10+ ปี บริการครบวงจร",
-    images: ["https://pub-99f8d7bf688c4c79afcc2d91f37141f2.r2.dev/siamrooftech/medium/46570"],
+    images: ["https://assets.siamrooftech.com/site/awning-house.webp"],
   },
 };
 

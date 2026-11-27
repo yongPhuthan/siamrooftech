@@ -33,7 +33,3 @@ export function sourceFileName(sourceHash: string, contentType: string): string 
   const ext = SOURCE_TYPES[contentType];
   return ext ? `${sourceHash}.${ext}` : null;
 }
-
-export function isPrivateMediaKey(key: string): boolean {
-  return key === SOURCE_PREFIX || key.startsWith(`${SOURCE_PREFIX}/`);
-}

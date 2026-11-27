@@ -22,7 +22,7 @@ export const metadata: Metadata = {
     type: "website",
     url: canonicalUrl("/projects"),
     images: [{
-      url: "https://pub-99f8d7bf688c4c79afcc2d91f37141f2.r2.dev/siamrooftech/medium/46570",
+      url: "https://assets.siamrooftech.com/site/awning-house.webp",
       width: 800,
       height: 600,
       alt: "ผลงานติดตั้งกันสาด Siamrooftech",

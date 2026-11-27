@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 
-const { getCmsRuntimeEnv, verifyAdminRequest, put } = vi.hoisted(() => ({
-  getCmsRuntimeEnv: vi.fn(),
+const { getMediaBucket, verifyAdminRequest, put } = vi.hoisted(() => ({
+  getMediaBucket: vi.fn(),
   verifyAdminRequest: vi.fn(),
   put: vi.fn(),
 }));
@@ -11,7 +11,7 @@ vi.mock('@/lib/api-auth', () => ({
   verifyAdminRequest,
   unauthorizedResponse: () => Response.json({ error: 'Unauthorized' }, { status: 401 }),
 }));
-vi.mock('@/lib/database/runtime', () => ({ getCmsRuntimeEnv }));
+vi.mock('@/lib/database/runtime', () => ({ getMediaBucket }));
 
 import { PUT } from './[...key]/route';
 
@@ -22,7 +22,7 @@ beforeEach(() => {
 afterEach(() => {
   vi.unstubAllEnvs();
   vi.restoreAllMocks();
-  getCmsRuntimeEnv.mockReset();
+  getMediaBucket.mockReset();
   verifyAdminRequest.mockReset();
   put.mockReset();
 });
@@ -45,7 +45,7 @@ function uploadRequest(body: Uint8Array, contentLength = body.byteLength) {
 it('writes a fixed-size byte payload to R2 and returns its media URL', async () => {
   verifyAdminRequest.mockResolvedValue({ role: 'admin' });
   put.mockResolvedValue({});
-  getCmsRuntimeEnv.mockResolvedValue({ APP_DB: {}, MEDIA_BUCKET: { put } });
+  getMediaBucket.mockResolvedValue({ put });
 
   const response = await PUT(uploadRequest(new Uint8Array([1, 2, 3])), {
     params: Promise.resolve({ key: ['thumbnail', 'cover.jpg'] }),
@@ -73,7 +73,7 @@ it('rejects a body whose actual byte count differs from Content-Length', async (
 it('returns a safe reference ID when the R2 write fails', async () => {
   verifyAdminRequest.mockResolvedValue({ role: 'admin' });
   put.mockRejectedValue(new Error('R2 internal detail'));
-  getCmsRuntimeEnv.mockResolvedValue({ APP_DB: {}, MEDIA_BUCKET: { put } });
+  getMediaBucket.mockResolvedValue({ put });
   vi.spyOn(console, 'error').mockImplementation(() => undefined);
 
   const response = await PUT(uploadRequest(new Uint8Array([1, 2, 3])), {
@@ -89,7 +89,7 @@ it('returns a safe reference ID when the R2 write fails', async () => {
 it.each(['local', 'staging'])('refuses uploads on %s so media lives only on production', async (environment) => {
   vi.stubEnv('DEPLOY_ENV', environment);
   verifyAdminRequest.mockResolvedValue(true);
-  getCmsRuntimeEnv.mockResolvedValue({ MEDIA_BUCKET: { put } });
+  getMediaBucket.mockResolvedValue({ put });
 
   const response = await PUT(uploadRequest(new Uint8Array([1, 2, 3])), { params: Promise.resolve({ key: ['thumbnail', 'cover.jpg'] }) });
 

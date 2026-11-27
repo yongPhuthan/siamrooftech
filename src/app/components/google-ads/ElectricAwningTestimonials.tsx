@@ -17,14 +17,14 @@ type CustomerPhotoBoard = {
  */
 const photoBoards: (CustomerPhotoBoard & { caption: string })[] = [
   {
-    src: 'https://pub-99f8d7bf688c4c79afcc2d91f37141f2.r2.dev/siamrooftech/original/20140',
+    src: 'https://assets.siamrooftech.com/site/installed-awnings-collage.webp',
     alt: 'ภาพทีม Siamrooftech ถ่ายร่วมกับลูกค้าหน้างานกันสาดพับเก็บได้ที่ติดตั้งเสร็จแล้ว',
     caption: '',
     width: 2844,
     height: 920,
   },
   {
-    src: 'https://pub-99f8d7bf688c4c79afcc2d91f37141f2.r2.dev/siamrooftech/original/78421',
+    src: 'https://assets.siamrooftech.com/site/awning-details-collage.webp',
     alt: 'ภาพเจ้าของบ้านและเจ้าของร้านร่วมกับกันสาดพับเก็บได้ที่ Siamrooftech ติดตั้งให้',
     caption: '',
     width: 2824,

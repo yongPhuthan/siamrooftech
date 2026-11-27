@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { ElectricAwningAdsLanding, electricAwningAdsMetadata } from '@/app/components/google-ads/ElectricAwningAdsLanding';
 
-export const dynamic = 'force-static';
+export const dynamic = 'force-dynamic';
 
 // Same content as the Google Ads page; separate URL and measurement namespace
 // so ChatGPT Ads traffic never mixes with Google Ads positions or lead paths.
