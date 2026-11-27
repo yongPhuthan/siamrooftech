@@ -59,8 +59,8 @@ async function buildVariant(source: File, longSide: number): Promise<Blob> {
 }
 
 /**
- * Stores the raw photo privately under source/, then three watermarked variants (640/1280/1920 px).
- * Pages only ever get the variant URLs.
+ * Stores the raw photo privately under source/, then three watermarked variants (640/1280/1920 px) under one
+ * shared name. Pages only ever get the variant URLs.
  */
 export async function uploadImageToCloudflare(file: File, options?: UploadOptions): Promise<UploadResult> {
   const watermarkText = options?.watermarkText === undefined ? DEFAULT_WATERMARK_TEXT : options.watermarkText;
@@ -70,10 +70,14 @@ export async function uploadImageToCloudflare(file: File, options?: UploadOption
   if (rawName) await putMedia(SOURCE_PREFIX, rawName, file);
 
   const marked = watermarkText === null ? file : await drawWatermark(file, watermarkText);
+  const variants = Object.keys(IMAGE_VARIANTS) as ImageVariant[];
+  const built = await Promise.all(variants.map((variant) => buildVariant(marked, IMAGE_VARIANTS[variant])));
+  const largest = built[built.length - 1];
+  const fileName = variantFileName(sourceHash, await getShortFileHash(new File([largest], 'largest')), largest.type);
+
   const result: UploadResult = {};
-  for (const variant of Object.keys(IMAGE_VARIANTS) as ImageVariant[]) {
-    const bytes = await buildVariant(marked, IMAGE_VARIANTS[variant]);
-    result[`${variant}Url`] = await putMedia(variant, variantFileName(sourceHash, bytes.type), bytes);
+  for (const [index, variant] of variants.entries()) {
+    result[`${variant}Url`] = await putMedia(variant, fileName, built[index]);
   }
   return result;
 }

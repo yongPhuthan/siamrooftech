@@ -22,7 +22,7 @@ it('previews a selected cover without uploading until the author confirms', asyn
   const selectedFile = new File(['image bytes'], 'cover.jpg', { type: 'image/jpeg' });
   const createObjectURL = vi.fn(() => 'blob:cover-preview');
   Object.defineProperty(URL, 'createObjectURL', { configurable: true, value: createObjectURL });
-  uploadImageToCloudflare.mockResolvedValue({ originalUrl: '/media/original/cover.jpg' });
+  uploadImageToCloudflare.mockResolvedValue({ originalUrl: 'https://assets.siamrooftech.com/original/cover.jpg' });
 
   container = document.createElement('div');
   document.body.append(container);
@@ -55,8 +55,8 @@ it('previews a selected cover without uploading until the author confirms', asyn
   await act(async () => { uploadButton?.click(); });
 
   expect(uploadImageToCloudflare).toHaveBeenCalledWith(selectedFile, { watermarkText: null });
-  expect(onImageChange).toHaveBeenCalledWith('/media/original/cover.jpg');
-  expect(container.querySelector('img')?.getAttribute('src')).toBe('/media/original/cover.jpg');
+  expect(onImageChange).toHaveBeenCalledWith('https://assets.siamrooftech.com/original/cover.jpg');
+  expect(container.querySelector('img')?.getAttribute('src')).toBe('https://assets.siamrooftech.com/original/cover.jpg');
   expect(container.textContent).not.toContain('ภาพที่เลือกยังไม่ถูกอัปโหลด');
   expect(container.querySelector('button[aria-label="เปลี่ยนภาพปก"]')?.textContent).toBe('');
   expect(container.querySelector('button[aria-label="นำภาพปกออก"]')?.textContent).toBe('');

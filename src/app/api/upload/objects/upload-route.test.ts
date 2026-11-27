@@ -56,7 +56,7 @@ it('writes a fixed-size byte payload to R2 and returns its media URL', async () 
   expect(put).toHaveBeenCalledWith('thumbnail/cover.jpg', new Uint8Array([1, 2, 3]), expect.objectContaining({
     httpMetadata: { contentType: 'image/jpeg' },
   }));
-  await expect(response.json()).resolves.toMatchObject({ publicUrl: '/media/thumbnail/cover.jpg' });
+  await expect(response.json()).resolves.toMatchObject({ publicUrl: 'https://assets.siamrooftech.com/thumbnail/cover.jpg' });
 });
 
 it('rejects a body whose actual byte count differs from Content-Length', async () => {

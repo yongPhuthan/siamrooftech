@@ -41,7 +41,7 @@ describe('analyzeArticleOnPage', () => {
   });
 
   it('accepts an empty alt on a decorative image', () => {
-    const result = analyze([{ type: 'paragraph', content: [{ type: 'text', text: 'ข้อความ' }] }, { type: 'image', attrs: { src: '/media/decorative.png', alt: '', decorative: true, width: 400, height: 200 } }]);
+    const result = analyze([{ type: 'paragraph', content: [{ type: 'text', text: 'ข้อความ' }] }, { type: 'image', attrs: { src: 'https://assets.siamrooftech.com/site/decorative.png', alt: '', decorative: true, width: 400, height: 200 } }]);
     expect(result.images.concerns.some((finding) => finding.id === 'image-alt-0')).toBe(false);
   });
 
@@ -49,7 +49,7 @@ describe('analyzeArticleOnPage', () => {
     const result = analyze([
       heading,
       { type: 'paragraph', content: [{ type: 'text', text: 'กันสาดไฟฟ้า' }] },
-      { type: 'image', attrs: { src: '/media/กันสาดไฟฟ้า.jpg', alt: 'กันสาดไฟฟ้า', width: null, height: null } },
+      { type: 'image', attrs: { src: 'https://assets.siamrooftech.com/site/กันสาดไฟฟ้า.jpg', alt: 'กันสาดไฟฟ้า', width: null, height: null } },
     ]);
     expect(result.keywords[0].occurrences).toBe(2);
     expect(result.images.total).toBe(1);

@@ -4,8 +4,8 @@ import { orderedProjectImages, projectHeading, projectMetaDescription, projectNa
 
 const image = (id: string, type: 'after' | 'before' | 'detail', order: number) => ({
   id, project_id: 'p1', title: '', order_index: order, type,
-  small_size: `https://www.siamrooftech.com/media/thumbnail/${id}.jpg`,
-  original_size: `https://www.siamrooftech.com/media/original/${id}.jpg`,
+  small_size: `https://assets.siamrooftech.com/thumbnail/${id}.jpg`,
+  original_size: `https://assets.siamrooftech.com/original/${id}.jpg`,
 });
 
 describe('photo-first projects', () => {

@@ -1,3 +1,4 @@
+import { mediaPublicUrl } from '@/features/projects/image-variants';
 import { randomUUID } from 'node:crypto';
 import { mediaUploadsAllowed, mediaUploadsBlockedResponse } from '@/lib/media-uploads';
 import { NextResponse } from 'next/server';
@@ -28,9 +29,9 @@ export async function POST(request: Request) {
     if (thumbnail instanceof File) {
       const thumbnailKey = `videos/thumbnails/${id}.jpg`;
       await MEDIA_BUCKET.put(thumbnailKey, thumbnail.stream(), { httpMetadata: { contentType: thumbnail.type } });
-      thumbnailUrl = `/media/${thumbnailKey}`;
+      thumbnailUrl = mediaPublicUrl(thumbnailKey);
     }
-    return NextResponse.json({ success: true, videoUrl: `/media/${videoKey}`, thumbnailUrl, fileSize: video.size, mimeType: video.type }, { status: 201, headers: { 'Cache-Control': 'no-store' } });
+    return NextResponse.json({ success: true, videoUrl: mediaPublicUrl(videoKey), thumbnailUrl, fileSize: video.size, mimeType: video.type }, { status: 201, headers: { 'Cache-Control': 'no-store' } });
   } catch (error) {
     console.error('Video upload failed', error);
     return NextResponse.json({ error: 'Video upload failed' }, { status: 503 });

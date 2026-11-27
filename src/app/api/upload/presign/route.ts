@@ -1,4 +1,4 @@
-import { UPLOAD_PREFIXES } from '@/features/projects/image-variants';
+import { mediaPublicUrl, UPLOAD_PREFIXES } from '@/features/projects/image-variants';
 import { unauthorizedResponse } from '@/lib/api-auth';
 import { mediaUploadsAllowed, mediaUploadsBlockedResponse } from '@/lib/media-uploads';
 import { verifyProjectEditorRequest } from '@/lib/projects-agent-auth';
@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
     const { MEDIA_BUCKET } = await getCmsRuntimeEnv();
     if (!MEDIA_BUCKET) return NextResponse.json({ error: 'Media storage is unavailable' }, { status: 503 });
     const objectPath = `${imageSize}/${fileName}`;
-    return NextResponse.json({ uploadUrl: `/api/upload/objects/${objectPath}`, publicUrl: `/media/${objectPath}`, objectPath }, { headers: { 'Cache-Control': 'private, no-store' } });
+    return NextResponse.json({ uploadUrl: `/api/upload/objects/${objectPath}`, publicUrl: mediaPublicUrl(objectPath), objectPath }, { headers: { 'Cache-Control': 'private, no-store' } });
   } catch (error) {
     console.error('Media upload setup failed', error);
     return NextResponse.json({ error: 'Media storage is unavailable' }, { status: 503 });
