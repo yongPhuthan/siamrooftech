@@ -64,7 +64,7 @@ Routine release does not apply D1 migrations. Use the separate manual migration 
 
 Worker rollback does not restore D1/R2 or reverse Durable Object class lifecycle changes. Use a compatible previous Worker version only after confirming its bindings/schema still exist. Do not run automatic database restore on a failed smoke test. Until repeated smoke failures and Cloudflare rollback compatibility are verified in staging, treat rollback as a reviewed operator procedure rather than an automatic guarantee.
 
-Staging and production deployments run smoke checks immediately and again at five minutes. A passing local build or local SEO QA does not prove staging/production behavior or Google indexation. GSC evidence is separate from HTTP/runtime checks.
+Staging and production deployments run smoke checks once, immediately after deploy (no timed recheck). A passing local build or local SEO QA does not prove staging/production behavior or Google indexation. GSC evidence is separate from HTTP/runtime checks.
 
 ## Reviewed LINE Worker release (2026-10-17)
 

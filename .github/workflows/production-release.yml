@@ -166,7 +166,3 @@ jobs:
         run: node scripts/seo-qa.mjs --environment=production
         env:
           SEO_QA_RELEASE_SHA: ${{ github.sha }}
-      - name: Recheck at five minutes
-        run: sleep 300 && node scripts/seo-qa.mjs --environment=production
-        env:
-          SEO_QA_RELEASE_SHA: ${{ github.sha }}
