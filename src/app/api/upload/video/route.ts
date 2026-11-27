@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto';
+import { mediaUploadsAllowed, mediaUploadsBlockedResponse } from '@/lib/media-uploads';
 import { NextResponse } from 'next/server';
 import { verifyAdminRequest, unauthorizedResponse } from '@/lib/api-auth';
 import { getCmsRuntimeEnv } from '@/lib/database/runtime';
@@ -9,6 +10,7 @@ const VIDEO_EXTENSIONS: Record<string, string> = { 'video/mp4': 'mp4', 'video/we
 
 export async function POST(request: Request) {
   if (!(await verifyAdminRequest(request))) return unauthorizedResponse();
+  if (!mediaUploadsAllowed()) return mediaUploadsBlockedResponse();
   try {
     const formData = await request.formData();
     const video = formData.get('video');

@@ -1,10 +1,12 @@
 import { unauthorizedResponse } from '@/lib/api-auth';
+import { mediaUploadsAllowed, mediaUploadsBlockedResponse } from '@/lib/media-uploads';
 import { verifyProjectEditorRequest } from '@/lib/projects-agent-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { getCmsRuntimeEnv } from '@/lib/database/runtime';
 
 export async function POST(req: NextRequest) {
   if (!(await verifyProjectEditorRequest(req))) return unauthorizedResponse();
+  if (!mediaUploadsAllowed()) return mediaUploadsBlockedResponse();
   const { imageSize, fileName } = await req.json().catch(() => ({})) as { imageSize?: unknown; fileName?: unknown };
 
   if (!['thumbnail', 'medium', 'original'].includes(String(imageSize)) || typeof fileName !== 'string' || !/^[a-zA-Z0-9][a-zA-Z0-9._-]{0,159}$/.test(fileName) || fileName.includes('..')) {
