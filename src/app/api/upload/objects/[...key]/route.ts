@@ -1,4 +1,4 @@
-import { UPLOAD_PREFIXES } from '@/features/projects/image-variants';
+import { mediaPublicUrl, UPLOAD_PREFIXES } from '@/features/projects/image-variants';
 import { NextResponse } from 'next/server';
 import { mediaUploadsAllowed, mediaUploadsBlockedResponse } from '@/lib/media-uploads';
 import { unauthorizedResponse } from '@/lib/api-auth';
@@ -52,7 +52,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ key:
   try {
     const { MEDIA_BUCKET } = await getCmsRuntimeEnv();
     await MEDIA_BUCKET.put(key, image, { httpMetadata: { contentType }, customMetadata: { uploadedAt: new Date().toISOString() } });
-    return NextResponse.json({ success: true, objectPath: key, publicUrl: `/media/${key}` }, { headers: { 'Cache-Control': 'no-store' } });
+    return NextResponse.json({ success: true, objectPath: key, publicUrl: mediaPublicUrl(key) }, { headers: { 'Cache-Control': 'no-store' } });
   } catch (error) {
     const referenceId = crypto.randomUUID();
     const reason = error instanceof Error ? { name: error.name, message: error.message } : { name: 'UnknownError' };
