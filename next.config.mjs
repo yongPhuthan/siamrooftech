@@ -63,27 +63,9 @@ const nextConfig = {
         staticGenerationMaxConcurrency: 2,
     },
     images: {
-        remotePatterns: [
-            {
-                protocol: 'https',
-                hostname: 'pub-99f8d7bf688c4c79afcc2d91f37141f2.r2.dev',
-            },
-            {
-                protocol: 'https',
-                hostname: 'siamroof.workstandard.co',
-            },
-            {
-                protocol: 'https',
-                hostname: 'assets.siamrooftech.com',
-            },
-            {
-                // Project photos uploaded through the site; local and staging show production's.
-                protocol: 'https',
-                hostname: 'www.siamrooftech.com',
-                pathname: '/media/**',
-            },
-        ],
-        formats: ['image/avif', 'image/webp'],
+        // Photos are pre-built variants on the assets host; the loader picks one per width (no /_next/image).
+        loader: 'custom',
+        loaderFile: './src/lib/image-loader.ts',
     },
 };
 
