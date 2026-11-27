@@ -73,7 +73,10 @@ The separate LINE Worker now has a manual main-only release/migration workflow i
 unchanged. `yarn line:policy` verifies isolated local/staging/production resources,
 Queue names and the committed live-sync-off gate. Direct LINE deploy/remote
 migration package scripts are disabled. CI quality runs CRM SQLite tests and
-Worker type checks; policy QA covers the new workflow too.
+Worker type checks; policy QA covers the new workflow too. The LINE workflow's
+validate job checks only the LINE Worker (CRM tests, Worker type check, LINE and
+migration-target policies, workflow policy) and bundles it; it does not build or
+test the Next.js site, which CI already checked for that SHA.
 
 The LINE workflow requires exact SHA confirmation, pinned actions, least-privilege
 Environment credentials and `LINE_RELEASE_READY=true` in each selected

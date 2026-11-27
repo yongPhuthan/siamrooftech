@@ -42,19 +42,12 @@ jobs:
         run: test "$REQUESTED_SHA" = "$GITHUB_SHA"
       - run: corepack enable
       - run: yarn install --frozen-lockfile --non-interactive
-      - run: yarn type-check
-      - run: yarn lint
-      - run: yarn test:admin
-      - run: yarn test:articles
       - run: yarn test:crm
       - run: yarn line:type-check
       - run: yarn line:policy
       - run: yarn line-contact:qa
-      - run: yarn ui:qa
-      - run: yarn deployment:policy
-      - run: node --test scripts/deployment-policy.test.mjs scripts/migration-target-policy.test.mjs scripts/line-worker-policy.test.mjs
+      - run: node --test scripts/migration-target-policy.test.mjs scripts/line-worker-policy.test.mjs
       - run: node scripts/workflow-policy-qa.mjs
-      - run: yarn cf:build:staging
       - name: Bundle both isolated LINE targets without credentials
         run: |
           node_modules/.bin/wrangler deploy --dry-run --env staging --config workers/line-chat-history/wrangler.jsonc --outdir "$GITHUB_WORKSPACE/.line-release/staging"
