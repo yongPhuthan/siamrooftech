@@ -1,6 +1,7 @@
 import { adminFetch } from '@/lib/admin-fetch';
 import imageCompression from 'browser-image-compression';
 import { getShortFileHash } from '../utils/fileHash';
+import { DEFAULT_WATERMARK_TEXT, drawWatermark } from '@/features/projects/watermark';
 
 export type UploadResult = {
   thumbnailUrl?: string;
@@ -18,30 +19,11 @@ async function uploadFailure(response: Response, sizeLabel: string): Promise<Err
   return new Error(`อัปโหลดภาพ${sizeLabel}ไม่สำเร็จ (HTTP ${response.status}${referenceId})`);
 }
 
-const DEFAULT_WATERMARK_TEXT = 'LINE:@ROOFTECH';
 const IMAGE_SIZE_LABELS = {
   thumbnail: 'ขนาดย่อ',
   medium: 'ขนาดกลาง',
   original: 'ต้นฉบับ',
 } as const;
-
-async function applyWatermark(file: File, watermarkText: string): Promise<File> {
-  const formData = new FormData();
-  formData.append('file', file);
-  formData.append('text', watermarkText);
-
-  const response = await adminFetch('/api/upload/watermark', {
-    method: 'POST',
-    body: formData,
-  });
-
-  if (!response.ok) {
-    throw new Error('ไม่สามารถใส่ลายน้ำได้');
-  }
-
-  const blob = await response.blob();
-  return new File([blob], file.name, { type: blob.type || file.type });
-}
 
 export async function uploadImageToCloudflare(
   file: File,
@@ -53,7 +35,7 @@ export async function uploadImageToCloudflare(
       ? DEFAULT_WATERMARK_TEXT
       : options.watermarkText;
   const sourceFile =
-    watermarkText === null ? file : await applyWatermark(file, watermarkText);
+    watermarkText === null ? file : await drawWatermark(file, watermarkText);
 
   // Generate unique ID based on file content hash + timestamp + extension
   const fileHash = await getShortFileHash(file);
