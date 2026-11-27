@@ -3,7 +3,7 @@
  * resized. It runs in the browser (canvas) because sharp cannot run inside a Cloudflare Worker; the agent uploader
  * draws the same mark with sharp on the owner's machine.
  */
-export const DEFAULT_WATERMARK_TEXT = 'LINE:@ROOFTECH';
+export const DEFAULT_WATERMARK_TEXT = 'Line:@rooftech';
 
 /** Distance from the right and bottom edges, in pixels of the full-size photo. */
 const EDGE_MARGIN = 24;

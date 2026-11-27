@@ -24,7 +24,7 @@ const createGroupFiles = (): GroupLocalFiles => ({ after: [], before: [] });
 const uploadModes: { key: UploadGroupKey; label: string; description: string }[] = [
   {
     key: 'with-watermark',
-    label: 'อัปโหลดพร้อมลายน้ำ LINE:@ROOFTECH',
+    label: 'อัปโหลดพร้อมลายน้ำ Line:@rooftech',
     description: 'ภาพที่ส่งผ่านโหมดนี้จะถูกสอดลายน้ำตัวอักษรไว้ในมุมล่างขวาทุกขนาด',
   },
   {
