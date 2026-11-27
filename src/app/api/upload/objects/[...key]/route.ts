@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { mediaUploadsAllowed, mediaUploadsBlockedResponse } from '@/lib/media-uploads';
 import { unauthorizedResponse } from '@/lib/api-auth';
 import { verifyProjectEditorRequest } from '@/lib/projects-agent-auth';
 import { getCmsRuntimeEnv } from '@/lib/database/runtime';
@@ -31,6 +32,7 @@ async function readFixedSizeBody(body: ReadableStream<Uint8Array>, expectedSize:
 
 export async function PUT(request: Request, { params }: { params: Promise<{ key: string[] }> }) {
   if (!(await verifyProjectEditorRequest(request))) return unauthorizedResponse();
+  if (!mediaUploadsAllowed()) return mediaUploadsBlockedResponse();
   const { key: parts } = await params;
   const key = parts.join('/');
   const [variant, filename] = parts;

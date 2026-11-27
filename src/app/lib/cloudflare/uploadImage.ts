@@ -14,7 +14,8 @@ export type UploadOptions = {
 };
 
 async function uploadFailure(response: Response, sizeLabel: string): Promise<Error> {
-  const payload = await response.json().catch(() => null) as { referenceId?: unknown } | null;
+  const payload = await response.json().catch(() => null) as { referenceId?: unknown; error?: unknown } | null;
+  if (response.status === 403 && typeof payload?.error === 'string') return new Error(payload.error);
   const referenceId = typeof payload?.referenceId === 'string' ? ` · รหัส ${payload.referenceId}` : '';
   return new Error(`อัปโหลดภาพ${sizeLabel}ไม่สำเร็จ (HTTP ${response.status}${referenceId})`);
 }

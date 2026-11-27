@@ -39,6 +39,7 @@ Use `yarn` for package management. Run `yarn type-check`, `yarn lint`, and relev
 - `src/features/projects/` and `src/features/articles/` own their validators, publication policy, and repositories. Save drafts separately from public snapshots. Public routes, metadata, related lists, and sitemap read published records only.
 - Use revision checks for editorial mutations. Publishing and unpublishing must update the live snapshot, route reservation, and cache invalidation coherently. A failed invalidation must be observable and recoverable.
 - Store uploads in R2 through authenticated same-origin handlers. Validate type, size, and path; never report temporary browser blobs as persistent media.
+- Media is uploaded on production only (project photos, article covers, videos). Upload routes refuse unless `DEPLOY_ENV=production` (`src/lib/media-uploads.ts`); local and staging read production's image URLs and never write to their own bucket.
 - Keep secrets out of code, arguments, fixtures, docs, logs, and committed env files. `.dev.vars.example` contains placeholders only; local secrets stay in ignored `.dev.vars`.
 - Do not send external messages, publish, deploy, or change remote services unless the user explicitly asks.
 
