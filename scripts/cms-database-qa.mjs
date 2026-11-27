@@ -13,9 +13,6 @@ const now = new Date().toISOString();
 const payload = JSON.stringify({ type: 'doc', content: [] });
 
 try {
-  const baseline = await db.prepare("SELECT COUNT(*) AS count FROM published_content WHERE kind='project'").first();
-  assert.equal(baseline?.count, 16, 'local D1 has the 16 imported published projects');
-
   await db.batch([
     db.prepare("INSERT INTO content_entries (id,kind,renderer,revision,source_created_at,imported_at) VALUES (?,'article','document',0,?,?)").bind(entryId, now, now),
     db.prepare('INSERT INTO content_drafts (entry_id,schema_version,title,proposed_path,payload_json,content_hash,saved_at) VALUES (?,1,?,?,?,?,?)').bind(entryId, 'QA draft', path, payload, 'draft-hash', now),
@@ -40,16 +37,14 @@ try {
   assert.equal(await db.prepare('SELECT id FROM published_content WHERE id=?').bind(entryId).first(), null, 'unpublished snapshot is hidden');
   assert.ok(await db.prepare('SELECT path FROM content_routes WHERE entry_id=? AND retired_at IS NOT NULL').bind(entryId).first(), 'unpublish retains the route reservation');
 
-  const duplicate = await db.prepare('SELECT path FROM content_routes WHERE entry_id=? LIMIT 1').bind((await db.prepare("SELECT entry_id FROM content_routes WHERE path LIKE '/projects/%' LIMIT 1").first())?.entry_id).first();
-  assert.ok(duplicate?.path, 'baseline route exists for uniqueness test');
   const failedId = `qa-rollback-${suffix}`;
   await assert.rejects(db.batch([
     db.prepare("INSERT INTO content_entries (id,kind,renderer,revision,imported_at) VALUES (?,'article','document',0,?)").bind(failedId, now),
-    db.prepare('INSERT INTO content_routes (path,entry_id,retired_at) VALUES (?,?,NULL)').bind(duplicate.path, failedId),
+    db.prepare('INSERT INTO content_routes (path,entry_id,retired_at) VALUES (?,?,NULL)').bind(path, failedId),
   ]), /UNIQUE|constraint/i);
   assert.equal(await db.prepare('SELECT id FROM content_entries WHERE id=?').bind(failedId).first(), null, 'failed batch rolls back earlier statements');
 
-  console.log('Local CMS QA passed: imported baseline, private drafts, publish visibility, draft isolation, route retention, and batch rollback.');
+  console.log('Local CMS QA passed: private drafts, publish visibility, draft isolation, route retention, and batch rollback.');
 } finally {
   await db.batch([
     db.prepare('DELETE FROM content_publications WHERE entry_id=?').bind(entryId),

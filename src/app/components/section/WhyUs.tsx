@@ -22,7 +22,7 @@ function WhyUs({keyword}: {keyword: string}) {
       <div className="mx-auto mt-8 flex max-w-5xl flex-col gap-6 md:mt-10">
         <Image
           className="h-auto w-full rounded-site-media"
-          src="https://pub-99f8d7bf688c4c79afcc2d91f37141f2.r2.dev/siamrooftech/original/20140"
+          src="https://assets.siamrooftech.com/site/installed-awnings-collage.webp"
           alt={`${keyword} ตัวอย่างงานติดตั้งหน้างานจริง`}
           sizes="(max-width: 1024px) 100vw, 1024px"
           width={500}
@@ -31,7 +31,7 @@ function WhyUs({keyword}: {keyword: string}) {
         />
         <Image
           className="h-auto w-full rounded-site-media"
-          src="https://pub-99f8d7bf688c4c79afcc2d91f37141f2.r2.dev/siamrooftech/original/78421"
+          src="https://assets.siamrooftech.com/site/awning-details-collage.webp"
           alt={`${keyword} อุปกรณ์และรายละเอียดงานติดตั้ง`}
           sizes="(max-width: 1024px) 100vw, 1024px"
           width={500}

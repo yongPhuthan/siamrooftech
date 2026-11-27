@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 import { mediaUploadsAllowed, mediaUploadsBlockedResponse } from '@/lib/media-uploads';
 import { unauthorizedResponse } from '@/lib/api-auth';
 import { verifyProjectEditorRequest } from '@/lib/projects-agent-auth';
-import { getCmsRuntimeEnv } from '@/lib/database/runtime';
+import { getMediaBucket } from '@/lib/database/runtime';
 
 const MAX_IMAGE_BYTES = 35 * 1024 * 1024;
 const ALLOWED_IMAGE_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/avif']);
@@ -50,8 +50,8 @@ export async function PUT(request: Request, { params }: { params: Promise<{ key:
   if (!image) return NextResponse.json({ error: 'Invalid image upload' }, { status: 400 });
 
   try {
-    const { MEDIA_BUCKET } = await getCmsRuntimeEnv();
-    await MEDIA_BUCKET.put(key, image, { httpMetadata: { contentType }, customMetadata: { uploadedAt: new Date().toISOString() } });
+    const bucket = await getMediaBucket();
+    await bucket.put(key, image, { httpMetadata: { contentType }, customMetadata: { uploadedAt: new Date().toISOString() } });
     return NextResponse.json({ success: true, objectPath: key, publicUrl: mediaPublicUrl(key) }, { headers: { 'Cache-Control': 'no-store' } });
   } catch (error) {
     const referenceId = crypto.randomUUID();

@@ -25,13 +25,13 @@ Content entries have stable IDs and a `kind` of `page`, `project`, or `article`.
 | Project | Existing project contract, media records, dates, and stable slug | `/projects/[slug]` |
 | Article | Versioned rich-text document and metadata | `/articles/[slug]`, including native heading outline and TOC |
 
-The public-project baseline is imported from `src/data/projects.ts`. It contains 16 records and 67 image records; the importer preserves IDs, paths, and media URLs and can be rerun safely. No videos are present in that source set. New project records are created as private drafts through the admin API.
+Projects exist only in production D1. New project records are created as private drafts through the admin API or the projects agent, and their photos live on `assets.siamrooftech.com`.
 
 ## Local setup
 
 1. Install with the pinned Yarn version and copy `.dev.vars.example` to `.dev.vars`.
 2. Generate a local `BETTER_AUTH_SECRET` of at least 32 characters and set `BETTER_AUTH_URL=http://localhost:3000`.
-3. Apply CMS and cache migrations with `yarn db:migrate:local` and `yarn db:migrate:cache:local`, Local pages read projects from production (`PROJECTS_SOURCE_URL` in `wrangler.jsonc`, served by `/api/projects/published`) and the project API is read-only there; `yarn db:seed:local` is only for CI's database tests.
+3. Apply CMS and cache migrations with `yarn db:migrate:local` and `yarn db:migrate:cache:local`, Local pages read projects from production (`PROJECTS_SOURCE_URL` in `wrangler.jsonc`, served by `/api/projects/published`) and the project API is read-only there.
 4. Configure `ADMIN_ALLOWED_EMAILS` and the native email binding, then register the first administrator through the email OTP form. See `docs/security/admin-access.md`.
 5. Run `yarn dev` and open an admin page to register through email OTP. D1/R2 stay local; the explicitly configured email binding sends real verification emails.
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { IMAGE_VARIANTS, isPrivateMediaKey, mediaPublicUrl, sourceFileName, UPLOAD_PREFIXES, variantFileName } from './image-variants';
+import { IMAGE_VARIANTS, mediaPublicUrl, sourceFileName, UPLOAD_PREFIXES, variantFileName } from './image-variants';
 
 describe('image variants', () => {
   it('uses the 640/1280/1920 standard in the schema folders', () => {
@@ -19,10 +19,5 @@ describe('image variants', () => {
   it('keeps raw originals only for types the upload route stores', () => {
     expect(sourceFileName('0123456789abcdef', 'image/jpeg')).toBe('0123456789abcdef.jpg');
     expect(sourceFileName('0123456789abcdef', 'image/heic')).toBeNull();
-  });
-
-  it('treats source/ as private', () => {
-    expect(isPrivateMediaKey('source/0123456789abcdef.jpg')).toBe(true);
-    expect(isPrivateMediaKey('medium/0123456789abcdef-v2.webp')).toBe(false);
   });
 });

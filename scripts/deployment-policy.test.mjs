@@ -15,8 +15,11 @@ test('staging is isolated, private from workers.dev, and noindex', () => {
   assert.throws(() => assessConfig(config, 'staging', { deploy: true }), /Cloudflare Access/);
   assert.equal(assessConfig(config, 'staging', { deploy: true, accessReady: true }).deployReady, true);
   const broken = structuredClone(config);
-  broken.env.staging.r2_buckets[0].bucket_name = 'siamrooftech-media';
+  broken.env.staging.r2_buckets[0].bucket_name = 'siamrooftech-opennext-cache';
   assert.throws(() => assessConfig(broken, 'staging'), /environment-specific/);
+  const withMedia = structuredClone(config);
+  withMedia.env.staging.r2_buckets.push({ binding: 'MEDIA_BUCKET', bucket_name: 'siamrooftech-media-staging' });
+  assert.throws(() => assessConfig(withMedia, 'staging'), /production only/);
   const indexable = structuredClone(config);
   indexable.env.staging.vars.INDEX_POLICY = 'index';
   assert.throws(() => assessConfig(indexable, 'staging'), /INDEX_POLICY mismatch/);

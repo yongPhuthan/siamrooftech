@@ -3,81 +3,44 @@ import Image from 'next/image';
 const logos = [
   {
     src:'/images/logo1.webp',
-    // src: 'https://pub-99f8d7bf688c4c79afcc2d91f37141f2.r2.dev/siamrooftech/small/10123',
     alt: 'Logo 1',
   },
   {
     src:'/images/logo-กันสาดพับได้2.webp',
-    // src: 'https://pub-99f8d7bf688c4c79afcc2d91f37141f2.r2.dev/siamrooftech/small/12619',
     alt: 'Logo 2',
   },
   {
     src:'/images/logo/39513.webp',
-    // src: 'https://pub-99f8d7bf688c4c79afcc2d91f37141f2.r2.dev/siamrooftech/small/54794',
     alt: 'Logo 3',
   },
   {
     src:'/images/logo/54794.webp',
-    // src: 'https://pub-99f8d7bf688c4c79afcc2d91f37141f2.r2.dev/siamrooftech/small/71044',
     alt: 'Logo 4',
   },
   {
     src:'/images/logo/62772.webp',
-    // src: 'https://pub-99f8d7bf688c4c79afcc2d91f37141f2.r2.dev/siamrooftech/small/79503',
     alt: 'Logo 5',
   },
   {
     src:'/images/logo/64837.webp',
-    // src: 'https://pub-99f8d7bf688c4c79afcc2d91f37141f2.r2.dev/siamrooftech/small/84258',
     alt: 'Logo 6',
   },
   {
     src:'/images/logo/71044.webp',
-    // src: 'https://pub-99f8d7bf688c4c79afcc2d91f37141f2.r2.dev/siamrooftech/small/39513',
     alt: 'Logo 7',
   },
   {
     src:'/images/logo/79503.webp',
-    // src: 'https://pub-99f8d7bf688c4c79afcc2d91f37141f2.r2.dev/siamrooftech/small/62772',
     alt: 'Logo 8',
   },
   {
     src:'/images/logo/83414.webp',
-    // src: 'https://pub-99f8d7bf688c4c79afcc2d91f37141f2.r2.dev/siamrooftech/small/64837',
     alt: 'Logo 9',
   },
   {
     src:'/images/logo/84258.webp',
-    // src: 'https://pub-99f8d7bf688c4c79afcc2d91f37141f2.r2.dev/siamrooftech/small/83414',
     alt: 'Logo 10',
   },
-  // {
-  //   src: 'https://pub-99f8d7bf688c4c79afcc2d91f37141f2.r2.dev/siamrooftech/small/12619',
-  //   alt: 'Logo 2',
-  // },
-  // {
-  //   src: 'https://pub-99f8d7bf688c4c79afcc2d91f37141f2.r2.dev/siamrooftech/small/54794',
-  //   alt: 'Logo 3',
-  // },
-  // {
-  //   src: 'https://pub-99f8d7bf688c4c79afcc2d91f37141f2.r2.dev/siamrooftech/small/71044',
-  //   alt: 'Logo 4',
-  // },
-  // {
-  //   src: 'https://pub-99f8d7bf688c4c79afcc2d91f37141f2.r2.dev/siamrooftech/small/79503',
-  //   alt: 'Logo 5',
-  // },
-  // {
-  //   src: 'https://pub-99f8d7bf688c4c79afcc2d91f37141f2.r2.dev/siamrooftech/small/84258',
-  //   alt: 'Logo 6',
-  // },
-  // {
-  //   src: 'https://pub-99f8d7bf688c4c79afcc2d91f37141f2.r2.dev/siamrooftech/small/94135',
-  //   alt: 'Logo 6',
-  // },
- 
-
-  // ... add more logos as needed
 ];
 
 type TrustedByProps = {
@@ -130,9 +93,5 @@ function TrustedBy({ animated = false }: TrustedByProps) {
     </section>
   );
 }
-
-
-
-
 
 export default TrustedBy;

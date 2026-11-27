@@ -12,7 +12,7 @@ const jsonLd = {
   telephone: '+66-98-454-2455',
   email: 'contact@siamrooftech.com',
   logo: canonicalUrl('/logo.png'),
-  image: 'https://pub-99f8d7bf688c4c79afcc2d91f37141f2.r2.dev/siamrooftech/medium/46570',
+  image: 'https://assets.siamrooftech.com/site/awning-house.webp',
   address: {
     '@type': 'PostalAddress',
     addressCountry: 'TH',

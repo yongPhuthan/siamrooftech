@@ -34,7 +34,6 @@ jobs:
       - run: yarn line:type-check
       - run: yarn test:admin
       - run: node --test workers/ip-exclusions/*.test.mjs
-      - run: yarn test:seed
       - run: yarn ui:qa
       - run: yarn line-contact:qa
 
@@ -69,7 +68,6 @@ jobs:
       - run: yarn install --frozen-lockfile --non-interactive
       - run: yarn db:migrate:local
       - run: yarn db:migrate:cache:local
-      - run: yarn db:seed:local --apply
       - run: yarn cf:build:staging
       - run: node scripts/worker-binding-qa.mjs staging
       - run: node scripts/worker-binding-qa.mjs production

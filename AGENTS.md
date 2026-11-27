@@ -4,7 +4,7 @@
 
 This is an SEO-focused public website and private CMS. The app uses Next.js 15 App Router, TypeScript, Better Auth, Cloudflare D1, Drizzle, R2, and OpenNext. The LINE chat-history Worker is a separate service with its own database and access tokens.
 
-Use `yarn` for package management. Run `yarn type-check`, `yarn lint`, and relevant tests for code changes. Use `yarn db:migrate:local` for local data. Projects live only on production: local reads production's published projects through `PROJECTS_SOURCE_URL` and cannot create or edit them, so never add test projects locally (`yarn db:seed:local` only fills the D1 that CI's database tests check); `yarn cf:preview` provides the complete local CMS with real email OTP delivery. Production deploy commands require an explicit request. Never expose environment values in output.
+Use `yarn` for package management. Run `yarn type-check`, `yarn lint`, and relevant tests for code changes. Use `yarn db:migrate:local` for local data. Projects live only on production: local reads production's published projects through `PROJECTS_SOURCE_URL` and cannot create or edit them, so never add test projects locally; `yarn cf:preview` provides the complete local CMS with real email OTP delivery. Production deploy commands require an explicit request. Never expose environment values in output.
 
 ## Architecture and reuse
 

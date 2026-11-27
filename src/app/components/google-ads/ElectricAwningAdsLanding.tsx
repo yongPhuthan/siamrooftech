@@ -24,7 +24,7 @@ import { ElectricAwningTestimonials } from '@/app/components/google-ads/Electric
 import { ElectricAwningRiskProof } from '@/app/components/google-ads/ElectricAwningRiskProof';
 import { ElectricAwningProcess } from '@/app/components/google-ads/ElectricAwningProcess';
 import TrustedBy from '@/app/components/section/TrustedBy';
-import { fileProjects } from '@/data/projects';
+import { getPublishedProjectById } from '@/features/projects/server/repository';
 import { getProjectProof } from '@/lib/project-proof';
 import { canonicalUrl } from '@/lib/seo-config';
 import EndSection from '@/app/components/section/EndSection';
@@ -48,7 +48,7 @@ export const electricAwningAdsMetadata: Metadata = {
     type: 'website',
     images: [
       {
-        url: 'https://assets.siamrooftech.com/original/90640f151a597617-1754738877596-v27zzm-jpg.jpg',
+        url: 'https://assets.siamrooftech.com/original/90640f151a597617-5ab93407.webp',
         width: 1200,
         height: 630,
         alt: 'ผลงานติดตั้งกันสาดไฟฟ้าสำหรับบ้านพักอาศัยโดย Siamrooftech',
@@ -63,12 +63,15 @@ const selectedProjects = [
   { id: 'ANocfCe2kmiS4wdtv5Sm', imageIndex: 0 },
 ] as const;
 
-const projects = selectedProjects.flatMap(({ id, imageIndex }) => {
-  const project = fileProjects.find((item) => item.id === id);
-  if (!project) return [];
-  const chosenImage = project.images[imageIndex] ?? project.images[0];
-  return [{ project, proof: getProjectProof(project), chosenImage }];
-});
+async function selectedProjectProofs() {
+  const found = await Promise.all(selectedProjects.map(async ({ id, imageIndex }) => {
+    const project = await getPublishedProjectById(id);
+    if (!project?.images.length) return [];
+    const chosenImage = project.images[imageIndex] ?? project.images[0];
+    return [{ project, proof: getProjectProof(project), chosenImage }];
+  }));
+  return found.flat();
+}
 
 const faqItems = [
   {
@@ -165,8 +168,9 @@ const AD_SOURCES = {
 
 export type ElectricAwningAdSource = keyof typeof AD_SOURCES;
 
-export function ElectricAwningAdsLanding({ source }: { source: ElectricAwningAdSource }) {
+export async function ElectricAwningAdsLanding({ source }: { source: ElectricAwningAdSource }) {
   const { landingPage, position } = AD_SOURCES[source];
+  const projects = await selectedProjectProofs();
   return (
     <main
       data-site-theme
@@ -203,7 +207,7 @@ export function ElectricAwningAdsLanding({ source }: { source: ElectricAwningAdS
 
           <figure className="overflow-hidden bg-neutral-100">
             <Image
-              src="https://assets.siamrooftech.com/original/90640f151a597617-1754738877596-v27zzm-jpg.jpg"
+              src="https://assets.siamrooftech.com/original/90640f151a597617-5ab93407.webp"
               alt="ผลงานติดตั้งกันสาดไฟฟ้าสำหรับบ้านพักอาศัยของ Siamrooftech"
               width={1200}
               height={900}
@@ -373,7 +377,7 @@ export function ElectricAwningAdsLanding({ source }: { source: ElectricAwningAdS
               <figure className="mt-8">
                 <div className="overflow-hidden border border-neutral-300 bg-neutral-200">
                   <Image
-                    src="/images/landing/electric-awning/site-survey-v1.png"
+                    src="/images/landing/electric-awning/site-survey.webp"
                     alt="ภาพประกอบช่างประเมินพื้นที่สำหรับติดตั้งกันสาดไฟฟ้า"
                     width={1536}
                     height={1024}

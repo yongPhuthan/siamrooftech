@@ -30,7 +30,8 @@ export function assessConfig(config, target, { deploy = false, accessReady = fal
   const buckets = env.r2_buckets || [];
   const services = env.services || [];
   const requiredD1 = ['APP_DB', 'NEXT_TAG_CACHE_D1'];
-  const requiredR2 = ['MEDIA_BUCKET', 'NEXT_INC_CACHE_R2_BUCKET'];
+  // Media lives on production only; local and staging read production's image URLs.
+  const requiredR2 = target === 'production' ? ['MEDIA_BUCKET', 'NEXT_INC_CACHE_R2_BUCKET'] : ['NEXT_INC_CACHE_R2_BUCKET'];
   const missing = [
     ...requiredD1.filter((binding) => !d1.some((item) => item.binding === binding)),
     ...requiredR2.filter((binding) => !buckets.some((item) => item.binding === binding)),
@@ -63,8 +64,9 @@ export function assessConfig(config, target, { deploy = false, accessReady = fal
     const expectedPrefix = binding.binding === 'NEXT_TAG_CACHE_D1' ? `siamrooftech-cache-${target}` : `siamrooftech-cms-${target}`;
     assert.equal(binding.database_name, expectedPrefix, `${target} ${binding.binding} database name must match its isolated target`);
   }
+  assert.ok(target === 'production' || !buckets.some((item) => item.binding === 'MEDIA_BUCKET'), `${target} must not bind a media bucket: media is uploaded on production only`);
   for (const bucket of buckets) {
-    const expectedBucket = bucket.binding === 'MEDIA_BUCKET' ? `siamrooftech-media${target === 'local' ? '' : `-${target}`}` : `siamrooftech-opennext-cache${target === 'local' ? '' : `-${target}`}`;
+    const expectedBucket = bucket.binding === 'MEDIA_BUCKET' ? 'siamrooftech-media-production' : `siamrooftech-opennext-cache${target === 'local' ? '' : `-${target}`}`;
     assert.equal(bucket.bucket_name, expectedBucket, `${target} ${bucket.binding} bucket name must match its isolated target`);
   }
   if (target === 'local') {

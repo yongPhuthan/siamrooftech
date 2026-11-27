@@ -3,7 +3,7 @@ import { randomUUID } from 'node:crypto';
 import { mediaUploadsAllowed, mediaUploadsBlockedResponse } from '@/lib/media-uploads';
 import { NextResponse } from 'next/server';
 import { verifyAdminRequest, unauthorizedResponse } from '@/lib/api-auth';
-import { getCmsRuntimeEnv } from '@/lib/database/runtime';
+import { getMediaBucket } from '@/lib/database/runtime';
 
 const MAX_VIDEO_BYTES = 100 * 1024 * 1024;
 const MAX_THUMBNAIL_BYTES = 5 * 1024 * 1024;
@@ -21,14 +21,14 @@ export async function POST(request: Request) {
     if (!extension || video.size > MAX_VIDEO_BYTES) return NextResponse.json({ error: 'Unsupported video format or file too large' }, { status: 400 });
     if (thumbnail !== null && (!(thumbnail instanceof File) || thumbnail.type !== 'image/jpeg' || thumbnail.size > MAX_THUMBNAIL_BYTES)) return NextResponse.json({ error: 'Invalid thumbnail' }, { status: 400 });
 
-    const { MEDIA_BUCKET } = await getCmsRuntimeEnv();
+    const bucket = await getMediaBucket();
     const id = randomUUID();
     const videoKey = `videos/${id}.${extension}`;
-    await MEDIA_BUCKET.put(videoKey, video.stream(), { httpMetadata: { contentType: video.type }, customMetadata: { originalName: video.name.slice(0, 180) } });
+    await bucket.put(videoKey, video.stream(), { httpMetadata: { contentType: video.type }, customMetadata: { originalName: video.name.slice(0, 180) } });
     let thumbnailUrl: string | undefined;
     if (thumbnail instanceof File) {
       const thumbnailKey = `videos/thumbnails/${id}.jpg`;
-      await MEDIA_BUCKET.put(thumbnailKey, thumbnail.stream(), { httpMetadata: { contentType: thumbnail.type } });
+      await bucket.put(thumbnailKey, thumbnail.stream(), { httpMetadata: { contentType: thumbnail.type } });
       thumbnailUrl = mediaPublicUrl(thumbnailKey);
     }
     return NextResponse.json({ success: true, videoUrl: mediaPublicUrl(videoKey), thumbnailUrl, fileSize: video.size, mimeType: video.type }, { status: 201, headers: { 'Cache-Control': 'no-store' } });

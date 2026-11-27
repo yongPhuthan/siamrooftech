@@ -24,10 +24,6 @@
   ],
   "r2_buckets": [
     {
-      "binding": "MEDIA_BUCKET",
-      "bucket_name": "siamrooftech-media"
-    },
-    {
       "binding": "NEXT_INC_CACHE_R2_BUCKET",
       "bucket_name": "siamrooftech-opennext-cache"
     }
@@ -103,10 +99,6 @@
       ],
       "r2_buckets": [
         {
-          "binding": "MEDIA_BUCKET",
-          "bucket_name": "siamrooftech-media-staging"
-        },
-        {
           "binding": "NEXT_INC_CACHE_R2_BUCKET",
           "bucket_name": "siamrooftech-opennext-cache-staging"
         }
@@ -132,6 +124,7 @@
       "vars": {
         "DEPLOY_ENV": "staging",
         "SITE_ORIGIN": "https://staging.siamrooftech.com",
+        "PROJECTS_SOURCE_URL": "https://www.siamrooftech.com",
         "INDEX_POLICY": "noindex",
         "AUTH_EMAIL_DELIVERY": "live",
         "AUTH_EMAIL_FROM": "noreply@siamrooftech.com",
