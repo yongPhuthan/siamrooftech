@@ -1,3 +1,4 @@
+import { UPLOAD_PREFIXES } from '@/features/projects/image-variants';
 import { NextResponse } from 'next/server';
 import { mediaUploadsAllowed, mediaUploadsBlockedResponse } from '@/lib/media-uploads';
 import { unauthorizedResponse } from '@/lib/api-auth';
@@ -39,7 +40,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ key:
   const contentType = request.headers.get('content-type')?.split(';')[0].trim().toLowerCase() || '';
   const contentLength = request.headers.get('content-length');
   const size = contentLength === null ? Number.NaN : Number(contentLength);
-  if (!['thumbnail', 'medium', 'original'].includes(variant) || !filename || filename.includes('..') || !ALLOWED_IMAGE_TYPES.has(contentType) || !request.body || !Number.isSafeInteger(size) || size < 1 || size > MAX_IMAGE_BYTES) {
+  if (!(UPLOAD_PREFIXES as readonly string[]).includes(variant) || !filename || filename.includes('..') || !ALLOWED_IMAGE_TYPES.has(contentType) || !request.body || !Number.isSafeInteger(size) || size < 1 || size > MAX_IMAGE_BYTES) {
     return NextResponse.json({ error: 'Invalid image upload' }, { status: 400 });
   }
 

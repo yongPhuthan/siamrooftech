@@ -1,3 +1,4 @@
+import { isPrivateMediaKey } from '@/features/projects/image-variants';
 import { NextResponse } from 'next/server';
 import { getCmsRuntimeEnv } from '@/lib/database/runtime';
 
@@ -6,7 +7,7 @@ export const dynamic = 'force-dynamic';
 export async function GET(_request: Request, { params }: { params: Promise<{ key: string[] }> }) {
   const { key: parts } = await params;
   const key = parts.join('/');
-  if (!key || parts.some((part) => part === '.' || part === '..')) return new NextResponse(null, { status: 404 });
+  if (!key || parts.some((part) => part === '.' || part === '..') || isPrivateMediaKey(key)) return new NextResponse(null, { status: 404 });
   try {
     const { MEDIA_BUCKET } = await getCmsRuntimeEnv();
     const object = await MEDIA_BUCKET.get(key);
