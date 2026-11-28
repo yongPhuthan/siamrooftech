@@ -40,7 +40,7 @@ const WhyUs2 = ({ keyword }: Props) => {
               </div>
               <div className="col-span-1 relative h-[400px]">
                 <Image
-                  src="/images/1675672547482.jpg"
+                  src="/images/1675672547482.webp"
                   fill
                   sizes="33vw"
                   className="object-cover"
@@ -55,7 +55,7 @@ const WhyUs2 = ({ keyword }: Props) => {
             <div className="grid grid-cols-3 gap-0">
               <div className="col-span-1 relative h-[400px]">
                 <Image
-                  src="/images/line_oa_chat_230513_163101.jpg"
+                  src="/images/line_oa_chat_230513_163101.webp"
                   fill
                   sizes="33vw"
                   className="object-cover"
@@ -97,7 +97,7 @@ const WhyUs2 = ({ keyword }: Props) => {
               </div>
               <div className="col-span-1 relative h-[400px]">
                 <Image
-                  src="/images/aftersales.jpg"
+                  src="/images/aftersales.webp"
                   fill
                   sizes="33vw"
                   className="object-cover"
@@ -133,7 +133,7 @@ const WhyUs2 = ({ keyword }: Props) => {
             </div>
             <div className="relative h-48 w-full bg-gray-100">
               <Image
-                src="/images/1675672547482.jpg"
+                src="/images/1675672547482.webp"
                 fill
                 sizes="100vw"
                 className="object-cover"
@@ -166,7 +166,7 @@ const WhyUs2 = ({ keyword }: Props) => {
             </div>
             <div className="relative h-48 w-full bg-gray-100">
               <Image
-                src="/images/line_oa_chat_230513_163101.jpg"
+                src="/images/line_oa_chat_230513_163101.webp"
                 fill
                 sizes="100vw"
                 className="object-cover"
@@ -198,7 +198,7 @@ const WhyUs2 = ({ keyword }: Props) => {
             </div>
             <div className="relative h-48 w-full bg-gray-100">
               <Image
-                src="/images/aftersales.jpg"
+                src="/images/aftersales.webp"
                 fill
                 sizes="100vw"
                 className="object-cover"

@@ -52,6 +52,8 @@ jobs:
       - run: yarn line:policy
       - run: node --test scripts/line-worker-policy.test.mjs
       - run: node scripts/workflow-policy-qa.mjs
+      - run: node scripts/image-policy.mjs
+      - run: node --test scripts/image-policy.test.mjs
 
   runtime-seo:
     name: runtime-seo
