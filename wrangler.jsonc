@@ -1,7 +1,7 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "siamrooftech-local",
-  "account_id": "a61f30bb027ef64c9577c73f5981f073",
+  "account_id": "7d77d1239789304d1351db90f4cc2686",
   "main": ".open-next/worker.js",
   "compatibility_date": "2026-06-06",
   "compatibility_flags": ["nodejs_compat", "no_handle_cross_request_promise_resolution"],
@@ -62,7 +62,7 @@
     "NEXT_PUBLIC_GA4_MEASUREMENT_ID": "G-49Q49WM381",
     "NEXT_PUBLIC_GOOGLE_ADS_ID": "",
     "NEXT_PUBLIC_GOOGLE_ADS_LINE_CONVERSION_LABEL": "",
-    "LINE_CHAT_HISTORY_WORKER_URL": "https://siamrooftech-line-chat-history.phuthan-dev.workers.dev"
+    "LINE_CHAT_HISTORY_WORKER_URL": "https://siamrooftech-line-chat-history.doubledoors.workers.dev"
   },
   "observability": {
     "enabled": true,
@@ -87,13 +87,13 @@
         {
           "binding": "APP_DB",
           "database_name": "siamrooftech-cms-staging",
-          "database_id": "9a9be19b-990c-4e3b-bdae-fa5d9ba73716",
+          "database_id": "18e548a4-1fb5-4243-bcb7-d0fa045b9766",
           "migrations_dir": "drizzle/migrations"
         },
         {
           "binding": "NEXT_TAG_CACHE_D1",
           "database_name": "siamrooftech-cache-staging",
-          "database_id": "4332fbf7-cfb6-417a-8963-099d6ab726ba",
+          "database_id": "0a67d446-80ce-4a60-839d-c9ca2557671f",
           "migrations_dir": "drizzle/cache-migrations"
         }
       ],
@@ -145,13 +145,13 @@
         {
           "binding": "APP_DB",
           "database_name": "siamrooftech-cms-production",
-          "database_id": "f6518829-d104-49dc-b90c-f3a1f445882b",
+          "database_id": "313c98d1-1852-4222-94ae-f3f57d46f793",
           "migrations_dir": "drizzle/migrations"
         },
         {
           "binding": "NEXT_TAG_CACHE_D1",
           "database_name": "siamrooftech-cache-production",
-          "database_id": "4b2b8a5f-b12d-4beb-b575-b2cfdd5febb9",
+          "database_id": "f4c15b50-fe69-4b0a-93fc-4c8bd8250471",
           "migrations_dir": "drizzle/cache-migrations"
         }
       ],
@@ -190,7 +190,7 @@
         "NEXT_PUBLIC_GOOGLE_ADS_ID": "AW-18580306711",
         "NEXT_PUBLIC_GOOGLE_ADS_LINE_CONVERSION_LABEL": "sZCPCOnW_b0dEJf245tF",
         "NEXT_PUBLIC_OPENAI_PIXEL_ID": "CXx4Njj3BUmjXMcbnmRsdC",
-        "LINE_CHAT_HISTORY_WORKER_URL": "https://siamrooftech-line-chat-history.phuthan-dev.workers.dev"
+        "LINE_CHAT_HISTORY_WORKER_URL": "https://siamrooftech-line-chat-history.doubledoors.workers.dev"
       }
     }
   }

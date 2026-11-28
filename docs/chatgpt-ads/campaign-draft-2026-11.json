@@ -1,0 +1,123 @@
+{
+  "profile": "siamrooftech",
+  "status": "Proposed",
+  "notes": "Draft only. Electric/motorized awning only (owner decision 2026-11-18; no retractable/manual ad group). Not created in ads.openai.com. Conversion setting ID, daily budget in THB, and images are pending owner input. Starting price (15,000 THB) intentionally excluded this round (owner, 2026-11-18).",
+  "campaigns": [
+    {
+      "name": "SRT | ChatGPT | Conversions | Electric Awning | 2026-11",
+      "utm_campaign": "srt-chatgpt-conv-electric-2026-11",
+      "objective": "Conversions",
+      "optimization_event": "lead_created (Phase A: LINE CTA click via Pixel)",
+      "conversion_event_setting_ids": [
+        "PENDING_lead_created_setting_id"
+      ],
+      "bidding": "Intelligent Bidding, no Target CPA until real CPA data exists",
+      "daily_budget_usd": 25,
+      "geo": [
+        "TH"
+      ],
+      "ad_groups": [
+        {
+          "name": "SRT | Electric / Motorized Awning",
+          "utm_content": "ag-electric",
+          "context_hints": [
+            "เปรียบเทียบกันสาดพับเก็บได้ระบบมอเตอร์ไฟฟ้ากับระบบมือหมุนสำหรับหน้าบ้าน",
+            "กันสาดไฟฟ้ากับหลังคาโรงรถถาวรแบบไหนเหมาะกับบ้านทาวน์โฮม",
+            "กันสาดพับเก็บได้ไฟฟ้ากับหลังคาเมทัลชีทหรือโพลีคาร์บอเนตต่างกันอย่างไร",
+            "motorized retractable awning เทียบกับกันสาดถาวรสำหรับบ้านในกรุงเทพ",
+            "กันสาดอัตโนมัติมีเซ็นเซอร์วัดลมและแดดคุ้มค่าไหมเมื่อเทียบกับแบบรีโมท",
+            "หน้าบ้านโดนแดดบ่ายร้อนมากอยากได้กันสาดที่กดรีโมทกางและพับเก็บได้",
+            "อยากกันแดดกันฝนหน้าร้านคาเฟ่แต่ไม่อยากให้หน้าร้านมืดตลอดเวลา",
+            "ระเบียงหรือลานหน้าบ้านต้องการที่บังแดดที่พับเก็บได้เมื่อต้องการรับลม",
+            "ติดตั้งกันสาดไฟฟ้าหน้าสำนักงานหรือหน้าร้านให้ดูเรียบร้อยและปลอดภัย",
+            "ผนังบ้านแบบไหนติดตั้งกันสาดไฟฟ้าได้และต้องเดินสายไฟอย่างไรให้ปลอดภัย",
+            "ประเมินราคากันสาดพับเก็บได้ระบบมอเตอร์ไฟฟ้าตามขนาดหน้างานพร้อมติดตั้ง",
+            "กันสาดไฟฟ้าหน้ากว้าง 4 ถึง 6 เมตรราคาประมาณเท่าไหร่รวมค่าติดตั้ง",
+            "งบประมาณติดตั้งกันสาดอัตโนมัติพร้อมรีโมทสำหรับบ้านเดี่ยว",
+            "ค่าใช้จ่ายกันสาดไฟฟ้าผ้าอะคริลิคสั่งผลิตตามขนาดในกรุงเทพ",
+            "ร้านรับติดตั้งกันสาดไฟฟ้าในกรุงเทพที่สำรวจหน้างานก่อนเสนอราคา",
+            "ควรเช็คอะไรก่อนจ้างช่างติดตั้งกันสาดมอเตอร์ไฟฟ้า มอเตอร์ จุดยึด การรับประกัน",
+            "กันสาดไฟฟ้ายี่ห้อไหนดี รับประกันมอเตอร์กี่ปี และควรเลือกผ้าแบบไหน",
+            "หาผู้ติดตั้งกันสาดพับเก็บได้ระบบไฟฟ้าสำหรับคาเฟ่และร้านอาหาร",
+            "motorized awning installer Bangkok สำรวจหน้างานและประเมินราคาฟรี",
+            "เลือกผ้ากันสาดอะคริลิคกับผ้าใบทั่วไปสำหรับกันสาดไฟฟ้าแบบไหนทนกว่า"
+          ],
+          "ads": [
+            {
+              "angle": "warranty",
+              "claim_ids": [
+                "motor-warranty",
+                "free-quote",
+                "free-survey",
+                "test-before-handover",
+                "service-area-bkk-non-pathum"
+              ],
+              "copy_source": "copywriter-manager v2, owner-approved 2026-11-18",
+              "title": "กันสาดไฟฟ้า พร้อมประกันมอเตอร์",
+              "description": "ประกันมอเตอร์-ประเมินราคาฟรี-สำรวจหน้างาน-ทดสอบก่อนส่งมอบ กทม. นนทบุรี ปทุมธานี",
+              "image": {
+                "width": 1200,
+                "height": 1200
+              },
+              "image_source": "[NEED: 1200x1200 real install photo]",
+              "destination_url": "https://www.siamrooftech.com/lp/google-ads/electric-awning?utm_source=chatgpt&utm_medium=cpc&utm_campaign=srt-chatgpt-conv-electric-2026-11&utm_content=ag-electric"
+            },
+            {
+              "angle": "dual-system",
+              "claim_ids": [
+                "dual-system-model",
+                "assess-before-recommend",
+                "test-before-handover",
+                "10y-experience"
+              ],
+              "copy_source": "copywriter-manager v2, owner-approved 2026-11-18",
+              "title": "กันสาดไฟฟ้า สองระบบ ไฟฟ้า/มือหมุน",
+              "description": "เลือกระบบตามหน้างาน-เช็กโครงสร้าง-จุดไฟก่อนติดตั้ง-ทดสอบก่อนส่งมอบ ประสบการณ์กว่า 10 ปี",
+              "image": {
+                "width": 1200,
+                "height": 1200
+              },
+              "image_source": "[NEED: 1200x1200 real install photo]",
+              "destination_url": "https://www.siamrooftech.com/lp/google-ads/electric-awning?utm_source=chatgpt&utm_medium=cpc&utm_campaign=srt-chatgpt-conv-electric-2026-11&utm_content=ag-electric"
+            },
+            {
+              "angle": "proof",
+              "claim_ids": [
+                "real-projects",
+                "10y-experience",
+                "free-quote",
+                "service-area-bkk-non-pathum"
+              ],
+              "copy_source": "copywriter-manager v2, owner-approved 2026-11-18",
+              "title": "กันสาดไฟฟ้า ผลงานจริง 10 ปี+",
+              "description": "บ้าน-ทาวน์โฮม-ร้านอาหาร-คาเฟ่-สำนักงาน ดูผลงานติดตั้งจริง ประเมินราคาฟรี กทม. นนท์ ปทุม",
+              "image": {
+                "width": 1200,
+                "height": 1200
+              },
+              "image_source": "[NEED: 1200x1200 real install photo]",
+              "destination_url": "https://www.siamrooftech.com/lp/google-ads/electric-awning?utm_source=chatgpt&utm_medium=cpc&utm_campaign=srt-chatgpt-conv-electric-2026-11&utm_content=ag-electric"
+            },
+            {
+              "angle": "estimate",
+              "claim_ids": [
+                "line-photo-estimate",
+                "free-survey",
+                "wiring-layout"
+              ],
+              "copy_source": "copywriter-manager v2, owner-approved 2026-11-18",
+              "title": "กันสาดไฟฟ้า ส่งรูปประเมินราคาฟรี",
+              "description": "ส่งรูป-หน้ากว้าง-ระยะยื่นทาง LINE ประเมินเบื้องต้นฟรี นัดสำรวจหน้างาน ช่างวางแนวเดินสายไฟให้",
+              "image": {
+                "width": 1200,
+                "height": 1200
+              },
+              "image_source": "[NEED: 1200x1200 real install photo]",
+              "destination_url": "https://www.siamrooftech.com/lp/google-ads/electric-awning?utm_source=chatgpt&utm_medium=cpc&utm_campaign=srt-chatgpt-conv-electric-2026-11&utm_content=ag-electric"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
