@@ -17,7 +17,7 @@ interface __BaseEnv_CloudflareEnv {
 	NEXT_PUBLIC_GOOGLE_ADS_ID: "" | "AW-18580306711";
 	NEXT_PUBLIC_GOOGLE_ADS_LINE_CONVERSION_LABEL: "" | "sZCPCOnW_b0dEJf245tF";
 	NEXT_PUBLIC_OPENAI_PIXEL_ID?: "" | "CXx4Njj3BUmjXMcbnmRsdC";
-	LINE_CHAT_HISTORY_WORKER_URL: "" | "https://siamrooftech-line-chat-history.phuthan-dev.workers.dev";
+	LINE_CHAT_HISTORY_WORKER_URL: "" | "https://siamrooftech-line-chat-history.doubledoors.workers.dev";
 	BETTER_AUTH_SECRET: string;
 	BETTER_AUTH_URL: string;
 	ADMIN_ALLOWED_EMAILS: string;
@@ -65,7 +65,7 @@ declare namespace Cloudflare {
 		NEXT_PUBLIC_GOOGLE_ADS_ID: "AW-18580306711";
 		NEXT_PUBLIC_GOOGLE_ADS_LINE_CONVERSION_LABEL: "sZCPCOnW_b0dEJf245tF";
 		NEXT_PUBLIC_OPENAI_PIXEL_ID: "CXx4Njj3BUmjXMcbnmRsdC";
-		LINE_CHAT_HISTORY_WORKER_URL: "https://siamrooftech-line-chat-history.phuthan-dev.workers.dev";
+		LINE_CHAT_HISTORY_WORKER_URL: "https://siamrooftech-line-chat-history.doubledoors.workers.dev";
 		BETTER_AUTH_SECRET: string;
 		BETTER_AUTH_URL: string;
 		ADMIN_ALLOWED_EMAILS: string;

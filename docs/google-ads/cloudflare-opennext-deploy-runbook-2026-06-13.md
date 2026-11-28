@@ -109,7 +109,7 @@ Deploy วันที่: 2026-06-13
 - Traffic: 100%
 - Deploy source: `wrangler`
 - Deploy author observed: `yongmontha@gmail.com`
-- Workers.dev URL: `https://siamrooftech.phuthan-dev.workers.dev`
+- Workers.dev URL: `https://siamrooftech.doubledoors.workers.dev`
 
 Production QA:
 
