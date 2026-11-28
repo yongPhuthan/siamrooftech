@@ -1,7 +1,7 @@
 {
   "$schema": "../../node_modules/wrangler/config-schema.json",
   "name": "siamrooftech-line-chat-history",
-  "account_id": "a61f30bb027ef64c9577c73f5981f073",
+  "account_id": "7d77d1239789304d1351db90f4cc2686",
   "main": "src/index.ts",
   "compatibility_date": "2026-09-17",
   "compatibility_flags": [
@@ -16,7 +16,7 @@
     {
       "binding": "CHAT_DB",
       "database_name": "siamrooftech-line-chat",
-      "database_id": "7e5bdc15-53e4-4b87-b074-04b06308ff3b"
+      "database_id": "d2ec877f-815f-4bc8-890c-edc8af94e82b"
     }
   ],
   "r2_buckets": [
@@ -81,7 +81,7 @@
         {
           "binding": "CHAT_DB",
           "database_name": "siamrooftech-line-chat-staging",
-          "database_id": "bc85ebc5-9cec-44bc-ba18-5589dc0b76dc"
+          "database_id": "f2fc0fd7-670b-4f2c-8b6b-34d6e8d08e8b"
         }
       ],
       "r2_buckets": [
@@ -146,7 +146,7 @@
         {
           "binding": "CHAT_DB",
           "database_name": "siamrooftech-line-chat",
-          "database_id": "7e5bdc15-53e4-4b87-b074-04b06308ff3b"
+          "database_id": "d2ec877f-815f-4bc8-890c-edc8af94e82b"
         }
       ],
       "r2_buckets": [

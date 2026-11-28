@@ -16,10 +16,9 @@ Production `https://www.siamrooftech.com/`:
 
 Cloudflare account ที่เป็น production path:
 
-- Account: `Siamrooftech`
-- Account ID: `a61f30bb027ef64c9577c73f5981f073`
-- Zone: `siamrooftech.com`
-- Zone ID: `cd352a5b3b39fbdb34939be1d9248050`
+- Account: `Proworkz Agency` (moved from the `Siamrooftech` account in 2026-11 so one Workers Paid plan covers the owner's sites)
+- Account ID: `7d77d1239789304d1351db90f4cc2686`
+- Zone: `siamrooftech.com` (the zone ID changes when the zone moves; read it from the dashboard)
 - Worker: `siamrooftech`
 - Worker custom domains:
   - `www.siamrooftech.com`

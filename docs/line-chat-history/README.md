@@ -19,7 +19,7 @@ eat a webhook's POST body. Bundling the webhook into that Worker would also
 tie its cold-start and blast radius to the SSR site. So
 `workers/line-chat-history/` is its own Worker
 (`siamrooftech-line-chat-history`), pinned to the same Cloudflare account
-(`a61f30bb027ef64c9577c73f5981f073` — see the deploy runbook's warning about
+(`7d77d1239789304d1351db90f4cc2686` — see the deploy runbook's warning about
 a duplicate `siamrooftech`-named Worker in a different account) but deployed
 and versioned independently. See [workers/line-chat-history/README.md](../../workers/line-chat-history/README.md)
 for local dev and deploy commands.
