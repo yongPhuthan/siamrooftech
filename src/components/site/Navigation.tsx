@@ -41,7 +41,7 @@ export default function Navigation() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-20 items-center justify-between lg:h-24">
           <Link href="/" className="flex items-center gap-3" aria-label="สยามรูฟเทค หน้าแรก">
-            <Image src="/images/logo/IMG_1149.jpg" alt="" width={800} height={303} className="h-10 w-auto animate-logo-slide-in rounded-lg object-contain sm:h-14 lg:h-16" priority />
+            <Image src="/images/logo/IMG_1149.webp" alt="" width={800} height={303} className="h-10 w-auto animate-logo-slide-in rounded-lg object-contain sm:h-14 lg:h-16" priority />
           </Link>
           <div className="hidden items-center gap-1 lg:flex">
             {showNavLinks && navItems.map((item) => (

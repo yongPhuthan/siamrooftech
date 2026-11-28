@@ -41,6 +41,7 @@
     "cf:preview": "opennextjs-cloudflare build && node scripts/preview-cms.mjs",
     "cf:deploy": "node scripts/refuse-direct-deploy.mjs",
     "deployment:policy": "node scripts/deployment-policy.mjs --check",
+    "image:policy": "node scripts/image-policy.mjs",
     "cf:check": "npm run type-check && npm run build && npm run cf:build",
     "line:dev": "wrangler dev --env local --config workers/line-chat-history/wrangler.jsonc --port 8788",
     "line:deploy": "node scripts/refuse-direct-deploy.mjs",

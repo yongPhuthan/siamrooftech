@@ -17,7 +17,7 @@ export const metadata: Metadata = {
     title: 'ติดต่อเรา - กันสาดพับเก็บได้ | สยามรูฟเทค',
     description: 'ติดต่อสยามรูฟเทคเพื่อปรึกษาและขอใบเสนอราคากันสาดพับเก็บได้ ในกรุงเทพและปริมณฑลใกล้เคียง',
     url: canonicalUrl('/contact'),
-    images: ['/images/contact-hero.jpg'],
+    images: ['https://assets.siamrooftech.com/site/awning-house.webp'],
   },
 };
 

@@ -320,7 +320,7 @@ export async function ElectricAwningAdsLanding({ source }: { source: ElectricAwn
         <div className="mx-auto grid max-w-7xl gap-10 px-4 py-16 sm:px-6 lg:grid-cols-[1.02fr_0.98fr] lg:items-center lg:gap-16 lg:px-8 lg:py-20">
           <figure className="overflow-hidden bg-neutral-100">
             <Image
-              src="/images/landing/electric-awning/1655271700225.jpg"
+              src="/images/landing/electric-awning/1655271700225.webp"
               alt="กันสาดไฟฟ้าติดตั้งหน้าร้านค้าในย่านชุมชน"
               width={750}
               height={750}

@@ -14,7 +14,7 @@ export default function ArticleCard({ article }: { article: ArticleSnapshot }) {
     <Link href={articlePath(metadata.slug)} className="group block">
       <PublicCard variant="interactive" className="h-full overflow-hidden">
         <div className="relative aspect-[4/3] bg-slate-100">
-          <Image src={metadata.coverImage || '/images/default-article.jpg'} alt={metadata.coverAlt || ''} fill sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" className="object-cover transition-transform duration-200 group-hover:scale-[1.02]" />
+          <Image src={metadata.coverImage || '/images/default-article.webp'} alt={metadata.coverAlt || ''} fill sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" className="object-cover transition-transform duration-200 group-hover:scale-[1.02]" />
           <span className="absolute left-3 top-3"><PublicBadge tone="brand">{metadata.category}</PublicBadge></span>
         </div>
         <div className="space-y-3 p-5">

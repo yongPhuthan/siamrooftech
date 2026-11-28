@@ -65,7 +65,7 @@ function toServiceProofProject(project: Project): ServiceProofProject {
     id: project.id,
     title,
     href: getProjectPath(project) ?? '/projects',
-    image: projectCover(project) || '/images/default-project.jpg',
+    image: projectCover(project) || '/images/default-project.webp',
     imageAlt: cover?.alt_text || projectHeading(project),
     chips: project.type ? [project.type] : [],
   };
